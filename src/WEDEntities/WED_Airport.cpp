@@ -496,9 +496,9 @@ void 			WED_Airport::AddExtraXML(WED_XMLElement * obj)
 		WED_XMLElement * c = xml->add_sub_element("meta_data_entry");
 		
 		//Due to the fact we don't know what meta_data key we're going to have
-		//We have to save it as "std::pair","FAA,BDL". Sadly, its not a one to one mapping
+		//We have to save it as "pair","FAA,BDL". Sadly, its not a one to one mapping
 		//of Data Structure and Data Format, and is a bit redundant
-		c->add_attr_stl_str("std::pair", i->first + "," + i->second);
+		c->add_attr_stl_str("pair", i->first + "," + i->second);
 	}
 }
 
@@ -509,7 +509,7 @@ void			WED_Airport::StartElement(
 {
 	if(strcmp(name,"meta_data_entry") == 0)
 	{
-		const XML_Char * entry_value = get_att("std::pair",atts);
+		const XML_Char * entry_value = get_att("pair",atts);
 		if(entry_value != NULL)
 		{
 			//Will be something like "name_es, Talavera la Real Badajoz Airport"
@@ -521,7 +521,7 @@ void			WED_Airport::StartElement(
 		}
 		else
 		{
-			reader->FailWithError("Attribute std::pair is missing from meta_data_entry element");
+			reader->FailWithError("Attribute pair is missing from meta_data_entry element");
 		}
 	}
 	else
