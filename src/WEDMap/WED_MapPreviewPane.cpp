@@ -117,8 +117,8 @@ WED_MapPreviewPane::WED_MapPreviewPane(GUI_Commander * cmdr, WED_Document * docu
 	  mYaw(0.f),
 	  mPitch(-10.f)
 {
-	// We set up the WED_MapZoomerNew as follows:
-	// - The "ppm" value is set to 1, so "pixels" correspond to meters.
+	// We std::set up the WED_MapZoomerNew as follows:
+	// - The "ppm" value is std::set to 1, so "pixels" correspond to meters.
 	// - The "pixel center" position is always at 0, 0. This implies that the
 	//   "lat/lon center" position always maps to OpenGL coordinates of 0, 0.
 
@@ -277,8 +277,8 @@ int	WED_MapPreviewPane::MouseDown(int x, int y, int button)
 
 static bool IntersectGroundPlane(const Point3& origin, const Vector3& dir, Point3 * intersection)
 {
-	// There's obviously no intersection if the direction vector points away from the ground.
-	// However, we also refuse to produce an intersection if the direction vector points towards
+	// There's obviously no intersection if the direction std::vector points away from the ground.
+	// However, we also refuse to produce an intersection if the direction std::vector points towards
 	// the ground at a very shallow angle, as this will produce an intersection far away from the
 	// camera, which produces larger movements than the user likely expects.
 	if (dir.dz > -0.05)

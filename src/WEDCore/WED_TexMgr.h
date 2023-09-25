@@ -29,7 +29,7 @@
 class WED_TexMgr : public virtual ITexMgr {
 public:
 
-						 WED_TexMgr(const string& package);
+						 WED_TexMgr(const std::string& package);
 	virtual				~WED_TexMgr();
 
 	virtual	TexRef		LookupTexture(const char * path, bool is_absolute, int flags);
@@ -57,11 +57,11 @@ private:
 		int			org_y;
 	};
 
-	typedef map<string,TexInfo *>	TexMap;
+	typedef std::map<std::string,TexInfo *>	TexMap;
 
 	TexMap mTexes;
 
-	string	mPackage;
+	std::string	mPackage;
 
 	TexInfo *	LoadTexture(const char * path, bool is_absolute, int flags);
 

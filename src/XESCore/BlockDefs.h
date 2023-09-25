@@ -100,7 +100,7 @@ struct block_pt {
 	bool			antenna;		// Is the side whose SOURCE is this pt an antenna?
 	bool			discon;			// Discontinuity in road or edge type - requires a "hard cap" between this segment and the next one.
 	bool			reflex;
-	pair<int,bool>	edge_type;		// Edge type OUTGOING from this point.  Flag is true if reversed (twin is source)
+	std::pair<int,bool>	edge_type;		// Edge type OUTGOING from this point.  Flag is true if reversed (twin is source)
 	EdgeRule_t *	edge_rule;		// AG rule for side outgoing or null if no AG.
 	float			dot;
 	Halfedge_handle	orig;

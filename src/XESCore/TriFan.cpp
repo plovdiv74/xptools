@@ -31,7 +31,7 @@ TriFanBuilder::~TriFanBuilder()
 {
 }
 
-int			TriFanBuilder::GetNextPrimitive(list<CDT::Vertex_handle>& out_handles)
+int			TriFanBuilder::GetNextPrimitive(std::list<CDT::Vertex_handle>& out_handles)
 {
 	out_handles.clear();
 	GetNextTriFan(out_handles);
@@ -54,12 +54,12 @@ void		TriFanBuilder::CalcFans(void)
 {
 }
 
-void		TriFanBuilder::GetNextTriFan(list<CDT::Vertex_handle>& out_handles)
+void		TriFanBuilder::GetNextTriFan(std::list<CDT::Vertex_handle>& out_handles)
 {
 	out_handles.clear();
 }
 
-void		TriFanBuilder::GetRemainingTriangles(list<CDT::Vertex_handle>& out_handles)
+void		TriFanBuilder::GetRemainingTriangles(std::list<CDT::Vertex_handle>& out_handles)
 {
 	out_handles.clear();
 	for(vector<CDT::Face_handle>::iterator f = faces.begin(); f != faces.end(); ++f)
@@ -80,7 +80,7 @@ void		TriFanBuilder::Validate(void)
 void		TriFanBuilder::AddTriToFanPool(CDT::Face_handle inFace)
 {
 //	if (inFace->info().flag)
-//		printf("WARNING: flag is NOT set up right.\n");
+//		printf("WARNING: flag is NOT std::set up right.\n");
 	inFace->info().flag = true;
 	vertices.insert(inFace->vertex(0));
 	vertices.insert(inFace->vertex(1));
@@ -90,7 +90,7 @@ void		TriFanBuilder::AddTriToFanPool(CDT::Face_handle inFace)
 
 void		TriFanBuilder::CalcFans(void)
 {
-	for (set<CDT::Vertex_handle>::iterator v = vertices.begin(); v != vertices.end(); ++v)
+	for (std::set<CDT::Vertex_handle>::iterator v = vertices.begin(); v != vertices.end(); ++v)
 	{
 		CDT::Face_circulator	stop, f;
 		stop = f = mesh->incident_faces(*v);
@@ -139,9 +139,9 @@ TriFan_t *		TriFanBuilder::GetNextFan(void)
 #endif
 	TriFan_t *	best = i->second;
 	queue.erase(i);
-	for (list<CDT::Face_handle>::iterator f = best->faces.begin(); f != best->faces.end(); ++f)
+	for (std::list<CDT::Face_handle>::iterator f = best->faces.begin(); f != best->faces.end(); ++f)
 	{
-		pair<TriFanTable::iterator,TriFanTable::iterator> range = index.equal_range(*f);
+		std::pair<TriFanTable::iterator,TriFanTable::iterator> range = index.equal_range(*f);
 		for (TriFanTable::iterator k = range.first; k != range.second; ++k)
 		{
 			if (k->second != best)
@@ -157,7 +157,7 @@ TriFan_t *		TriFanBuilder::GetNextFan(void)
 
 void			TriFanBuilder::DoneWithFan(TriFan_t * inFan)
 {
-	for (list<CDT::Face_handle>::iterator f = inFan->faces.begin(); f != inFan->faces.end(); ++f)
+	for (std::list<CDT::Face_handle>::iterator f = inFan->faces.begin(); f != inFan->faces.end(); ++f)
 	{
 #if DEV
 		if (!(*f)->info().flag)
@@ -199,7 +199,7 @@ CDT::Face_handle 	TriFanBuilder::GetNextRemainingTriangle(void)
 	return ff;
 }
 
-int			TriFanBuilder::GetNextPrimitive(list<CDT::Vertex_handle>& out_handles)
+int			TriFanBuilder::GetNextPrimitive(std::list<CDT::Vertex_handle>& out_handles)
 {
 	out_handles.clear();
 	GetNextTriFan(out_handles);
@@ -210,7 +210,7 @@ int			TriFanBuilder::GetNextPrimitive(list<CDT::Vertex_handle>& out_handles)
 }
 
 
-void		TriFanBuilder::GetNextTriFan(list<CDT::Vertex_handle>& out_handles)
+void		TriFanBuilder::GetNextTriFan(std::list<CDT::Vertex_handle>& out_handles)
 {
 	out_handles.clear();
 	TriFan_t * fan = GetNextFan();
@@ -219,7 +219,7 @@ void		TriFanBuilder::GetNextTriFan(list<CDT::Vertex_handle>& out_handles)
 		out_handles.push_back(fan->center);
 		CDT::Vertex_handle avert = (*fan->faces.begin())->vertex(CDT::cw((*fan->faces.begin())->index(fan->center)));
 		out_handles.push_back(avert);
-		for (list<CDT::Face_handle>::iterator nf = fan->faces.begin(); nf != fan->faces.end(); ++nf)
+		for (std::list<CDT::Face_handle>::iterator nf = fan->faces.begin(); nf != fan->faces.end(); ++nf)
 		{
 			avert = (*nf)->vertex(CDT::ccw((*nf)->index(fan->center)));
 			out_handles.push_back(avert);
@@ -228,7 +228,7 @@ void		TriFanBuilder::GetNextTriFan(list<CDT::Vertex_handle>& out_handles)
 	}
 }
 
-void		TriFanBuilder::GetRemainingTriangles(list<CDT::Vertex_handle>& out_handles)
+void		TriFanBuilder::GetRemainingTriangles(std::list<CDT::Vertex_handle>& out_handles)
 {
 	out_handles.clear();
 	CDT::Face_handle	f;
@@ -277,7 +277,7 @@ void TriFanBuilder::PullFaceFromFan(CDT::Face_handle f, TriFan_t * victim)
 	{
 		victim->faces.pop_back();
 	} else {
-		list<CDT::Face_handle>::iterator i = find(victim->faces.begin(), victim->faces.end(), f);
+		std::list<CDT::Face_handle>::iterator i = find(victim->faces.begin(), victim->faces.end(), f);
 #if !DEV
 		if (i == victim->faces.end()) return;
 #endif
@@ -290,9 +290,9 @@ void TriFanBuilder::PullFaceFromFan(CDT::Face_handle f, TriFan_t * victim)
 		new_fan->self = queue.insert(TriFanQueue::value_type(new_fan->faces.size(), new_fan));
 
 		// This is a huge pain, we have to migrate our index. :-(
-		for (list<CDT::Face_handle>::iterator m = new_fan->faces.begin(); m != new_fan->faces.end(); ++m)
+		for (std::list<CDT::Face_handle>::iterator m = new_fan->faces.begin(); m != new_fan->faces.end(); ++m)
 		{
-			pair<TriFanTable::iterator,TriFanTable::iterator> r = index.equal_range(*m);
+			std::pair<TriFanTable::iterator,TriFanTable::iterator> r = index.equal_range(*m);
 			for (TriFanTable::iterator e = r.first; e != r.second; ++e)
 			{
 				if (e->second == victim) e->second = new_fan;
@@ -311,8 +311,8 @@ void TriFanBuilder::PullFaceFromFan(CDT::Face_handle f, TriFan_t * victim)
 
 void				TriFanBuilder::Validate(void)
 {
-	set<TriFan_t *>			fans;
-	set<CDT::Face_handle>	tris;
+	std::set<TriFan_t *>			fans;
+	std::set<CDT::Face_handle>	tris;
 	for (TriFanQueue::iterator q = queue.begin(); q != queue.end(); ++q)
 	{
 		if (q->first < 1)
@@ -320,7 +320,7 @@ void				TriFanBuilder::Validate(void)
 		if (q->first != q->second->faces.size())
 			printf("VALIDATION FAILED: element not indexed by its valence!\n");
 		fans.insert(q->second);
-		for (list<CDT::Face_handle>::iterator l = q->second->faces.begin(); l != q->second->faces.end(); ++l)
+		for (std::list<CDT::Face_handle>::iterator l = q->second->faces.begin(); l != q->second->faces.end(); ++l)
 			tris.insert(*l);
 	}
 
@@ -330,12 +330,12 @@ void				TriFanBuilder::Validate(void)
 			printf("VALIDATION FAILED: tri index table references a fan that is AWOL.\n");
 	}
 
-	for (set<TriFan_t *>::iterator fan = fans.begin(); fan != fans.end(); ++fan)
+	for (std::set<TriFan_t *>::iterator fan = fans.begin(); fan != fans.end(); ++fan)
 	{
-		for (list<CDT::Face_handle>::iterator f = (*fan)->faces.begin(); f != (*fan)->faces.end(); ++f)
+		for (std::list<CDT::Face_handle>::iterator f = (*fan)->faces.begin(); f != (*fan)->faces.end(); ++f)
 		{
 			bool	found = false;
-			pair<TriFanTable::iterator,TriFanTable::iterator> p = index.equal_range(*f);
+			std::pair<TriFanTable::iterator,TriFanTable::iterator> p = index.equal_range(*f);
 			for (TriFanTable::iterator pp = p.first; pp != p.second; ++pp)
 			{
 				if (pp->second == *fan) found = true;

@@ -98,7 +98,7 @@ void	WED_ATCFlow::GetNthPropertyDict(int n, PropertyDict_t& dict) const
 		{
 			PropertyDict_t full;
 			WED_Thing::GetNthPropertyDict(n,full);			
-			set<int> legal;
+			std::set<int> legal;
 			WED_GetAllRunwaysOneway(airport, legal);
 			legal.insert(pattern_rwy.value);
 			dict.clear();

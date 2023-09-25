@@ -33,14 +33,14 @@
  * BEZIER HANDLING FOR AIRPORT LAYOUTS
  ***************************************************************************************************************************************/
 
-// A bezier iterator is a forward iterator whose return type is pair<Point2, int>. (-1 for prev ctrl, 1 for next ctrl)
+// A bezier iterator is a forward iterator whose return type is std::pair<Point2, int>. (-1 for prev ctrl, 1 for next ctrl)
 // operator() returns attributes for the current curve side we are on.
 // In their output form we always have chains - a ring is just a chain with a repeated 
 // endpoint.  The first and last points output must be non-ctrl points!
 
 struct AptPolygonIterator {
 
-	typedef	set<int>			attribute_type;
+	typedef	std::set<int>			attribute_type;
 
 	AptPolygonIterator();
 	AptPolygonIterator(const AptPolygonIterator& rhs);
@@ -51,9 +51,9 @@ struct AptPolygonIterator {
 	bool operator==(const AptPolygonIterator& rhs) const;
 	bool operator!=(const AptPolygonIterator& rhs) const;
 	
-	pair<Point2, int>	operator*(void) const;
+	std::pair<Point2, int>	operator*(void) const;
 	
-	set<int> operator()(void) const;
+	std::set<int> operator()(void) const;
 	
 	AptPolygonIterator operator++(int);
 	AptPolygonIterator& operator++(void);
@@ -94,7 +94,7 @@ void apt_make_map_from_polygons(
 					const vector<Polygon2>&			pavement,
 					Polygon_set_2&					out_map);
 
-// Given a polygon_set_2 of pavement area, this cuts it at every X x Y degrees and returns a map with "contained" set for all airport areas.
+// Given a polygon_set_2 of pavement area, this cuts it at every X x Y degrees and returns a map with "contained" std::set for all airport areas.
 void apt_make_cut_map(Polygon_set_2& in_area, Pmwx& out_map, double cut_x, double cut_y);
 
 // Get all of the points of interest for a layout...gates, runway ends, etc.
@@ -102,7 +102,7 @@ void GetAptPOI(const AptInfo_t * a, vector<Point2>& poi);
 
 // Indexing
 void	IndexAirports(const AptVector& apts, AptIndex& index);
-void	FindAirports(const Bbox2& bounds, const AptIndex& index, set<int>& apts);
+void	FindAirports(const Bbox2& bounds, const AptIndex& index, std::set<int>& apts);
 
 
 /***************************************************************************************************************************************

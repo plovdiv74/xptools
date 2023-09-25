@@ -15,12 +15,12 @@
 
 /*
 00000000  -  End of data
-00000001 U U  -  Uncompressed, reset dic, need reset state and set new prop
+00000001 U U  -  Uncompressed, reset dic, need reset state and std::set new prop
 00000010 U U  -  Uncompressed, no reset
 100uuuuu U U P P  -  LZMA, no reset
 101uuuuu U U P P  -  LZMA, reset state
-110uuuuu U U P P S  -  LZMA, reset state + set new prop
-111uuuuu U U P P S  -  LZMA, reset state + set new prop, reset dic
+110uuuuu U U P P S  -  LZMA, reset state + std::set new prop
+111uuuuu U U P P S  -  LZMA, reset state + std::set new prop, reset dic
 
   u, U - Unpack Size
   P - Pack Size

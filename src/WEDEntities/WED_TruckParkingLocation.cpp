@@ -28,7 +28,7 @@ WED_TruckParkingLocation::~WED_TruckParkingLocation()
 
 void	WED_TruckParkingLocation::SetTruckType(int truckType) { truck_type = truckType; }
 int		WED_TruckParkingLocation::GetTruckType(void) const { return truck_type.value; }
-string	WED_TruckParkingLocation::GetTruckCustom(void) const { return custom_vehicle.value; }
+std::string	WED_TruckParkingLocation::GetTruckCustom(void) const { return custom_vehicle.value; }
 
 void	WED_TruckParkingLocation::SetNumberOfCars(int numberOfCars) { number_of_cars = numberOfCars; }
 int		WED_TruckParkingLocation::GetNumberOfCars(void) const { return number_of_cars.value; }

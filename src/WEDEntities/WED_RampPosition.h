@@ -35,19 +35,19 @@ DECLARE_PERSISTENT(WED_RampPosition)
 public:
 
 	void	SetType(int		ramp_type);
-	void	SetEquipment(const set<int>&	et);
+	void	SetEquipment(const std::set<int>&	et);
 	void	SetWidth(int		width);
 	void	SetRampOperationType(int ait);
-	void	SetAirlines(const string& airlines);
+	void	SetAirlines(const std::string& airlines);
 
-	string  GetAirlines() const;
+	std::string  GetAirlines() const;
 	int		GetType() const;
 	int		GetWidth() const;
 	void	GetTips(Point2 c[4]) const;              // nose, tail, both wing tips. Takes heading, siize and offset(type=misc) into account
-	void	GetEquipment(set<int>& out_eq) const;
+	void	GetEquipment(std::set<int>& out_eq) const;
 	int		GetRampOperationType() const;
 	
-	static string CorrectAirlinesString(const string &a);
+	static std::string CorrectAirlinesString(const std::string &a);
 
 	void	Import(const AptGate_t& x, void (* print_func)(void *, const char *, ...), void * ref);
 	void	Export(		 AptGate_t& x) const;

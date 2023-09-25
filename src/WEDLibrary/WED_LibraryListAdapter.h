@@ -41,7 +41,7 @@ public:
 	virtual			~WED_LibraryListAdapter();
 
 			void	SetMap(WED_MapPane * amap, WED_LibraryPreviewPane * apreview);
-			void	SetFilter(const string& filter, int int_val);
+			void	SetFilter(const std::string& filter, int int_val);
 
 	// GUI_TextTableProvider
 	virtual void	GetCellContent(
@@ -178,14 +178,14 @@ private:
 		* all other methods until data is needed from the library manager or other special clauses.
 		* It is especially used in drawing.
 		*
-		* How do I transform the strings and get/set their data? Also when should I do that?
+		* How do I transform the strings and get/std::set their data? Also when should I do that?
 		*	 
 		*	Good news is that it is mostly done for you! In Rebuild Cache it produces all the strings
 		* with the prefix attached and calculates the position of what indexs in the Vector mCache
-		* are where mLocalStr and mLibraryStr are. Instead of saying string path= mCache[index] it is
+		* are where mLocalStr and mLibraryStr are. Instead of saying std::string path= mCache[index] it is
 		* best to use the method GetNthCacheIndex. GetNth, for short, handles the adding and removing
 		* of the prefix data for you. Just pass in the index and whether or not you want the prefix
-		* and it will return a string for you*
+		* and it will return a std::string for you*
 		*
 		*	It is extremely recommended that you DO NOT change mCache itself or handle getting that data yourself
 		* because the system is very tightly wound up with proper placement of /'s and careful adding and removing
@@ -202,32 +202,32 @@ private:
 		*String| Local/ or Library/    | Local or Library   | Buildings/FoodStands/RustBurger.obj | Local/Buildings/FoodStands/RustBurger.obj|
 		* Use  | mCache,mSel           | Drawing            | Library Manager, reasource lookup   | Drawing, mCache, mSel                    |
 		* Get  | mCatLocInd, mCatLibInd| GetNth(index, true)| GetNth(index, true)                 | GetNth(index, false)                     |
-		* Set  | RebuildCache()        | Constructor        | LibraryManager(from your HDD)       | Manually change string (Danger)          |
+		* Set  | RebuildCache()        | Constructor        | LibraryManager(from your HDD)       | Manually change std::string (Danger)          |
 		*
 		* Common trouble shooting tip: If something is not working it means you have added/not added the prefix propperly, 
 		* forgot it, or forgot to reset it.
 		*/
 		void	RebuildCache();
-		void	RebuildCacheRecursive(const string& vdir, int packType, const string& prefix);
+		void	RebuildCacheRecursive(const std::string& vdir, int packType, const std::string& prefix);
 		void	FilterCache();
 
-		void	SetSel(const string& s, const string& noPrefix);
-		string GetNthCacheIndex (int index, bool noPrefix);
+		void	SetSel(const std::string& s, const std::string& noPrefix);
+		std::string GetNthCacheIndex (int index, bool noPrefix);
 
 		struct cache_t {
-			string vpath;
+			std::string vpath;
 			unsigned isDir : 1, isOpen : 1, hasSeasons : 1, hasRegions : 1, variants : 1;
-			cache_t(string s) : vpath(s), isDir(0), isOpen(0), hasSeasons(0), hasRegions(0), variants(0) {};
+			cache_t(std::string s) : vpath(s), isDir(0), isOpen(0), hasSeasons(0), hasRegions(0), variants(0) {};
 		};
-		vector<cache_t>		mCache, newCache;
+		std::vector<cache_t>		mCache, newCache;
 
 		bool					mCacheValid;
 		
 		int						mCurPakVal;
-		//A string to switch library panes with
+		//A std::string to switch library panes with
 		//Possible values Local or Library, listed below;
-		string					mLocalStr;
-		string					mLibraryStr;
+		std::string					mLocalStr;
+		std::string					mLibraryStr;
 
 		//Index of Local/ in mCache
 		int						mCatLocInd;
@@ -235,13 +235,13 @@ private:
 		int						mCatLibInd;
 
 		//A collection of strings for the filter to be checked against
-		vector<string>			mFilter;
+		std::vector<std::string>			mFilter;
 		bool					mFilterChanged;
 
-		string					mCurkPak;
+		std::string					mCurkPak;
 		
 		WED_LibraryMgr *		mLibrary;
-		string					mSel;
+		std::string					mSel;
 
 		WED_MapPane				* mMap;
 		WED_LibraryPreviewPane	* mPreview;

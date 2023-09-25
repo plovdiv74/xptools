@@ -26,7 +26,7 @@
 
 /*
 
-	These interfaces map subcomponents by string keys - sort of a hash-table of containment.
+	These interfaces map subcomponents by std::string keys - sort of a hash-table of containment.
 
 */
 

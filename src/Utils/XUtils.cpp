@@ -90,7 +90,7 @@ void	StTextFileScanner::next()
 	read_next();
 }
 
-string	StTextFileScanner::get()
+std::string	StTextFileScanner::get()
 {
 	return mBuf;
 }
@@ -124,37 +124,37 @@ void	StTextFileScanner::read_next(void)
 	}
 }
 
-void	BreakString(const string& line, vector<string>& words)
+void	BreakString(const std::string& line, std::vector<std::string>& words)
 {
 	words.clear();
-	string::const_iterator i = line.begin();
+	std::string::const_iterator i = line.begin();
 	while (i < line.end())
 	{
-		string::const_iterator s = i;
+		std::string::const_iterator s = i;
 		while (s < line.end() && isspace(*s))
 			++s;
 
-		string::const_iterator e = s;
+		std::string::const_iterator e = s;
 		while (e < line.end() && !isspace(*e))
 			++e;
 
 		if (s < e)
-			words.push_back(string(s,e));
+			words.push_back(std::string(s,e));
 
 		i = e;
 	}
 }
 
-void	StringToUpper(string& s)
+void	StringToUpper(std::string& s)
 {
-	for (string::iterator i = s.begin(); i != s.end(); ++i)
+	for (std::string::iterator i = s.begin(); i != s.end(); ++i)
 		*i = toupper(*i);
 }
 
-bool	HasExtNoCase(const string& inStr, const char * inExt)
+bool	HasExtNoCase(const std::string& inStr, const char * inExt)
 {
-	string s(inStr);
-	string e(inExt);
+	std::string s(inStr);
+	std::string e(inExt);
 	StringToUpper(s);
 	StringToUpper(e);
 
@@ -165,7 +165,7 @@ bool	HasExtNoCase(const string& inStr, const char * inExt)
 }
 
 
-bool	GetNextNoComments(StTextFileScanner& f, string& s)
+bool	GetNextNoComments(StTextFileScanner& f, std::string& s)
 {
 	while(!f.done())
 	{
@@ -178,7 +178,7 @@ bool	GetNextNoComments(StTextFileScanner& f, string& s)
 }
 
 
-int		PickRandom(vector<double>& chances)
+int		PickRandom(std::vector<double>& chances)
 {
 	double	v = (double) (rand() % RAND_MAX) / (double) RAND_MAX;
 
@@ -216,16 +216,16 @@ double	RandRangeBias(double mmin, double mmax, double biasRatio, double randomAm
 }
 
 
-void		StripPath(string& ioPath)
+void		StripPath(std::string& ioPath)
 {
-	string::size_type sep = ioPath.rfind(DIR_CHAR);
+	std::string::size_type sep = ioPath.rfind(DIR_CHAR);
 	if (sep != ioPath.npos)
 		ioPath = ioPath.substr(sep+1,ioPath.npos);
 }
 
-void		StripPathCP(string& ioPath)
+void		StripPathCP(std::string& ioPath)
 {
-	string::size_type sep;
+	std::string::size_type sep;
 	sep = ioPath.rfind(':');
 	if (sep != ioPath.npos)
 		ioPath = ioPath.substr(sep+1,ioPath.npos);
@@ -237,19 +237,19 @@ void		StripPathCP(string& ioPath)
 		ioPath = ioPath.substr(sep+1,ioPath.npos);
 }
 
-void		ExtractPath(string& ioPath)
+void		ExtractPath(std::string& ioPath)
 {
-	string::size_type sep = ioPath.rfind(DIR_CHAR);
+	std::string::size_type sep = ioPath.rfind(DIR_CHAR);
 	if (sep != ioPath.npos)
 		ioPath = ioPath.substr(0, sep);
 }
 
 
 void	ExtractFixedRecordString(
-				const string&		inLine,
+				const std::string&		inLine,
 				int					inBegin,
 				int					inEnd,
-				string&				outString)
+				std::string&				outString)
 {
 	int	sp = inBegin-1;
 	int ep = inEnd;
@@ -266,12 +266,12 @@ void	ExtractFixedRecordString(
 }
 
 bool	ExtractFixedRecordLong(
-				const string&		inLine,
+				const std::string&		inLine,
 				int					inBegin,
 				int					inEnd,
 				long&				outLong)
 {
-	string	foo;
+	std::string	foo;
 	ExtractFixedRecordString(inLine, inBegin, inEnd, foo);
 	if (foo.empty())	return false;
 	outLong = strtol(foo.c_str(), NULL, 10);
@@ -279,12 +279,12 @@ bool	ExtractFixedRecordLong(
 }
 
 bool	ExtractFixedRecordUnsignedLong(
-				const string&		inLine,
+				const std::string&		inLine,
 				int					inBegin,
 				int					inEnd,
 				unsigned long&		outUnsignedLong)
 {
-	string	foo;
+	std::string	foo;
 	ExtractFixedRecordString(inLine, inBegin, inEnd, foo);
 	if (foo.empty())	return false;
 	outUnsignedLong = strtoul(foo.c_str(), NULL, 10);
@@ -299,8 +299,8 @@ struct	XPointPool::XPointPoolImp {
 		float xyz[3];
 		float st[2];
 	};
-	vector<p_info>			pts;
-	map<string, int>	index;
+	std::vector<p_info>			pts;
+	std::map<std::string, int>	index;
 
 	void	clear()
 	{
@@ -322,14 +322,14 @@ struct	XPointPool::XPointPoolImp {
 			*(reinterpret_cast<const int*>(xyz+2)),
 			*(reinterpret_cast<const int*>(st +0)),
 			*(reinterpret_cast<const int*>(st +1)));
-		string	key(buf);
-		map<string, int>::iterator i = index.find(key);
+		std::string	key(buf);
+		std::map<std::string, int>::iterator i = index.find(key);
 		if (i != index.end()) return i->second;
 		p_info	p;
 		memcpy(p.xyz, xyz, sizeof(p.xyz));
 		memcpy(p.st, st, sizeof(p.st));
 		pts.push_back(p);
-		index.insert(map<string,int>::value_type(key, (int)pts.size()));
+		index.insert(std::map<std::string,int>::value_type(key, (int)pts.size()));
 		pts.push_back(p);
 		return pts.size()-1;
 	}

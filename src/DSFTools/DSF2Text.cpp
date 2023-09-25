@@ -39,8 +39,8 @@ static int count_obj = 0;
 static int count_pol = 0;
 static int count_net = 0;
 
-string			base_name;
-list<string>	dem_names;
+std::string			base_name;
+list<std::string>	dem_names;
 
 
 
@@ -259,7 +259,7 @@ void DSF2Text_AddRaterData(
 
 	if(!base_name.empty() && !dem_names.empty())
 	{
-		string demp(base_name);
+		std::string demp(base_name);
 		demp += ".";
 		demp += dem_names.front();
 		demp += ".raw";
@@ -402,7 +402,7 @@ static bool Text2DSFWithWriterAny(const char * inFileName, const char * inDSF, D
 
 	int props_got = 0;
 
-	vector<pair<string, string> >		properties;
+	std::vector<std::pair<std::string, std::string> >		properties;
 
 	printf("Scanning for dimension properties...\n");
 
@@ -410,7 +410,7 @@ static bool Text2DSFWithWriterAny(const char * inFileName, const char * inDSF, D
 	{
 		char * ptr = strip_and_clean(buf);
 		if (sscanf(ptr, "PROPERTY %s %[^\r\n]", prop_id, prop_value) == 2)
-			properties.push_back(pair<string, string>(prop_id, prop_value));
+			properties.push_back(std::pair<std::string, std::string>(prop_id, prop_value));
 
 		if (sscanf(ptr, "PROPERTY sim/west %f", &west) == 1) ++props_got;
 		if (sscanf(ptr, "PROPERTY sim/east %f", &east) == 1) ++props_got;

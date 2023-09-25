@@ -36,14 +36,14 @@ public:
 			double		GetHeading(void) const;
 			void		SetHeading(double h);
 
-void		GetResource(	  string& r) const;
-void		SetResource(const string& r);
+void		GetResource(	  std::string& r) const;
+void		SetResource(const std::string& r);
 
 int			CountProperties(void) const;
 int			FindProperty(const char * in_prop) const;
 void		GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
 void		GetNthPropertyDict(int n, PropertyDict_t& dict) const;
-void		GetNthPropertyDictItem(int n, int e, string& item) const;
+void		GetNthPropertyDictItem(int n, int e, std::string& item) const;
 void		GetNthProperty(int n, PropertyVal_t& val) const;
 void		SetNthProperty(int n, const PropertyVal_t& val);
 

@@ -154,7 +154,7 @@ struct	XAtomPlanerNumericTable : public XAtom {
 					double *ioOffsets);
 
 	
-	/* These routines decompress the data into a set of planes.
+	/* These routines decompress the data into a std::set of planes.
 	 * They return the number of planes filled, but will never
 	 * exceed numberOfPlanes. */
 	int		DecompressShort(

@@ -32,7 +32,7 @@
 	original positions.
 
 	The constraints are simplified such that not only do no they not cross when done,
-	but no set of constraints will cross a topological boundary to another set.
+	but no std::set of constraints will cross a topological boundary to another std::set.
 
  */
 

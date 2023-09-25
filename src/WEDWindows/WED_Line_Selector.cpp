@@ -145,7 +145,7 @@ void	WED_Line_Selector::Draw(GUI_GraphState * g)
 
 				glColor4f(1,1,1,1);
 				int selector[4] = { 0, 0, 1, 1 };
-				string icn(ENUM_Name(mDict[i][j].enu));
+				std::string icn(ENUM_Name(mDict[i][j].enu));
 				icn += ".png";
 				GUI_DrawCentered(g, icn.c_str(), box, 0, 0, selector, NULL, NULL);
 

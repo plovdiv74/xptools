@@ -48,7 +48,7 @@ public:
 			void		SetTool(WED_MapToolNew * tool);
 			void		AddLayer(WED_MapLayer * layer);
 	
-			void		SetFilter(const string& name, const MapFilter_t& hide_filter, const MapFilter_t& lock_filter);
+			void		SetFilter(const std::string& name, const MapFilter_t& hide_filter, const MapFilter_t& lock_filter);
 
 	virtual void		SetBounds(int x1, int y1, int x2, int y2);
 	virtual void		SetBounds(int inBounds[4]);
@@ -77,13 +77,13 @@ private:
 		ISelection *	GetSel();
 
 
-	vector<WED_MapLayer *>			mLayers;
+	std::vector<WED_MapLayer *>			mLayers;
 	WED_MapToolNew *				mTool;
 	IResolver *						mResolver;
 
 	MapFilter_t						mHideFilter;
 	MapFilter_t						mLockFilter;
-	string							mFilterName;
+	std::string							mFilterName;
 
 	WED_MapLayer *	mClickLayer;
 	int				mX;

@@ -40,7 +40,7 @@ public:
 
 			void		SetTextColor(float color[4]);
 
-	virtual	void		SetDescriptor(const string& inDesc);
+	virtual	void		SetDescriptor(const std::string& inDesc);
 	virtual	void		Draw(GUI_GraphState * state);
 
 	virtual	int			MouseDown(int x, int y, int button);
@@ -52,8 +52,8 @@ public:
 			int			GetNaturalHeight(void);
 private:
 
-		vector<string>		mItems;
-		vector<int>			mWidths;
+		std::vector<std::string>		mItems;
+		std::vector<int>			mWidths;
 
 		int					mTrackBtn;
 		int					mHilite;

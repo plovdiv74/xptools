@@ -36,25 +36,25 @@ class	WED_AptTable :	public GUI_TextTableProvider,
 						public GUI_Broadcaster {
 public:
 
-	// Note: you must call set-filter once after the dust settles to get the 
+	// Note: you must call std::set-filter once after the dust settles to get the 
 	// table synced!
 					 WED_AptTable(
 						const AptVector * apts,
-						const char * hdr3 = nullptr,   // if set, displays first metadata pair as columns 3+4
+						const char * hdr3 = nullptr,   // if std::set, displays first metadata std::pair as columns 3+4
 						const char * hdr4 = nullptr);
 	virtual			~WED_AptTable();
 	
-	// Call this to push a new filter string.
+	// Call this to push a new filter std::string.
 			void	SetFilter(
-						const string&				new_filter);
+						const std::string&				new_filter);
 			
-	// Call this any time you change the contents of your apt vector - call
+	// Call this any time you change the contents of your apt std::vector - call
 	// IMMEDIATELY, before letting the UI do anything!
 			void	AptVectorChanged(void);
 			
-	// Call this to get the current selected indicies of your apt vector.
+	// Call this to get the current selected indicies of your apt std::vector.
 			void	GetSelection(
-						set<int>&					out_selection);
+						std::set<int>&					out_selection);
 	
 	// GUI_TextTableHeaderProvider
 	virtual	void	GetHeaderContent(
@@ -171,15 +171,15 @@ private:
 			void					resort();
 
 	const AptVector *	mApts;
-	vector<int>			mSorted;
-	set<int>			mSelected;
-	set<int>			mSelectedOrig;
+	std::vector<int>			mSorted;
+	std::set<int>			mSelected;
+	std::set<int>			mSelectedOrig;
 	int					mSortColumn;
 	int					mInvertSort;
-	string				mFilter;
+	std::string				mFilter;
 	int					mColumns;
-	string 				mHeaderTitle3;
-	string 				mHeaderTitle4;
+	std::string 				mHeaderTitle3;
+	std::string 				mHeaderTitle4;
 };
 	
 #endif

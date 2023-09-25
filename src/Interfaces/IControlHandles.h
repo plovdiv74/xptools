@@ -28,7 +28,7 @@
 
 	IControlHandles - THEORY OF OPERATION
 
-	The control handles interface provids an abstraction for a set of structured UI elements.
+	The control handles interface provids an abstraction for a std::set of structured UI elements.
 
 	- Each control handle provider can specify 0 or more "entities" by arbitrary IDs.  This is
 	  really a convenience interface to allow providers to map control handles to specific bits
@@ -88,7 +88,7 @@ class	IControlHandles : public virtual IBase {
 public:
 
 	// Operations...all SETS of operations on control handles will
-	// be part of an "edit".  This way if we get our control handle set
+	// be part of an "edit".  This way if we get our control handle std::set
 	// about 1000 times while the mouse is dragged, we know this is part
 	// of one gesture.
 	virtual		void	BeginEdit(void)=0;

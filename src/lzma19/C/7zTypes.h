@@ -246,7 +246,7 @@ typedef struct
   size_t pos;
   size_t size; /* it's data size */
   
-  /* the following variables must be set outside */
+  /* the following variables must be std::set outside */
   Byte *buf;
   size_t bufSize;
 } CLookToRead2;

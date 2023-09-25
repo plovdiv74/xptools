@@ -35,7 +35,7 @@ public:
 
 };
 
-static set<GUI_Destroyable *>		mDeadList;
+static std::set<GUI_Destroyable *>		mDeadList;
 static GUI_DestroyableTask *		mDeadTask = NULL;
 
 
@@ -62,9 +62,9 @@ GUI_DestroyableTask::~GUI_DestroyableTask()
 
 void GUI_DestroyableTask::TimerFired(void)
 {
-	set<GUI_Destroyable *> who;
+	std::set<GUI_Destroyable *> who;
 	mDeadList.swap(who);
-	for(set<GUI_Destroyable *>::iterator i = who.begin(); i != who.end(); ++i)
+	for(std::set<GUI_Destroyable *>::iterator i = who.begin(); i != who.end(); ++i)
 		delete *i;
 	// If our dead list is NOt empty it means that the async destruction of one obj queued ANOTHER async obj.
 	// When we async kill our doc, this can async kill an import dialog box.

@@ -71,7 +71,7 @@ public:
 //	virtual int			CountProperties(void) { return 0; }
 //	virtual void		GetNthPropertyInfo(int n, PropertyInfo_t& info) {}
 //	virtual	void		GetNthPropertyDict(int n, PropertyDict_t& dict) { }
-//	virtual	void		GetNthPropertyDictItem(int n, int e, string& item) { }
+//	virtual	void		GetNthPropertyDictItem(int n, int e, std::string& item) { }
 
 //	virtual void		GetNthProperty(int n, PropertyVal_t& val) { }
 //	virtual void		SetNthProperty(int n, const PropertyVal_t& val) { }
@@ -108,15 +108,15 @@ private:
 
 		// Anchor point and original Bezier curve for Bezier offsetting.
 		Point2					mAnchor;
-		vector<BezierPoint2>	mSrcBezier;
+		std::vector<BezierPoint2>	mSrcBezier;
 
 		WED_PropBoolText		mSnapToGrid;
 
-		mutable vector<IGISEntity *>	mEntityCache;
+		mutable std::vector<IGISEntity *>	mEntityCache;
 		mutable long long				mEntityCacheKeyArchive;
 		mutable long long				mEntityCacheKeyZoomer;
 
-		mutable vector<pair<Point2,IGISEntity *> >		mSnapCache;
+		mutable std::vector<std::pair<Point2,IGISEntity *> >		mSnapCache;
 		mutable long long								mSnapCacheKeyArchive;
 		mutable long long								mSnapCacheKeyZoomer;
 

@@ -48,7 +48,7 @@ WED_Persistent *		WED_Persistent::FetchPeer(int id) const
 	return mArchive->Fetch(id);
 }
 
-void		WED_Persistent::__StartCommand(const string& inName, const char * inFile, int inLine)
+void		WED_Persistent::__StartCommand(const std::string& inName, const char * inFile, int inLine)
 {
 	mArchive->__StartCommand(inName, inFile, inLine);
 }
@@ -85,7 +85,7 @@ void WED_Persistent::PostCtor()
 	mArchive->AddObject(this);
 }
 
-static unordered_map<string, WED_Persistent::CTOR_f>	sStaticCtors;
+static std::unordered_map<std::string, WED_Persistent::CTOR_f>	sStaticCtors;
 
 void WED_Persistent::Register(
 							const char * 	id,

@@ -87,7 +87,7 @@ typedef struct
 	z_stream stream;            /* zLib stream structure for inflate */
 
 	uLong pos_in_zipfile;       /* position in byte on the zipfile, for fseek*/
-	uLong stream_initialised;   /* flag set if stream structure is initialised*/
+	uLong stream_initialised;   /* flag std::set if stream structure is initialised*/
 
 	uLong offset_local_extrafield;/* offset of the local extra field */
 	uInt  size_local_extrafield;/* size of the local extra field */
@@ -1224,7 +1224,7 @@ extern int ZEXPORT unzCloseCurrentFile (
 
 
 /*
-  Get the global comment string of the ZipFile, in the szComment buffer.
+  Get the global comment std::string of the ZipFile, in the szComment buffer.
   uSizeBuf is the size of the szComment buffer.
   return the number of byte copied or an error code <0
 */

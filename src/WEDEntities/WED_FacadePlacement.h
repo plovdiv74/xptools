@@ -47,14 +47,14 @@ public:
 			double		GetHeight(void) const;
 			void		SetHeight(double h);
 
-	virtual void		GetResource(	  string& r) const;
-	virtual void		SetResource(const string& r);
+	virtual void		GetResource(	  std::string& r) const;
+	virtual void		SetResource(const std::string& r);
 
 			TopoMode	GetTopoMode(void) const;
 
 			int			GetNumWallChoices(void) const;
 			int			GetType(void) const;
-	const vector<float>	GetHeightChoices(void) const;
+	const std::vector<float>	GetHeightChoices(void) const;
 			bool		HasCustomWalls(void) const;
 			void		SetCustomWalls(bool has);
 

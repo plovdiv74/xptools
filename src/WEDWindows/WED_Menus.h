@@ -194,6 +194,6 @@ class	GUI_Application;
 
 void WED_MakeMenus(GUI_Application * inApp);
 
-string WED_GetTargetMenuName(int target);
+std::string WED_GetTargetMenuName(int target);
 
 #endif

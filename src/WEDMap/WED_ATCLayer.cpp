@@ -58,7 +58,7 @@ static double box_edge_distance(Point2 p, const Bbox2 b)   // returns positive i
 	return min(min(from_p1.dx, from_p2.dx), min(from_p1.dy, from_p2.dy));
 }
 
-static void lines_to_nearest(const vector<Segment2>& starts, const vector<Segment2>& edges, const Bbox2& screen_bounds, double err_2nd, GUI_GraphState * g)
+static void lines_to_nearest(const std::vector<Segment2>& starts, const std::vector<Segment2>& edges, const Bbox2& screen_bounds, double err_2nd, GUI_GraphState * g)
 {
 	if (starts.size() * edges.size() > 10000) return;        // skip drawing too complex scenarios - takes too long
 
@@ -359,7 +359,7 @@ bool	WED_ATCLayer::DrawEntityStructure		(bool inCurrent, IGISEntity * entity, GU
 #if HAS_CURVED_ATC_ROUTE
 
 		IGISPointSequence* ps = SAFE_CAST(IGISPointSequence, seg);
-		vector<Point2>	pts, d;
+		std::vector<Point2>	pts, d;
 		PointSequenceToVector(ps, GetZoomer(), pts, false, true);
 
 		Vector2	dir(pts[1], pts[0]);               // direction of this segment
@@ -500,7 +500,7 @@ bool	WED_ATCLayer::DrawEntityStructure		(bool inCurrent, IGISEntity * entity, GU
 
 		if (seg->AllowAircraft())              // display name of taxi route
 		{
-			string nam;
+			std::string nam;
 			if(seg->GetRunway() != atc_rwy_None)   // ideally this would not be needed, but cant figure a way to fix up name upon earth.wed.xml import
 				nam = ENUM_Desc(seg->GetRunway());
 			else
@@ -534,7 +534,7 @@ bool	WED_ATCLayer::DrawEntityStructure		(bool inCurrent, IGISEntity * entity, GU
 
 		g->SetState(false, 0, false, false, true, false, false);
 		WED_MapZoomerNew * z = GetZoomer();
-		pair<double, double> mtr = seg->GetWidth();
+		std::pair<double, double> mtr = seg->GetWidth();
 
 		int num_sides = seg->GetNumSides();
 		int layers = min(max(seg->GetStartLayer(), seg->GetEndLayer()), 3);
@@ -553,7 +553,7 @@ bool	WED_ATCLayer::DrawEntityStructure		(bool inCurrent, IGISEntity * entity, GU
 				b.c2 = z->LLToPixel(b.c2);
 
 				int point_count = BezierPtsCount(b,z);
-				vector<Point2> pts;
+				std::vector<Point2> pts;
 				pts.reserve(point_count);
 
 				for (int n = 0; n <= point_count; ++n)
@@ -562,7 +562,7 @@ bool	WED_ATCLayer::DrawEntityStructure		(bool inCurrent, IGISEntity * entity, GU
 				double offs_pix = 0.5 * mtr.second * z->GetPPM();
 				if(offs_pix > 0.0)
 				{
-					vector<Point2> strip;
+					std::vector<Point2> strip;
 					strip.reserve(2*pts.size());
 
 					for (int i = 0; i <= point_count; ++i)

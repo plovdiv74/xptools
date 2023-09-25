@@ -41,7 +41,7 @@ class WED_AptImportDialog : public GUI_Window, public GUI_Listener, public GUI_D
 		
 public:
 
-						 WED_AptImportDialog(GUI_Commander * cmdr, AptVector& apts, const string& path, WED_Document * resolver, WED_Archive * archive, WED_MapPane * pane);
+						 WED_AptImportDialog(GUI_Commander * cmdr, AptVector& apts, const std::string& path, WED_Document * resolver, WED_Archive * archive, WED_MapPane * pane);
 	virtual				~WED_AptImportDialog();
 	
 	virtual	bool		Closed(void);
@@ -72,7 +72,7 @@ private:
 
 	WED_Document *			mResolver;
 	WED_Archive *			mArchive;
-	string					mPath;
+	std::string					mPath;
 };
 
 #endif

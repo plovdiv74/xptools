@@ -36,7 +36,7 @@ typedef enum {
 } PlatformType;
 
 /*
- *	Format is a NULL-terminated list of data lengths.  Negative numbers
+ *	Format is a NULL-terminated std::list of data lengths.  Negative numbers
  *	mean a length of data to not be swapped (e.g. strings), positive numbers
  *	mean a length of data to be swapped.  Only 2 or 4 should ever be passed
  *	as positive numbers; larger endian swaps are not yet supported.

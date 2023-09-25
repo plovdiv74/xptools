@@ -52,7 +52,7 @@ GUI_ScrollerPane::GUI_ScrollerPane(int inHScroll, int inVScroll) :
 	mContent(NULL),
 	mCalibrating(false)
 {
-	// Note: we have to set some real bounds - default panes are zero rect.
+	// Note: we have to std::set some real bounds - default panes are zero rect.
 	// but we need to establish relative dimensions to our scroll bars from the outset!
 
 	SetBounds(0,0,100,100);
@@ -261,7 +261,7 @@ void	GUI_ScrollerPane::ReceiveMessage(
 		intptr_t				inMsg,
 		intptr_t				inParam)
 {
-	vector<GUI_ScrollerPane*>::iterator slave;
+	std::vector<GUI_ScrollerPane*>::iterator slave;
 	if (inSrc == mScrollH && inMsg == GUI_CONTROL_VALUE_CHANGED && mContent && !mCalibrating)
 	{
 		mContent->ScrollH(mScrollH->GetValue());

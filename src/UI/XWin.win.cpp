@@ -30,7 +30,7 @@
 #define GET_XBUTTON_WPARAM(wParam)      (HIWORD(wParam))
 #endif
 
-typedef	map<int, pair<xmenu, int> >	MenuMap;
+typedef	std::map<int, std::pair<xmenu, int> >	MenuMap;
 MenuMap	gMenuMap;
 
 
@@ -40,7 +40,7 @@ static WCHAR sWindowClass[] = L"XGrinderWindow";
 
 extern	HINSTANCE	gInstance;
 
-map<HWND, XWin *>	sWindows;
+std::map<HWND, XWin *>	sWindows;
 
 XWin::XWin(int default_dnd)
 {
@@ -138,7 +138,7 @@ XWin::XWin(
 
 	if(mIsModal)
 	{
-		for(map<HWND,XWin *>::iterator all = sWindows.begin(); all != sWindows.end(); ++all)
+		for(std::map<HWND,XWin *>::iterator all = sWindows.begin(); all != sWindows.end(); ++all)
 		{
 				if(all->first != mWindow)
 					EnableWindow(all->first,FALSE);
@@ -152,7 +152,7 @@ XWin::~XWin()
 {
 	if(mIsModal)
 	{
-		for(map<HWND,XWin *>::iterator all = sWindows.begin(); all != sWindows.end(); ++all)
+		for(std::map<HWND,XWin *>::iterator all = sWindows.begin(); all != sWindows.end(); ++all)
 		{
 				if(all->first != mWindow)
 					EnableWindow(all->first,TRUE);
@@ -534,7 +534,7 @@ LRESULT CALLBACK XWin::WinEventHandler(HWND hWnd, UINT message, WPARAM wParam, L
 }
 
 void	XWin::ReceiveFilesFromDrag(
-						const vector<string>& inFiles)
+						const std::vector<std::string>& inFiles)
 {
 	ReceiveFiles(inFiles, 0, 0);
 }
@@ -603,7 +603,7 @@ int				XWin::AppendMenuItem(xmenu menu, const char * inTitle)
 	mif.wID = gIDs;
 	::InsertMenuItemA(menu, -1, true, &mif);
 	int	itemNum = GetMenuItemCount(menu) - 1;
-	gMenuMap.insert(MenuMap::value_type(gIDs, pair<xmenu,int>(menu, itemNum)));
+	gMenuMap.insert(MenuMap::value_type(gIDs, std::pair<xmenu,int>(menu, itemNum)));
 	++gIDs;
 	return itemNum;
 }
@@ -658,7 +658,7 @@ int				XWin::TrackPopupCommands(xmenu in_menu, int mouse_x, int mouse_y, int but
 	mouse_x = p.x;
 	mouse_y = p.y;
 
-	vector<int> cmds(GetMenuItemCount(in_menu));
+	std::vector<int> cmds(GetMenuItemCount(in_menu));
 	for (int i = 0; i < cmds.size(); ++i)
 	{
 		MENUITEMINFO mif = { 0 };

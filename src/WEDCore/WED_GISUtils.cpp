@@ -220,7 +220,7 @@ int WED_HasBezierPol(IGISPolygon * pol)
 //	#error we need an option to get approximate pt sequenes from beziers!
 //	#error we need to handle degunking self-intersecting and backward polygons!
 
-bool	WED_VectorForPointSequence(IGISPointSequence * in_seq, vector<Segment2>& out_pol)
+bool	WED_VectorForPointSequence(IGISPointSequence * in_seq, std::vector<Segment2>& out_pol)
 {
 	int ns = in_seq->GetNumSides();
 	for(int n = 0; n < ns; ++n)
@@ -234,7 +234,7 @@ bool	WED_VectorForPointSequence(IGISPointSequence * in_seq, vector<Segment2>& ou
 	return true;
 }
 
-bool	WED_VectorForPointSequence(IGISPointSequence * in_seq, vector<Segment2p>& out_pol)
+bool	WED_VectorForPointSequence(IGISPointSequence * in_seq, std::vector<Segment2p>& out_pol)
 {
 	int ns = in_seq->GetNumSides();
 	for(int n = 0; n < ns; ++n)
@@ -250,7 +250,7 @@ bool	WED_VectorForPointSequence(IGISPointSequence * in_seq, vector<Segment2p>& o
 	return true;
 }
 
-bool	WED_VectorForPointSequence(IGISPointSequence * in_seq, vector<Segment2uv>& out_pol)
+bool	WED_VectorForPointSequence(IGISPointSequence * in_seq, std::vector<Segment2uv>& out_pol)
 {
 	int ns = in_seq->GetNumSides();
 	for(int n = 0; n < ns; ++n)
@@ -270,7 +270,7 @@ bool	WED_VectorForPointSequence(IGISPointSequence * in_seq, vector<Segment2uv>& 
 
 bool WED_PolygonForPointSequence(IGISPointSequence * ps, Polygon2& p, int wanted_orientation)
 {
-	vector<Segment2> pp;
+	std::vector<Segment2> pp;
 	if(!WED_VectorForPointSequence(ps,pp))
 		return false;
 	for(int i = 0; i < pp.size(); ++i)
@@ -317,7 +317,7 @@ bool WED_PolygonForPointSequence(IGISPointSequence * ps, Polygon2uv& p, int want
 
 
 
-bool	WED_PolygonWithHolesForPolygon(IGISPolygon * in_poly, vector<Polygon2>& out_pol)
+bool	WED_PolygonWithHolesForPolygon(IGISPolygon * in_poly, std::vector<Polygon2>& out_pol)
 {
 	out_pol.clear();
 	int nn = in_poly->GetNumHoles();
@@ -334,7 +334,7 @@ bool	WED_PolygonWithHolesForPolygon(IGISPolygon * in_poly, vector<Polygon2>& out
 	return true;
 }
 
-bool	WED_PolygonWithHolesForPolygon(IGISPolygon * in_poly, vector<Polygon2p>& out_pol)
+bool	WED_PolygonWithHolesForPolygon(IGISPolygon * in_poly, std::vector<Polygon2p>& out_pol)
 {
 	out_pol.clear();
 	int nn = in_poly->GetNumHoles();
@@ -351,7 +351,7 @@ bool	WED_PolygonWithHolesForPolygon(IGISPolygon * in_poly, vector<Polygon2p>& ou
 	return true;
 }
 
-bool	WED_PolygonWithHolesForPolygon(IGISPolygon * in_poly, vector<Polygon2uv>& out_pol)
+bool	WED_PolygonWithHolesForPolygon(IGISPolygon * in_poly, std::vector<Polygon2uv>& out_pol)
 {
 	out_pol.clear();
 	int nn = in_poly->GetNumHoles();
@@ -373,7 +373,7 @@ bool	WED_PolygonWithHolesForPolygon(IGISPolygon * in_poly, vector<Polygon2uv>& o
 
 
 
-void	WED_BezierVectorForPointSequence(IGISPointSequence * in_seq, vector<Bezier2>& out_pol)
+void	WED_BezierVectorForPointSequence(IGISPointSequence * in_seq, std::vector<Bezier2>& out_pol)
 {
 	int ns = in_seq->GetNumSides();
 	for(int n = 0; n < ns; ++n)
@@ -384,7 +384,7 @@ void	WED_BezierVectorForPointSequence(IGISPointSequence * in_seq, vector<Bezier2
 	}
 }
 
-void	WED_BezierVectorForPointSequence(IGISPointSequence * in_seq, vector<Bezier2p>& out_pol)
+void	WED_BezierVectorForPointSequence(IGISPointSequence * in_seq, std::vector<Bezier2p>& out_pol)
 {
 	int ns = in_seq->GetNumSides();
 	for(int n = 0; n < ns; ++n)
@@ -397,7 +397,7 @@ void	WED_BezierVectorForPointSequence(IGISPointSequence * in_seq, vector<Bezier2
 	}
 }
 
-void	WED_BezierVectorForPointSequence(IGISPointSequence * in_seq, vector<Bezier2uv>& out_pol)
+void	WED_BezierVectorForPointSequence(IGISPointSequence * in_seq, std::vector<Bezier2uv>& out_pol)
 {
 	int ns = in_seq->GetNumSides();
 	for(int n = 0; n < ns; ++n)
@@ -463,7 +463,7 @@ void	WED_BezierPolygonForPointSequence(IGISPointSequence * in_seq, BezierPolygon
 
 
 
-void	WED_BezierPolygonWithHolesForPolygon(IGISPolygon * in_poly, vector<BezierPolygon2>& out_pol)
+void	WED_BezierPolygonWithHolesForPolygon(IGISPolygon * in_poly, std::vector<BezierPolygon2>& out_pol)
 {
 	int nn = in_poly->GetNumHoles();
 	out_pol.clear();
@@ -477,7 +477,7 @@ void	WED_BezierPolygonWithHolesForPolygon(IGISPolygon * in_poly, vector<BezierPo
 	}
 }
 
-void	WED_BezierPolygonWithHolesForPolygon(IGISPolygon * in_poly, vector<BezierPolygon2p>& out_pol)
+void	WED_BezierPolygonWithHolesForPolygon(IGISPolygon * in_poly, std::vector<BezierPolygon2p>& out_pol)
 {
 	int nn = in_poly->GetNumHoles();
 	out_pol.clear();
@@ -491,7 +491,7 @@ void	WED_BezierPolygonWithHolesForPolygon(IGISPolygon * in_poly, vector<BezierPo
 	}
 }
 
-void	WED_BezierPolygonWithHolesForPolygon(IGISPolygon * in_poly, vector<BezierPolygon2uv>& out_pol)
+void	WED_BezierPolygonWithHolesForPolygon(IGISPolygon * in_poly, std::vector<BezierPolygon2uv>& out_pol)
 {
 	int nn = in_poly->GetNumHoles();
 	out_pol.clear();
@@ -544,7 +544,7 @@ static void PointSequenceToPolygon2(IGISPointSequence * ps, Polygon2& pol, doubl
 }
 
 
-void	WED_BezierPolygonWithHolesForPolygon(IGISPolygon * in_poly, vector<Polygon2>& out_pol)
+void	WED_BezierPolygonWithHolesForPolygon(IGISPolygon * in_poly, std::vector<Polygon2>& out_pol)
 {
 	int nn = in_poly->GetNumHoles();
 //	out_pol.clear();

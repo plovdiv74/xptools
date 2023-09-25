@@ -37,9 +37,9 @@ class	WED_TaxiRoute;
 void	WED_AptImport(
 				WED_Archive *			archive,
 				WED_Thing *				container,
-				const string&			file_path,		// For logging errors
+				const std::string&			file_path,		// For logging errors
 				AptVector&				apts,			// Not const because "convert forward" called - destructive.
-				vector<WED_Airport *> *	out_airports);
+				std::vector<WED_Airport *> *	out_airports);
 				
 // Main apt export AIP - we can write to a file path or to a stream via a print func.
 
@@ -54,7 +54,7 @@ void	WED_AptExport(
 // A little bit dangerous but this can be a good way
 // to convert a selection into an aptdefs.h construct.
 // This is really an internal utility.
-void	AptExportRecursive(WED_Thing * what, AptVector& apts, vector<WED_TaxiRoute *>& edges, bool DockingJetways);
+void	AptExportRecursive(WED_Thing * what, AptVector& apts, std::vector<WED_TaxiRoute *>& edges, bool DockingJetways);
 
 int		WED_CanExportApt(IResolver * resolver);
 void	WED_DoExportApt(WED_Document * resolver, WED_MapPane * pane);
@@ -64,8 +64,8 @@ void	WED_DoImportApt(WED_Document * resolver, WED_Archive * archive, WED_MapPane
 
 // Given a WED_thing, put airports at file path into it - must be called inside an undo operation!
 void	WED_ImportOneAptFile(
-				const string&			in_path,
+				const std::string&			in_path,
 				WED_Thing *				in_parent,
-				vector<WED_Airport *> *	out_apts = nullptr);
+				std::vector<WED_Airport *> *	out_apts = nullptr);
 
 #endif /* WED_AptIE_H */

@@ -32,8 +32,8 @@ DECLARE_PERSISTENT(WED_ExclusionZone)
 
 public:
 
-			void		GetExclusions(		set<int>& excls) const;
-			void		SetExclusions(const set<int>& excls)	  ;
+			void		GetExclusions(		std::set<int>& excls) const;
+			void		SetExclusions(const std::set<int>& excls)	  ;
 
 	virtual const char *	HumanReadableType(void) const { return "Exclusion Zone"; }
 

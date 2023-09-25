@@ -73,8 +73,8 @@ private:
 	mutable	Bbox2						mCacheBounds;
 	mutable	Bbox2						mCacheBoundsUV;
 	mutable bool						mHasUV;
-	mutable	vector<IGISPoint *>			mCachePts;
-	mutable	vector<IGISPoint_Bezier *>	mCachePtsBezier;
+	mutable	std::vector<IGISPoint *>			mCachePts;
+	mutable	std::vector<IGISPoint_Bezier *>	mCachePtsBezier;
 
 };
 

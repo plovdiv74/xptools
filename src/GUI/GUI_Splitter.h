@@ -62,9 +62,9 @@ private:
 	int		mSlop;		// mouse - boundary = slop
 	int		mClick;
 
-	string	mImage;
-	string	mImage1;
-	string	mImage2;
+	std::string	mImage;
+	std::string	mImage1;
+	std::string	mImage2;
 
 };
 

@@ -33,9 +33,9 @@ struct terrain_t {
 	Bbox2	bounds;
 	int		width;
 	int		height;
-	vector<float> dem;
+	std::vector<float> dem;
 	int		water_idx;
-	vector<int> apt_idx;
+	std::vector<int> apt_idx;
 	int		current_color;
 
 	struct vert_data_t {
@@ -50,9 +50,9 @@ struct terrain_t {
 		int topology;
 		int color;
 		Bbox2 bounds;
-		vector<vert_data_t> verts;
+		std::vector<vert_data_t> verts;
 	};
-	vector<patch_t> patches;
+	std::vector<patch_t> patches;
 };
 
 enum {
@@ -73,7 +73,7 @@ public:
 private:
 
 	void				LoadTerrain(Bbox2& bounds);
-	unordered_map<string,terrain_t>	mTerrains;
+	std::unordered_map<std::string,terrain_t>	mTerrains;
 };
 
 #endif /* WED_TerrainLayer_H */

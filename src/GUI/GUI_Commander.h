@@ -95,7 +95,7 @@ public:
 	// first crack, the window goes second, and the app goes third.
 			int				DispatchKeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFlags);
 			int				DispatchHandleCommand(int command);
-			int				DispatchCanHandleCommand(int command, string& ioName, int& ioCheck);
+			int				DispatchCanHandleCommand(int command, std::string& ioName, int& ioCheck);
 
 #if DEV
 			void			PrintCommandChain(int indent);
@@ -106,7 +106,7 @@ protected:
 	// Commander handler messages:
 	virtual	int				HandleKeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFlags)	 	{ return 0; }
 	virtual	int				HandleCommand(int command) 									{ return 0; }
-	virtual	int				CanHandleCommand(int command, string& ioName, int& ioCheck) { return 0; }
+	virtual	int				CanHandleCommand(int command, std::string& ioName, int& ioCheck) { return 0; }
 
 	virtual	int				AcceptTakeFocus(void) 										{ return 0; }
 	virtual int				AcceptLoseFocus(int inForce) 								{ return 1; }
@@ -127,11 +127,11 @@ private:
 			};
 
 				int							mDeferLevel;
-				vector<deferred_cmd_or_key>	mDeferredActions;
+				std::vector<deferred_cmd_or_key>	mDeferredActions;
 				
 				GUI_Commander *				mCmdParent;
 				GUI_Commander *				mCmdFocus;
-				vector<GUI_Commander *>		mCmdChildren;
+				std::vector<GUI_Commander *>		mCmdChildren;
 
 };
 

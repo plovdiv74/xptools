@@ -72,8 +72,8 @@
 #endif
 
 /*
- * GLEW_STATIC needs to be set when using the static version.
- * GLEW_BUILD is set when building the DLL version.
+ * GLEW_STATIC needs to be std::set when using the static version.
+ * GLEW_BUILD is std::set when building the DLL version.
  */
 #ifdef GLEW_STATIC
 #  define GLEWAPI extern

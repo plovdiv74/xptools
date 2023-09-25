@@ -286,7 +286,7 @@ int		GUI_Table::GetCursor(int x, int y)
 	return gui_Cursor_None;
 }
 
-int			GUI_Table::GetHelpTip(int x, int y, int tip_bounds[4], string& tip)
+int			GUI_Table::GetHelpTip(int x, int y, int tip_bounds[4], std::string& tip)
 {
 	if (mGeometry == NULL) return 0;
 	if (mContent == NULL) return 0;
@@ -759,7 +759,7 @@ int		GUI_Header::GetCursor(int x, int y)
 	return gui_Cursor_None;
 }
 
-int		GUI_Header::GetHelpTip(int x, int y, int tip_bounds[4], string& tip)
+int		GUI_Header::GetHelpTip(int x, int y, int tip_bounds[4], std::string& tip)
 {
 	if (mGeometry == NULL) return 0;
 	if (mHeader == NULL) return 0;
@@ -980,7 +980,7 @@ int		GUI_Side::GetCursor(int x, int y)
 	return gui_Cursor_None;
 }
 
-int		GUI_Side::GetHelpTip(int x, int y, int tip_bounds[4], string& tip)
+int		GUI_Side::GetHelpTip(int x, int y, int tip_bounds[4], std::string& tip)
 {
 	if (mGeometry == NULL) return 0;
 	if (mSide == NULL) return 0;

@@ -42,9 +42,9 @@ class WED_RoadEdge;
 
 struct validation_error_t;
 
-typedef vector<WED_ATCFlow*>       FlowVec_t;
-typedef vector<WED_Runway*>        RunwayVec_t;
-typedef vector<WED_TaxiRoute*>     TaxiRouteVec_t;
+typedef std::vector<WED_ATCFlow*>       FlowVec_t;
+typedef std::vector<WED_Runway*>        RunwayVec_t;
+typedef std::vector<WED_TaxiRoute*>     TaxiRouteVec_t;
 
 struct RunwayInfo
 {
@@ -62,7 +62,7 @@ struct RunwayInfo
 
 
 		runway_ops[0] = 0;
-        runway_ops[1] = 0; // nneds to be set externally, e.g. by evaluation flows
+        runway_ops[1] = 0; // nneds to be std::set externally, e.g. by evaluation flows
 
 		Point2 bounds[4];
 		runway->GetCorners(gis_Geo,bounds);
@@ -85,7 +85,7 @@ struct RunwayInfo
 	}
 
 	WED_Runway* runway_ptr;  // Pointer to the underlying runway class
-	string name;      // Name of this runway
+	std::string name;      // Name of this runway
 
 	// [0] is north end, [1] south end information
 	int runway_numbers[2];          // enum from ATCRunwayOneway
@@ -96,10 +96,10 @@ struct RunwayInfo
 	Segment2 centerline_geo; // center line in lat/lon. p1 is source, p2 is target
 	Segment2 centerline_m;   // center line in meters.  p1 is source, p2 is target
 
-	Vector2 dir_1m;		 	 // vector of 1m length, in runway direction
+	Vector2 dir_1m;		 	 // std::vector of 1m length, in runway direction
 
-	Vector2 dir_vec_1m;      // vector of 1m length, in runway length direction
-	Vector2 width_vec_1m;    // vector of 1m length, in runway width direction
+	Vector2 dir_vec_1m;      // std::vector of 1m length, in runway length direction
+	Vector2 width_vec_1m;    // std::vector of 1m length, in runway width direction
 
 	bool IsHotForArrival(int runway_number) const
 	{
@@ -130,8 +130,8 @@ struct TaxiRouteInfo
 		if (is_aircraft_route)
 		{
 			name = apt_route.name;
-			hot_arrivals   = set<string>(apt_route.hot_arrive);
-			hot_departures = set<string>(apt_route.hot_depart);
+			hot_arrivals   = std::set<std::string>(apt_route.hot_arrive);
+			hot_departures = std::set<std::string>(apt_route.hot_depart);
 		}
 		else
 		{
@@ -152,19 +152,19 @@ struct TaxiRouteInfo
 
 	WED_TaxiRoute* ptr;    // Pointer to the original WED_TaxiRoute in WED's data model
 	bool is_aircraft_route;
-	string name;
+	std::string name;
 	Segment2 segment_geo; 			 // location is lat/lon
 	Segment2 segment_m;  			 // location is meters
 
-	set<string> hot_arrivals;
-	set<string> hot_departures;
+	std::set<std::string> hot_arrivals;
+	std::set<std::string> hot_departures;
 
 	//Source nodes of the taxiroute. Usually TaxiRouteNodes but sometimes something else
-	vector<WED_GISPoint*> nodes;
+	std::vector<WED_GISPoint*> nodes;
 };
 
 void WED_DoATCRunwayChecks(WED_Airport& apt, validation_error_vector& msgs, const TaxiRouteVec_t& all_taxiroutes_plain,
-	const RunwayVec_t& all_runways, const set<int>& legal_rwy_oneway, const set<int>& legal_rwy_twoway, const FlowVec_t& all_flows,
-	WED_ResourceMgr* res_mgr,const vector<WED_RampPosition*>& ramps, const vector<WED_RoadEdge*>& roads);
+	const RunwayVec_t& all_runways, const std::set<int>& legal_rwy_oneway, const std::set<int>& legal_rwy_twoway, const FlowVec_t& all_flows,
+	WED_ResourceMgr* res_mgr,const std::vector<WED_RampPosition*>& ramps, const std::vector<WED_RoadEdge*>& roads);
 
 #endif

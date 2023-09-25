@@ -76,13 +76,13 @@ struct	OGL_char_info {
 
 inline int FIXED1616(float f) { return f * 65536.0f; }
 
-typedef	hash_map<UTF32, OGL_char_info>	OGL_char_map;
+typedef	std::hash_map<UTF32, OGL_char_info>	OGL_char_map;
 
 class	TT_font_info {
 public:
 
 						TT_font_info();
-	void				clear(const string& inPath, float inSize);
+	void				clear(const std::string& inPath, float inSize);
 	float				require_char(UTF32 inChar, float s);					// returns advance-dist
 	void				sync_tex(void);
 	float				draw_char(UTF32 inChar, float x, float y, float s);		// returns advance-dist!
@@ -169,7 +169,7 @@ TT_font_info::TT_font_info()
 	face = NULL;
 }
 
-void TT_font_info::clear(const string& inPath, float inSize)
+void TT_font_info::clear(const std::string& inPath, float inSize)
 {
 	FT_Error err;
 
@@ -470,7 +470,7 @@ float	GUI_GetLineAscent(int inFontID)
 }
 
 void	GUI_TruncateText(
-				string&							ioText,
+				std::string&							ioText,
 				int								inFontID,
 				float							inSpace)
 {
@@ -545,7 +545,7 @@ void	GUI_FontDrawScaled(
 	}
 	else
 	{
-		// Justification cases.  First we measure the string and see how it compares to the box.  Set up left as needed.
+		// Justification cases.  First we measure the std::string and see how it compares to the box.  Set up left as needed.
 		float slop;
 		// Slop is the amount of room we have horizontally between how much we need
 		// and how much space they've given up. A negative number means we'll go out

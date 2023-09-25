@@ -152,7 +152,7 @@ void		GUI_Button::Draw(GUI_GraphState * state)
 	int w;
 	int h;
 	int bounds[4];
-	string desc;
+	std::string desc;
 	glColor3f(1,1,1);
 	GetDescriptor(desc);
 	GetBounds(bounds);

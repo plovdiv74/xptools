@@ -93,8 +93,8 @@ private:
 		void				RebuildCache(int flags) const;
 
 	mutable	Bbox2						mCacheBounds;
-	mutable	vector<IGISPoint*>			mCachePts;
-	mutable	vector<IGISPoint_Bezier*>	mCachePtsBezier;
+	mutable	std::vector<IGISPoint*>			mCachePts;
+	mutable	std::vector<IGISPoint_Bezier*>	mCachePtsBezier;
 };
 
 #endif /* WED_GISEdge_H */

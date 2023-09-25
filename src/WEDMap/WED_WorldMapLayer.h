@@ -40,7 +40,7 @@ private:
 
 	bool			mVisible;
 	ITexMgr *		mTexMgr;
-	string			mBitmapPath;
+	std::string			mBitmapPath;
 };
 
 #endif /* WED_WorldMapLayer_H */

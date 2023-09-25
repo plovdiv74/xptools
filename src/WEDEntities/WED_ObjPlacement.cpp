@@ -57,12 +57,12 @@ int			WED_ObjPlacement::GetShowLevel(void) const
 	return ENUM_Export(show_level.value);
 }
 
-void		WED_ObjPlacement::GetResource(	  string& r) const
+void		WED_ObjPlacement::GetResource(	  std::string& r) const
 {
 	r = resource.value;
 }
 
-void		WED_ObjPlacement::SetResource(const string& r)
+void		WED_ObjPlacement::SetResource(const std::string& r)
 {
 	resource = r;
 	visibleWithinDeg = -1.0; // force re-evaluation when object is changed
@@ -245,12 +245,12 @@ void	WED_ObjPlacement::GetNthPropertyDict(int n, PropertyDict_t& dict) const
 	WED_Thing::GetNthPropertyDict(n,dict);
 	if(n == PropertyItemNumber(&has_msl))
 	{
-		dict[obj_setToGround] = make_pair("on Ground",true);
-		dict[obj_setMSL] = make_pair("set_MSL",true);
+		dict[obj_setToGround] = std::make_pair("on Ground",true);
+		dict[obj_setMSL] = std::make_pair("set_MSL",true);
 	}
 }
 
-void	WED_ObjPlacement::GetNthPropertyDictItem(int n, int e, string& item) const
+void	WED_ObjPlacement::GetNthPropertyDictItem(int n, int e, std::string& item) const
 {
 	if(n == PropertyItemNumber(&has_msl) && e <= obj_setMSL)
 	{

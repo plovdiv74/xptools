@@ -99,13 +99,13 @@ typedef void (* AssertHandler_f)(const char * condition, const char * file, int 
 
 AssertHandler_f		InstallDebugAssertHandler(AssertHandler_f f)
 {
-	swap(sDebugAssertHandler, f);
+	std::swap(sDebugAssertHandler, f);
 	return f;
 }
 
 AssertHandler_f		InstallAssertHandler(AssertHandler_f f)
 {
-	swap(sAssertHandler, f);
+	std::swap(sAssertHandler, f);
 	return f;
 }
 

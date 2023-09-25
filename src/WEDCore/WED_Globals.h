@@ -28,9 +28,9 @@
 #include "CompGeomDefs2.h"
 #include "CompGeomDefs3.h"
 
-extern vector<pair<Point2,Point3> >		gMeshPoints;
-extern vector<pair<Point2,Point3> >		gMeshLines;
-extern vector<pair<Polygon2,Point3> >	gMeshPolygons;
+extern std::vector<std::pair<Point2,Point3> >		gMeshPoints;
+extern std::vector<std::pair<Point2,Point3> >		gMeshLines;
+extern std::vector<std::pair<Polygon2,Point3> >	gMeshPolygons;
 
 //Note: These expect points to be in lat/lon
 void	debug_mesh_bbox(const Bbox2& bb1, float r1, float g1, float b1, float r2, float g2, float b2);
@@ -68,6 +68,6 @@ enum WED_Export_Target {
 extern WED_Export_Target gExportTarget;
 
 /* Changes the listing in the gateway Import for GW moderation purposes */
-extern string gCustomSlippyMap;
+extern std::string gCustomSlippyMap;
 
 #endif

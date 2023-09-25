@@ -110,20 +110,20 @@ static const glyph_info_t * get_glyph_info(parser_glyph_t glyph)
 	return NULL;
 }
 
-string	parser_name_for_glyph(parser_glyph_t glyph)
+std::string	parser_name_for_glyph(parser_glyph_t glyph)
 {
 	const glyph_info_t * i = get_glyph_info(glyph);
 	return i ? i->inside_name : "";
 }
 
-string	short_name_for_glyph(parser_glyph_t glyph)
+std::string	short_name_for_glyph(parser_glyph_t glyph)
 {
 	const glyph_info_t * i = get_glyph_info(glyph);
 	if(!i)
-		return string();
+		return std::string();
 	
 	if(i->outside_name == NULL)
-		return string();
+		return std::string();
 	
 	return i->outside_name;
 }
@@ -142,7 +142,7 @@ bool	parser_is_color_legal(parser_glyph_t glyph, parser_color_t c)
 	}
 }
 
-parser_glyph_t	glyph_for_short_name(const string& s)
+parser_glyph_t	glyph_for_short_name(const std::string& s)
 {
 	for(int i = 0; i < k_glyph_info_count; ++i)
 	if(k_glyph_metadata[i].inside_name && s == k_glyph_metadata[i].inside_name)
@@ -169,7 +169,7 @@ private:
 	// Therefore at any given time when we need to accumulate an error, either:
 	//
 	// (a) we are working on the glyph buffer, which is non-emtpy, and the current position is at the NEXT character after the glyph
-	// buf's characters.  We thus know where in the source string the glyph buffer came from and we can attribute the error to the
+	// buf's characters.  We thus know where in the source std::string the glyph buffer came from and we can attribute the error to the
 	// glyph buffer or
 	//
 	// (b) we are parsing a single character at mPosition.
@@ -198,7 +198,7 @@ private:
 	void			append_error(parser_error_t code);
 	
 	// These check a glyph, and either accumulate errors _or_ return the valid glyph.
-	parser_glyph_t	check_multi_glyph(const string & inGlyph);
+	parser_glyph_t	check_multi_glyph(const std::string & inGlyph);
 	parser_glyph_t	check_single_glyph(char inGlyph);
 
 	// Given a valid glyph in the current glyph buf _or_ position (if glyph buf empty),
@@ -212,8 +212,8 @@ private:
 	//--FSM data members---------------------------------------
 	parser_color_t			mCurColor;		// Current color as we parse
 	bool					mOnFront;		// True if in sign front, false if in sign back
-	string					mGlyphBuf;		// Accumulated chars for multi-char glyph
-	int						mPosition;		// Index into input string
+	std::string					mGlyphBuf;		// Accumulated chars for multi-char glyph
+	int						mPosition;		// Index into input std::string
 	
 	const parser_in_info&	mInput;
 	parser_out_info&		mOutput;
@@ -265,7 +265,7 @@ void WED_Sign_Parser::append_error(parser_error_t code)
 
 //Check a multi glyph
 //Returns true if there was an error
-parser_glyph_t WED_Sign_Parser::check_multi_glyph(const string & inGlyph)
+parser_glyph_t WED_Sign_Parser::check_multi_glyph(const std::string & inGlyph)
 {
 	for(int i = 0; i < k_glyph_info_count; ++i)
 	if(k_glyph_metadata[i].inside_name)
@@ -306,7 +306,7 @@ void WED_Sign_Parser::append_parser_out_info(parser_glyph_t glyph)
 		glyphColor = sign_color_invalid;
 	}
 
-	vector<parser_glyph_info>& side(mOnFront ? mOutput.out_sign.front : mOutput.out_sign.back);
+	std::vector<parser_glyph_info>& side(mOnFront ? mOutput.out_sign.front : mOutput.out_sign.back);
 
 	if(side.empty())
 	{

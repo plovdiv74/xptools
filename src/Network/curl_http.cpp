@@ -27,17 +27,17 @@ void atomic_store(volatile int * a, int v) { *a = v; }
 
 const time_t TIMEOUT_SEC = (30);
 
-void	UTL_http_encode_url(string& io_url)
+void	UTL_http_encode_url(std::string& io_url)
 {
-	string::size_type p;
+	std::string::size_type p;
 	while((p=io_url.find(' ')) != io_url.npos)
 		io_url.replace(p,1,"%20");
 }
 
 
 curl_http_get_file::curl_http_get_file(
-							const string&			inURL,
-							const string&			outDestFile) :
+							const std::string&			inURL,
+							const std::string&			outDestFile) :
 	m_progress(-1),
 	m_status(in_progress),
 	m_halt(0),
@@ -63,8 +63,8 @@ curl_http_get_file::curl_http_get_file(
 }
 
 curl_http_get_file::curl_http_get_file(
-							const string&			inURL,
-							vector<char>*		outDestBuffer) :
+							const std::string&			inURL,
+							std::vector<char>*		outDestBuffer) :
 	m_progress(-1),
 	m_status(in_progress),
 	m_halt(0),
@@ -88,16 +88,16 @@ curl_http_get_file::curl_http_get_file(
 
 }
 curl_http_get_file::curl_http_get_file(
-							const string&			inURL,
-							const string *			post_data,
-							const string *			put_data,
-							vector<char>*			outBuffer) :
+							const std::string&			inURL,
+							const std::string *			post_data,
+							const std::string *			put_data,
+							std::vector<char>*			outBuffer) :
 	m_progress(-1),
 	m_status(in_progress),
 	m_halt(0),
 	m_url(inURL),
-	m_post(post_data ? *post_data : string()),
-	m_put(put_data ? *put_data : string()),
+	m_post(post_data ? *post_data : std::string()),
+	m_put(put_data ? *put_data : std::string()),
 	m_dest_buffer(outBuffer)
 {
 	UTL_http_encode_url(m_url);
@@ -156,13 +156,13 @@ int	curl_http_get_file::get_error(void)
 	return m_errcode;
 }
 
-void	curl_http_get_file::get_error_data(vector<char>& out_data)
+void	curl_http_get_file::get_error_data(std::vector<char>& out_data)
 {
 	DebugAssert(m_status == done_error);
 	swap(out_data, m_dl_buffer);
 }
 
-const string&	curl_http_get_file::get_url() const
+const std::string&	curl_http_get_file::get_url() const
 {
 	return m_url;
 }
@@ -187,8 +187,8 @@ size_t		curl_http_get_file::write_cb(void *contents, size_t size, size_t nmemb, 
 	size_t bytes = nmemb * size;
 	char * char_data = (char *) contents;
 
-	// This is a relatively inefficeint way to realloc our vector - the STL vector will typically
-	// use log growht (e.g. double the vector each time).  But our progress function will also 
+	// This is a relatively inefficeint way to realloc our std::vector - the STL std::vector will typically
+	// use log growht (e.g. double the std::vector each time).  But our progress function will also 
 	// reserve capacity.  Typically this gets hit once because the start of the data comes in the same
 	// burst as the end of headers, so CURL asks us to save this first, THEN issues a prog report.
 	me->m_dl_buffer.insert(me->m_dl_buffer.end(), char_data, char_data + bytes);
@@ -217,7 +217,7 @@ int			curl_http_get_file::progress_cb(void* ptr, double TotalToDownload, double 
 	}
 	if(TotalToDownload > 0.0)
 	{
-		// If we have a total, reserve AT LEAST that much to avoid thrashing vector needlessly.
+		// If we have a total, reserve AT LEAST that much to avoid thrashing std::vector needlessly.
 		size_t bytes = TotalToDownload;
 		if(me->m_dl_buffer.capacity() < bytes)
 			me->m_dl_buffer.reserve(bytes);
@@ -258,13 +258,13 @@ curl_http_get_file::thread_proc(void * param)
 	curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, param);
 	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);
 	
-	curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "");  // empty string is expanded into all methods supported by this version of curl.
+	curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "");  // empty std::string is expanded into all methods supported by this version of curl.
 #if WED
 	LOG_MSG("I/CURL setting up download\n");
 	fflush(gLogFile);
 	curl_easy_setopt(curl, CURLOPT_STDERR, gLogFile);
 #include "WED_Version.h"
-	curl_easy_setopt(curl, CURLOPT_USERAGENT, "WorldEditor/" WED_VERSION_STRING_SHORT );  // OSM tile server requires a referer string
+	curl_easy_setopt(curl, CURLOPT_USERAGENT, "WorldEditor/" WED_VERSION_STRING_SHORT );  // OSM tile server requires a referer std::string
 #endif
 #if 1 // DEV	
 	curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);

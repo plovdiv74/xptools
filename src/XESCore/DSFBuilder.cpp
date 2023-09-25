@@ -94,7 +94,7 @@ DSFBuildPrefs_t	gDSFBuildPrefs = { 1 };
 // Set to 1 to visualize beters on screen.
 #define		SHOW_BEZIERS 0
 
-// These macros set the height and normal in the mesh to the new-style modes.
+// These macros std::set the height and normal in the mesh to the new-style modes.
 #define USE_DEM_H(x,w,m,v)	(write_vertex_elevation(m,v) ? (x) : -32768.0)
 #define USE_DEM_N(x)		0.0f
 
@@ -102,20 +102,20 @@ static bool write_vertex_elevation(const CDT& inMesh, const CDT::Vertex_handle& 
 	return v->info().explicit_height || CategorizeVertex(inMesh,v,terrain_Water) <= 0;
 }
 
-Vector2 start_dir(const list<Point2c>& p)
+Vector2 start_dir(const std::list<Point2c>& p)
 {
 	DebugAssert(p.size() >= 2);
-	list<Point2c>::const_iterator i = p.begin();
+	std::list<Point2c>::const_iterator i = p.begin();
 	Point2 p0 = *i;
 	++i;
 	Point2 p1 = *i;
 	return Vector2(p0,p1);
 }
 
-Vector2 end_dir(const list<Point2c>& p)
+Vector2 end_dir(const std::list<Point2c>& p)
 {
 	DebugAssert(p.size() >= 2);
-	list<Point2c>::const_iterator i = p.end();
+	std::list<Point2c>::const_iterator i = p.end();
 	--i;
 	Point2 p0 = *i;
 	--i;
@@ -143,8 +143,8 @@ static void sub_heights(CDT& mesh, const DEMGeo& sl)
 	if(ffi->info().terrain == terrain_Water)
 	if(ffi->info().flag == 0)
 	{
-		list<CDT::Face_handle>	water_body;
-		list<CDT::Face_handle>	to_visit;
+		std::list<CDT::Face_handle>	water_body;
+		std::list<CDT::Face_handle>	to_visit;
 		to_visit.push_back(ffi);
 		ffi->info().flag = 1;
 		while(!to_visit.empty())
@@ -164,8 +164,8 @@ static void sub_heights(CDT& mesh, const DEMGeo& sl)
 		}
 		
 		Bbox2	this_lake;
-		set<CDT::Vertex_handle> mv;
-		for(list<CDT::Face_handle>::iterator i = water_body.begin(); i != water_body.end(); ++i)
+		std::set<CDT::Vertex_handle> mv;
+		for(std::list<CDT::Face_handle>::iterator i = water_body.begin(); i != water_body.end(); ++i)
 		for(int n = 0; n < 3; ++n)
 		{
 			this_lake += cgal2ben((*i)->vertex(n)->point());
@@ -173,7 +173,7 @@ static void sub_heights(CDT& mesh, const DEMGeo& sl)
 		}
 		
 		bool hosed = false;
-		for(set<CDT::Vertex_handle>::iterator v = mv.begin(); v != mv.end(); ++v)
+		for(std::set<CDT::Vertex_handle>::iterator v = mv.begin(); v != mv.end(); ++v)
 		{
 			double sh = sl.xy_nearest(CGAL::to_double((*v)->point().x()),CGAL::to_double((*v)->point().y()));
 			if(fabs(sh - (*v)->info().height) > 3.0)
@@ -186,7 +186,7 @@ static void sub_heights(CDT& mesh, const DEMGeo& sl)
 		}
 		if(!hosed)
 		{
-			for(set<CDT::Vertex_handle>::iterator v = mv.begin(); v != mv.end(); ++v)
+			for(std::set<CDT::Vertex_handle>::iterator v = mv.begin(); v != mv.end(); ++v)
 			{
 				int c = CategorizeVertex(mesh, *v, terrain_Water);
 				(*v)->info().height = c + 1;				
@@ -208,7 +208,7 @@ static void sub_heights(CDT& mesh, const DEMGeo& sl)
 				Point2(this_lake.xmax(),this_lake.ymin()),
 				Point2(this_lake.xmax(),this_lake.ymax()), 0, 0, 1, 0, 0, 1);
 			
-			for(set<CDT::Vertex_handle>::iterator v = mv.begin(); v != mv.end(); ++v)
+			for(std::set<CDT::Vertex_handle>::iterator v = mv.begin(); v != mv.end(); ++v)
 			{
 			}
 		}
@@ -217,11 +217,11 @@ static void sub_heights(CDT& mesh, const DEMGeo& sl)
 }
 #endif
 
-class	deferred_pool : public list<void *> {
+class	deferred_pool : public std::list<void *> {
 public:
 	~deferred_pool()
 	{
-		for(list<void*>::iterator i = begin(); i != end(); ++i)
+		for(std::list<void*>::iterator i = begin(); i != end(); ++i)
 			free(*i);
 	}
 };
@@ -256,9 +256,9 @@ T * ConvertDEMTo(const DEMGeo& d, DSFRasterHeader_t& h, int fmt, float s, float 
 }
 
 #if SHOW_BEZIERS
-void visualize_bezier(list<Point2c>& bez, bool want_straight_segs, float nt, float r)
+void visualize_bezier(std::list<Point2c>& bez, bool want_straight_segs, float nt, float r)
 {
-	list<Point2c>::iterator start(bez.begin()), stop(bez.begin()), last(bez.end());
+	std::list<Point2c>::iterator start(bez.begin()), stop(bez.begin()), last(bez.end());
 	--last;
 	DebugAssert(!last->c);
 
@@ -327,7 +327,7 @@ struct	road_coords_checker {
 	}
 };
 
-// We have to transform generic/specific int pair land uses into one numbering system and back!
+// We have to transform generic/specific int std::pair land uses into one numbering system and back!
 
 // Edge-wrapper...turns out CDT::Edge is so deeply templated that stuffing it in a map crashes CW8.
 // So we build a dummy wrapper around an edge to prevent a template with a huge expanded name.
@@ -1147,7 +1147,7 @@ void make_airport_rings(CDT& mesh,vector<dsf_airport_edge_info_t>& out_rings)
 		bool		dsf_edge;
 	};
 	hash_map<CDT::Edge, apt_ring_info, hash_edge>	links;
-	set<CDT::Edge>									border_links;
+	std::set<CDT::Edge>									border_links;
 
 	for (auto fi = mesh.finite_faces_begin(); fi != mesh.finite_faces_end(); ++fi)
 	for (int v = 0; v < 3; ++v)
@@ -1173,7 +1173,7 @@ void make_airport_rings(CDT& mesh,vector<dsf_airport_edge_info_t>& out_rings)
 	while(!links.empty())
 	{
 		auto me_link = links.begin();
-		set<CDT::Edge>::iterator me_border = border_links.end();
+		std::set<CDT::Edge>::iterator me_border = border_links.end();
 
 		if(!border_links.empty())
 		{
@@ -1333,9 +1333,9 @@ struct beach_splitter {
 	}
 
 		Bbox2					m_bounds;
-		vector<pair<Point2,double>>m_path;
+		vector<std::pair<Point2,double>>m_path;
 	
-		pair<Point2,double>		m_origin_pt;
+		std::pair<Point2,double>		m_origin_pt;
 		bool					m_has_origin = false;
 		bool					m_needs_origin = false;
 		int						m_closed;
@@ -1364,9 +1364,9 @@ void	BuildDSF(
 
 vector<CDT::Face_handle>	sHiResTris[PATCH_DIM_HI * PATCH_DIM_HI];
 vector<CDT::Face_handle>	sLoResTris[PATCH_DIM_LO * PATCH_DIM_LO];
-set<int>					sHiResLU[PATCH_DIM_HI * PATCH_DIM_HI];
-set<int>					sHiResBO[PATCH_DIM_HI * PATCH_DIM_HI];
-set<int>					sLoResLU[PATCH_DIM_LO * PATCH_DIM_LO];
+std::set<int>					sHiResLU[PATCH_DIM_HI * PATCH_DIM_HI];
+std::set<int>					sHiResBO[PATCH_DIM_HI * PATCH_DIM_HI];
+std::set<int>					sLoResLU[PATCH_DIM_LO * PATCH_DIM_LO];
 
 
 		double	prog_c = 0.0;
@@ -1398,9 +1398,9 @@ set<int>					sLoResLU[PATCH_DIM_LO * PATCH_DIM_LO];
 		map<int, int>::iterator 		lu;
 		map<int, int>::iterator 		obdef;
 		map<int, int, ObjPrio>::iterator obdef_prio;
-		set<int>::iterator				border_lu;
+		std::set<int>::iterator				border_lu;
 		bool							is_water, is_overlay;
-		list<CDT::Face_handle>::iterator nf;
+		std::list<CDT::Face_handle>::iterator nf;
 
 		Pmwx::Face_iterator						pf;
 		GISObjPlacementVector::iterator			pointObj;
@@ -1667,7 +1667,7 @@ set<int>					sLoResLU[PATCH_DIM_LO * PATCH_DIM_LO];
 		 ***************************************************************************************************************************************/
 
 		is_water		= lu_ranked->first == terrain_VisualWater || lu_ranked->first == terrain_Water;
-		is_overlay		= IsCustomOverWaterAny(lu_ranked->first);		// This layer is an overlay to water, so be sure to set the flags!
+		is_overlay		= IsCustomOverWaterAny(lu_ranked->first);		// This layer is an overlay to water, so be sure to std::set the flags!
 
 #if !NO_ORTHO
 		for (cur_id = 0; cur_id < (PATCH_DIM_LO*PATCH_DIM_LO); ++cur_id)
@@ -1685,8 +1685,8 @@ set<int>					sLoResLU[PATCH_DIM_LO * PATCH_DIM_LO];
 			}
 			fan_builder.CalcFans();
 			cbs.BeginPatch_f(lu_ranked->second, ORTHO_NEAR_LOD, ORTHO_FAR_LOD, 0, 5, writer1);
-			list<CDT::Vertex_handle>				primv;
-			list<CDT::Vertex_handle>::iterator		vert;
+			std::list<CDT::Vertex_handle>				primv;
+			std::list<CDT::Vertex_handle>::iterator		vert;
 			int										primt;
 			while(1)
 			{
@@ -1753,8 +1753,8 @@ set<int>					sLoResLU[PATCH_DIM_LO * PATCH_DIM_LO];
 				flags |= dsf_Flag_Physical;
 
 			cbs.BeginPatch_f(lu_ranked->second, TERRAIN_NEAR_LOD, TERRAIN_FAR_LOD, flags, is_water ? 7 : (pinfo ? 7 : 5), writer1);
-			list<CDT::Vertex_handle>				primv;
-			list<CDT::Vertex_handle>::iterator		vert;
+			std::list<CDT::Vertex_handle>				primv;
+			std::list<CDT::Vertex_handle>::iterator		vert;
 			int										primt;
 			while(1)
 			{
@@ -1951,7 +1951,7 @@ set<int>					sLoResLU[PATCH_DIM_LO * PATCH_DIM_LO];
 		// We also need to identify rings somehow.
 
 		typedef edge_hash_map														LinkMap;
-		typedef set<CDT::Edge>													LinkSet;
+		typedef std::set<CDT::Edge>													LinkSet;
 		typedef edge_info_map														LinkInfo;
 
 		LinkMap			linkNext;	// A hash map from each halfedge to the next with matching beach.  Uses CCW traversal to handle screw cases.
@@ -2373,7 +2373,7 @@ set<int>					sLoResLU[PATCH_DIM_LO * PATCH_DIM_LO];
 
 				NetRepInfo * info = &gNetReps[(*ci)->rep_type];
 
-				list<Point2c>	pts;
+				std::list<Point2c>	pts;
 
 				pts.push_back(Point2c((*ci)->start_junction->location,false));
 
@@ -2416,7 +2416,7 @@ set<int>					sLoResLU[PATCH_DIM_LO * PATCH_DIM_LO];
 				pts.push_back(Point2c((*ci)->end_junction->location,false));
 				DebugAssert(pts.size() >= 2);
 
-				list<Point2c>::iterator last(pts.end()), start(pts.begin());
+				std::list<Point2c>::iterator last(pts.end()), start(pts.begin());
 				--last;
 				DebugAssert(last->c == 0);
 				#if CAN_OPTIMIZE_BEZIERS
@@ -2507,7 +2507,7 @@ set<int>					sLoResLU[PATCH_DIM_LO * PATCH_DIM_LO];
 				
 				pts.pop_back();
 				pts.pop_front();
-				for(list<Point2c>::iterator p = pts.begin(); p != pts.end(); ++p)
+				for(std::list<Point2c>::iterator p = pts.begin(); p != pts.end(); ++p)
 				{
 					coords3[0] = doblim(p->x(),inElevation.mWest,inElevation.mEast);
 					coords3[1] = doblim(p->y(),inElevation.mSouth,inElevation.mNorth);

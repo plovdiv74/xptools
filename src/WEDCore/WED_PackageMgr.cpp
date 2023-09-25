@@ -37,7 +37,7 @@ WED_PackageMgr * gPackageMgr = NULL;
 
 struct WED_PackageInfo
 {
-	string name;
+	std::string name;
 	bool hasAnyItems;
 	bool hasPublicItems;
 	bool hasXML;
@@ -60,12 +60,12 @@ WED_PackageMgr::~WED_PackageMgr()
 	gPackageMgr=NULL;
 }
 
-void		WED_PackageMgr::GetRecentName(string& name) const
+void		WED_PackageMgr::GetRecentName(std::string& name) const
 {
 	name = RecentPkgName;
 }
 
-void		WED_PackageMgr::SetRecentName(const string& name)
+void		WED_PackageMgr::SetRecentName(const std::string& name)
 {
 	RecentPkgName  = name;
 }
@@ -75,7 +75,7 @@ bool		WED_PackageMgr::HasSystemFolder(void) const
 	return system_exists;
 }
 
-bool		WED_PackageMgr::GetXPlaneFolder(string& root) const
+bool		WED_PackageMgr::GetXPlaneFolder(std::string& root) const
 {
 	root = system_path;
 	return system_exists;
@@ -85,15 +85,15 @@ bool		WED_PackageMgr::AccumAnyDir(const char * fileName, bool isDir, void * ref)
 {
 	if(isDir && fileName[0] != '.') 
 	{
-		vector<WED_PackageInfo> * container = (vector<WED_PackageInfo> *) ref;
+		std::vector<WED_PackageInfo> * container = (std::vector<WED_PackageInfo> *) ref;
 		container->push_back(fileName);
 	}
 	return false;
 }
 
-static void analyze_package(const string& abspath, WED_PackageInfo& pkginfo)
+static void analyze_package(const std::string& abspath, WED_PackageInfo& pkginfo)
 {
-	string fp(abspath);
+	std::string fp(abspath);
 	
 	if(FILE_exists((fp + DIR_STR "library.txt").c_str()))
 		pkginfo.hasAnyItems = true;
@@ -104,8 +104,8 @@ static void analyze_package(const string& abspath, WED_PackageInfo& pkginfo)
 }
 
 struct package_local_scan_t {
-	string	fullpath;
-	vector<WED_PackageInfo> * who;
+	std::string	fullpath;
+	std::vector<WED_PackageInfo> * who;
 };
 
 bool		WED_PackageMgr::AccumLibDir(const char * fileName, bool isDir, void * ref)
@@ -123,10 +123,10 @@ bool		WED_PackageMgr::AccumLibDir(const char * fileName, bool isDir, void * ref)
 	return false;  // keep looking for more such files in this directory
 }
 
-bool		WED_PackageMgr::SetXPlaneFolder(const string& root)
+bool		WED_PackageMgr::SetXPlaneFolder(const std::string& root)
 {
 	// Check for the presence of the two folders WED really cares about.
-	string dir = root + DIR_STR + CUSTOM_PACKAGE_PATH;
+	std::string dir = root + DIR_STR + CUSTOM_PACKAGE_PATH;
 	if (MF_GetFileType(dir.c_str(),mf_CheckType) != mf_Directory)
 		return false;
 
@@ -152,13 +152,13 @@ int			WED_PackageMgr::CountPackages(void) const
 		   default_packages.size();
 }
 
-pair<int, int>	WED_PackageMgr::GlobalPackages(void) const
+std::pair<int, int>	WED_PackageMgr::GlobalPackages(void) const
 {
-	return make_pair((int) custom_packages.size(), (int) custom_packages.size() + (int) global_packages.size() - 1);
+	return std::make_pair((int) custom_packages.size(), (int) custom_packages.size() + (int) global_packages.size() - 1);
 }
 
 
-void		WED_PackageMgr::GetNthPackageName(int n, string& package) const
+void		WED_PackageMgr::GetNthPackageName(int n, std::string& package) const
 {
 	if (n < custom_packages.size())	{ package = custom_packages[n].name; return; }
 	n -= custom_packages.size();
@@ -169,7 +169,7 @@ void		WED_PackageMgr::GetNthPackageName(int n, string& package) const
 	package = default_packages[n].name;
 }
 
-void		WED_PackageMgr::GetNthPackagePath(int n, string& package) const
+void		WED_PackageMgr::GetNthPackagePath(int n, std::string& package) const
 {
 	if (n < custom_packages.size())	{ package = system_path + DIR_STR CUSTOM_PACKAGE_PATH DIR_STR +  custom_packages[n].name; return; }
 	n -= custom_packages.size();
@@ -239,10 +239,10 @@ void		WED_PackageMgr::AddPublicItems(int n)
 	default_packages[n].hasPublicItems = true;
 }
 
-void		WED_PackageMgr::RenameCustomPackage(int n, const string& new_name)
+void		WED_PackageMgr::RenameCustomPackage(int n, const std::string& new_name)
 {
-	string oldn = system_path + DIR_STR CUSTOM_PACKAGE_PATH DIR_STR + custom_packages[n].name;
-	string newn = system_path + DIR_STR CUSTOM_PACKAGE_PATH DIR_STR + new_name;
+	std::string oldn = system_path + DIR_STR CUSTOM_PACKAGE_PATH DIR_STR + custom_packages[n].name;
+	std::string newn = system_path + DIR_STR CUSTOM_PACKAGE_PATH DIR_STR + new_name;
 	int res = FILE_rename_file(oldn.c_str(), newn.c_str());
 	if (res != 0)
 	{
@@ -257,8 +257,8 @@ void		WED_PackageMgr::RenameCustomPackage(int n, const string& new_name)
 int WED_PackageMgr::CreateNewCustomPackage(void)
 {
 	int n = 0;
-	string name;
-	string path;
+	std::string name;
+	std::string path;
 	char buf[256];
 	do {
 		++n;
@@ -311,11 +311,11 @@ void		WED_PackageMgr::Rescan(bool alwaysBroadcast)
 	system_exists=false;
 	if (MF_GetFileType(system_path.c_str(),mf_CheckType) == mf_Directory)
 	{
-		string cus_dir = system_path + DIR_STR CUSTOM_PACKAGE_PATH;
+		std::string cus_dir = system_path + DIR_STR CUSTOM_PACKAGE_PATH;
 
 		if (MF_GetFileType(cus_dir.c_str(),mf_CheckType) == mf_Directory)
 		{
-			vector<WED_PackageInfo> old_cust_packages;
+			std::vector<WED_PackageInfo> old_cust_packages;
 			old_cust_packages.swap(custom_packages);
 
 			system_exists=true;
@@ -324,7 +324,7 @@ void		WED_PackageMgr::Rescan(bool alwaysBroadcast)
 			info.who = &custom_packages;
 			MF_IterateDirectory(cus_dir.c_str(), AccumLibDir, (void*) &info);
 			
-			vector<string> disabledSceneries;
+			std::vector<std::string> disabledSceneries;
 			MFMemFile * ini = MemFile_Open((cus_dir + DIR_STR "scenery_packs.ini").c_str());
 			if(ini)
 			{
@@ -337,7 +337,7 @@ void		WED_PackageMgr::Rescan(bool alwaysBroadcast)
 					{
 						if (MFS_string_match(&s,"SCENERY_PACK_DISABLED", false))
 						{
-							string dis;
+							std::string dis;
 							MFS_string_eol(&s,&dis);
 							size_t  p_end = dis.find_last_of("\\/");
 							size_t  p_beg = dis.find_last_of("\\/",p_end-1);
@@ -378,7 +378,7 @@ void		WED_PackageMgr::Rescan(bool alwaysBroadcast)
 
 		if(pkg_list_changed)
 		{
-			string glb_dir = system_path + DIR_STR GLOBAL_PACKAGE_PATH;
+			std::string glb_dir = system_path + DIR_STR GLOBAL_PACKAGE_PATH;
 			global_packages.clear();
 			if (MF_GetFileType(glb_dir.c_str(),mf_CheckType) == mf_Directory)
 			{
@@ -387,7 +387,7 @@ void		WED_PackageMgr::Rescan(bool alwaysBroadcast)
 				sort(global_packages.begin(),global_packages.end(),SortPackageList);
 			}
 
-			string def_dir = system_path + DIR_STR DEFAULT_PACKAGE_PATH;
+			std::string def_dir = system_path + DIR_STR DEFAULT_PACKAGE_PATH;
 			default_packages.clear();
 			if (MF_GetFileType(def_dir.c_str(),mf_CheckType) == mf_Directory)
 			{
@@ -401,13 +401,13 @@ void		WED_PackageMgr::Rescan(bool alwaysBroadcast)
 	}
 
 	XPversion = "Unknown";
-	string logfile_name = system_path + DIR_STR "Log.txt";
-	string logfile_contents;
+	std::string logfile_name = system_path + DIR_STR "Log.txt";
+	std::string logfile_contents;
 	if (FILE_exists(logfile_name.c_str()) &&
 		FILE_read_file_to_string(logfile_name, logfile_contents) == 0)
 	{
-		size_t v_pos = logfile_contents.find("X-Plane");  // version string is the one behind the X-plane keyword
-		if (v_pos != string::npos && v_pos < 100)
+		size_t v_pos = logfile_contents.find("X-Plane");  // version std::string is the one behind the X-plane keyword
+		if (v_pos != std::string::npos && v_pos < 100)
 		{
 			char v[16];
 			sscanf(logfile_contents.c_str()+v_pos+8,"%15s",v);
@@ -417,16 +417,16 @@ void		WED_PackageMgr::Rescan(bool alwaysBroadcast)
 	LOG_MSG("I/PMgr Detected XP version %s\n", XPversion.c_str());
 }
 
-string		WED_PackageMgr::ComputePath(const string& package, const string& rel_file) const
+std::string		WED_PackageMgr::ComputePath(const std::string& package, const std::string& rel_file) const
 {
 	if(rel_file.size() >= 2 && rel_file[1] == ':') return rel_file;
 	return system_path + DIR_STR CUSTOM_PACKAGE_PATH DIR_STR + package + DIR_STR + rel_file;
 }
 
-string		WED_PackageMgr::ReducePath(const string& package, const string& full_file) const
+std::string		WED_PackageMgr::ReducePath(const std::string& package, const std::string& full_file) const
 {
-	string prefix = ComputePath(package,string());
-	string partial(full_file);
+	std::string prefix = ComputePath(package,std::string());
+	std::string partial(full_file);
 
 #if IBM
 	if(prefix.size() >= 2 && partial.size() >= 2 &&
@@ -438,12 +438,12 @@ string		WED_PackageMgr::ReducePath(const string& package, const string& full_fil
 	// we are in trouble.
 	// Strangely - if the file ifself is a symlink that one doe NOT get resolved - so no special handling needed for that.
 	
-	FILE * pipe = popen((string("cd '") + prefix + "'; pwd -P").c_str(),"r");
+	FILE * pipe = popen((std::string("cd '") + prefix + "'; pwd -P").c_str(),"r");
 	if(pipe)
 	{
 		char buf[256];
 		fgets(buf, sizeof(buf), pipe);
-		prefix = string(buf, strlen(buf)-1) + DIR_STR; // cut off \n at the end
+		prefix = std::string(buf, strlen(buf)-1) + DIR_STR; // cut off \n at the end
 		pclose(pipe);
 	}
 #endif
@@ -464,10 +464,10 @@ string		WED_PackageMgr::ReducePath(const string& package, const string& full_fil
 
 	while(!prefix.empty())
 	{
-		string::size_type chop = prefix.find_first_of("\\/:");
+		std::string::size_type chop = prefix.find_first_of("\\/:");
 		if (chop == prefix.npos) break;
 		prefix.erase(0,chop+1);
-		partial = string("../") + partial;
+		partial = std::string("../") + partial;
 	}
 	return partial;
 }
@@ -477,7 +477,7 @@ const char * WED_PackageMgr::GetXPversion() const
 	return XPversion.c_str();
 }
 
-bool		WED_PackageMgr::IsSameXPVersion( const string& version) const
+bool		WED_PackageMgr::IsSameXPVersion( const std::string& version) const
 {
 	return (XPversion == version);   // might have to refine that, i.e. consider various all release candidates to be equivalent ?
 }

@@ -87,7 +87,7 @@ enum {
 	apt_taxi_node		= 1201,			// 1201 <lat> <lon> <type> <id, 0 based sequence, ascending> <name>
 	apt_taxi_edge		= 1202,			// 1202 <src> <dst> <oneway flag> <runway flag/taxi width> <name>
 	apt_taxi_shape		= 1203,			// 1203 <lat> <lon>
-	apt_taxi_active		= 1204,			// 1204 type|flags runway,list
+	apt_taxi_active		= 1204,			// 1204 type|flags runway,std::list
 #if HAS_CURVED_ATC_ROUTE
 	apt_taxi_control	= 1205,			// 1205 <lat> <lon>
 #else
@@ -378,7 +378,7 @@ struct	AptRunway_t {
 	int			edge_light_code;
 	int			has_distance_remaining;
 
-	string		id[2];
+	std::string		id[2];
 	float		disp_mtr[2];
 	float		blas_mtr[2];
 	int			marking_code[2];
@@ -394,18 +394,18 @@ struct	AptRunway_t {
 	float		skids[2];
 	float		skid_len[2];
 };
-typedef vector<AptRunway_t>		AptRunwayVector;
+typedef std::vector<AptRunway_t>		AptRunwayVector;
 
 struct	AptSealane_t {
 	Segment2	ends;
 	float		width_mtr;
 	int			has_buoys;
-	string		id[2];
+	std::string		id[2];
 };
-typedef vector<AptSealane_t>	AptSealaneVector;
+typedef std::vector<AptSealane_t>	AptSealaneVector;
 
 struct	AptHelipad_t {
-	string		id;
+	std::string		id;
 	Point2		location;
 	float		heading;
 	float		length_mtr;
@@ -416,41 +416,41 @@ struct	AptHelipad_t {
 	float		roughness_ratio;
 	int			edge_light_code;
 };
-typedef	vector<AptHelipad_t>	AptHelipadVector;
+typedef	std::vector<AptHelipad_t>	AptHelipadVector;
 
 struct	AptLinearSegment_t {
 	int			code;
 	Point2		pt;
 	Point2		ctrl;
-	set<int>	attributes;
+	std::set<int>	attributes;
 };
-typedef	vector<AptLinearSegment_t>		AptPolygon_t;
+typedef	std::vector<AptLinearSegment_t>		AptPolygon_t;
 
 struct	AptTaxiway_t {
 	int						surface_code;
 	float					roughness_ratio;
 	float					heading;
 	AptPolygon_t			area;
-	string					name;
+	std::string					name;
 };
-typedef vector<AptTaxiway_t>	AptTaxiwayVector;
+typedef std::vector<AptTaxiway_t>	AptTaxiwayVector;
 
 struct	AptBoundary_t {
 	AptPolygon_t			area;
-	string					name;
+	std::string					name;
 };
-typedef vector<AptBoundary_t>	AptBoundaryVector;
+typedef std::vector<AptBoundary_t>	AptBoundaryVector;
 
 struct AptMarking_t {
 	AptPolygon_t			area;
-	string					name;
+	std::string					name;
 };
-typedef vector<AptMarking_t>	AptMarkingVector;
+typedef std::vector<AptMarking_t>	AptMarkingVector;
 
 struct	AptPavement_t {
 	Segment2	ends;	// Endpoint locations
 	float		width_ft;	// Width in feet
-	string		name;	// lo or taxiway letter or blank
+	std::string		name;	// lo or taxiway letter or blank
 
 	int			surf_code;
 	int			shoulder_code;
@@ -472,7 +472,7 @@ struct	AptPavement_t {
 	int			app_lites_code2;
 	int			vasi_angle2;	// x100
 };
-typedef vector<AptPavement_t>	AptPavementVector;
+typedef std::vector<AptPavement_t>	AptPavementVector;
 
 struct	AptGate_t {
 	Point2		location;
@@ -480,63 +480,63 @@ struct	AptGate_t {
 	int			type;
 	int			equipment;
 	int			width;			// icao width code
-	string		name;
+	std::string		name;
 	int			ramp_op_type;     // ramp operations type
-	string		airlines;
+	std::string		airlines;
 };
-typedef vector<AptGate_t>		AptGateVector;
+typedef std::vector<AptGate_t>		AptGateVector;
 
 struct	AptTowerPt_t {
 	Point2		location;
 	float		height_ft;
 	int			draw_obj;		// not used in 850
-	string		name;
+	std::string		name;
 };
 
 struct	AptBeacon_t {
 	Point2		location;
 	int			color_code;
-	string		name;
+	std::string		name;
 };
 
 struct AptWindsock_t {
 	Point2		location;
 	int			lit;
-	string		name;
+	std::string		name;
 };
-typedef vector<AptWindsock_t>	AptWindsockVector;
+typedef std::vector<AptWindsock_t>	AptWindsockVector;
 
 struct	AptLight_t {
 	Point2		location;
 	int			light_code;
 	float		heading;
 	float		angle;
-	string		name;
+	std::string		name;
 };
-typedef vector<AptLight_t>		AptLightVector;
+typedef std::vector<AptLight_t>		AptLightVector;
 
 struct	AptSign_t {
 	Point2		location;
 	float		heading;
 	int			style_code;
 	int			size_code;
-	string		text;
+	std::string		text;
 };
-typedef vector<AptSign_t>		AptSignVector;
+typedef std::vector<AptSign_t>		AptSignVector;
 
 struct	AptATCFreq_t {
 	int			freq;          // since WED 171 has a base of 1kHz, not 10kHz
 	int			atc_type;
-	string		name;
+	std::string		name;
 };
-typedef vector<AptATCFreq_t>	AptATCFreqVector;
+typedef std::vector<AptATCFreq_t>	AptATCFreqVector;
 
 /************************************************************************************************************************
  * ATC INFO
  ************************************************************************************************************************/
 struct AptRunwayRule_t {
-	string			name;
-	string			runway;
+	std::string			name;
+	std::string			runway;
 	int				operations;
 	int				equipment;
 	int				dep_freq;
@@ -545,38 +545,38 @@ struct AptRunwayRule_t {
 	int				ini_heading_lo;		// This is the range of initial headings the tower can issue.
 	int				ini_heading_hi;
 };
-typedef vector<AptRunwayRule_t>	AptRunwayRuleVector;
+typedef std::vector<AptRunwayRule_t>	AptRunwayRuleVector;
 
 struct AptWindRule_t {
-	string			icao;
+	std::string			icao;
 	int				dir_lo_degs_mag;
 	int				dir_hi_degs_mag;
 	int				max_speed_knots;
 };
-typedef vector<AptWindRule_t>	AptWindRuleVector;
+typedef std::vector<AptWindRule_t>	AptWindRuleVector;
 
 struct AptTimeRule_t {
 	int				start_zulu;
 	int				end_zulu;
 };
-typedef vector<AptTimeRule_t>	AptTimeRuleVector;
+typedef std::vector<AptTimeRule_t>	AptTimeRuleVector;
 
 struct AptFlow_t {
-	string						name;
+	std::string						name;
 
-	string						icao;
+	std::string						icao;
 	int							ceiling_ft;
 	float						visibility_sm;
 	AptTimeRuleVector			time_rules;
 	AptWindRuleVector			wind_rules;
 	int							pattern_side;
-	string						pattern_runway;
+	std::string						pattern_runway;
 	AptRunwayRuleVector			runway_rules;
 };
-typedef vector<AptFlow_t>		AptFlowVector;
+typedef std::vector<AptFlow_t>		AptFlowVector;
 
 struct AptRouteNode_t {
-	string						name;
+	std::string						name;
 	int							id;
 	Point2						location;
 };
@@ -585,49 +585,49 @@ struct AptEdgeBase_t {
 	int							src;
 	int							dst;
 	int							oneway;
-	vector<pair<Point2, bool> >	shape;			// This is pairs of shape points and curved flags - true means curve control point
+	std::vector<std::pair<Point2, bool> >	shape;			// This is pairs of shape points and curved flags - true means curve control point
 												// The end points are NOT included in shape.  It is a requirement that no more
 												// than 2 adjacent curve control points exist without a regular point.  There is no min/max size requirement for shape.
 };
 
 struct AptRouteEdge_t : AptEdgeBase_t {
-	string						name;
+	std::string						name;
 	int							runway;
 	int							width;	// icao width code
-	set<string>					hot_depart;
-	set<string>					hot_arrive;
-	set<string>					hot_ils;
+	std::set<std::string>					hot_depart;
+	std::set<std::string>					hot_arrive;
+	std::set<std::string>					hot_ils;
 
 };
 
 struct AptServiceRoadEdge_t : AptEdgeBase_t {
-	string						name;
+	std::string						name;
 };
 
 struct AptNetwork_t {
-	string						name;
-	vector<AptRouteNode_t>		nodes;
-	vector<AptRouteEdge_t>		edges;
-	vector<AptServiceRoadEdge_t>service_roads;
+	std::string						name;
+	std::vector<AptRouteNode_t>		nodes;
+	std::vector<AptRouteEdge_t>		edges;
+	std::vector<AptServiceRoadEdge_t>service_roads;
 };
 
 struct AptTruckParking_t {
-	string						name;
+	std::string						name;
 	Point2						location;
 	float						heading;
 	int							parking_type;
 	int							train_car_count;
-	string						vpath;         // optional
+	std::string						vpath;         // optional
 };
-typedef vector<AptTruckParking_t> AptTruckParkingVector;
+typedef std::vector<AptTruckParking_t> AptTruckParkingVector;
 
 struct AptTruckDestination_t {
-	string						name;
+	std::string						name;
 	Point2						location;
 	float						heading;
-	set<int>					truck_types;
+	std::set<int>					truck_types;
 };
-typedef vector<AptTruckDestination_t> AptTruckDestinationVector;
+typedef std::vector<AptTruckDestination_t> AptTruckDestinationVector;
 
 struct Jetway_t {
 	Point2						location;
@@ -637,18 +637,18 @@ struct Jetway_t {
 	float						parked_tunnel_heading;
 	float						parked_tunnel_length;
 	float						parked_cab_heading;
-	string						vpath;          // optional
+	std::string						vpath;          // optional
 };
-typedef vector<Jetway_t> JetwayVector;
+typedef std::vector<Jetway_t> JetwayVector;
 
 struct AptInfo_t {
 	int					kind_code;				// Enum
-	string				icao;
-	string				name;
+	std::string				icao;
+	std::string				name;
 	int					elevation_ft;
 	int					has_atc_twr;            // not used in 1000
 	int					default_buildings;		// not used in 850
-	std::vector<std::pair<string,string> > meta_data; //Contains meta data for real and synthetic properties
+	std::vector<std::pair<std::string,std::string> > meta_data; //Contains meta data for real and synthetic properties
 
 	AptRunwayVector		runways;				// 850 structures
 	AptSealaneVector	sealanes;
@@ -681,14 +681,14 @@ struct AptInfo_t {
 		float			rgb[3];
 		Polygon2		pts;
 	};
-	vector<AptLineLoop_t>	ogl;
+	std::vector<AptLineLoop_t>	ogl;
 #endif
 
 
 };
 
-typedef vector<AptInfo_t>	AptVector;
+typedef std::vector<AptInfo_t>	AptVector;
 
-typedef hash_multimap<int,int>	AptIndex;
+typedef std::hash_multimap<int,int>	AptIndex;
 
 #endif

@@ -158,7 +158,7 @@ public:
 	// two or more items and being in a heterogenous or homogenous run.
 
 		FILE *		file;
-		vector<T>	run;
+		std::vector<T>	run;
 		bool		is_run;
 		bool		is_individual;
 		int			run_length;
@@ -225,7 +225,7 @@ public:
 					run.push_back(value);
 				}
 			} else {
-				// This case is funky: we have a set of individual
+				// This case is funky: we have a std::set of individual
 				// items and the last matches this new one.  We are
 				// going to use that last item from the individual run
 				// as the start of a homogenous run.  Why?  Well, first

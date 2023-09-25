@@ -92,7 +92,7 @@ void	Map_CreateReturnEdges(
 
 		// We are going to go through each key and find the matching curve.  Note that if we had two overlapping curves in
 		// opposite directions in the input data, we will pick the two TWIN half-edges, since we go with the direction
-		// of the source curve.  This means that input data based on a wide set of source polygons that overlap will
+		// of the source curve.  This means that input data based on a wide std::set of source polygons that overlap will
 		// create correct rings.
 		for(EdgeKey_iterator k = eit->curve().data().begin(); k != eit->curve().data().end(); ++k)
 		{

@@ -50,7 +50,7 @@ public:
 
 			int			TCE_KeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFlags);
 			int			TCE_HandleCommand(int command);
-			int			TCE_CanHandleCommand(int command, string& ioName, int& ioCheck);
+			int			TCE_CanHandleCommand(int command, std::string& ioName, int& ioCheck);
 
 			void		FromPrefs(IDocPrefs * prefs);
 			void		ToPrefs(IDocPrefs * prefs);
@@ -64,8 +64,8 @@ private:
 
 	WED_TCE *				mTCE;
 
-	vector<WED_TCELayer *>	mLayers;
-	vector<WED_TCEToolNew *>mTools;
+	std::vector<WED_TCELayer *>	mLayers;
+	std::vector<WED_TCEToolNew *>mTools;
 
 	GUI_ToolBar *			mToolbar;
 

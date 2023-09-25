@@ -481,7 +481,7 @@ Reader::readObject( Token &/*tokenStart*/ )
       nodes_.push( &value );
       bool ok = readValue();
       nodes_.pop();
-      if ( !ok ) // error already set
+      if ( !ok ) // error already std::set
          return recoverFromError( tokenObjectEnd );
 
       Token comma;
@@ -525,7 +525,7 @@ Reader::readArray( Token &/*tokenStart*/ )
       nodes_.push( &value );
       bool ok = readValue();
       nodes_.pop();
-      if ( !ok ) // error already set
+      if ( !ok ) // error already std::set
          return recoverFromError( tokenArrayEnd );
 
       Token token;
@@ -655,7 +655,7 @@ Reader::decodeString( Token &token, std::string &decoded )
       else if ( c == '\\' )
       {
          if ( current == end )
-            return addError( "Empty escape sequence in string", token, current );
+            return addError( "Empty escape sequence in std::string", token, current );
          Char escape = *current++;
          switch ( escape )
          {
@@ -676,7 +676,7 @@ Reader::decodeString( Token &token, std::string &decoded )
             }
             break;
          default:
-            return addError( "Bad escape sequence in string", token, current );
+            return addError( "Bad escape sequence in std::string", token, current );
          }
       }
       else
@@ -700,7 +700,7 @@ Reader::decodeUnicodeCodePoint( Token &token,
    {
       // surrogate pairs
       if (end - current < 6)
-         return addError( "additional six characters expected to parse unicode surrogate pair.", token, current );
+         return addError( "additional six characters expected to parse unicode surrogate std::pair.", token, current );
       unsigned int surrogatePair;
       if (*(current++) == '\\' && *(current++)== 'u')
       {
@@ -712,7 +712,7 @@ Reader::decodeUnicodeCodePoint( Token &token,
             return false;
       } 
       else
-         return addError( "expecting another \\u token to begin the second half of a unicode surrogate pair", token, current );
+         return addError( "expecting another \\u token to begin the second half of a unicode surrogate std::pair", token, current );
    }
    return true;
 }
@@ -724,7 +724,7 @@ Reader::decodeUnicodeEscapeSequence( Token &token,
                                      unsigned int &unicode )
 {
    if ( end - current < 4 )
-      return addError( "Bad unicode escape sequence in string: four digits expected.", token, current );
+      return addError( "Bad unicode escape sequence in std::string: four digits expected.", token, current );
    unicode = 0;
    for ( int index =0; index < 4; ++index )
    {
@@ -737,7 +737,7 @@ Reader::decodeUnicodeEscapeSequence( Token &token,
       else if ( c >= 'A'  &&  c <= 'F' )
          unicode += c - 'A' + 10;
       else
-         return addError( "Bad unicode escape sequence in string: hexadecimal digit expected.", token, current );
+         return addError( "Bad unicode escape sequence in std::string: hexadecimal digit expected.", token, current );
    }
    return true;
 }

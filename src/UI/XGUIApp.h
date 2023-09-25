@@ -27,7 +27,7 @@
 void	XGrinder_Quit(void);
 
 // These are routines you must provide!
-void	XGrindFiles(const vector<string>& fileList);
+void	XGrindFiles(const std::vector<std::string>& fileList);
 
 #if LIN
 void	XGrindInit(int& argc, char* argv[]);

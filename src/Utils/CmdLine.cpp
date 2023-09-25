@@ -16,12 +16,12 @@ static void test();
 	#endif
 }
 
-bool CmdLine::has_option(const string & option) const
+bool CmdLine::has_option(const std::string & option) const
 {
 	return m_options.count(option) > 0;
 }
 
-string CmdLine::get_value(const string & option) const
+std::string CmdLine::get_value(const std::string & option) const
 {
 	const auto found = m_options.find(option);
 	return found == m_options.end() ? "" : found->second;
@@ -38,18 +38,18 @@ static CmdLine::storage_type parse_unix_style(int argc, char const * const * arg
 		if(eq == NULL)
 			eq = en;
 
-		const string arg(argv[n], eq);
+		const std::string arg(argv[n], eq);
 		if(!arg.empty())
 		{
 			if(eq && eq != en)
 				eq++;
 			
-			string val(eq, en);
-			if(val[0] == '"' && val[val.size() - 1] == '"') // If we got a quoted string from the CLI...
+			std::string val(eq, en);
+			if(val[0] == '"' && val[val.size() - 1] == '"') // If we got a quoted std::string from the CLI...
 			{
 				val = val.substr(1, val.size() - 2); // nuke the first and last chars
 			}
-			out.insert(make_pair(arg, val));
+			out.insert(std::make_pair(arg, val));
 		}
 	}
 	return out;
@@ -93,11 +93,11 @@ static CmdLine::storage_type parse_windows_style(const char * cmdline)
 			}
 		}
 
-		const string arg(wb, we);
+		const std::string arg(wb, we);
 		if(!arg.empty())
 		{
-			const string val(vb, ve);
-			out.insert(make_pair(arg, val));
+			const std::string val(vb, ve);
+			out.insert(std::make_pair(arg, val));
 		}
 	}
 	return out;
@@ -123,8 +123,8 @@ static void dump_options_map(const CmdLine::storage_type &m, const char * label=
 
 struct test_case
 {
-	string windows_version;
-	vector<const char *> unix_version;
+	std::string windows_version;
+	std::vector<const char *> unix_version;
 	CmdLine::storage_type expected;
 	
 	bool test_passes() const
@@ -151,7 +151,7 @@ struct test_case
 
 static void test()
 {
-	const vector<test_case> test_cases = {
+	const std::vector<test_case> test_cases = {
 		{"", {}, {}}, // empty case
 		// Handle both simple flags and options with values
 		{"--foo --bar=baz",     {"app.sh", "--foo", "--bar=baz"},     {{"--foo", ""}, {"--bar", "baz"}} },

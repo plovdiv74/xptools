@@ -23,22 +23,22 @@
 
 #include "GUI_Unicode.h"
 
-string_utf16 convert_str_to_utf16(const string& str)
+string_utf16 convert_str_to_utf16(const std::string& str)
 {
 	string_utf16 str_utf16;
 	string_utf_8_to_16(str, str_utf16);
 	return str_utf16;
 }
 
-string       convert_utf16_to_str(const string_utf16& str_utf16)
+std::string       convert_utf16_to_str(const string_utf16& str_utf16)
 {
-	string str_utf8;
+	std::string str_utf8;
 	string_utf_16_to_8(str_utf16, str_utf8);
 	return str_utf8;
 }
 
 // These allocate memory - there is no point in inlining them as they will make a pile o function calls anyway.
-void	string_utf_8_to_16(const string& input, string_utf16& output)
+void	string_utf_8_to_16(const std::string& input, string_utf16& output)
 {
 	output.clear();
 	const UTF8 * p = (const UTF8 *)input.c_str();
@@ -53,7 +53,7 @@ void	string_utf_8_to_16(const string& input, string_utf16& output)
 	}
 }
 
-void	string_utf_16_to_8(const string_utf16& input, string& output)
+void	string_utf_16_to_8(const string_utf16& input, std::string& output)
 {
 	output.clear();
 	const UTF16 * p = (const UTF16 *)input.c_str();
@@ -72,16 +72,16 @@ void	string_utf_16_to_8(const string_utf16& input, string& output)
 
 #include <CoreFoundation/CFString.h>
 
-static void	CFStringToSTL(CFStringRef cfstr, string& stl_str, CFStringEncoding encoding)
+static void	CFStringToSTL(CFStringRef cfstr, std::string& stl_str, CFStringEncoding encoding)
 {
 	CFIndex blen, blen2, clen, clen2, slen = CFStringGetLength(cfstr);
 	clen = CFStringGetBytes(cfstr,CFRangeMake(0, slen), encoding, 0, FALSE, NULL, 0, &blen);	
 	assert(clen==slen);
-	vector<UTF8>	buf(blen);
+	std::vector<UTF8>	buf(blen);
 	clen2 = CFStringGetBytes(cfstr,CFRangeMake(0,slen), encoding, 0, FALSE, &*buf.begin(), blen, &blen2);	
 	assert(clen==clen2);
 	assert(blen==blen2);
-	stl_str = string(buf.begin(),buf.end());
+	stl_str = std::string(buf.begin(),buf.end());
 }
 
 UTF32 script_to_utf32(char c)
@@ -90,7 +90,7 @@ UTF32 script_to_utf32(char c)
 	CFStringRef	s = CFStringCreateWithCString(kCFAllocatorDefault,buf,CFStringGetSystemEncoding());
 	if(s== NULL) return (c & 0x80 ? 0 : c);
 	
-	string utf8;
+	std::string utf8;
 	CFStringToSTL(s,utf8,kCFStringEncodingUTF8);
 	CFRelease(s);
 	return UTF8_decode((const UTF8*)utf8.c_str());

@@ -191,7 +191,7 @@ void WED_TerrainLayer::LoadTerrain(Bbox2& bounds)
 	if (mTerrains.size() > 6) // honestly, only at VERY high lattitudes more than 4 tiles could ever be in active use. 
 	{	                      // As we don't display nor load terrain if zoomed out far enough.
 		double far_dist = 0.0;
-		string far_tile;
+		std::string far_tile;
 		auto here = bounds.centroid();
 		for (const auto& t : mTerrains)
 		{
@@ -206,7 +206,7 @@ void WED_TerrainLayer::LoadTerrain(Bbox2& bounds)
 		//printf("%ld mTerrains, nuked %s\n", mTerrains.size(), far_tile.c_str());
 	}
 
-	set<string> vpaths;
+	std::set<std::string> vpaths;
 	add_all_global_DSF(bounds, vpaths);
 
 	DSFCallbacks_t cb = { NextPass, AcceptTerrainDef, AcceptObjectDef, AcceptPolygonDef, AcceptNetworkDef, AcceptRasterDef, AcceptProperty,

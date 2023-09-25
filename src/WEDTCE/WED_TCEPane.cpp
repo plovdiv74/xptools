@@ -74,11 +74,11 @@ WED_TCEPane::WED_TCEPane(GUI_Commander * cmdr, IResolver * resolver, WED_Archive
 	this->PackPane(mToolbar,gui_Pack_Top);
 	mToolbar->SizeToBitmap();
 	mToolbar->AddListener(this);
-	vector<string>	tips;
+	std::vector<std::string>	tips;
 
 	for (int n = 0; n < mTools.size(); ++n)
 	{
-		string tip(mTools[n]->GetToolName());
+		std::string tip(mTools[n]->GetToolName());
 		if (kToolKeys[n])
 		{
 			char buf[5] = { " [x]" };
@@ -133,9 +133,9 @@ WED_TCEPane::WED_TCEPane(GUI_Commander * cmdr, IResolver * resolver, WED_Archive
 
 	mLayers.push_back(					new WED_TCEDebugLayer(mTCE, mTCE, resolver));
 
-	for(vector<WED_TCELayer *>::iterator l = mLayers.begin(); l != mLayers.end(); ++l)
+	for(std::vector<WED_TCELayer *>::iterator l = mLayers.begin(); l != mLayers.end(); ++l)
 		mTCE->AddLayer(*l);
-	for(vector<WED_TCEToolNew *>::iterator t = mTools.begin(); t != mTools.end(); ++t)
+	for(std::vector<WED_TCEToolNew *>::iterator t = mTools.begin(); t != mTools.end(); ++t)
 		mTCE->AddLayer(*t);
 
 	mTCE->SetTool(mTools[0]);
@@ -154,9 +154,9 @@ WED_TCEPane::WED_TCEPane(GUI_Commander * cmdr, IResolver * resolver, WED_Archive
 
 WED_TCEPane::~WED_TCEPane()
 {
-	for(vector<WED_TCELayer *>::iterator l = mLayers.begin(); l != mLayers.end(); ++l)
+	for(std::vector<WED_TCELayer *>::iterator l = mLayers.begin(); l != mLayers.end(); ++l)
 		delete *l;
-	for(vector<WED_TCEToolNew *>::iterator t = mTools.begin(); t != mTools.end(); ++t)
+	for(std::vector<WED_TCEToolNew *>::iterator t = mTools.begin(); t != mTools.end(); ++t)
 		delete *t;
 
 	delete mTextTable;
@@ -191,7 +191,7 @@ int		WED_TCEPane::TCE_HandleCommand(int command)
 	}
 }
 
-int		WED_TCEPane::TCE_CanHandleCommand(int command, string& ioName, int& ioCheck)
+int		WED_TCEPane::TCE_CanHandleCommand(int command, std::string& ioName, int& ioCheck)
 {
 	switch(command) {
 	default:		return 0;

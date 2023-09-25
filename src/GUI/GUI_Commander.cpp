@@ -26,7 +26,7 @@
 #include <algorithm>
 #include <typeinfo>
 
-static set<GUI_Commander_Notifiable *>	sNotify;
+static std::set<GUI_Commander_Notifiable *>	sNotify;
 
 GUI_Commander::GUI_Commander(GUI_Commander * inParent) : 
 	mCmdParent(inParent), 
@@ -52,7 +52,7 @@ GUI_Commander::~GUI_Commander()
 
 		mCmdParent->mCmdChildren.erase(find(mCmdParent->mCmdChildren.begin(),mCmdParent->mCmdChildren.end(), this));
 	}
-	for (vector<GUI_Commander *>::iterator child = mCmdChildren.begin(); child != mCmdChildren.end(); ++child)
+	for (std::vector<GUI_Commander *>::iterator child = mCmdChildren.begin(); child != mCmdChildren.end(); ++child)
 	{
 		(*child)->mCmdParent = NULL;
 	}
@@ -222,9 +222,9 @@ int				GUI_Commander::DispatchHandleCommand(int command)
 		return 0;
 	}	
 
-	for(set<GUI_Commander_Notifiable *>::iterator i = sNotify.begin(); i != sNotify.end();)
+	for(std::set<GUI_Commander_Notifiable *>::iterator i = sNotify.begin(); i != sNotify.end();)
 	{
-		set<GUI_Commander_Notifiable *>::iterator j(i);
+		std::set<GUI_Commander_Notifiable *>::iterator j(i);
 		++i;
 		(*j)->PreCommandNotification(who, command);
 	}
@@ -236,7 +236,7 @@ int				GUI_Commander::DispatchHandleCommand(int command)
 	return 0;
 }
 
-int				GUI_Commander::DispatchCanHandleCommand(int command, string& ioName, int& ioCheck)
+int				GUI_Commander::DispatchCanHandleCommand(int command, std::string& ioName, int& ioCheck)
 {
 	DebugAssert(command != 0);
 

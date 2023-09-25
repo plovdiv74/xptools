@@ -118,7 +118,7 @@ void WED_PropertyTable::RecalculateColumns()
 {
 	if (mDynamicCols)
 	{
-		set<string>	cols;
+		std::set<std::string>	cols;
 		cols.insert("Name");
 		mColNames.clear();
 		mColNames.push_back("Name");
@@ -253,11 +253,11 @@ void	WED_PropertyTable::GetCellContent(
 		the_content.content_type = (inf.domain == LinearFeature ? gui_Cell_LineEnumSet : gui_Cell_EnumSet);
 		the_content.int_set_val = val.set_val;
 		the_content.text_val.clear();
-		for(set<int>::iterator iter=val.set_val.begin();iter != val.set_val.end(); ++iter)
+		for(std::set<int>::iterator iter=val.set_val.begin();iter != val.set_val.end(); ++iter)
 		{
 			if(*iter == 0) continue;                                // SetUnion can now insert 0 to indicate lines with partial blank setgemnts
 			if (!the_content.text_val.empty()) the_content.text_val += ",";
-			string label;
+			std::string label;
 			t->GetNthPropertyDictItem(idx,*iter,label);
 			if (ENUM_Domain(*iter) == LinearFeature)
 			{
@@ -315,7 +315,7 @@ void	WED_PropertyTable::GetEnumDictionary(
 	t->GetNthPropertyInfo(idx,info);
 	if(info.prop_kind == prop_EnumSet)
 	if(info.exclusive)
-		out_dictionary.insert(GUI_EnumDictionary::value_type(0,make_pair(string("None"),true)));
+		out_dictionary.insert(GUI_EnumDictionary::value_type(0,std::make_pair(std::string("None"),true)));
 }
 
 void	WED_PropertyTable::AcceptEdit(
@@ -324,7 +324,7 @@ void	WED_PropertyTable::AcceptEdit(
 						const GUI_CellContent&		the_content,
 						int							apply_all)
 {
-	vector<WED_Thing *>	apply_vec;
+	std::vector<WED_Thing *>	apply_vec;
 
 	GUI_CellContent content(the_content);
 
@@ -403,7 +403,7 @@ void	WED_PropertyTable::AcceptEdit(
 			if((mColNames[mVertical ? cell_y : cell_x] == "Locked" || mColNames[mVertical ? cell_y : cell_x] == "Hidden") &&
 				 SAFE_CAST(WED_GISPolygon,t->GetParent()) )
 				{
-					val.int_val = 0;    // don't let anyone ever set polygon inner/outer rings to be hidden or locked.
+					val.int_val = 0;    // don't let anyone ever std::set polygon inner/outer rings to be hidden or locked.
 				}
 			break;
 		case prop_Enum:
@@ -425,7 +425,7 @@ void	WED_PropertyTable::AcceptEdit(
 				val.set_val = content.int_set_val;
 			break;
 		}
-		string foo = string("Change ") + inf.prop_name;
+		std::string foo = std::string("Change ") + inf.prop_name;
 		if (!started) {	started = t; started->StartCommand(foo); }
 		t->SetNthProperty(idx, val);
 	}
@@ -557,7 +557,7 @@ void	WED_PropertyTable::SelectRange(
 	ISelection * s = WED_GetSelect(mResolver);
 
 	s->Clear();
-	for (vector<ISelectable *>::iterator u = mSelSave.begin(); u != mSelSave.end(); ++u)
+	for (std::vector<ISelectable *>::iterator u = mSelSave.begin(); u != mSelSave.end(); ++u)
 		s->Insert(*u);
 	#if OPTIMIZE
 		provide accelerated sel-save-restore ops!
@@ -590,7 +590,7 @@ void	WED_PropertyTable::SelectionEnd(void)
 
       ISelectable * sel0 = s->GetNthSelection(0);
 		WED_Group * grp = SAFE_CAST(WED_Group, sel0);
-		string grpnam;
+		std::string grpnam;
 		if (grp) grp->GetName(grpnam);
 
 		if (SAFE_CAST(WED_RampPosition, sel0) || SAFE_CAST(WED_TaxiRoute, sel0) ||  SAFE_CAST(WED_TaxiRouteNode, sel0) ||
@@ -624,7 +624,7 @@ int		WED_PropertyTable::SelectDisclose(
 	if (all)
 	{
 		int cc = GetRowCount();
-		vector<int>	things(cc);
+		std::vector<int>	things(cc);
 		for (int n = 0; n < cc; ++n)
 		{
 			WED_Thing * t = FetchNth(n);
@@ -634,7 +634,7 @@ int		WED_PropertyTable::SelectDisclose(
 			SetOpen(things[n], open_it);
 	} else {
 		ISelection * sel = WED_GetSelect(mResolver);
-		vector<ISelectable *>	sv;
+		std::vector<ISelectable *>	sv;
 		sel->GetSelectionVector(sv);
 		for (int n = 0; n < sv.size(); ++n)
 		{
@@ -886,7 +886,7 @@ GUI_DragOperation		WED_PropertyTable::DoDropBetweenRows(
 #pragma mark -
 
 
-void WED_PropertyTable::RebuildCacheRecursive(WED_Thing * e, ISelection * sel, set<WED_Thing *> * sel_and_friends)
+void WED_PropertyTable::RebuildCacheRecursive(WED_Thing * e, ISelection * sel, std::set<WED_Thing *> * sel_and_friends)
 {
 	if (e == NULL) return;
 	int vis,kids,can_disclose,is_disclose;
@@ -903,10 +903,10 @@ void WED_PropertyTable::RebuildCacheRecursive(WED_Thing * e, ISelection * sel, s
 		RebuildCacheRecursive(e->GetNthChild(n), sel, sel_and_friends);
 }
 
-// Selection iterator: ref is a ptr to a set.  Accumulate the selected thing and all of its parents.
+// Selection std::iterator: ref is a ptr to a std::set.  Accumulate the selected thing and all of its parents.
 static int SelectAndParents(ISelectable * what, void * ref)
 {
-	set<WED_Thing *> * all = (set<WED_Thing *> *) ref;
+	std::set<WED_Thing *> * all = (std::set<WED_Thing *> *) ref;
 	WED_Thing * who = dynamic_cast<WED_Thing *>(what);
 	while(who)
 	{
@@ -920,15 +920,15 @@ void WED_PropertyTable::RebuildCache(void)
 {
 	mThingCache.clear();
 	mCacheValid = true;
-	set<WED_Thing*> all_sel;
+	std::set<WED_Thing*> all_sel;
 
 	// Performance note: the "selection" hierarchy (all selected entities) is effectively ALWAYS fully disclosed, because we must iterate
 	// through everything to find the selection.  In a situation with a huge hierarchy, this gives us a horribly slow time to rebuild
 	// the contents of the table, even if only one object is selected.  (But we DO want to iterate, to go in hierarchy order.)
 
-	// It turns out we can do better: we build a set (all_sel) that contains the selection and all views that have a selected thing as its
+	// It turns out we can do better: we build a std::set (all_sel) that contains the selection and all views that have a selected thing as its
 	// child.  This represents a subset of the total tree that needs iteration.  When we rebulid our cache, if we hit a thing that isn't in
-	// "selection and friends" set, we simply stop.
+	// "selection and friends" std::set, we simply stop.
 
 	// This cuts out iteration of whole sub-trees where there is no selection...for a trivial selection this really speeds up rebuild.
 
@@ -954,7 +954,7 @@ WED_Thing *	WED_PropertyTable::FetchNth(int row)
 		}
 	}
 
-	vector<WED_Thing*>& current_cache = mSearchFilter.empty() ? mThingCache : mSortedCache;
+	std::vector<WED_Thing*>& current_cache = mSearchFilter.empty() ? mThingCache : mSortedCache;
 	if (!mVertical)
 	{
 		row = current_cache.size() - row - 1;
@@ -996,7 +996,7 @@ int			WED_PropertyTable::GetColCount(void)
 		}
 	}
 
-	vector<WED_Thing*>& current_cache = mSearchFilter.empty() ? mThingCache : mSortedCache;
+	std::vector<WED_Thing*>& current_cache = mSearchFilter.empty() ? mThingCache : mSortedCache;
 	return current_cache.size();
 }
 
@@ -1024,7 +1024,7 @@ int			WED_PropertyTable::GetRowCount(void)
 		}
 	}
 
-	vector<WED_Thing*>& current_cache = mSearchFilter.empty() ? mThingCache : mSortedCache;
+	std::vector<WED_Thing*>& current_cache = mSearchFilter.empty() ? mThingCache : mSortedCache;
 	return current_cache.size();
 }
 
@@ -1063,11 +1063,11 @@ void	WED_PropertyTable::GetHeaderContent(
 	}
 }
 
-void WED_PropertyTable::SetClosed(const set<int>& closed_list)
+void WED_PropertyTable::SetClosed(const std::set<int>& closed_list)
 {
 	WED_Thing * root = WED_GetWorld(mResolver);
 	WED_Archive * arch = root->GetArchive();
-	for( set<int>::const_iterator it = closed_list.begin(); it != closed_list.end(); ++it)
+	for( std::set<int>::const_iterator it = closed_list.begin(); it != closed_list.end(); ++it)
 	if(arch->Fetch(*it) != NULL)
 	{
 	    SetOpen(*it,0);
@@ -1076,13 +1076,13 @@ void WED_PropertyTable::SetClosed(const set<int>& closed_list)
 	BroadcastMessage(GUI_TABLE_CONTENT_RESIZED,0);
 }
 
-void WED_PropertyTable::GetClosed(set<int>& closed_list)
+void WED_PropertyTable::GetClosed(std::set<int>& closed_list)
 {
 	closed_list.clear();
 	WED_Thing * root = WED_GetWorld(mResolver);
 	WED_Archive * arch = root->GetArchive();
 
-	for (hash_map<int, int>::iterator it = mOpen.begin(); it != mOpen.end(); ++it)
+	for (std::hash_map<int, int>::iterator it = mOpen.begin(); it != mOpen.end(); ++it)
 	{
 		if ((arch->Fetch(it->first) != NULL) && (!GetOpen(it->first)))
 		{
@@ -1092,7 +1092,7 @@ void WED_PropertyTable::GetClosed(set<int>& closed_list)
 }
 
 //--IFilterable----------------------------------------------------------------
-void WED_PropertyTable::SetFilter(const string & filter)
+void WED_PropertyTable::SetFilter(const std::string & filter)
 {
 	if(filter.empty())
 	{
@@ -1111,7 +1111,7 @@ void WED_PropertyTable::SetFilter(const string & filter)
 //sorted_cache - the sorted_cache of wed things we're building up
 //sorted_open_ids - the hash map of id and true false if its open or not
 //returns number of bad leafs
-int collect_recusive(WED_Thing * thing, const ci_string& isearch_filter, vector<WED_Thing*>& sorted_cache)
+int collect_recusive(WED_Thing * thing, const ci_string& isearch_filter, std::vector<WED_Thing*>& sorted_cache)
 {
 	DebugAssert(thing != NULL);
 
@@ -1119,7 +1119,7 @@ int collect_recusive(WED_Thing * thing, const ci_string& isearch_filter, vector<
 						 thing->GetClass() == WED_Airport::sClass ||
 						 thing->GetClass() == WED_ATCFlow::sClass;
 
-	string thing_name;
+	std::string thing_name;
 	thing->GetName(thing_name);
 	ci_string ithing_name(thing_name.begin(),thing_name.end());
 	bool is_match = ithing_name.find(isearch_filter) != ci_string::npos;
@@ -1128,7 +1128,7 @@ int collect_recusive(WED_Thing * thing, const ci_string& isearch_filter, vector<
 
 	if (is_match == false)
 	{
-		string res;
+		std::string res;
 		has_resource = dynamic_cast<IHasResource*>(thing);
 		if (has_resource) has_resource->GetResource(res);
 		else
@@ -1136,13 +1136,13 @@ int collect_recusive(WED_Thing * thing, const ci_string& isearch_filter, vector<
 			has_attr = dynamic_cast<IHasAttr*>(thing);
 			if (has_attr) has_attr->GetResource(res);
 		}
-		res = string ("^") + res + "$";           // Adding ^ and $ are to emulate regex-style line start/end makers, so to
+		res = std::string ("^") + res + "$";           // Adding ^ and $ are to emulate regex-style line start/end makers, so to
 			                                      // allow macthing one of "Red Line", "Red Line (Black)" or "Wide Red Line"
 		is_match = ci_string(res.begin(), res.end()).find(isearch_filter) != ci_string::npos;
 	}
 
 	int nc = thing->CountChildren();
-	if (nc == 0 || (is_match && (has_resource || has_attr)))    // prevent showing nodes for uniformly set taxilines or taxiways
+	if (nc == 0 || (is_match && (has_resource || has_attr)))    // prevent showing nodes for uniformly std::set taxilines or taxiways
 	{
 		if (is_match)
 		{

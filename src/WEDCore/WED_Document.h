@@ -69,7 +69,7 @@ class	WED_Document : public GUI_Broadcaster, public GUI_Destroyable, public virt
 public:
 
 						WED_Document(
-								const string& 		package,
+								const std::string& 		package,
 								double				inBounds[4]);
 						~WED_Document();
 
@@ -77,7 +77,7 @@ public:
 	static		void	WriteGlobalPrefs(void);
 
 	// Management
-	string				GetFilePath(void) const;
+	std::string				GetFilePath(void) const;
 
 	void				GetBounds(double bounds[4]);
 
@@ -90,16 +90,16 @@ public:
 #endif
 //	virtual void *		QueryInterface(const char * class_id);
 	virtual	IBase *		Resolver_Find(const char * path);
-	virtual void		LookupPath(string& io_path);		// Input: a relative or library path
-	virtual void		ReducePath(string& io_path);		// Output: actual disk location
+	virtual void		LookupPath(std::string& io_path);		// Input: a relative or library path
+	virtual void		ReducePath(std::string& io_path);		// Output: actual disk location
 	virtual	int			ReadIntPref(const char * in_key, int in_default, unsigned type = pref_type_doc | pref_type_global);
 	virtual	void		WriteIntPref(const char * in_key, int in_value, unsigned type = pref_type_doc | pref_type_global);
 	virtual	double		ReadDoublePref(const char * in_key, double in_default, unsigned type = pref_type_doc | pref_type_global);
 	virtual	void		WriteDoublePref(const char * in_key, double in_value, unsigned type = pref_type_doc | pref_type_global);
-	virtual	string		ReadStringPref(const char * in_key, const string& in_default, unsigned type = pref_type_doc | pref_type_global);
-	virtual	void		WriteStringPref(const char * in_key, const string& in_value, unsigned type = pref_type_doc | pref_type_global);
-	virtual	void		ReadIntSetPref(const char * in_key, set<int>& out_value);
-	virtual	void		WriteIntSetPref(const char * in_key, const set<int>& in_value);
+	virtual	std::string		ReadStringPref(const char * in_key, const std::string& in_default, unsigned type = pref_type_doc | pref_type_global);
+	virtual	void		WriteStringPref(const char * in_key, const std::string& in_value, unsigned type = pref_type_doc | pref_type_global);
+	virtual	void		ReadIntSetPref(const char * in_key, std::set<int>& out_value);
+	virtual	void		WriteIntSetPref(const char * in_key, const std::set<int>& in_value);
 
 	WED_LibraryMgr *	GetLibrary(void) { return mLibraryMgr; }
 	WED_ResourceMgr *	GetResourceMgr(void) { return mResourceMgr; }
@@ -133,7 +133,7 @@ public:
 	static	bool	TryCloseAll(void);
 
 private:
-	bool				ReadPrefInternal(const char * in_key, unsigned type, string &out_value) const;
+	bool				ReadPrefInternal(const char * in_key, unsigned type, std::string &out_value) const;
 
 	void				WriteXML(FILE * fi);
 
@@ -141,8 +141,8 @@ private:
 
 	double				mBounds[4];
 
-	string				mFilePath;
-	string				mPackage;
+	std::string				mFilePath;
+	std::string				mPackage;
 	bool				mOnDisk;
 	bool				mPrefsChanged;
 
@@ -162,9 +162,9 @@ private:
 	WED_Document(const WED_Document&);
 	WED_Document& operator=(const WED_Document&);
 
-	string						mDocPrefsActName;		// Temporary for tracking the current int-set on read-i.
-	map<string,string>			mDocPrefs;				// All string, int and double (non-set) prefs
-	map<string,set<int> >		mDocPrefsItems;			// The int-set prefs, separated out.
+	std::string						mDocPrefsActName;		// Temporary for tracking the current int-std::set on read-i.
+	std::map<std::string,std::string>			mDocPrefs;				// All std::string, int and double (non-std::set) prefs
+	std::map<std::string,std::set<int> >		mDocPrefsItems;			// The int-std::set prefs, separated out.
 };
 
 #endif

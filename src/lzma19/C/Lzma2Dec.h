@@ -78,7 +78,7 @@ typedef enum
 ELzma2ParseStatus Lzma2Dec_Parse(CLzma2Dec *p,
     SizeT outSize,   // output size
     const Byte *src, SizeT *srcLen,
-    int checkFinishBlock   // set (checkFinishBlock = 1), if it must read full input data, if decoder.dicPos reaches blockMax position.
+    int checkFinishBlock   // std::set (checkFinishBlock = 1), if it must read full input data, if decoder.dicPos reaches blockMax position.
     );
 
 /*

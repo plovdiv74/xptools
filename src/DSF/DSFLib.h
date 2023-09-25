@@ -66,7 +66,7 @@ enum {
 	dsf_CmdProps   = 0x01,	/* Return properties.							*/
 	dsf_CmdDefs    = 0x02,	/* Return definitions							*/
 	dsf_CmdPatches = 0x04,	/* Return Patches and triangles					*/
-	dsf_CmdVectors = 0x08,	/* Return vector types							*/
+	dsf_CmdVectors = 0x08,	/* Return std::vector types							*/
 	dsf_CmdPolys   = 0x10,	/* Return polygons (facades, etc.)				*/
 	dsf_CmdObjects = 0x20,	/* Return objects								*/
 	dsf_CmdSign	   = 0x40,	/* Do MD5 signature of data						*/
@@ -115,7 +115,7 @@ struct	DSFCallbacks_t {
 	void (* AcceptProperty_f)(const char * inProp, const char * inValue, void * inRef);
 
 	/* These functions build patches.  You receive a start
-	 * patch, then a set of homogenous triangles, then an
+	 * patch, then a std::set of homogenous triangles, then an
 	 * end patch.  All patch vertices must match the number
 	 * of coordinates passed in inCoordDepth. */
 	void (* BeginPatch_f)(
@@ -208,7 +208,7 @@ struct	DSFCallbacks_t {
  * inRef is a void * passed to each of your callbacks.
  *
  * if inPasses is not NULL, it is an array of ints with a
- * set of filter flags indicating what callbacks you want
+ * std::set of filter flags indicating what callbacks you want
  * for each pass over the file.  You must return true from
  * your nextPass routine to go to the next pass.  The last
  * int in the array should be 0 to indicate the end of

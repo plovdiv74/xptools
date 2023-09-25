@@ -101,10 +101,10 @@ void	WED_ToolInfoAdapter::GetCellContent(
 		case prop_EnumSet:														the_content.int_set_val = val.set_val;
 				the_content.content_type = (inf.domain == LinearFeature ? gui_Cell_LineEnumSet : gui_Cell_EnumSet);
 				the_content.text_val.clear();
-				for(set<int>::iterator iter=val.set_val.begin();iter != val.set_val.end(); ++iter)
+				for(std::set<int>::iterator iter=val.set_val.begin();iter != val.set_val.end(); ++iter)
 				{
 					if (iter!=val.set_val.begin()) the_content.text_val += ",";
-					string label;
+					std::string label;
 					mTool->GetNthPropertyDictItem(cell_x / 2,*iter,label);
 	#if 0			// for now print the full style name, not the icon - as the icons don't allow to distinguish some wide lines from regular ones
 					if (ENUM_Domain(*iter) == LinearFeature)
@@ -147,7 +147,7 @@ void	WED_ToolInfoAdapter::GetEnumDictionary(
 		mTool->GetNthPropertyInfo(cell_x / 2, inf);
 	}
 	if(inf.exclusive)
-		out_dictionary.insert(GUI_EnumDictionary::value_type(0,make_pair(string("None"),true)));
+		out_dictionary.insert(GUI_EnumDictionary::value_type(0,std::make_pair(std::string("None"),true)));
 }
 void	WED_ToolInfoAdapter::AcceptEdit(
 			int							cell_x,

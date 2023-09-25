@@ -108,9 +108,9 @@ int	CreateTerrainPackage(const char * inPackage, bool make_stub_pngs, bool dry_r
 
 	fprintf(lib,"%c" CRLF "800" CRLF "LIBRARY" CRLF CRLF, APL ? 'A' : 'I');
 
-	set<string> normalFiles;
-	set<string>	imageFiles;
-	set<string> borderFiles;
+	std::set<string> normalFiles;
+	std::set<string>	imageFiles;
+	std::set<string> borderFiles;
 	
 	int missing_pol = 0, missing_ter = 0;
 
@@ -320,7 +320,7 @@ int	CreateTerrainPackage(const char * inPackage, bool make_stub_pngs, bool dry_r
 			++p;
 		}
 
-		for (set<string>::iterator image = imageFiles.begin(); image != imageFiles.end(); ++image)
+		for (std::set<string>::iterator image = imageFiles.begin(); image != imageFiles.end(); ++image)
 		if (!image->empty())
 		{
 			string path = inPackage;
@@ -352,7 +352,7 @@ int	CreateTerrainPackage(const char * inPackage, bool make_stub_pngs, bool dry_r
 		}
 
 
-		for (set<string>::iterator image = normalFiles.begin(); image != normalFiles.end(); ++image)
+		for (std::set<string>::iterator image = normalFiles.begin(); image != normalFiles.end(); ++image)
 		if (!image->empty())
 		{
 			string path = inPackage;
@@ -385,7 +385,7 @@ int	CreateTerrainPackage(const char * inPackage, bool make_stub_pngs, bool dry_r
 
 
 
-		for (set<string>::iterator image = borderFiles.begin(); image != borderFiles.end(); ++image)
+		for (std::set<string>::iterator image = borderFiles.begin(); image != borderFiles.end(); ++image)
 		if (!image->empty())
 		{
 			string path = inPackage;

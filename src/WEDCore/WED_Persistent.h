@@ -65,7 +65,7 @@ class	WED_XMLElement;
  * stuff - use the declare macro in the class and the define macro in the
  * translation unit.  It makes:
  *
- * - A static string with the class name.
+ * - A static std::string with the class name.
  * - A virtual function to get runtime class.
  * - A virtual function to safely cast.
  * - A Static constructor.
@@ -79,7 +79,7 @@ class	WED_XMLElement;
  *
  *	DECLARE_PERSISTENT(CLASS)
  *
- * to set up the boiler plate.  In the CPP you must use these:
+ * to std::set up the boiler plate.  In the CPP you must use these:
  *
  *	DEFINE_PERSISTENT(CLASS)
  *	IMPLEMENTS_INTERFACE(CLASS)					Use this to implement an abstract interface.
@@ -89,7 +89,7 @@ class	WED_XMLElement;
  *
  */
 
-//Because the sClass of WED_Persistent is actually a pointer to a static string
+//Because the sClass of WED_Persistent is actually a pointer to a static std::string
 //we can communicate the difference between the data type and expected use with this
 //typedef
 typedef const char* sClass_t;
@@ -183,7 +183,7 @@ public:
 	WED_Persistent *		FetchPeer(int inID) const;
 
 	// Convenience routines for undo...
-	void					__StartCommand(const string& inName, const char * inFile, int inLine);		// pass-throughs
+	void					__StartCommand(const std::string& inName, const char * inFile, int inLine);		// pass-throughs
 	void					CommitCommand(void);
 	void					AbortCommand(void);
 

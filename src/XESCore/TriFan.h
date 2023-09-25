@@ -24,7 +24,7 @@
 #define TRIFAN_H
 
 #include <list>
-using std::list;
+#include <map>
 
 #include "MeshDefs.h"
 
@@ -32,19 +32,19 @@ using std::list;
 
 struct	TriFan_t;
 
-typedef multimap<int, TriFan_t *>				TriFanQueue;		// Tri fans sorted by number of tris, best are last
-typedef multimap<CDT::Face_handle, TriFan_t *>	TriFanTable;		// Index from a face to each tri fan using it
+typedef std::multimap<int, TriFan_t *>				TriFanQueue;		// Tri fans sorted by number of tris, best are last
+typedef std::multimap<CDT::Face_handle, TriFan_t *>	TriFanTable;		// Index from a face to each tri fan using it
 
 struct	TriFan_t {
 	CDT::Vertex_handle				center;		// Our center
-	list<CDT::Face_handle>			faces;		// Our faces in traversal order
+	std::list<CDT::Face_handle>			faces;		// Our faces in traversal order
 	bool							circular;	// True if this is circular - makes it easier to remove tris
 	TriFanQueue::iterator			self;		// Each tri fan has a link back to itself in the queue
 												// so it can readjust itself.  (Poor man's priority q)
 };
 
 struct TriStrip_t {
-	list<CDT::Vertex_handle>		strip;
+	std::list<CDT::Vertex_handle>		strip;
 };
 
 class	TriFanBuilder {
@@ -55,10 +55,10 @@ public:
 	void		AddTriToFanPool(CDT::Face_handle inFace);
 	void		CalcFans(void);
 
-	int					GetNextPrimitive(list<CDT::Vertex_handle>& out_handles);
+	int					GetNextPrimitive(std::list<CDT::Vertex_handle>& out_handles);
 
-	void				GetNextTriFan(list<CDT::Vertex_handle>& out_handles);
-	void				GetRemainingTriangles(list<CDT::Vertex_handle>& out_handles);
+	void				GetNextTriFan(std::list<CDT::Vertex_handle>& out_handles);
+	void				GetRemainingTriangles(std::list<CDT::Vertex_handle>& out_handles);
 
 	void				Validate(void);
 
@@ -77,7 +77,7 @@ private:
 
 	TriFanQueue					queue;				// Our tri fans in priority order
 	TriFanTable					index;				// Index of who is using what tri fans
-	set<CDT::Vertex_handle>		vertices;			// Vertices that we need to tri fan for building up the struct
+	std::set<CDT::Vertex_handle>		vertices;			// Vertices that we need to tri fan for building up the struct
 #endif
 	CDT *						mesh;				// Our mesh
 };

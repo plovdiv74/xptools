@@ -46,10 +46,10 @@ struct FilterSpec
 	bool operator==(const char * rhs) const { return e.size() == 1 && rhs == e.front(); }
     bool operator==(const FilterSpec& rhs) const { return rhs.e.size() == e.size() && rhs.e == e; }
         
-	vector<const char *> e;
+	std::vector<const char *> e;
 };
 
-typedef vector<FilterSpec> MapFilter_t;
+typedef std::vector<FilterSpec> MapFilter_t;
 
 class	WED_MapLayer {
 public:
@@ -79,7 +79,7 @@ public:
 	// Extra iterations over the entity hiearchy get very expensive.  This routine returns whether a layer wants
 	// per-entity drawing passes for either structure or visualization.  We can also say whether we need "seleted" to be
 	// calculated accurately - checking selection slows down the sped of drawing passes.
-	// Finally, "wants_clicks" tells if we want to interact with the mouse.  Tool derivatives do NOT need to set this -
+	// Finally, "wants_clicks" tells if we want to interact with the mouse.  Tool derivatives do NOT need to std::set this -
 	// it is assumed that ALL tools get clicks.  But by asking for clicks, layers can jump in and grab the mouse too.
 	virtual	void		GetCaps(bool& draw_ent_v, bool& draw_ent_s, bool& cares_about_sel, bool& wants_clicks)=0;
 

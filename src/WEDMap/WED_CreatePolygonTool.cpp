@@ -60,10 +60,10 @@ static const int kIsAirport[] =     { 1, 1, 1, 0, 0,   0, 0, 0, 0, 0 };
 static const int kRequireClosed[] = { 1, 1, 0, 1, 1,   1, 0, 0, 1, 1 };
 static const int kAllowCurved[] =   { 1, 0, 1, 1, 1,   0, 1, 1, 0, 1 };
 
-string stripped_resource(const string& r)
+std::string stripped_resource(const std::string& r)
 {
-	string n(r);
-	string::size_type p = n.find_last_of("/\\:");
+	std::string n(r);
+	std::string::size_type p = n.find_last_of("/\\:");
 	if(p != n.npos) n.erase(0,p+1);
 	return n;
 }
@@ -110,11 +110,11 @@ WED_CreatePolygonTool::~WED_CreatePolygonTool()
 }
 
 void	WED_CreatePolygonTool::AcceptPath(
-							const vector<Point2>&	pts,
-							const vector<Point2>&	dirs_lo,
-							const vector<Point2>&	dirs_hi,
-							const vector<int>		has_dirs,
-							const vector<int>		has_split,
+							const std::vector<Point2>&	pts,
+							const std::vector<Point2>&	dirs_lo,
+							const std::vector<Point2>&	dirs_hi,
+							const std::vector<int>		has_dirs,
+							const std::vector<int>		has_split,
 							int						closed)
 {
 	char buf[256];
@@ -123,7 +123,7 @@ void	WED_CreatePolygonTool::AcceptPath(
 	WED_Thing * host = GetHost(idx);
 	if (host == NULL) return;
 
-	string cname = string("Create ") + kCreateCmds[mType];
+	std::string cname = std::string("Create ") + kCreateCmds[mType];
 
 	GetArchive()->StartCommand(cname.c_str());
 
@@ -374,7 +374,7 @@ void	WED_CreatePolygonTool::AcceptPath(
 		}
 	}
 
-	if (mType == create_Polygon && is_texed) 	// orthophoto's need the UV map set up
+	if (mType == create_Polygon && is_texed) 	// orthophoto's need the UV map std::set up
 	{
 		WED_ResourceMgr * rmgr = WED_GetResourceMgr(GetResolver());
 		const pol_info_t * info;
@@ -387,7 +387,7 @@ void	WED_CreatePolygonTool::AcceptPath(
 
 		dpol->Redrape();
 	}
-	else if (mType == create_Hole && host->GetClass() == WED_DrapedOrthophoto::sClass)   // holes in orthos also need UV map set
+	else if (mType == create_Hole && host->GetClass() == WED_DrapedOrthophoto::sClass)   // holes in orthos also need UV map std::set
 		dynamic_cast <WED_DrapedOrthophoto *> (host)->Redrape();
 
 	GetArchive()->CommitCommand();
@@ -438,7 +438,7 @@ WED_Thing *		WED_CreatePolygonTool::GetHost(int& idx)
 }
 
 
-void		WED_CreatePolygonTool::SetResource(const string& r)
+void		WED_CreatePolygonTool::SetResource(const std::string& r)
 {
 	mResource.value = r;
 

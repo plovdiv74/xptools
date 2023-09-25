@@ -57,7 +57,7 @@ void		WED_ATCWindRule::Export(		 AptWindRule_t& info) const
 	info.max_speed_knots = speed_knots.value;
 }
 
-void		WED_ATCWindRule::SetICAO(const string &t)
+void		WED_ATCWindRule::SetICAO(const std::string &t)
 { 
 	icao.value = t; 
 }
@@ -70,7 +70,7 @@ void		WED_ATCWindRule::PropEditCallback(int before)
 	{
 		char buf[20];
 		snprintf(buf,20,"Wind %.0lf@%d-%d",speed_knots.value,heading_lo.value,heading_hi.value);
-		string old_name;
+		std::string old_name;
 		GetName(old_name);
 		if (old_name != buf)     // Prevent infinite recursion by calling SetName() if name actually changes
 			SetName(buf);

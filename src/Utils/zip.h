@@ -120,7 +120,7 @@ extern int ZEXPORT zipOpenNewFileInZip OF((zipFile file,
     contains the extrafield data the the local header
   if extrafield_global!=NULL and size_extrafield_global>0, extrafield_global
     contains the extrafield data the the local header
-  if comment != NULL, comment contain the comment string
+  if comment != NULL, comment contain the comment std::string
   method contain the compression method (0 for store, Z_DEFLATED for deflate)
   level contain the level of compression (can be Z_DEFAULT_COMPRESSION)
 */

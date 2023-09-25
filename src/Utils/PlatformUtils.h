@@ -53,20 +53,20 @@
 * This routine returns a fully qualified path to the application.
 *
 */
-string GetApplicationPath();
+std::string GetApplicationPath();
 
 /*
 * The FQP to the OS' semantically correct folder for caching files
 */
-string GetCacheFolder();
+std::string GetCacheFolder();
 
 /*
 * Returns the FQP to the OS' "Best practices" temporary files folder
 */
-string GetTempFilesFolder();
+std::string GetTempFilesFolder();
 
 /*
- * GetFilePathFromUser takes a prompting C-string and fills in the buffer with a path
+ * GetFilePathFromUser takes a prompting C-std::string and fills in the buffer with a path
  * to a picked file.  It returns 1 if a file was picked, 0 if the user canceled.
  *
  */

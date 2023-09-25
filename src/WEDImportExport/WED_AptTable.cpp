@@ -47,7 +47,7 @@ WED_AptTable::~WED_AptTable()
 
 	
 void	WED_AptTable::SetFilter(
-						const string&				new_filter)
+						const std::string&				new_filter)
 {
 	mFilter = new_filter;
 	resort();
@@ -59,7 +59,7 @@ void	WED_AptTable::AptVectorChanged(void)
 }
 			
 void	WED_AptTable::GetSelection(
-						set<int>&					out_selection)
+						std::set<int>&					out_selection)
 {
 	out_selection = mSelected;
 }
@@ -236,7 +236,7 @@ int		WED_AptTable::DoubleClickCell(
 	return 0;
 }
 
-inline void toupper(string& io_string)
+inline void toupper(std::string& io_string)
 {
 	for(int i = 0; i < io_string.size(); ++i)
 		io_string[i] = toupper(io_string[i]);
@@ -246,8 +246,8 @@ struct sort_by_apt {
 	sort_by_apt(const AptVector * apts, int sort_column, int invert_sort) : apts_(apts), sort_column_(sort_column), invert_sort_(invert_sort) { }
 
 	bool operator()(int x, int y) const {
-		string xs;
-		string ys;
+		std::string xs;
+		std::string ys;
 		switch (sort_column_)
 		{ 
 			case 0: xs = apts_->at(x).icao;  ys = apts_->at(y).icao; break;
@@ -280,7 +280,7 @@ struct sort_by_apt {
 
 void		WED_AptTable::resort(void)
 {
-	vector<string>	filters;
+	std::vector<std::string>	filters;
 	tokenize_string_func(mFilter.begin(),mFilter.end(),back_inserter(filters),::isspace);
 
 	mSorted.clear();

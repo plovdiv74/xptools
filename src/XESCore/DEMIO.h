@@ -111,9 +111,9 @@ bool	ReadFloatHGT(DEMGeo& inMap, const char * inFileName);			// 5 byte header, b
 bool	WriteFloatHGT(const DEMGeo& inMap, const char * inFileName);
 bool	ReadShortOz(DEMGeo& inMap, const char * inFileName);			// No header, little endian signed short, SW corner origin.
 
-void	ReadHDR(const string& in_real_file, DEMSpec& io_header, bool force_area);
+void	ReadHDR(const std::string& in_real_file, DEMSpec& io_header, bool force_area);
 
-bool	WriteNormalWithHeight(const string& out_file, const DEMGeo& elev, const DEMGeo& nx, const DEMGeo& ny, const DEMGeo& nz);
+bool	WriteNormalWithHeight(const std::string& out_file, const DEMGeo& elev, const DEMGeo& nx, const DEMGeo& ny, const DEMGeo& nz);
 
 /*****************************************************************************
  * DEM TRANSLATION SYSTEM
@@ -122,12 +122,12 @@ bool	WriteNormalWithHeight(const string& out_file, const DEMGeo& elev, const DEM
 // Load a translation specification.  We can also optionally get a reverse mapping
 // and color lookup table based on the enum colors in the config files.
 bool	LoadTranslationFile(const char * 		inFileName,
-						vector<int>& 			outForwardMap,
-						hash_map<int, int> * 	outReverseMap,
-						vector<char> *			outCLUT);
+						std::vector<int>& 			outForwardMap,
+						std::hash_map<int, int> * 	outReverseMap,
+						std::vector<char> *			outCLUT);
 // Translate a DEM by the given mappings.
-bool	TranslateDEMForward(DEMGeo& ioDEM, const vector<int>& inForwardMap);
-bool	TranslateDEMReverse(DEMGeo& ioDEM, const hash_map<int, int>& inReverseMap);
+bool	TranslateDEMForward(DEMGeo& ioDEM, const std::vector<int>& inForwardMap);
+bool	TranslateDEMReverse(DEMGeo& ioDEM, const std::hash_map<int, int>& inReverseMap);
 // One-step - load the filter, translate the DEM.
 bool	TranslateDEM(DEMGeo& ioDEM, const char * inFileName);
 

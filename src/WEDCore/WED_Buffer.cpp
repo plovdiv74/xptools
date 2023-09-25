@@ -175,7 +175,7 @@ void *	WED_Buffer::AllocContiguous(int len)
 	}
 
 	// If we don't have enough space, waste the rest, add a new block at least big enough.
-	// Note that we do NOT resize the old vector because doing so would move its location and
+	// Note that we do NOT resize the old std::vector because doing so would move its location and
 	// we NEVER want to reallocte the block, because we want to keep ptrs legit.
 	int req_len = len + sizeof(Storage);
 	int alloc_size = req_len > WED_BUFFER_ALLOC_SIZE ? req_len : WED_BUFFER_ALLOC_SIZE;

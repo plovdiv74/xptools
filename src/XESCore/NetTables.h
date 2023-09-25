@@ -40,7 +40,7 @@ struct	NetFeatureInfo {
 	int			oneway_feature;
 	int			is_oneway;
 };
-typedef hash_map<int, NetFeatureInfo>	NetFeatureInfoTable;
+typedef std::hash_map<int, NetFeatureInfo>	NetFeatureInfoTable;
 extern	NetFeatureInfoTable				gNetFeatures;
 
 struct	NetRepInfo {
@@ -61,7 +61,7 @@ struct	NetRepInfo {
 												// turn in a city street is probably a "notch"
 	float		max_err;
 };
-typedef hash_map<int, NetRepInfo>				NetRepInfoTable;
+typedef std::hash_map<int, NetRepInfo>				NetRepInfoTable;
 extern 	NetRepInfoTable							gNetReps;
 
 struct	Feature2RepInfo {
@@ -70,28 +70,28 @@ struct	Feature2RepInfo {
 	float		max_density;
 	float		min_rail;
 	float		max_rail;
-//	set<int>	zoning_left;
-//	set<int>	zoning_right;
+//	std::set<int>	zoning_left;
+//	std::set<int>	zoning_right;
 	float		rain_min;
 	float		rain_max;
 	float		temp_min;
 	float		temp_max;
 	int			rep_type;
 };
-typedef vector<Feature2RepInfo>		Feature2RepInfoTable;
+typedef std::vector<Feature2RepInfo>		Feature2RepInfoTable;
 extern	Feature2RepInfoTable					gFeature2Rep;
 
-extern set<int>									gPromotedZoningSet;
+extern std::set<int>									gPromotedZoningSet;
 
 struct	ZoningPromote {
 	int			promote_left;
 	int			promote_right;
 	int			promote_both;
 };
-typedef hash_map<int, ZoningPromote>			ZonePromoteTable;
+typedef std::hash_map<int, ZoningPromote>			ZonePromoteTable;
 extern ZonePromoteTable								gZonePromote;
 
-typedef hash_map<int, int>						RoadCountryTable;
+typedef std::hash_map<int, int>						RoadCountryTable;
 extern RoadCountryTable							gRoadCountry;
 
 struct ForkRule {
@@ -102,7 +102,7 @@ struct ForkRule {
 	int			new_left;
 	int			new_right;
 };
-typedef vector<ForkRule>						ForkRuleTable;
+typedef std::vector<ForkRule>						ForkRuleTable;
 extern ForkRuleTable							gForkRules;
 
 struct ChangeRule {
@@ -110,10 +110,10 @@ struct ChangeRule {
 	int			next;
 	int			new_mid;
 };
-typedef vector<ChangeRule>						ChangeRuleTable;
+typedef std::vector<ChangeRule>						ChangeRuleTable;
 extern ChangeRuleTable							gChangeRules;
 
-typedef map<int,int>							LevelCrossingTable;
+typedef std::map<int,int>							LevelCrossingTable;
 extern LevelCrossingTable						gLevelCrossings;
 
 struct	BridgeInfo {
@@ -147,10 +147,10 @@ struct	BridgeInfo {
 	// Export to X-Plane
 	int			export_type;
 };
-typedef	vector<BridgeInfo>				BridgeInfoTable;
+typedef	std::vector<BridgeInfo>				BridgeInfoTable;
 extern	BridgeInfoTable					gBridgeInfo;
 
-extern map<int,int>						gTwinRules;
+extern std::map<int,int>						gTwinRules;
 
 void	LoadNetFeatureTables(rf_region inRegion);
 

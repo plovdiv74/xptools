@@ -45,10 +45,10 @@ public:
 	void			SetSubtype(int s) { subtype = s; }
 	bool			IsValidSubtype(void) const;
 	bool			HasWires(void) const;
-	pair<double, double> GetWidth(void) const;
+	std::pair<double, double> GetWidth(void) const;
 
-	void			GetResource(string& r) const { r = resource.value; }
-	void			SetResource(const string& r) { resource = r; }
+	void			GetResource(std::string& r) const { r = resource.value; }
+	void			SetResource(const std::string& r) { resource = r; }
 
 	bool			IsOneway(void) const;
 
@@ -57,7 +57,7 @@ public:
 	void			GetNthProperty(int n, PropertyVal_t& val) const;
 	void			SetNthProperty(int n, const PropertyVal_t& val);
 	void			GetNthPropertyDict(int n, PropertyDict_t& dict) const;
-	void			GetNthPropertyDictItem(int n, int e, string& item) const;
+	void			GetNthPropertyDictItem(int n, int e, std::string& item) const;
 	void			GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
 
 

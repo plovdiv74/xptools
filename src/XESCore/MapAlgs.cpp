@@ -51,7 +51,7 @@
 #define DEBUG_OUTSET_REMOVER 0
 
 // NOTE: by convention all of the static helper routines and structs have the __ prefix..this is intended
-// for the sole purpose of making it easy to read the function list popup in the IDE...
+// for the sole purpose of making it easy to read the function std::list popup in the IDE...
 
 #define SHOW_REMOVALS 0
 
@@ -195,7 +195,7 @@ void	CropMap(
 /*
 class	collect_edges : public data_preserver_t {
 public:
-	set<Halfedge_handle> *  edges;
+	std::set<Halfedge_handle> *  edges;
 	bool					use_outside;
 
   virtual void after_create_edge (Halfedge_handle e)
@@ -280,7 +280,7 @@ void	CutInside(
 			bool				inWantOutside,
 			ProgressFunc		inProgress)
 {
-//	set<Halfedge_handle>	edges;
+//	std::set<Halfedge_handle>	edges;
 	data_preserver_t<Pmwx>	info;
 //	collect_edges		info;
 //	info.edges = &edges;
@@ -314,19 +314,19 @@ void	CutInside(
 */
 	info.detach();
 
-//		set<Face_handle>	interior_region;
+//		std::set<Face_handle>	interior_region;
 
 //	FindFacesForEdgeSet(edges,interior_region);
 
-//	set<Halfedge_handle>	all_interior_edges;
+//	std::set<Halfedge_handle>	all_interior_edges;
 
-//	for(set<Face_handle>::iterator f = interior_region.begin(); f != interior_region.end(); ++f)
+//	for(std::set<Face_handle>::iterator f = interior_region.begin(); f != interior_region.end(); ++f)
 //	{
 //		DebugAssert(!(*f)->is_unbounded());
 //		FindEdgesForFace(*f,all_interior_edges);
 //	}
 
-//	for(set<Halfedge_handle>::iterator e = edges.begin(); e != edges.end(); ++e)
+//	for(std::set<Halfedge_handle>::iterator e = edges.begin(); e != edges.end(); ++e)
 //		DebugAssert(all_interior_edges.count(*e) > 0);
 
 	vector<Halfedge_handle>	kill;
@@ -354,7 +354,7 @@ void	CutInside(
 /*
 	if(inWantOutside)
 	{
-		for(set<Halfedge_handle>::iterator e = all_interior_edges.begin(); e != all_interior_edges.end(); ++e)
+		for(std::set<Halfedge_handle>::iterator e = all_interior_edges.begin(); e != all_interior_edges.end(); ++e)
 		if(edges.count(*e) == 0)
 		if((*e)->data().mDominant)
 			if(find(kill.begin(),kill.end(),*e) == kill.end())
@@ -477,17 +477,17 @@ void	CropMap(
 // Utility routine - delete antennas from a face.
 static	void	__RemoveAntennasFromFace(Pmwx& inPmwx, Face_handle inFace)
 {
-// OPTIMIZE: remove second set?
-	set<Halfedge_handle>	edges;
-	set<Halfedge_handle>	nuke;
+// OPTIMIZE: remove second std::set?
+	std::set<Halfedge_handle>	edges;
+	std::set<Halfedge_handle>	nuke;
 
 	FindEdgesForFace(inFace, edges);
-	for (set<Halfedge_handle>::iterator i = edges.begin(); i != edges.end(); ++i)
+	for (std::set<Halfedge_handle>::iterator i = edges.begin(); i != edges.end(); ++i)
 	if ((*i)->twin()->face() == inFace)
 	if(nuke.count((*i)->twin()->face)==0)
 		nuke.insert(*i);
 
-	for (set<Halfedge_handle>::iterator j = nuke.begin(); j != nuke.end(); ++j)
+	for (std::set<Halfedge_handle>::iterator j = nuke.begin(); j != nuke.end(); ++j)
 	{
 		inPmwx.remove_edge(*j);
 	}
@@ -682,7 +682,7 @@ static void __MergeMaps_EdgeNotifier(Halfedge_handle he_old, Halfedge_handle he_
 		// (This case is not needed for topologically integrated maps but IS needed for not-meant-to-be-friends maps, like
 		// a forest pattern + a road grid.
 
-		vector<pair<GISHalfedge*, GISHalfedge*> >	new_mappings;
+		vector<std::pair<GISHalfedge*, GISHalfedge*> >	new_mappings;
 		for (multimap<GISHalfedge*, GISHalfedge*>::iterator pairing = info->edgeMap->begin(); pairing != info->edgeMap->end(); ++pairing)
 		{
 			if (pairing->second == he_old)
@@ -718,7 +718,7 @@ static void __MergeMaps_EdgeNotifier(Halfedge_handle he_old, Halfedge_handle he_
 	}
 }
 
-void MergeMaps(Pmwx& ioDstMap, Pmwx& ioSrcMap, bool inForceProps, set<Face_handle> * outFaces, bool pre_integrated, ProgressFunc func)
+void MergeMaps(Pmwx& ioDstMap, Pmwx& ioSrcMap, bool inForceProps, std::set<Face_handle> * outFaces, bool pre_integrated, ProgressFunc func)
 {
 // OPTIMIZE: now that maps have a point index, we do not need to maintain a prviate one!
 	DebugAssert(ioSrcMap.is_valid());
@@ -839,11 +839,11 @@ void MergeMaps(Pmwx& ioDstMap, Pmwx& ioSrcMap, bool inForceProps, set<Face_handl
 		PROGRESS_CHECK(func, 1, 2, "Copying face metadata...", ctr, total, step)
 
 
-		set<Halfedge_handle>	borders_old, borders_new;
+		std::set<Halfedge_handle>	borders_old, borders_new;
 
 		FindEdgesForFace(fiter, borders_old);
 
-		set<Face_handle>	sanity;
+		std::set<Face_handle>	sanity;
 		FindFacesForEdgeSet(borders_old, sanity);
 		DebugAssert(sanity.size() == 1);
 		DebugAssert(*sanity.begin() == &*fiter);
@@ -851,9 +851,9 @@ void MergeMaps(Pmwx& ioDstMap, Pmwx& ioSrcMap, bool inForceProps, set<Face_handl
 		DebugAssert(!borders_old.empty());
 
 		// go through CCB - add all dests in edgemap from each CCB to borders
-		for (set<Halfedge_handle>::iterator e = borders_old.begin(); e != borders_old.end(); ++e)
+		for (std::set<Halfedge_handle>::iterator e = borders_old.begin(); e != borders_old.end(); ++e)
 		{
-			pair<multimap<Halfedge_handle, Halfedge_handle>::iterator, multimap<Halfedge_handle, Halfedge_handle>::iterator>	range;
+			std::pair<multimap<Halfedge_handle, Halfedge_handle>::iterator, multimap<Halfedge_handle, Halfedge_handle>::iterator>	range;
 			range = edgeMap.equal_range(*e);
 			DebugAssert(range.first != range.second);
 
@@ -864,15 +864,15 @@ void MergeMaps(Pmwx& ioDstMap, Pmwx& ioSrcMap, bool inForceProps, set<Face_handl
 		}
 		DebugAssert(!borders_new.empty());
 
-		// Next find facse for the edge set
-		set<Face_handle>		faces;
+		// Next find facse for the edge std::set
+		std::set<Face_handle>		faces;
 
 		FindFacesForEdgeSet(borders_new, faces);
 		DebugAssert(!faces.empty());
 
 		// Finally, mark all items in faces.
 
-		for (set<Face_handle>::iterator face = faces.begin(); face != faces.end(); ++face)
+		for (std::set<Face_handle>::iterator face = faces.begin(); face != faces.end(); ++face)
 		{
 			if (outFaces)	outFaces->insert(*face);
 			if (fiter->data().mTerrainType != terrain_Natural)
@@ -908,9 +908,9 @@ void	SwapMaps(	Pmwx& 							ioMapA,
 {
 	DebugAssert(inBoundsA.size() == inBoundsB.size());
 
-	set<Face_handle>		moveFaceFromA, moveFaceFromB;
-	set<Halfedge_handle>	moveEdgeFromA, moveEdgeFromB;
-	set<Vertex_handle >	moveVertFromA, moveVertFromB;
+	std::set<Face_handle>		moveFaceFromA, moveFaceFromB;
+	std::set<Halfedge_handle>	moveEdgeFromA, moveEdgeFromB;
+	std::set<Vertex_handle >	moveVertFromA, moveVertFromB;
 #if 1 //MSC
 	hash_map<Vertex_handle, Vertex_handle>	keepVertFromA, keepVertFromB;
 	hash_map<Vertex_handle, Vertex_handle>::iterator findVert;
@@ -918,9 +918,9 @@ void	SwapMaps(	Pmwx& 							ioMapA,
 	hash_map<Vertex_handle, Vertex_handle, hash_vertex>	keepVertFromA, keepVertFromB;
 	hash_map<Vertex_handle, Vertex_handle, hash_vertex>::iterator findVert;
 #endif
-	set<Face_handle>::iterator		faceIter;
-	set<Halfedge_handle>::iterator	edgeIter;
-	set<Vertex_handle>::iterator		vertIter;
+	std::set<Face_handle>::iterator		faceIter;
+	std::set<Halfedge_handle>::iterator	edgeIter;
+	std::set<Vertex_handle>::iterator		vertIter;
 	int n;
 
 #if DEV
@@ -945,7 +945,7 @@ void	SwapMaps(	Pmwx& 							ioMapA,
 	FindFacesForEdgeSet(moveEdgeFromA, moveFaceFromA);
 	FindFacesForEdgeSet(moveEdgeFromB, moveFaceFromB);
 
-	// Accumulate total set of edges that must move from faces (CCBs and holes.)
+	// Accumulate total std::set of edges that must move from faces (CCBs and holes.)
 	for (faceIter = moveFaceFromA.begin(); faceIter != moveFaceFromA.end(); ++faceIter)
 		FindEdgesForFace(*faceIter, moveEdgeFromA);
 
@@ -1006,7 +1006,7 @@ void	SwapMaps(	Pmwx& 							ioMapA,
 		DebugAssert(!(*edgeIter)->face()->is_unbounded());
 		DebugAssert(moveFaceFromB.count((*edgeIter)->face()) > 0);
 	}
-	// TODO: confirm all bounds of all faces are in the edge set?
+	// TODO: confirm all bounds of all faces are in the edge std::set?
 #endif
 
 
@@ -1068,7 +1068,7 @@ void	SwapMaps(	Pmwx& 							ioMapA,
 	 * MIGRATE ALL ENTITIES
 	 ********************************************************************************/
 
-	// Finally we just need to swap each entity into a new list.
+	// Finally we just need to swap each entity into a new std::list.
 
 	for (faceIter = moveFaceFromA.begin(); faceIter != moveFaceFromA.end(); ++faceIter)
 		ioMapB.MoveFaceToMe(&ioMapA, *faceIter);
@@ -1249,7 +1249,7 @@ void TopoIntegrateMaps(Pmwx * mapA, Pmwx * mapB)
 
 	typedef multimap<Bbox_2, Halfedge_handle, __sort_by_bbox_base>		HalfedgeMap;
 	typedef multimap<Halfedge_handle, Point_2>		SplitMap;
-	typedef	set<Halfedge_handle>					SplitSet;
+	typedef	std::set<Halfedge_handle>					SplitSet;
 	typedef map<double, Point_2>					SortedPoints;
 
 		HalfedgeMap				map_small;
@@ -1264,10 +1264,10 @@ void TopoIntegrateMaps(Pmwx * mapA, Pmwx * mapB)
 		Pmwx::Halfedge_iterator iterB;
 		Point_2					p;
 		double					dist;
-		pair<HalfedgeMap::iterator, HalfedgeMap::iterator>	possibles;
+		std::pair<HalfedgeMap::iterator, HalfedgeMap::iterator>	possibles;
 		HalfedgeMap::iterator								he_box;
 
-		pair<SplitMap::iterator, SplitMap::iterator>		range;
+		std::pair<SplitMap::iterator, SplitMap::iterator>		range;
 		SplitSet::iterator 									he;
 		SplitMap::iterator									splitIter;
 		SortedPoints::iterator								spi;
@@ -1287,9 +1287,9 @@ void TopoIntegrateMaps(Pmwx * mapA, Pmwx * mapB)
 	}
 
 	// We are going to store the halfedges of B in two maps, sorted by their bbox's ymin.
-	// The idea here is to have a set of very small segments...we can be real precise in the
+	// The idea here is to have a std::set of very small segments...we can be real precise in the
 	// range we scan here.  The big map will have all the huge exceptions, which we'll have to
-	// totally iterate, but that wil be a much smaller set.
+	// totally iterate, but that wil be a much smaller std::set.
 	for (iterB = mapB->halfedges_begin(); iterB != mapB->halfedges_end(); ++iterB)
 	if (iterB->mDominant)
 	{
@@ -1308,7 +1308,7 @@ void TopoIntegrateMaps(Pmwx * mapA, Pmwx * mapB)
 
 	}
 
-	// Go through and search both the small and big set, looking for halfedges.
+	// Go through and search both the small and big std::set, looking for halfedges.
 	for (iterA = mapA->halfedges_begin(); iterA != mapA->halfedges_end(); ++iterA)
 	if (iterA->mDominant)
 	{
@@ -1843,14 +1843,14 @@ int	GetParamHistogram(const Pmwx::Face_handle f, const DEMGeo& dem, map<float, i
 	return count;
 }
 
-bool	ClipDEMToFaceSet(const set<Face_handle>& inFaces, const DEMGeo& inSrcDEM, DEMGeo& inDstDEM, int& outX1, int& outY1, int& outX2, int& outY2)
+bool	ClipDEMToFaceSet(const std::set<Face_handle>& inFaces, const DEMGeo& inSrcDEM, DEMGeo& inDstDEM, int& outX1, int& outY1, int& outX2, int& outY2)
 {
-	set<Halfedge_handle>		allEdges, localEdges;
-	for (set<Face_handle>::const_iterator f = inFaces.begin(); f != inFaces.end(); ++f)
+	std::set<Halfedge_handle>		allEdges, localEdges;
+	for (std::set<Face_handle>::const_iterator f = inFaces.begin(); f != inFaces.end(); ++f)
 	{
 		localEdges.clear();
 		FindEdgesForFace<Pmwx>(*f, localEdges);
-		for (set<Halfedge_handle>::iterator e = localEdges.begin(); e != localEdges.end(); ++e)
+		for (std::set<Halfedge_handle>::iterator e = localEdges.begin(); e != localEdges.end(); ++e)
 		{
 			if (inFaces.count((*e)->face()) == 0 || inFaces.count((*e)->twin()->face()) == 0)
 				allEdges.insert(*e);
@@ -1898,9 +1898,9 @@ bool	ClipDEMToFaceSet(const set<Face_handle>& inFaces, const DEMGeo& inSrcDEM, D
 
 int		SetupRasterizerForDEM(const Pmwx::Face_handle f, const DEMGeo& dem, PolyRasterizer<double>& rasterizer)
 {
-	set<Halfedge_handle>	all, useful;
+	std::set<Halfedge_handle>	all, useful;
 	FindEdgesForFace<Pmwx>(f, all);
-	for (set<Halfedge_handle>::iterator e = all.begin(); e != all.end(); ++e)
+	for (std::set<Halfedge_handle>::iterator e = all.begin(); e != all.end(); ++e)
 	{
 		if ((*e)->face() != (*e)->twin()->face())
 			useful.insert(*e);
@@ -1908,9 +1908,9 @@ int		SetupRasterizerForDEM(const Pmwx::Face_handle f, const DEMGeo& dem, PolyRas
 	return SetupRasterizerForDEM(useful, dem, rasterizer);
 }
 
-int		SetupRasterizerForDEM(const set<Halfedge_handle>& inEdges, const DEMGeo& dem, PolyRasterizer<double>& rasterizer)
+int		SetupRasterizerForDEM(const std::set<Halfedge_handle>& inEdges, const DEMGeo& dem, PolyRasterizer<double>& rasterizer)
 {
-	for (set<Halfedge_handle>::const_iterator e = inEdges.begin(); e != inEdges.end(); ++e)
+	for (std::set<Halfedge_handle>::const_iterator e = inEdges.begin(); e != inEdges.end(); ++e)
 	{
 		double x1 = dem.lon_to_x(CGAL::to_double((*e)->source()->point().x()));
 		double y1 = dem.lat_to_y(CGAL::to_double((*e)->source()->point().y()));
@@ -2358,7 +2358,7 @@ int MapDesliver(Pmwx& pmwx, double metric, ProgressFunc func)
 	int sliver = 0;
 	int total = 0;
 	
-	set<Pmwx::Face_handle> bad;
+	std::set<Pmwx::Face_handle> bad;
 
 	for(Pmwx::Face_iterator f = pmwx.faces_begin(); f != pmwx.faces_end(); ++f, ++ctr)
 	if(!f->is_unbounded())
@@ -2394,12 +2394,12 @@ int MapDesliver(Pmwx& pmwx, double metric, ProgressFunc func)
 //		is_sliver = false;
 		if(is_sliver)
 		{
-			set<Pmwx::Halfedge_handle>	my_edges;
+			std::set<Pmwx::Halfedge_handle>	my_edges;
 			FindEdgesForFace<Pmwx>(f,my_edges);
 			map<int,int>	road_lu_count;
 			map<int,int>	other_lu_count;
 			bool matches_something = false;
-			for(set<Pmwx::Halfedge_handle>::iterator e = my_edges.begin(); e != my_edges.end(); ++e)
+			for(std::set<Pmwx::Halfedge_handle>::iterator e = my_edges.begin(); e != my_edges.end(); ++e)
 			if(!(*e)->twin()->face()->is_unbounded())
 			if((*e)->twin()->face() != (*e)->face())
 			{
@@ -2462,7 +2462,7 @@ int KillSliverWater(Pmwx& pmwx, double metric, ProgressFunc func)
 	int sliver = 0;
 	int total = 0;
 	
-	set<Pmwx::Face_handle> bad;
+	std::set<Pmwx::Face_handle> bad;
 
 	for(Pmwx::Face_iterator f = pmwx.faces_begin(); f != pmwx.faces_end(); ++f, ++ctr)
 	if(!f->is_unbounded())
@@ -2798,7 +2798,7 @@ tuple<int, int> RemoveIslands(Pmwx& io_map, double max_area)
 int KillWetAntennaRoads(Pmwx& io_map)
 {
 	int dead = 0;
-	set<Pmwx::Vertex_handle>	kill_q;
+	std::set<Pmwx::Vertex_handle>	kill_q;
 	for(Pmwx::Vertex_iterator v = io_map.vertices_begin(); v != io_map.vertices_end(); ++v)
 	if(v->degree() == 1)
 	if(v->incident_halfedges()->face()->data().IsWater())

@@ -33,10 +33,10 @@ DECLARE_PERSISTENT(WED_AirportNode)
 
 public:
 
-			void		GetAttributes(		set<int>& attrs) const;
-			void		SetAttributes(const set<int>& attrs)	  ;
+			void		GetAttributes(		std::set<int>& attrs) const;
+			void		SetAttributes(const std::set<int>& attrs)	  ;
 
-	virtual void 		GetResource(string& r) const;
+	virtual void 		GetResource(std::string& r) const;
 
 	virtual const char *	HumanReadableType(void) const { return "Airport Line Node"; }
 

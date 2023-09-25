@@ -59,7 +59,7 @@
 #include "FileUtils.h"
 #include "GUI_Resources.h"
 
-static void get_airports(map<string, navaid_t>& tAirports)
+static void get_airports(std::map<std::string, navaid_t>& tAirports)
 {
 	WED_file_cache_request	mCacheRequest;
 	
@@ -71,7 +71,7 @@ static void get_airports(map<string, navaid_t>& tAirports)
 
 	sleep(3);
 
-	string json_string;
+	std::string json_string;
 	
 	if(res.out_status == cache_status_available)
 	{
@@ -125,7 +125,7 @@ static void get_airports(map<string, navaid_t>& tAirports)
 }
 #endif
 
-static void parse_apt_dat(MFMemFile * str, map<string, navaid_t>& tAirports, const string& source)
+static void parse_apt_dat(MFMemFile * str, std::map<std::string, navaid_t>& tAirports, const std::string& source)
 {
 	MFScanner	s;
 	MFS_init(&s, str);
@@ -216,7 +216,7 @@ static void parse_apt_dat(MFMemFile * str, map<string, navaid_t>& tAirports, con
 	}
 }
 
-static void parse_nav_dat(MFMemFile * str, vector<navaid_t>& mNavaids, bool merge)
+static void parse_nav_dat(MFMemFile * str, std::vector<navaid_t>& mNavaids, bool merge)
 {
 	MFScanner	s;
 	MFS_init(&s, str);
@@ -254,8 +254,8 @@ static void parse_nav_dat(MFMemFile * str, vector<navaid_t>& mNavaids, bool merg
 				{
 					// check for duplicates before adding this new one
 					float closest_d = 9999.0;
-					vector<navaid_t>::iterator closest_i;
-					vector<navaid_t>::iterator i = mNavaids.begin();
+					std::vector<navaid_t>::iterator closest_i;
+					std::vector<navaid_t>::iterator i = mNavaids.begin();
 					while(i != mNavaids.end())
 					{
 						if(n.type == i->type && n.icao == i->icao)
@@ -301,7 +301,7 @@ static void parse_nav_dat(MFMemFile * str, vector<navaid_t>& mNavaids, bool merg
 	MemFile_Close(str);
 }
 
-static void parse_atc_dat(MFMemFile * str, vector<navaid_t>& mNavaids)
+static void parse_atc_dat(MFMemFile * str, std::vector<navaid_t>& mNavaids)
 {
 	MFScanner	s;
 	MFS_init(&s, str);
@@ -322,7 +322,7 @@ static void parse_atc_dat(MFMemFile * str, vector<navaid_t>& mNavaids)
 			}
 			if(MFS_string_match(&s, "ROLE", 0))
 			{
-				string role;
+				std::string role;
 				MFS_string(&s, &role);
 				n.type = role == "tracon" ? 9999 : 0; // navaid pseudo code for TRACON areas
 #if SHOW_TOWERS
@@ -339,14 +339,14 @@ static void parse_atc_dat(MFMemFile * str, vector<navaid_t>& mNavaids)
 			}
 			else if(MFS_string_match(&s, "FREQ", 0))
 			{
-				string tmp;
+				std::string tmp;
 				MFS_string(&s, &tmp);
 				if(!n.rwy.empty()) n.rwy += ", ";
 				n.rwy += tmp.substr(0,tmp.size()-2) + "." + tmp.substr(tmp.size()-2);
 			}
 			else if(MFS_string_match(&s, "CHAN", 0))
 			{
-				string tmp;
+				std::string tmp;
 				MFS_string(&s, &tmp);
 				if(!n.rwy.empty()) n.rwy += ", ";
 				n.rwy += tmp.substr(0,tmp.size()-3) + "." + tmp.substr(tmp.size()-3);
@@ -381,9 +381,9 @@ static void parse_atc_dat(MFMemFile * str, vector<navaid_t>& mNavaids)
 							n.rwy += " MHz";
 						}
 						n.shape.push_back(Polygon2());
-						string tmp(to_string(bottom) + "-" + to_string((int) (round(MFS_double(&s) / 100.0))));
-						if (n.name.find(tmp) == string::npos)
-							n.name += string("  ") + tmp;
+						std::string tmp(std::to_string(bottom) + "-" + std::to_string((int) (round(MFS_double(&s) / 100.0))));
+						if (n.name.find(tmp) == std::string::npos)
+							n.name += std::string("  ") + tmp;
 					}
 				}
 				else if(MFS_string_match(&s, "CONTROLLER_END", 1) && n.type)
@@ -420,14 +420,14 @@ WED_NavaidLayer::~WED_NavaidLayer()
 void WED_NavaidLayer::LoadNavaids()
 {
 // ToDo: move this into PackageMgr, so its updated when XPlaneFolder changes and re-used when another scenery is opened
-	string resourcePath;
+	std::string resourcePath;
 	gPackageMgr->GetXPlaneFolder(resourcePath);
 
 	mNavaids.reserve(25000);    // about 3 MBytes, as of 2018 its some 20,200 navaids
 
 	// deliberately ignoring any Custom Data/earth_424.dat or Custom Data/earth_nav.dat files that a user may have ... to avoid confusion
-	string defaultNavaids  = resourcePath + DIR_STR "Resources" DIR_STR "default data" DIR_STR "earth_nav.dat";
-	string globalNavaids = DIR_STR "Global Airports" DIR_STR "Earth nav data" DIR_STR "earth_nav.dat";
+	std::string defaultNavaids  = resourcePath + DIR_STR "Resources" DIR_STR "default data" DIR_STR "earth_nav.dat";
+	std::string globalNavaids = DIR_STR "Global Airports" DIR_STR "Earth nav data" DIR_STR "earth_nav.dat";
 	
 	MFMemFile * str = MemFile_Open(defaultNavaids.c_str());
 	if(str) parse_nav_dat(str, mNavaids, false);
@@ -437,7 +437,7 @@ void WED_NavaidLayer::LoadNavaids()
 		str = MemFile_Open((resourcePath + DIR_STR "Custom Scenery" + globalNavaids).c_str());
 	if(str)	parse_nav_dat(str, mNavaids, true);
 	
-	string defaultATC = resourcePath + DIR_STR "Resources" DIR_STR "default scenery" DIR_STR "default atc dat" DIR_STR "Earth nav data" DIR_STR "atc.dat";
+	std::string defaultATC = resourcePath + DIR_STR "Resources" DIR_STR "default scenery" DIR_STR "default atc dat" DIR_STR "Earth nav data" DIR_STR "atc.dat";
 	str = MemFile_Open(defaultATC.c_str());
 	// on the linux and OSX platforms this path was different before XP11.30 for some unknown reasons. So try that, too.
 	if(!str)
@@ -457,9 +457,9 @@ void WED_NavaidLayer::LoadNavaids()
 //	if(str)	parse_atc_dat(str, mNavaids);
 	
 #if SHOW_APTS_FROM_APTDAT
-	map<string,navaid_t> tAirports;
-	string defaultApts = resourcePath + DIR_STR "Resources" DIR_STR "default scenery" DIR_STR "default apt dat" DIR_STR "Earth nav data" DIR_STR "apt.dat";
-	string globalApts  = DIR_STR "Global Airports" DIR_STR "Earth nav data" DIR_STR "apt.dat";
+	std::map<std::string,navaid_t> tAirports;
+	std::string defaultApts = resourcePath + DIR_STR "Resources" DIR_STR "default scenery" DIR_STR "default apt dat" DIR_STR "Earth nav data" DIR_STR "apt.dat";
+	std::string globalApts  = DIR_STR "Global Airports" DIR_STR "Earth nav data" DIR_STR "apt.dat";
 
 	str = MemFile_Open(defaultApts.c_str());
 	if(str) parse_apt_dat(str, tAirports, "");
@@ -469,7 +469,7 @@ void WED_NavaidLayer::LoadNavaids()
 	if(str) parse_apt_dat(str, tAirports, "");
 
 #if COMPARE_GW_TO_APTDAT
-	map<string,navaid_t> tAirp;
+	std::map<std::string,navaid_t> tAirp;
 	get_airports(tAirp);
 	
 	for(auto a : tAirp)
@@ -490,7 +490,7 @@ void WED_NavaidLayer::LoadNavaids()
 	}
 #endif
 
-	for(map<string, navaid_t>::iterator i = tAirports.begin(); i != tAirports.end(); ++i)
+	for(std::map<std::string, navaid_t>::iterator i = tAirports.begin(); i != tAirports.end(); ++i)
 		mNavaids.push_back(i->second);
 #endif
 
@@ -527,7 +527,7 @@ void		WED_NavaidLayer::DrawVisualization		(bool inCurrent, GUI_GraphState * g)
 	glDisable(GL_LINE_STIPPLE);
 	
 	if (PPM > 0.0005)          // stop displaying navaids when zoomed out - gets too crowded
-		for(vector<navaid_t>::iterator i = mNavaids.begin(); i != mNavaids.end(); ++i)  // this is brain dead - use list sorted by longitude
+		for(std::vector<navaid_t>::iterator i = mNavaids.begin(); i != mNavaids.end(); ++i)  // this is brain dead - use list sorted by longitude
 		{
 			if(i->lonlat.x() > vl && i->lonlat.x() < vr &&
 			   i->lonlat.y() > vb && i->lonlat.y() < vt)
@@ -576,7 +576,7 @@ void		WED_NavaidLayer::DrawVisualization		(bool inCurrent, GUI_GraphState * g)
 					{
 						glColor4fv(vfr_blue);
 						int pts = p.size();
-						vector<Point2> c(pts);
+						std::vector<Point2> c(pts);
 						GetZoomer()->LLToPixelv(&(c[0]), p.data(), pts);
 						glShape2v(GL_LINE_LOOP, &(c[0]), pts);
 					}
@@ -619,7 +619,7 @@ void		WED_NavaidLayer::DrawVisualization		(bool inCurrent, GUI_GraphState * g)
 					{
 						const float * color = i->heading ? vfr_blue : vfr_purple;
 						GUI_FontDraw(g, font_UI_Basic, color, pt.x()+15.0,pt.y()-20.0, i->name.c_str());
-						GUI_FontDraw(g, font_UI_Basic, color, pt.x()+15.0,pt.y()-35.0, (string("Airport ID") + i->rwy + ": " + i->icao).c_str());
+						GUI_FontDraw(g, font_UI_Basic, color, pt.x()+15.0,pt.y()-35.0, (std::string("Airport ID") + i->rwy + ": " + i->icao).c_str());
 					}
 					else if(PPM > 0.5)
 					{

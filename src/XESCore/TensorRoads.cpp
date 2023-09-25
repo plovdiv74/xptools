@@ -276,21 +276,21 @@ void BulkInsertRoads(vector<Segment2>	roads, Pmwx& io_map)
 	Map_CreateWithLineData(io_map, road_vec, data_vec);
 }
 
-int ThinLine(list<Point2>& pts, double max_dist_move, double max_dist_seg)
+int ThinLine(std::list<Point2>& pts, double max_dist_move, double max_dist_seg)
 {
 	max_dist_move *= max_dist_move;
 	max_dist_seg *= max_dist_seg;
 	int t=0;
 	while(1)
 	{
-		list<Point2>::iterator best_dead = pts.end();
+		std::list<Point2>::iterator best_dead = pts.end();
 		double d_sq = 0.0f;
 
-		for(list<Point2>::iterator i = pts.begin(); i != pts.end(); ++i)
+		for(std::list<Point2>::iterator i = pts.begin(); i != pts.end(); ++i)
 		{
 			if(i != pts.begin())
 			{
-				list<Point2>::iterator p(i), n(i);
+				std::list<Point2>::iterator p(i), n(i);
 				--p;
 				++n;
 				if(n != pts.end())
@@ -329,7 +329,7 @@ struct	TensorSeed {
 	int			x;
 	int			y;
 };
-typedef list<TensorSeed>		SeedQueue;
+typedef std::list<TensorSeed>		SeedQueue;
 
 
 
@@ -603,8 +603,8 @@ void	BuildRoadsForFace(
 	{
 		TIMER(burn_water)
 
-		set<Face_handle>			no_road_faces;
-		set<Halfedge_handle>		bounds;
+		std::set<Face_handle>			no_road_faces;
+		std::set<Halfedge_handle>		bounds;
 		PolyRasterizer<double>		raster;
 		for(f = ioMap.faces_begin(); f != ioMap.faces_end(); ++f)
 		if (!f->is_unbounded())
@@ -804,7 +804,7 @@ void	BuildRoadsForFace(
 			++ctr;
 			if(CheckSeed(seedQ.front(),road_restrict))
 			{
-				list<Point2>	pts;
+				std::list<Point2>	pts;
 				Point2	fp(seedQ.front().p);
 				Point2	bp(fp);
 				pts.push_back(fp);
@@ -862,15 +862,15 @@ void	BuildRoadsForFace(
 
 				int k = ThinLine(pts, 10.0 * MTR_TO_NM * NM_TO_DEG_LAT, 500 * MTR_TO_NM * NM_TO_DEG_LAT);
 	//			printf("Killed %d points, kept %d points.\n", k, pts.size());
-				for(list<Point2>::iterator i = pts.begin(); i != pts.end(); ++i)
+				for(std::list<Point2>::iterator i = pts.begin(); i != pts.end(); ++i)
 				{
-	//				gMeshPoints.push_back(pair<Point2,Point3>(*i,c));
+	//				gMeshPoints.push_back(std::pair<Point2,Point3>(*i,c));
 					if(i != pts.begin())
 					{
-						list<Point2>::iterator j(i);
+						std::list<Point2>::iterator j(i);
 						--j;
-	//					gMeshLines.push_back(pair<Point2,Point3>(*j,c));
-	//					gMeshLines.push_back(pair<Point2,Point3>(*i,c));
+	//					gMeshLines.push_back(std::pair<Point2,Point3>(*j,c));
+	//					gMeshLines.push_back(std::pair<Point2,Point3>(*i,c));
 					// can't  do this - makes a point cloud of roads - TOTALLY gross.
 	//					if(RollDice(max(inUrbanDensity.value_linear(j->x,j->y),inUrbanDensity.value_linear(i->x,i->y))))
 							roads.push_back(Segment2(*j,*i));

@@ -62,7 +62,7 @@ public:
 	virtual	void			DragEnter(int inX, int inY) { }
 	virtual	void			DragOver(int inX, int inY) { }
 	virtual	void			DragLeave(void) { }
-	virtual	void			ReceiveFiles(const vector<string>& inFiles, int x, int y) { XGrindFiles(inFiles); }
+	virtual	void			ReceiveFiles(const std::vector<std::string>& inFiles, int x, int y) { XGrindFiles(inFiles); }
 	virtual	int				KeyPressed(uint32_t, long, long, long) { return 1; }
 	virtual	int				HandleMenuCmd(xmenu inMenu, int inCommand) { return XGrinderMenuPick(inMenu, inCommand); };
 

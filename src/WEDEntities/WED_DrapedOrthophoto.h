@@ -50,11 +50,11 @@ public:
 			double		GetHeading(void) const;
 			void		SetHeading(double h);
 
-		virtual void	GetResource(	  string& r) const;
-		virtual void	SetResource(const string& r);
+		virtual void	GetResource(	  std::string& r) const;
+		virtual void	SetResource(const std::string& r);
 			//Checks if the draped orthophoto being used is the old .pol system or the new .someimagetype
 			//True if new, false if old, optional way to get the suffix
-			bool		IsNew( string* out_string=NULL);
+			bool		IsNew( std::string* out_string=NULL);
 	virtual const char *HumanReadableType(void) const { return "Draped Orthophoto"; }
 	
 			// Re-calculate UV mapping to stretch out texture over full extend of polygon

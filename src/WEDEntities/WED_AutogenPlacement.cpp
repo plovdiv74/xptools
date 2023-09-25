@@ -37,7 +37,7 @@ WED_AutogenPlacement::~WED_AutogenPlacement()
 {
 }
 
-void	WED_AutogenPlacement::GetResource(	  string& r) const
+void	WED_AutogenPlacement::GetResource(	  std::string& r) const
 {
 	r = resource.value;
 }
@@ -47,7 +47,7 @@ bool	WED_AutogenPlacement::IsAGBlock(void) const
 	return resource.value.back() == 'b';
 }
 
-void	WED_AutogenPlacement::SetResource(const string& r)
+void	WED_AutogenPlacement::SetResource(const std::string& r)
 {
 	resource = r;
 }

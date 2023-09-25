@@ -105,11 +105,11 @@ WED_CreatePointTool::~WED_CreatePointTool()
 }
 
 void	WED_CreatePointTool::AcceptPath(
-							const vector<Point2>&	pts,
-							const vector<Point2>&	dirs_lo,
-							const vector<Point2>&	dirs_hi,
-							const vector<int>		has_dirs,
-							const vector<int>		has_split,
+							const std::vector<Point2>&	pts,
+							const std::vector<Point2>&	dirs_lo,
+							const std::vector<Point2>&	dirs_hi,
+							const std::vector<int>		has_dirs,
+							const std::vector<int>		has_split,
 							int						closed)
 {
 		char buf[256];
@@ -132,7 +132,7 @@ void	WED_CreatePointTool::AcceptPath(
 	WED_TowerViewpoint * tower;
 	WED_Windsock * sock;
 	WED_ObjPlacement * obj;
-		string ct;
+		std::string ct;
 
 	switch(mType) {
 	case create_Beacon:
@@ -181,8 +181,8 @@ void	WED_CreatePointTool::AcceptPath(
 			new_pt_obj = new_pt_h = obj = WED_ObjPlacement::CreateTyped(GetArchive());
 			obj->SetResource(resource.value);
 			obj->SetShowLevel(ENUM_Export(show_level.value));
-			string n = resource.value;
-			string::size_type p = n.find_last_of("/\\:");
+			std::string n = resource.value;
+			std::string::size_type p = n.find_last_of("/\\:");
 			if(p != n.npos) n.erase(0,p+1);
 			obj->SetName(n);
 		}
@@ -249,7 +249,7 @@ bool		WED_CreatePointTool::CanCreateNow(void)
 	return WED_GetCurrentAirport(GetResolver()) != NULL || !kIsAirport[mType];
 }
 
-void		WED_CreatePointTool::SetResource(const string& r)
+void		WED_CreatePointTool::SetResource(const std::string& r)
 {
 	resource.value = r;
 }
@@ -268,7 +268,7 @@ void		WED_CreatePointTool::GetNthPropertyInfo(int n, PropertyInfo_t& info) const
 	truck_type.GetProperty(prop);
 	if (prop.int_val != atc_ServiceTruck_Baggage_Train && n == PropertyItemNumber(&baggage_car_count))
 	{
-		info.prop_name = "."; //The special hardcoded "disable me" string, see IPropertyObject.h
+		info.prop_name = "."; //The special hardcoded "disable me" std::string, see IPropertyObject.h
 		info.can_edit = false;
 		info.can_delete = false;
 	}

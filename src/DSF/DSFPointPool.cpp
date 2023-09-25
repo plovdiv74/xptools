@@ -83,7 +83,7 @@ void			DSFSharedPointPool::AddPoolDirect(DSFTuple& minFrac, DSFTuple& maxFrac)
 
 bool			DSFSharedPointPool::CanBeContiguous(const DSFTupleVector& inPoints)
 {
-	for (list<SharedSubPool>::iterator p = mPools.begin(); p != mPools.end(); ++p)
+	for (std::list<SharedSubPool>::iterator p = mPools.begin(); p != mPools.end(); ++p)
 	{
 		// 65535?  yes, really.  The damn cross pool primitive uses [) notation, so it loses 1 unit capacity.
 		if((p->mPoints.size() + inPoints.size()) > 65535)
@@ -106,7 +106,7 @@ bool			DSFSharedPointPool::CanBeContiguous(const DSFTupleVector& inPoints)
 }
 
 
-pair<int, int>	DSFSharedPointPool::AcceptContiguous(const DSFTupleVector& inPoints)
+std::pair<int, int>	DSFSharedPointPool::AcceptContiguous(const DSFTupleVector& inPoints)
 {
 	int n;
 	DSFTupleVector	encoded;
@@ -114,7 +114,7 @@ pair<int, int>	DSFSharedPointPool::AcceptContiguous(const DSFTupleVector& inPoin
 	int p = 0;
 	SharedSubPool * found = NULL;
 
-	for (list <SharedSubPool>::iterator pool = mPools.begin(); pool != mPools.end(); ++pool, ++p)
+	for (std::list <SharedSubPool>::iterator pool = mPools.begin(); pool != mPools.end(); ++pool, ++p)
 	{
 		if((pool->mPoints.size() + inPoints.size()) > 65535)
 		{
@@ -141,7 +141,7 @@ pair<int, int>	DSFSharedPointPool::AcceptContiguous(const DSFTupleVector& inPoin
 				if (pool->mPointsIndex.find(encoded[n]) !=
 					pool->mPointsIndex.end())
 				{
-					return pair<int,int>(-1,-1);
+					return std::pair<int,int>(-1,-1);
 				}
 			}
 			found = &*pool;
@@ -150,18 +150,18 @@ pair<int, int>	DSFSharedPointPool::AcceptContiguous(const DSFTupleVector& inPoin
 	}
 	if (first_ok_pool != -1)
 		return AcceptContiguousPool(first_ok_pool, found, inPoints);
-	return pair<int,int>(-1, -1);
+	return std::pair<int,int>(-1, -1);
 }
 
-pair<int, int>	DSFSharedPointPool::AcceptContiguousPool(int p, SharedSubPool * pool, const DSFTupleVector& inPoints)
+std::pair<int, int>	DSFSharedPointPool::AcceptContiguousPool(int p, SharedSubPool * pool, const DSFTupleVector& inPoints)
 {
 	int n;
-	pair<int,int> retval(p, (int)pool->mPoints.size());
+	std::pair<int,int> retval(p, (int)pool->mPoints.size());
 	for (n = 0; n < inPoints.size(); ++n)
 	{
 		DSFTuple	pt(inPoints[n]);
 		pt.encode(pool->mOffset,pool->mScale);
-		pool->mPointsIndex.insert(hash_map<DSFTuple, int>::value_type(
+		pool->mPointsIndex.insert(std::hash_map<DSFTuple, int>::value_type(
 					pt, (int)pool->mPoints.size()));
 		pool->mPoints.push_back(pt);
 	}
@@ -174,12 +174,12 @@ int	DSFSharedPointPool::CountShared(const DSFTupleVector& inPoints)
 	for(int n = 0; n < inPoints.size(); ++n)
 	{
 		// First check every scale for the point already existing.
-		for (list<SharedSubPool>::iterator pool = mPools.begin(); pool != mPools.end(); ++pool)
+		for (std::list<SharedSubPool>::iterator pool = mPools.begin(); pool != mPools.end(); ++pool)
 		{
 			DSFTuple	point(inPoints[n]);
 			if (point.encode(pool->mOffset, pool->mScale))
 			{
-				hash_map<DSFTuple,int>::iterator iter = pool->mPointsIndex.find(point);
+				std::hash_map<DSFTuple,int>::iterator iter = pool->mPointsIndex.find(point);
 				if (iter != pool->mPointsIndex.end())
 					++c;
 			}
@@ -188,25 +188,25 @@ int	DSFSharedPointPool::CountShared(const DSFTupleVector& inPoints)
 	return c;
 }
 
-pair<int, int>	DSFSharedPointPool::AcceptShared(const DSFTuple& inPoint)
+std::pair<int, int>	DSFSharedPointPool::AcceptShared(const DSFTuple& inPoint)
 {
 	int p = 0;
 	// First check every scale for the point already existing.
-	for (list<SharedSubPool>::iterator pool = mPools.begin(); pool != mPools.end(); ++pool, ++p)
+	for (std::list<SharedSubPool>::iterator pool = mPools.begin(); pool != mPools.end(); ++pool, ++p)
 	{
 		DSFTuple	point(inPoint);
 		if (point.encode(pool->mOffset, pool->mScale))
 		{
-			hash_map<DSFTuple,int>::iterator iter = pool->mPointsIndex.find(point);
+			std::hash_map<DSFTuple,int>::iterator iter = pool->mPointsIndex.find(point);
 			if (iter != pool->mPointsIndex.end())
-				return pair<int,int>(p, iter->second);
+				return std::pair<int,int>(p, iter->second);
 		}
 	}
 	// Hrm...doesn't exist.  Try to add it.
 	p = 0;
 	
-	list<SharedSubPool>::iterator exemplar = mPools.end();
-	for (list<SharedSubPool>::iterator pool = mPools.begin(); pool != mPools.end(); ++pool, ++p)
+	std::list<SharedSubPool>::iterator exemplar = mPools.end();
+	for (std::list<SharedSubPool>::iterator pool = mPools.begin(); pool != mPools.end(); ++pool, ++p)
 	{
 		DSFTuple	point(inPoint);
 		if (point.encode(pool->mOffset, pool->mScale))
@@ -215,8 +215,8 @@ pair<int, int>	DSFSharedPointPool::AcceptShared(const DSFTuple& inPoint)
 			{
 				int our_pos = pool->mPoints.size();
 				pool->mPoints.push_back(point);
-				pool->mPointsIndex.insert(hash_map<DSFTuple, int>::value_type(point, our_pos));
-				return pair<int, int>(p, our_pos);
+				pool->mPointsIndex.insert(std::hash_map<DSFTuple, int>::value_type(point, our_pos));
+				return std::pair<int, int>(p, our_pos);
 			}
 			else if(exemplar == mPools.end())
 				exemplar = pool;
@@ -238,24 +238,24 @@ pair<int, int>	DSFSharedPointPool::AcceptShared(const DSFTuple& inPoint)
 
 		int our_pos = exemplar->mPoints.size();
 		exemplar->mPoints.push_back(point);
-		exemplar->mPointsIndex.insert(hash_map<DSFTuple, int>::value_type(point, our_pos));
-		return pair<int, int>((int)mPools.size()-1, our_pos);
+		exemplar->mPointsIndex.insert(std::hash_map<DSFTuple, int>::value_type(point, our_pos));
+		return std::pair<int, int>((int)mPools.size()-1, our_pos);
 	}
 
 	// We hit this encode failure if we are out of pool bounds.
-	return pair<int, int>(-1, -1);
+	return std::pair<int, int>(-1, -1);
 }
 
 void			DSFSharedPointPool::Trim(void)
 {
-	for (list<SharedSubPool>::iterator i = mPools.begin(); i != mPools.end(); ++i)
+	for (std::list<SharedSubPool>::iterator i = mPools.begin(); i != mPools.end(); ++i)
 		trim(i->mPoints);
 }
 
 int				DSFSharedPointPool::Count() const
 {
 	int t = 0;
-	for (list<SharedSubPool>::const_iterator i = mPools.begin(); i != mPools.end(); ++i)
+	for (std::list<SharedSubPool>::const_iterator i = mPools.begin(); i != mPools.end(); ++i)
 		t += (i->mPoints.size());
 	return t;
 }
@@ -264,16 +264,16 @@ int				DSFSharedPointPool::Count() const
 void			DSFSharedPointPool::ProcessPoints(void)
 {
 	int new_p = 0;
-	for (list<SharedSubPool>::iterator i = mPools.begin(); i != mPools.end(); )
+	for (std::list<SharedSubPool>::iterator i = mPools.begin(); i != mPools.end(); )
 	{
 /*
-		map<int, int> counts;
-		for (hash_map<DSFTuple, int>::const_iterator c = i->mPointsIndex.begin(); c != i->mPointsIndex.end(); ++c)
+		std::map<int, int> counts;
+		for (std::hash_map<DSFTuple, int>::const_iterator c = i->mPointsIndex.begin(); c != i->mPointsIndex.end(); ++c)
 		{
 			counts[i->mPointsIndex.collision(c)]++;
 		}
 		printf("32 bit pool buckets = %d pts = %d\n", i->mPointsIndex.bucket_count(), i->mPointsIndex.size());
-		for (map<int, int>::iterator j = counts.begin(); j != counts.end(); ++j)
+		for (std::map<int, int>::iterator j = counts.begin(); j != counts.end(); ++j)
 		{
 			printf("   %d loading     %d times\n", j->first, j->second);
 		}
@@ -303,10 +303,10 @@ int			DSFSharedPointPool::WritePoolAtoms(FILE * fi, int32_t id)
 		StFileSizeDebugger how_big(fi,"shared point pool total");
 	#endif
 
-	for (list<SharedSubPool>::iterator pool = mPools.begin(); pool != mPools.end(); ++pool)
+	for (std::list<SharedSubPool>::iterator pool = mPools.begin(); pool != mPools.end(); ++pool)
 	{
 		StAtomWriter	poolAtom(fi, id, true);
-		vector<uint16_t>	shorts;
+		std::vector<uint16_t>	shorts;
 		for (DSFTupleVector::iterator i = pool->mPoints.begin();
 			i != pool->mPoints.end(); ++i)
 		{
@@ -322,7 +322,7 @@ int			DSFSharedPointPool::WritePoolAtoms(FILE * fi, int32_t id)
 
 int			DSFSharedPointPool::WriteScaleAtoms(FILE * fi, int32_t id)
 {
-	for (list<SharedSubPool>::iterator pool = mPools.begin(); pool != mPools.end(); ++pool)
+	for (std::list<SharedSubPool>::iterator pool = mPools.begin(); pool != mPools.end(); ++pool)
 	{
 		StAtomWriter	scaleAtom(fi, id, true);
 		for (int d = 0; d < pool->mScale.size(); ++d)
@@ -376,19 +376,19 @@ void			DSFContiguousPointPool::AddPoolDirect(DSFTuple& minFrac, DSFTuple& maxFra
 	mPools.back().mScale = submax - submin;
 }
 
-pair<int, int>	DSFContiguousPointPool::AccumulatePoint(const DSFTuple& inPoint)
+std::pair<int, int>	DSFContiguousPointPool::AccumulatePoint(const DSFTuple& inPoint)
 {
 	DSFTupleVector	v;
 	v.push_back(inPoint);
 	return AccumulatePoints(v);
 }
 
-pair<int, int>	DSFContiguousPointPool::AccumulatePoints(const DSFTupleVector& inPoints)
+std::pair<int, int>	DSFContiguousPointPool::AccumulatePoints(const DSFTupleVector& inPoints)
 {
 	int p = 0;
 	int tris = 0;
 	int n;
-	for (list<ContiguousSubPool>::iterator pool = mPools.begin(); pool != mPools.end(); ++pool, ++p)
+	for (std::list<ContiguousSubPool>::iterator pool = mPools.begin(); pool != mPools.end(); ++pool, ++p)
 	if ((pool->mPoints.size() + inPoints.size()) <= 65535)
 	{
 		++tris;
@@ -427,18 +427,18 @@ pair<int, int>	DSFContiguousPointPool::AccumulatePoints(const DSFTupleVector& in
 			}
 			int pos = pool->mPoints.size();
 			pool->mPoints.insert(pool->mPoints.end(), trans.begin(), trans.end());
-			return pair<int, int>(p, pos);
+			return std::pair<int, int>(p, pos);
 		}
 	}
 //	printf("point pool failure...%d out of %d tried.  Points = %llu.\n", tris, p, (unsigned long long)inPoints.size());
 //		inPoints[n].dump();
 //	printf("\n");
-	return pair<int, int>(-1, -1);
+	return std::pair<int, int>(-1, -1);
 }
 
 void			DSFContiguousPointPool::Trim(void)
 {
-	for (list<ContiguousSubPool>::iterator i = mPools.begin(); i != mPools.end(); ++i)
+	for (std::list<ContiguousSubPool>::iterator i = mPools.begin(); i != mPools.end(); ++i)
 	{
 		trim(i->mPoints);
 	}
@@ -448,7 +448,7 @@ void			DSFContiguousPointPool::Trim(void)
 void			DSFContiguousPointPool::ProcessPoints(void)
 {
 	int new_p = 0;
-	for (list<ContiguousSubPool>::iterator i = mPools.begin(); i != mPools.end(); )
+	for (std::list<ContiguousSubPool>::iterator i = mPools.begin(); i != mPools.end(); )
 	{
 		if (i->mPoints.empty())
 		{
@@ -474,10 +474,10 @@ int			DSFContiguousPointPool::WritePoolAtoms(FILE * fi, int32_t id)
 		StFileSizeDebugger how_big(fi,"contiguous point pool total");
 	#endif
 
-	for (list<ContiguousSubPool>::iterator pool = mPools.begin(); pool != mPools.end(); ++pool)
+	for (std::list<ContiguousSubPool>::iterator pool = mPools.begin(); pool != mPools.end(); ++pool)
 	{
 		StAtomWriter	poolAtom(fi, id, true);
-		vector<uint16_t>	shorts;
+		std::vector<uint16_t>	shorts;
 		for (DSFTupleVector::iterator i = pool->mPoints.begin();
 			i != pool->mPoints.end(); ++i)
 		{
@@ -495,7 +495,7 @@ int			DSFContiguousPointPool::WritePoolAtoms(FILE * fi, int32_t id)
 
 int			DSFContiguousPointPool::WriteScaleAtoms(FILE * fi, int32_t id)
 {
-	for (list<ContiguousSubPool>::iterator pool = mPools.begin(); pool != mPools.end(); ++pool)
+	for (std::list<ContiguousSubPool>::iterator pool = mPools.begin(); pool != mPools.end(); ++pool)
 	{
 		StAtomWriter	scaleAtom(fi, id, true);
 		for (int d = 0; d < pool->mScale.size(); ++d)
@@ -555,7 +555,7 @@ DSFPointPoolLoc	DSF32BitPointPool::AcceptContiguous(const DSFTupleVector& inPoin
 			return DSFPointPoolLoc(-1, -1);
 		}
 
-		mPointsIndex.insert(hash_map<DSFTuple, int>::value_type(pt, (int)mPoints.size()));
+		mPointsIndex.insert(std::hash_map<DSFTuple, int>::value_type(pt, (int)mPoints.size()));
 		mPoints.push_back(pt);
 	}
 	return result;
@@ -567,12 +567,12 @@ DSFPointPoolLoc	DSF32BitPointPool::AcceptShared(const DSFTuple& inPoint)
 	if (!pt.encode32(mOffset, mScale))
 		return DSFPointPoolLoc(-1, -1);
 
-	hash_map<DSFTuple, int>::iterator iter = mPointsIndex.find(pt);
+	std::hash_map<DSFTuple, int>::iterator iter = mPointsIndex.find(pt);
 	if (iter != mPointsIndex.end())
 		return DSFPointPoolLoc(0, iter->second);
 
 	DSFPointPoolLoc	result(0, (int)mPoints.size());
-	mPointsIndex.insert(hash_map<DSFTuple, int>::value_type(pt, (int)mPoints.size()));
+	mPointsIndex.insert(std::hash_map<DSFTuple, int>::value_type(pt, (int)mPoints.size()));
 	mPoints.push_back(pt);
 	return result;
 }
@@ -589,7 +589,7 @@ int				DSF32BitPointPool::WritePoolAtoms(FILE * fi, int32_t id)
 		StFileSizeDebugger how_big(fi,"32-bit point pool total");
 	#endif
 	StAtomWriter	poolAtom(fi, id, true);
-	vector<uint32_t>	longs;
+	std::vector<uint32_t>	longs;
 	for (DSFTupleVector::iterator i = mPoints.begin();
 		i != mPoints.end(); ++i)
 	{
@@ -644,18 +644,18 @@ static unsigned short * strip_break(unsigned short * idx_start, unsigned short *
 }
 
 void DSFOptimizePrimitives(
-					vector<DSFPrimitive>& io_primitives)
+					std::vector<DSFPrimitive>& io_primitives)
 {
-	typedef	hash_map<DSFTuple, int>		idx_t;
-	vector<DSFPrimitive>				out_prims;
+	typedef	std::hash_map<DSFTuple, int>		idx_t;
+	std::vector<DSFPrimitive>				out_prims;
 	idx_t								point_index;
-	vector<DSFTuple>					vertices;
+	std::vector<DSFTuple>					vertices;
 	#if USE_PVRTC
-	vector<unsigned short>				indices;
+	std::vector<unsigned short>				indices;
 	#else
-	vector<unsigned int>				indices;
+	std::vector<unsigned int>				indices;
 	#endif
-	for(vector<DSFPrimitive>::iterator p = io_primitives.begin(); p != io_primitives.end(); ++p)
+	for(std::vector<DSFPrimitive>::iterator p = io_primitives.begin(); p != io_primitives.end(); ++p)
 	if(p->kind == dsf_Tri)
 	{
 		for(DSFTupleVector::iterator v = p->vertices.begin(); v != p->vertices.end(); ++v)
@@ -719,7 +719,7 @@ void DSFOptimizePrimitives(
 		&*indices.begin(),
 		indices.size() / 3);
 
-	vector<unsigned short> pure_tris;
+	std::vector<unsigned short> pure_tris;
 
 	unsigned short * s = &*indices.begin(), * e = &*indices.end();
 	while(s != e)

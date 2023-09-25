@@ -68,11 +68,11 @@ static int CreateBucket( struct BucketAlloc* ba )
 		return 0;
 	bucket->next = 0;
 
-	// Add the bucket into the list of buckets.
+	// Add the bucket into the std::list of buckets.
 	bucket->next = ba->buckets;
 	ba->buckets = bucket;
 
-	// Add new items to the free list.
+	// Add new items to the free std::list.
 	freelist = ba->freelist;
 	head = (unsigned char*)bucket + sizeof(Bucket);
 	it = head + ba->itemSize * ba->bucketSize;
@@ -130,7 +130,7 @@ void* bucketAlloc( struct BucketAlloc *ba )
 			return 0;
 	}
 
-	// Pop item from in front of the free list.
+	// Pop item from in front of the free std::list.
 	it = ba->freelist;
 	ba->freelist = NextFreeItem( ba );
 
@@ -159,7 +159,7 @@ void bucketFree( struct BucketAlloc *ba, void *ptr )
 
 	if ( inBounds )
 	{
-		// Add the node in front of the free list.
+		// Add the node in front of the free std::list.
 		*(void**)ptr = ba->freelist;
 		ba->freelist = ptr;
 	}
@@ -168,7 +168,7 @@ void bucketFree( struct BucketAlloc *ba, void *ptr )
 		printf("ERROR! pointer 0x%p does not belong to allocator '%s'\n", ba->name);
 	}
 #else
-	// Add the node in front of the free list.
+	// Add the node in front of the free std::list.
 	*(void**)ptr = ba->freelist;
 	ba->freelist = ptr;
 #endif

@@ -342,10 +342,10 @@ void		GUI_TextTable::CellDraw	 (int cell_bounds[4], int cell_x, int cell_y, GUI_
 
 		if (c.string_is_resource)
 		{
-			string::size_type s=0, e;
+			std::string::size_type s=0, e;
 			while(1)
 			{
-				string res;
+				std::string res;
 				e = c.text_val.find(',',s);
 				if (e==c.text_val.npos)
 				{
@@ -474,7 +474,7 @@ void		GUI_TextTable::CellDraw	 (int cell_bounds[4], int cell_x, int cell_y, GUI_
 	//-----------------------------------------------------------------
 }
 
-int GUI_TextTable::CreateMenuFromDict(vector<GUI_MenuItem_t>& items, vector<int>& enum_vals, GUI_EnumDictionary& dict)
+int GUI_TextTable::CreateMenuFromDict(std::vector<GUI_MenuItem_t>& items, std::vector<int>& enum_vals, GUI_EnumDictionary& dict)
 {
 	for(GUI_EnumDictionary::iterator di = dict.begin(); di != dict.end(); ++di)
 	if(!di->second.second)
@@ -731,8 +731,8 @@ int			GUI_TextTable::CellMouseDown(int cell_bounds[4], int cell_x, int cell_y, i
 				else
 #endif
 				{
-					vector<GUI_MenuItem_t>	items(dict.size()+1);
-					vector<int>				enum_vals(dict.size());
+					std::vector<GUI_MenuItem_t>	items(dict.size()+1);
+					std::vector<int>				enum_vals(dict.size());
 					int cur = CreateMenuFromDict(items, enum_vals, dict);
 					int choice = mParent->PopupMenuDynamic(&*items.begin(), cell_bounds[0],cell_bounds[3],button, cur);
 					if (choice >= 0 && choice < enum_vals.size())
@@ -764,8 +764,8 @@ int			GUI_TextTable::CellMouseDown(int cell_bounds[4], int cell_x, int cell_y, i
 				else
 #endif
 				{
-					vector<GUI_MenuItem_t>	items(dict.size()+1);
-					vector<int>				enum_vals(dict.size());
+					std::vector<GUI_MenuItem_t>	items(dict.size()+1);
+					std::vector<int>				enum_vals(dict.size());
 					int cur = CreateMenuFromDict(items, enum_vals, dict);
 					int choice = mParent->PopupMenuDynamic(&*items.begin(), cell_bounds[0],cell_bounds[3],button, cur);
 					if (choice >= 0 && choice < enum_vals.size())
@@ -918,7 +918,7 @@ int			GUI_TextTable::CellGetCursor(int cell_bounds[4], int cell_x, int cell_y, i
 	return gui_Cursor_Arrow;
 }
 
-int			GUI_TextTable::CellGetHelpTip(int cell_bounds[4], int cell_x, int cell_y, int mouse_x, int mouse_y, string& tip								  )
+int			GUI_TextTable::CellGetHelpTip(int cell_bounds[4], int cell_x, int cell_y, int mouse_x, int mouse_y, std::string& tip								  )
 {
 	GUI_CellContent	c;
 	if (!mContent) return 0;
@@ -1639,7 +1639,7 @@ int			GUI_TextTableHeader::HeadGetCursor(int cell_bounds[4], int cell_x, int mou
 	return gui_Cursor_Arrow;
 }
 
-int			GUI_TextTableHeader::HeadGetHelpTip(int cell_bounds[4], int cell_x, int mouse_x, int mouse_y, string& tip)
+int			GUI_TextTableHeader::HeadGetHelpTip(int cell_bounds[4], int cell_x, int mouse_x, int mouse_y, std::string& tip)
 {
 	if (!mContent) return 0;
 	GUI_HeaderContent	c;
@@ -1770,7 +1770,7 @@ int			GUI_TextTableSide::SideGetCursor(int cell_bounds[4], int cell_y, int mouse
 	return gui_Cursor_Arrow;
 }
 
-int			GUI_TextTableSide::SideGetHelpTip(int cell_bounds[4], int cell_y, int mouse_x, int mouse_y, string& tip								  )
+int			GUI_TextTableSide::SideGetHelpTip(int cell_bounds[4], int cell_y, int mouse_x, int mouse_y, std::string& tip								  )
 {
 	if (!mContent) return 0;
 	GUI_HeaderContent	c;

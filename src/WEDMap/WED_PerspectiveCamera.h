@@ -41,7 +41,7 @@ public:
 	// Moves the camera to the given position.
 	void MoveTo(const Point3& position);
 
-	// Sets the camera's "forward" vector, which points into the screen.
+	// Sets the camera's "forward" std::vector, which points into the screen.
 	void SetForward(const Vector3& forward);
 
 	// Sets the field of view and screen resolution.

@@ -30,7 +30,7 @@ GUI_Listener::GUI_Listener()
 
 GUI_Listener::~GUI_Listener()
 {
-	for (set<GUI_Broadcaster*>::iterator who = mBroadcasters.begin();
+	for (std::set<GUI_Broadcaster*>::iterator who = mBroadcasters.begin();
 		who != mBroadcasters.end(); ++who)
 	{
 		(*who)->mListeners.erase(this);

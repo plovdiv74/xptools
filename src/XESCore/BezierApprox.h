@@ -48,8 +48,8 @@ struct Point2c : public Point2 {
 // too far from the curve.  Smaller max_err makes huge speed improvements since this code uses a spatial index.
 // This returns the variance of the linear distance along the line over a reasonably large number of points.
 double best_bezier_approx(
-					list<Point2c>::iterator orig_first,
-					list<Point2c>::iterator orig_last,	// INCLUSIVE! REALLY!
+					std::list<Point2c>::iterator orig_first,
+					std::list<Point2c>::iterator orig_last,	// INCLUSIVE! REALLY!
 					Point2c			 approx[4],
 					double&			 t1_best,
 					double&			 t2_best,
@@ -63,15 +63,15 @@ double best_bezier_approx(
 // lim_err should be significantly larger than max_err, since we want to do a lot better than "every point is
 // nearly at its worst case".
 void bezier_multi_simplify(
-					list<Point2c>::iterator	first,
-					list<Point2c>::iterator	last,			// INCLUSIVE! REALLY!
-					list<Point2c>&			simplified,
+					std::list<Point2c>::iterator	first,
+					std::list<Point2c>::iterator	last,			// INCLUSIVE! REALLY!
+					std::list<Point2c>&			simplified,
 					double					max_err,
 					double					lim_err);
 
 // Same as above, except there can be line segments in the piece-wise curves; this operation works in-place.
 void bezier_multi_simplify_straight_ok(
-					list<Point2c>&		seq,
+					std::list<Point2c>&		seq,
 					double				max_err,
 					double				lim_err);
 

@@ -47,13 +47,13 @@ WED_Road_Selector::WED_Road_Selector(GUI_Commander * parent, const GUI_EnumDicti
 	mPfx(0), mSfx(0),
 	GUI_EditorInsert(parent)
 {
-	set<string> pfx,sfx;
+	std::set<std::string> pfx,sfx;
 	for(const auto& d : dict)
 	{
-		string name = d.second.first;
+		std::string name = d.second.first;
 		auto p = name.find('/');
-		string prefix;
-		if(p != string::npos)
+		std::string prefix;
+		if(p != std::string::npos)
 		{
 			prefix = name.substr(0,p);
 			sfx.insert(name.substr(p+1));
@@ -87,11 +87,11 @@ WED_Road_Selector::WED_Road_Selector(GUI_Commander * parent, const GUI_EnumDicti
 
 	for(const auto& d : dict)
 	{
-		string name = d.second.first;
+		std::string name = d.second.first;
 		auto p = name.find('/');
 
-		string prefix, suffix;
-		if(p != string::npos)
+		std::string prefix, suffix;
+		if(p != std::string::npos)
 		{
 			prefix =  name.substr(0,p);
 			suffix  = name.substr(p+1);
@@ -113,7 +113,7 @@ WED_Road_Selector::WED_Road_Selector(GUI_Commander * parent, const GUI_EnumDicti
 	for(auto& r : mRd_suffix)
 	{
 		auto p = r.find("wet");
-		if(p != string::npos)            // replace those 'wet' suffixes by something more meaningful to users
+		if(p != std::string::npos)            // replace those 'wet' suffixes by something more meaningful to users
 		{
 			if(r[p-1] == '/' ) r[p-1] = ' ';
 			r.erase(p);

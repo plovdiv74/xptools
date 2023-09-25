@@ -38,7 +38,7 @@ WED_AirportNode::~WED_AirportNode()
 {
 }
 
-void 	WED_AirportNode::GetResource(string& r) const
+void 	WED_AirportNode::GetResource(std::string& r) const
 {
 	r.clear();
 	
@@ -59,12 +59,12 @@ void 	WED_AirportNode::GetResource(string& r) const
 
 
 
-void	WED_AirportNode::SetAttributes(const set<int>& in_attrs)
+void	WED_AirportNode::SetAttributes(const std::set<int>& in_attrs)
 {
 	attrs = in_attrs;
 }
 
-void		WED_AirportNode::GetAttributes(set<int>& out_attrs) const
+void		WED_AirportNode::GetAttributes(std::set<int>& out_attrs) const
 {
 	out_attrs = attrs.value;
 }

@@ -64,7 +64,7 @@ void 			WED_Select::WriteTo(IOWriter * writer)
 {
 	WED_Thing::WriteTo(writer);
 	writer->WriteInt(mSelected.size());
-	for (set<int>::iterator i = mSelected.begin(); i != mSelected.end(); ++i)
+	for (std::set<int>::iterator i = mSelected.begin(); i != mSelected.end(); ++i)
 		writer->WriteInt(*i);
 
 }
@@ -72,7 +72,7 @@ void 			WED_Select::WriteTo(IOWriter * writer)
 void		WED_Select::AddExtraXML(WED_XMLElement * obj)
 {
 	WED_XMLElement * selection = obj->add_sub_element("selection");
-	for(set<int>::iterator i = mSelected.begin(); i != mSelected.end(); ++i)
+	for(std::set<int>::iterator i = mSelected.begin(); i != mSelected.end(); ++i)
 	{
 		WED_XMLElement * sel = selection->add_sub_element("sel");
 		sel->add_attr_int("id",*i);
@@ -154,27 +154,27 @@ void		WED_Select::Insert(ISelectable * iwho)
 	}
 }
 
-void WED_Select::Insert(const set<ISelectable*>& sel)
+void WED_Select::Insert(const std::set<ISelectable*>& sel)
 {
 	Insert(sel.begin(), sel.end());
 }
 
-void WED_Select::Insert(const set<ISelectable*>::const_iterator& begin, const set<ISelectable*>::const_iterator& end)
+void WED_Select::Insert(const std::set<ISelectable*>::const_iterator& begin, const std::set<ISelectable*>::const_iterator& end)
 {
-	for (set<ISelectable*>::const_iterator itr = begin; itr != end; ++itr)
+	for (std::set<ISelectable*>::const_iterator itr = begin; itr != end; ++itr)
 	{
 		Insert(*itr);
 	}
 }
 
-void WED_Select::Insert(const vector<ISelectable*>& sel)
+void WED_Select::Insert(const std::vector<ISelectable*>& sel)
 {
 	Insert(sel.begin(), sel.end());
 }
 
-void WED_Select::Insert(const vector<ISelectable*>::const_iterator& begin, const vector<ISelectable*>::const_iterator& end)
+void WED_Select::Insert(const std::vector<ISelectable*>::const_iterator& begin, const std::vector<ISelectable*>::const_iterator& end)
 {
-	for (vector<ISelectable*>::const_iterator itr = begin; itr != end; ++itr)
+	for (std::vector<ISelectable*>::const_iterator itr = begin; itr != end; ++itr)
 	{
 		Insert(*itr);
 	}
@@ -196,19 +196,19 @@ int				WED_Select::GetSelectionCount(void) const
 	return mSelected.size();
 }
 
-void			WED_Select::GetSelectionSet(set<ISelectable *>& sel) const
+void			WED_Select::GetSelectionSet(std::set<ISelectable *>& sel) const
 {
 	sel.clear();
-	for (set<int>::const_iterator i = mSelected.begin(); i != mSelected.end(); ++i)
+	for (std::set<int>::const_iterator i = mSelected.begin(); i != mSelected.end(); ++i)
 		sel.insert(FetchPeer(*i));
 }
 
-void			WED_Select::GetSelectionVector(vector<ISelectable *>& sel) const
+void			WED_Select::GetSelectionVector(std::vector<ISelectable *>& sel) const
 {
 	sel.clear();
 	if (mSelected.empty()) return;
 	sel.reserve(mSelected.size());
-	for (set<int>::const_iterator i = mSelected.begin(); i != mSelected.end(); ++i)
+	for (std::set<int>::const_iterator i = mSelected.begin(); i != mSelected.end(); ++i)
 		sel.push_back(FetchPeer(*i));
 }
 
@@ -216,7 +216,7 @@ ISelectable *		WED_Select::GetNthSelection(int n) const
 {
 	DebugAssert(n >= 0 && n < mSelected.size());
 	if (n < 0) return NULL;
-	set<int>::const_iterator i = mSelected.begin();
+	std::set<int>::const_iterator i = mSelected.begin();
 	while (n > 0 && i != mSelected.end())
 	{
 		--n;
@@ -229,7 +229,7 @@ ISelectable *		WED_Select::GetNthSelection(int n) const
 int			WED_Select::IterateSelectionOr(int (* func)(ISelectable * who, void * ref), void * ref) const
 {
 	int n = 0;
-	for (set<int>::const_iterator i = mSelected.begin(); i != mSelected.end(); ++i)
+	for (std::set<int>::const_iterator i = mSelected.begin(); i != mSelected.end(); ++i)
 		if ((n=func(FetchPeer(*i), ref)) != 0)
 			return n;
 	return 0;
@@ -238,7 +238,7 @@ int			WED_Select::IterateSelectionOr(int (* func)(ISelectable * who, void * ref)
 int			WED_Select::IterateSelectionAnd(int (* func)(ISelectable * who, void * ref), void * ref) const
 {
 	int n = 0;
-	for (set<int>::const_iterator i = mSelected.begin(); i != mSelected.end(); ++i)
+	for (std::set<int>::const_iterator i = mSelected.begin(); i != mSelected.end(); ++i)
 		if ((n=func(FetchPeer(*i), ref)) == 0)
 			return n;
 	return 1;

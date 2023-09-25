@@ -41,8 +41,8 @@ public:
 			int				GetSpelling	(void) const;
 			void			SetSpelling (int s);
 
-	virtual void			GetResource(	  string& r) const;
-	virtual void			SetResource(const string& r);
+	virtual void			GetResource(	  std::string& r) const;
+	virtual void			SetResource(const std::string& r);
 
 	virtual void			GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
 

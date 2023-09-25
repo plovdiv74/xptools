@@ -222,7 +222,7 @@ int main(int argc, char * argv[])
 	WED_StartWindow * start = new WED_StartWindow(&app);
 	WED_MakeMenus(&app);
 #if LIN
-	setlocale(LC_ALL, "C");   //mroe: FLTK sets user locale upon first window creation only, does not set it not back to "C"
+	setlocale(LC_ALL, "C");   //mroe: FLTK sets user locale upon first window creation only, does not std::set it not back to "C"
 	start->default_xclass("WED");
 	start->SetIcon("WED_icon.png",true);
 	start->show(1, argv);     //mroe: WED has own cmd line arguments, this prevents FLTK from parsing them
@@ -246,7 +246,7 @@ int main(int argc, char * argv[])
 	REGISTER_LIST_ATC
 	#undef _R
 
-	start->ShowMessage(string());
+	start->ShowMessage(std::string());
 
 	LOG_MSG("I/MAIN initializations done, run app now ...\n"); LOG_FLUSH();
 	app.Run();
@@ -255,7 +255,7 @@ int main(int argc, char * argv[])
 
 	GUI_MemoryHog::RemoveNewHandler();
 
-	string xsys,name;
+	std::string xsys,name;
 	pMgr.GetXPlaneFolder(xsys);
 	pMgr.GetRecentName(name);
 	GUI_SetPrefString("packages","xsystem",xsys.c_str());

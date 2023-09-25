@@ -39,7 +39,7 @@ public:
 					 WED_StartWindow(GUI_Commander * cmder);
 	virtual			~WED_StartWindow();
 
-			void	ShowMessage(const string& msg);
+			void	ShowMessage(const std::string& msg);
 
 	virtual	bool	Closed(void);
 
@@ -52,7 +52,7 @@ public:
 
 	virtual	int				HandleKeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFlags)	 	;
 	virtual	int				HandleCommand(int command) 									;
-	virtual	int				CanHandleCommand(int command, string& ioName, int& ioCheck) ;
+	virtual	int				CanHandleCommand(int command, std::string& ioName, int& ioCheck) ;
 
 	virtual void			Activate(int inActive);
 
@@ -60,7 +60,7 @@ private:
 
 			void			RecomputeButtonEnables();
 
-	string				mCaption;
+	std::string				mCaption;
 
 	GUI_Button *		mNew;
 	GUI_Button *		mOpen;

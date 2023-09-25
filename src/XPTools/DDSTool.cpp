@@ -314,7 +314,7 @@ static bool HandleScale(ImageInfo& info, bool up, bool down, bool half, bool squ
 	ImageInfo	n;
 	CreateNewBitmap(nx,ny,info.channels, &n);
 	CopyBitmapSection(&info, &n, 0, 0, info.width, info.height, 0, 0, nx, ny);
-	swap(n, info);
+	std::swap(n, info);
 	DestroyBitmap(&n);
 
 	return false;
@@ -473,10 +473,10 @@ int main(int argc, char * argv[])
 			return 1;
 		}
 
-		string target = argv[n+1];
+		std::string target = argv[n+1];
 		if(one_file)
 		{
-			string::size_type p = target.find_last_of("\\/:");
+			std::string::size_type p = target.find_last_of("\\/:");
 			if(p != target.npos)
 				target.erase(p+1);
 			target += "info.txt";
@@ -536,13 +536,13 @@ int main(int argc, char * argv[])
 			}
 			else if(want_preview)
 			{
-				string preview_path = string(argv[n]) + ".scl.png";
+				std::string preview_path = std::string(argv[n]) + ".scl.png";
 				WriteBitmapToPNG(&info, preview_path.c_str(), NULL, 0, 2.2f);
 			}
 		}
 
 		FlipImageY(info);
-		string temp_path = argv[n];
+		std::string temp_path = argv[n];
 		temp_path += "_temp";
 		if(WriteBitmapToPNG(&info, temp_path.c_str(), NULL, 0, 2.2f))
 		{
@@ -551,9 +551,9 @@ int main(int argc, char * argv[])
 		}
 		DestroyBitmap(&info);
 
-		string preview = string(argv[n+1]) + ".png";
+		std::string preview = std::string(argv[n+1]) + ".png";
 
-		string flags;
+		std::string flags;
 		if(want_mips) flags += "-m ";
 		if(want_preview){
 			flags += "-p \"";
@@ -609,7 +609,7 @@ int main(int argc, char * argv[])
 			}
 			else if(want_preview)
 			{
-				string preview_path = string(argv[n]) + ".scl.png";
+				std::string preview_path = std::string(argv[n]) + ".scl.png";
 				WriteBitmapToPNG(&info, preview_path.c_str(), NULL, 0, 2.2f);
 			}
 		}
@@ -695,7 +695,7 @@ int main(int argc, char * argv[])
 			}
 		}
 
-		string outf(argv[arg_base+1]);
+		std::string outf(argv[arg_base+1]);
 		if(outf == "-")
 		{
 			outf = argv[arg_base];

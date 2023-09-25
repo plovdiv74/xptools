@@ -93,7 +93,7 @@ WED_StructureLayer::~WED_StructureLayer()
 bool		WED_StructureLayer::DrawEntityStructure		(bool inCurrent, IGISEntity * entity,  GUI_GraphState * g, bool selected, bool locked)
 {
 	//	g->SetState(false,0,false,   false,true,false,false);
-	//  very carefully check that ALL operations that change the state to textured its re-set again,
+	//  very carefully check that ALL operations that change the state to textured its re-std::set again,
 	//  so we don't have to reset state for *evrvy* entity.
 
 	WED_Color struct_color = selected ? (locked ? wed_StructureLockedSelected : wed_StructureSelected) :
@@ -199,13 +199,13 @@ bool		WED_StructureLayer::DrawEntityStructure		(bool inCurrent, IGISEntity * ent
 					Th2 = Midpoint2(corners[1],corners[2]);
 
 				float hdg = rwy->GetHeading();
-				string nam, nam_1, nam_2;
+				std::string nam, nam_1, nam_2;
 				rwy->GetName(nam);
 				auto pos = nam.find('/');
-				if (pos != string::npos)
+				if (pos != std::string::npos)
 				{
 					nam_1 = nam.substr(0, pos);
-					nam_2 = nam.substr(pos + 1, string::npos);
+					nam_2 = nam.substr(pos + 1, std::string::npos);
 				}
 				else
 					nam_1 = nam;
@@ -376,7 +376,7 @@ bool		WED_StructureLayer::DrawEntityStructure		(bool inCurrent, IGISEntity * ent
 					auto lin = dynamic_cast<WED_LinePlacement*>(entity);
 
 					WED_ResourceMgr * rmgr = WED_GetResourceMgr(GetResolver());
-					string vpath;
+					std::string vpath;
 					const lin_info_t * linfo;
 					lin->GetResource(vpath);
 					if (rmgr->GetLin(vpath,linfo))
@@ -389,7 +389,7 @@ bool		WED_StructureLayer::DrawEntityStructure		(bool inCurrent, IGISEntity * ent
 
 							for(int i = 0; i < lin->GetNumSides(); ++i)
 							{
-								vector<Point2>	pts;
+								std::vector<Point2>	pts;
 								SideToPoints(ps, i, z, pts);
 								glLineWidth(3);
 								glShape2v(GL_LINES, &*pts.begin(), pts.size());
@@ -399,8 +399,8 @@ bool		WED_StructureLayer::DrawEntityStructure		(bool inCurrent, IGISEntity * ent
 						}
 				}
 
-				set<int>		attrs;
-				vector<Point2> pts;
+				std::set<int>		attrs;
+				std::vector<Point2> pts;
 				int n = ps->GetNumSides();
 				glPointSize(5);
 
@@ -542,7 +542,7 @@ bool		WED_StructureLayer::DrawEntityStructure		(bool inCurrent, IGISEntity * ent
 				else
 					glColor4fv(WED_Color_RGBA_Alpha(wed_Link, 1.0/*mPavementAlpha*/, storage));
 
-				vector<Point2> pix;
+				std::vector<Point2> pix;
 				BoxToPoints(pts[0], pts[1], GetZoomer(), pix);
 
 				glBegin(GL_LINE_LOOP);
@@ -579,8 +579,8 @@ bool		WED_StructureLayer::DrawEntityStructure		(bool inCurrent, IGISEntity * ent
 
 				if(selected)
 				{
-					vector<Point2>	pts;
-					vector<int>		hole_starts;
+					std::vector<Point2>	pts;
+					std::vector<int>		hole_starts;
 
 					PointSequenceToVector(poly->GetOuterRing(), GetZoomer(), pts, false);
 					int n = poly->GetNumHoles();
@@ -620,7 +620,7 @@ bool		WED_StructureLayer::DrawEntityVisualization		(bool inCurrent, IGISEntity *
 						tn->GetLocation(gis_UV, texUV[i]);
 						tn->GetLocation(gis_Geo, texLL[i]);
 					}
-					string img_file;
+					std::string img_file;
 					overlay->GetImage(img_file);
 
 					ITexMgr * mgr = WED_GetTexMgr(GetResolver());
@@ -720,7 +720,7 @@ void		WED_StructureLayer::DrawStructure(bool inCurrent, GUI_GraphState * g)
 	// - We have a ton of OGL state thrash.
 	// - We have to make individual calls to PlotIcon, which does overhead work per icon.
 	// So instead, we accumulate all of the icons into vectors and then blit them out all
-	// at once.  This gives us one bind, one set state and one glBegin.  We're still transforming
+	// at once.  This gives us one bind, one std::set state and one glBegin.  We're still transforming
 	// vertices per frame, but that's okay -- the OGL state was the single really big cost.
 	//
 	// Note that we clear the vectors to keep them from building up forever, but their memory

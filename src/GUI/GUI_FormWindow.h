@@ -45,32 +45,32 @@ public:
 
 						 GUI_FormWindow(
 								GUI_Commander *			cmdr,
-								const string&			title,
+								const std::string&			title,
 								int						width,
 								int						height);
 	virtual				~GUI_FormWindow();
 
 			void		Reset(
-								const string&			aux_label,
-								const string&			ok_label,
-								const string&			cancel_label,
+								const std::string&			aux_label,
+								const std::string&			ok_label,
+								const std::string&			cancel_label,
 								bool					submit_with_return_key);
 			
 
-			void		AddLabel(const string&			msg);
+			void		AddLabel(const std::string&			msg);
 
 			void		AddField(			
 								int						id,
-								const string&			label,
-								const string&			default_text,
+								const std::string&			label,
+								const std::string&			default_text,
 								field_type				ft=ft_single_line);
 
 			void		AddFieldNoEdit(			
 								int						id,
-								const string&			label,
-								const string&			text);
+								const std::string&			label,
+								const std::string&			text);
 
-			string		GetField(int					id);
+			std::string		GetField(int					id);
 			
 	//The action preformed when the Aux button is pressed
 	virtual void        AuxiliaryAction() { };
@@ -93,8 +93,8 @@ private:
 
 		int					mInsertY;
 		
-		vector<GUI_Pane *>	mParts;
-		vector<GUI_Commander *> mFocusRing;
+		std::vector<GUI_Pane *>	mParts;
+		std::vector<GUI_Commander *> mFocusRing;
 		
 		//The auxiliary panel, a button that can be optionally hidden
 		GUI_Pane*           mAux;

@@ -62,7 +62,7 @@ public:
 	// From WED_PropertyItem - just to get our type
 	virtual void		GetPropertyInfo(PropertyInfo_t& info);
 	virtual	void		GetPropertyDict(PropertyDict_t& dict);
-	virtual	void		GetPropertyDictItem(int e, string& item);
+	virtual	void		GetPropertyDictItem(int e, std::string& item);
 	virtual void		GetProperty(PropertyVal_t& val) const;
 	virtual void		SetProperty(const PropertyVal_t& val, WED_PropertyHelper * parent);
 	virtual	void 		ReadFrom(IOReader * reader);
@@ -83,7 +83,7 @@ public:
 
 			int					CountChildren(void) const;
 			WED_Thing *			GetNthChild(int n) const;
-			WED_Thing *			GetNamedChild(const string& s) const;
+			WED_Thing *			GetNamedChild(const std::string& s) const;
 			WED_Thing *			GetParent(void) const;
 			void				SetParent(WED_Thing * parent, int nth);
 			int					GetMyPosition(void) const;
@@ -91,13 +91,13 @@ public:
 			int					CountSources(void) const;
 			WED_Thing *			GetNthSource(int n) const;
 			int					CountViewers(void) const;
-			void				GetAllViewers(set<WED_Thing *>& out_viewers) const;
+			void				GetAllViewers(std::set<WED_Thing *>& out_viewers) const;
 			void				AddSource(WED_Thing * src, int nth);
 			void				RemoveSource(WED_Thing * src);
 			void				ReplaceSource(WED_Thing * old, WED_Thing * rep);
 
-			void				GetName(string& name) const;
-			void				SetName(const string& name);
+			void				GetName(std::string& name) const;
+			void				SetName(const std::string& name);
 
 	// WED_Persistent
 	virtual	bool 			ReadFrom(IOReader * reader);
@@ -149,10 +149,10 @@ protected:
 private:
 
 	int				parent_id;
-	vector<int>		child_id;
+	std::vector<int>		child_id;
 	
-	vector<int>		source_id;				// These are MY sources!  I am watching them.
-	set<int>		viewer_id;				// These are MY vieweres!  They are watching me.
+	std::vector<int>		source_id;				// These are MY sources!  I am watching them.
+	std::set<int>		viewer_id;				// These are MY vieweres!  They are watching me.
 
 	WED_TypeField				type;
 	WED_PropStringText			name;

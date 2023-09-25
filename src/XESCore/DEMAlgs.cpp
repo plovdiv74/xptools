@@ -1064,7 +1064,7 @@ void	UpsampleEnvironmentalParams(DEMGeoMap& ioDEMs, ProgressFunc inProg)
 /*
  * DeriveDEMs
  *
- * Given a set of DEMs for all of the input parameters, calculate all
+ * Given a std::set of DEMs for all of the input parameters, calculate all
  * of the derived parameters.  We also need a vector map to do this of course.
  *
  * Input DEMS:
@@ -1208,10 +1208,10 @@ void	DeriveDEMs(
 
 //	CalcPropertyValues(values, elevation_reduced, inMap);
 
-	set<int>	apts;
+	std::set<int>	apts;
 
 	FindAirports(Bbox2(landuse.mWest, landuse.mSouth, landuse.mEast, landuse.mNorth), ioAptIndex, apts);
-	for (set<int>::iterator apt = apts.begin(); apt != apts.end(); ++apt)
+	for (std::set<int>::iterator apt = apts.begin(); apt != apts.end(); ++apt)
 	if (ioApts[*apt].kind_code == apt_airport)
 	for (AptPavementVector::iterator rwy = ioApts[*apt].pavements.begin(); rwy != ioApts[*apt].pavements.end(); ++rwy)
 	if (rwy->surf_code == apt_surf_asphalt || rwy->surf_code == apt_surf_concrete)
@@ -1481,7 +1481,7 @@ else														e = DEM_NO_DATA;
 		// Try 1 -- exact match
 		terrain(x,y) = DEM_NO_DATA;
 		int hashv = HashTerrainTypes(tt,tc,vt,c);
-		pair<TerrainMappingTable::iterator,TerrainMappingTable::iterator>	range = gTerrainMapping.equal_range(hashv);
+		std::pair<TerrainMappingTable::iterator,TerrainMappingTable::iterator>	range = gTerrainMapping.equal_range(hashv);
 		for (TerrainMappingTable::iterator i = range.first; i != range.second; ++i)
 		{
 			if (i->second.slope_min <= max_slope &&
@@ -1595,8 +1595,8 @@ else														e = DEM_NO_DATA;
 
 	map<float, int>	histo[WATER_SURF_DIM][WATER_SURF_DIM];
 	int total[WATER_SURF_DIM][WATER_SURF_DIM] = { 0 };
-	set<Halfedge_handle>	coast_edges;
-	set<Face_handle>	wet_faces;
+	std::set<Halfedge_handle>	coast_edges;
+	std::set<Face_handle>	wet_faces;
 
 
 	for(Pmwx::Face_handle f = inMap.faces_begin(); f != inMap.faces_end(); ++f)
@@ -2124,7 +2124,7 @@ void	DEMMakeDifferential(const DEMGeo& src, DEMGeo& dst)
 	}
 }
 
-void	MakeTiles(const DEMGeo& inDEM, list<DEMGeo>& outTiles)
+void	MakeTiles(const DEMGeo& inDEM, std::list<DEMGeo>& outTiles)
 {
 	for(int y = inDEM.mSouth; y < inDEM.mNorth; ++y)
 	for(int x = inDEM.mWest ; x < inDEM.mEast ; ++x)
@@ -2458,7 +2458,7 @@ void	Watershed(DEMGeo& input, DEMGeo& output,vector<DEMGeo::address> * out_water
 
 void VerifySheds(const DEMGeo& ws, vector<DEMGeo::address>& seeds)
 {
-	set<float>	found;
+	std::set<float>	found;
 	for(DEMGeo::const_iterator i = ws.begin(); i != ws.end(); ++i)
 		found.insert(*i);
 

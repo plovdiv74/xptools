@@ -43,7 +43,7 @@ WED_ICAOTable::~WED_ICAOTable()
 
 	
 void	WED_ICAOTable::SetFilter(
-						const string&				new_filter)
+						const std::string&				new_filter)
 {
 	mFilter = new_filter;
 	resort();
@@ -55,7 +55,7 @@ void	WED_ICAOTable::AptVectorChanged(void)
 }
 			
 void	WED_ICAOTable::GetSelection(
-						set<int>&					out_selection)
+						std::set<int>&					out_selection)
 {
 	out_selection = mSelected;
 }
@@ -223,8 +223,8 @@ struct sort_by_apt {
 	sort_by_apt(const AptVector * apts, int sort_column, int invert_sort) : apts_(apts), sort_column_(sort_column), invert_sort_(invert_sort) { }
 
 	bool operator()(int x, int y) const {
-		string xs(sort_column_ ? apts_->at(x).name : apts_->at(x).icao);
-		string ys(sort_column_ ? apts_->at(y).name : apts_->at(y).icao);
+		std::string xs(sort_column_ ? apts_->at(x).name : apts_->at(x).icao);
+		std::string ys(sort_column_ ? apts_->at(y).name : apts_->at(y).icao);
 		
 		for(auto &c : xs) c = toupper(c);
 		for(auto &c : ys) c = toupper(c);
@@ -243,9 +243,9 @@ struct sort_by_apt {
 
 void		WED_ICAOTable::resort(void)
 {
-	set<int>	old_sorted;
+	std::set<int>	old_sorted;
 	swap(old_sorted,mSelected);
-	vector<string>	filters;
+	std::vector<std::string>	filters;
 	tokenize_string_func(mFilter.begin(),mFilter.end(),back_inserter(filters),::isspace);
 
 	mSorted.clear();

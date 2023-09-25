@@ -56,7 +56,7 @@
 /*
 	ShapeIO config files:
 	
-	SHAPE_FEATURE		<column name list>	<value name list>	feature tag
+	SHAPE_FEATURE		<column name std::list>	<value name std::list>	feature tag
 
 	If each of the cols matches each of the values, use this feature (and keep the immport).
 	Special col values: 
@@ -65,11 +65,11 @@
 				 !-			Match any non-null (including empty string)
 
 
-	SHAPE_ARC_BRIDGE	<column name list>	<value name list>	resulting layer number
+	SHAPE_ARC_BRIDGE	<column name std::list>	<value name std::list>	resulting layer number
 
 	If each col has the respective value, the layer number is applied to the road
 
-	SHAPE_ARC_REVERSE	<column name list>	<value name list>
+	SHAPE_ARC_REVERSE	<column name std::list>	<value name std::list>
 	
 	If each col has the respective value, we reverse our direction from the shapefile direction.
 	
@@ -171,8 +171,8 @@ inline void DEBUG_POLYGON(const Polygon_2& p, const Point3& c1, const Point3& c2
 {
 	for(int n = 0; n < p.size(); ++n)
 	{
-		gMeshLines.push_back(pair<Point2,Point3>(cgal2ben(p[n]),c1));
-		gMeshLines.push_back(pair<Point2,Point3>(cgal2ben(p[(n+1)%p.size()]),c2));
+		gMeshLines.push_back(std::pair<Point2,Point3>(cgal2ben(p[n]),c1));
+		gMeshLines.push_back(std::pair<Point2,Point3>(cgal2ben(p[(n+1)%p.size()]),c2));
 	}
 }
 */
@@ -313,10 +313,10 @@ static bool ShapeLineImporter(const vector<string>& inTokenLine, void * inRef)
 	return false;
 }
 
-class toggle_properties_visitor : public MapBFSVisitor<set<int>, Pmwx > {
+class toggle_properties_visitor : public MapBFSVisitor<std::set<int>, Pmwx > {
 public:
 
-	typedef	set<int>	Prop_t;
+	typedef	std::set<int>	Prop_t;
 
 	const vector<int> *					curve_feature = nullptr;
 	const vector<shape_import_data> *	feature_map = nullptr;
@@ -372,7 +372,7 @@ struct shape_lock_traits {
 		Pmwx::Halfedge_handle t2(h2->twin());
 
 		// Verify our assumption; that all road segments are "flat" on import, that is, source and target height are the same.
-		// This is how shape data comes in these days because we get one layer per SEGMENT.  If we ever get a sr/dst height pair,
+		// This is how shape data comes in these days because we get one layer per SEGMENT.  If we ever get a sr/dst height std::pair,
 		// our alg will fail, these asserts will squawk, and we will go to the #if 0 code.
 	#if DEV
 		GISNetworkSegmentVector::iterator r;

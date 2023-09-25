@@ -110,7 +110,7 @@ inline bool is_level_graded		(const vector<Pmwx::Halfedge_handle>& l);
 // If this is a highway, is it a valid Y split or merge?
 inline bool	is_level_highway_y   (Pmwx::Vertex_handle j, const vector<Pmwx::Halfedge_handle>& l);
 
-// These routines work on a "contiguous strand."  A contiguous strand is a list of half-edges such that:
+// These routines work on a "contiguous strand."  A contiguous strand is a std::list of half-edges such that:
 // - They all point in the same direction (e.g. the target of one is the osurce source of the next) and
 // - They all have roads and
 // - They share a common level at each junction and
@@ -126,11 +126,11 @@ inline Pmwx::Halfedge_handle prev_contig(Pmwx::Halfedge_handle me);
 // This collects the entire strand that root is within.  The strand will be in the direction of root.
 // The strand will have at least one halfedge (root).  Error if root has no roads!
 template<match_pred_f P>
-inline double collect_contig(Pmwx::Halfedge_handle root, list<Pmwx::Halfedge_handle>& flow);
+inline double collect_contig(Pmwx::Halfedge_handle root, std::list<Pmwx::Halfedge_handle>& flow);
 // This changes the direction of all roads on the strand to go "forward" (with the direction of the 
 // halfedges selected) or "reversed".
-inline void set_forward(list<Pmwx::Halfedge_handle>& flow);
-inline void set_reverse(list<Pmwx::Halfedge_handle>& flow);	
+inline void set_forward(std::list<Pmwx::Halfedge_handle>& flow);
+inline void set_reverse(std::list<Pmwx::Halfedge_handle>& flow);	
 
 
 
@@ -422,7 +422,7 @@ inline bool matches_street(Pmwx::Halfedge_handle he1, Pmwx::Halfedge_handle he2)
 
 
 template<match_pred_f P>
-inline double collect_contig(Pmwx::Halfedge_handle root, list<Pmwx::Halfedge_handle>& flow)
+inline double collect_contig(Pmwx::Halfedge_handle root, std::list<Pmwx::Halfedge_handle>& flow)
 {
 	flow.clear();
 	flow.push_back(root);
@@ -448,9 +448,9 @@ inline double collect_contig(Pmwx::Halfedge_handle root, list<Pmwx::Halfedge_han
 	return len;
 }
 
-inline void set_forward(list<Pmwx::Halfedge_handle>& flow)
+inline void set_forward(std::list<Pmwx::Halfedge_handle>& flow)
 {
-	for(list<Pmwx::Halfedge_handle>::iterator l = flow.begin(); l != flow.end(); ++l)
+	for(std::list<Pmwx::Halfedge_handle>::iterator l = flow.begin(); l != flow.end(); ++l)
 	if(!(*l)->twin()->data().mSegments.empty())
 	{
 		swap((*l)->twin()->data().mSegments.front().mSourceHeight,
@@ -459,9 +459,9 @@ inline void set_forward(list<Pmwx::Halfedge_handle>& flow)
 	}
 }
 
-inline void set_reverse(list<Pmwx::Halfedge_handle>& flow)
+inline void set_reverse(std::list<Pmwx::Halfedge_handle>& flow)
 {
-	for(list<Pmwx::Halfedge_handle>::iterator l = flow.begin(); l != flow.end(); ++l)
+	for(std::list<Pmwx::Halfedge_handle>::iterator l = flow.begin(); l != flow.end(); ++l)
 	if(!(*l)->data().mSegments.empty())
 	{
 		swap((*l)->data().mSegments.front().mSourceHeight,

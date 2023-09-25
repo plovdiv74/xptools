@@ -47,7 +47,7 @@ void	WED_Sealane::Import(const AptSealane_t& x, void (* print_func)(void *, cons
 	GetSource()->SetLocation(gis_Geo,x.ends.p1  );
 	GetTarget()->SetLocation(gis_Geo,x.ends.p2  );
 				 SetWidth	(x.width_mtr);
-	string	full = x.id[0] + string("/") + x.id[1];
+	std::string	full = x.id[0] + std::string("/") + x.id[1];
 	SetName(full);
 	buoys = intlim(x.has_buoys,0,1);
 }
@@ -59,9 +59,9 @@ void	WED_Sealane::Export(		 AptSealane_t& x) const
 	GetSource()->GetLocation(gis_Geo,x.ends.p1  );
 	GetTarget()->GetLocation(gis_Geo,x.ends.p2  );
 							 x.width_mtr = GetWidth();
-	string	full;
+	std::string	full;
 	GetName(full);
-	string::size_type p = full.find('/');
+	std::string::size_type p = full.find('/');
 	if (p == full.npos)
 	{
 		x.id[0] = full;

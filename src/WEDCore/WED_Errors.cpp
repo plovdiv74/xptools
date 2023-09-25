@@ -76,7 +76,7 @@ const char *	WED_StringForOSError(int code)
 	return "unknown error";
 }
 
-void			WED_ReportExceptionUI(const exception& what, const char * fmt, ...)
+void			WED_ReportExceptionUI(const std::exception& what, const char * fmt, ...)
 {
 	char	msg[2048];
 	va_list	arg;

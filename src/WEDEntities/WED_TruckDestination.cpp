@@ -22,8 +22,8 @@ WED_TruckDestination::~WED_TruckDestination()
 {
 }
 
-void	WED_TruckDestination::SetTruckTypes(const set<int>& truckTypes) { truck_types = truckTypes; }
-void	WED_TruckDestination::GetTruckTypes(set<int>& truckTypes) const { truckTypes = truck_types.value; }
+void	WED_TruckDestination::SetTruckTypes(const std::set<int>& truckTypes) { truck_types = truckTypes; }
+void	WED_TruckDestination::GetTruckTypes(std::set<int>& truckTypes) const { truckTypes = truck_types.value; }
 
 
 void	WED_TruckDestination::Import(const AptTruckDestination_t& x, void (* print_func)(void *, const char *, ...), void * ref)
@@ -32,9 +32,9 @@ void	WED_TruckDestination::Import(const AptTruckDestination_t& x, void (* print_
 	SetHeading(x.heading);
 	SetName(x.name);
 	
-	set<int>	tt;
+	std::set<int>	tt;
 	
-	for(set<int>::const_iterator i = x.truck_types.begin(); i != x.truck_types.end(); ++i)
+	for(std::set<int>::const_iterator i = x.truck_types.begin(); i != x.truck_types.end(); ++i)
 	{
 		int t = ENUM_Import(ATCServiceTruckType, *i);
 		if(t == -1)
@@ -54,6 +54,6 @@ void	WED_TruckDestination::Export(		 AptTruckDestination_t& x) const
 	x.heading = GetHeading();
 	
 	x.truck_types.clear();
-	for(set<int>::const_iterator i = truck_types.value.begin(); i != truck_types.value.end(); ++i)
+	for(std::set<int>::const_iterator i = truck_types.value.begin(); i != truck_types.value.end(); ++i)
 		x.truck_types.insert(ENUM_Export(*i));
 }

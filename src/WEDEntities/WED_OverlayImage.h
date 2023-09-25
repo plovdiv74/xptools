@@ -27,7 +27,7 @@
 #include "WED_GISPolygon.h"
 #include "IGIS.h"
 
-typedef vector<Point2> gcp_t;    // ground control points - for warping/projection
+typedef std::vector<Point2> gcp_t;    // ground control points - for warping/projection
 
 class WED_OverlayImage : public WED_GISPolygon, public virtual IGISQuad {
 
@@ -35,8 +35,8 @@ DECLARE_PERSISTENT(WED_OverlayImage)
 
 public:
 
-	void		GetImage(string& image_file) const;
-	void		SetImage(const string& image_file);
+	void		GetImage(std::string& image_file) const;
+	void		SetImage(const std::string& image_file);
 	double		GetAlpha(void) const;
 	const gcp_t * 	GetGcpMat(void);
 

@@ -86,7 +86,7 @@ template<typename Number>
 struct	PolyRasterizer {
 
 	typedef PolyRasterSeg_t<Number>			PolyRasterSeg;
-	typedef pair<PolyRasterSeg *, Number>	ActiveSeg;
+	typedef std::pair<PolyRasterSeg *, Number>	ActiveSeg;
 
 	// This is every segment we have.  This
 	// structure does not change once sorted.  Public so code can
@@ -97,10 +97,10 @@ struct	PolyRasterizer {
 	Number						bounds[4];
 
 	// Add an edge if needed, takes care of out of order and horizontal lines.
-	// If we use this, "bounds" gets set to something sane.
+	// If we use this, "bounds" gets std::set to something sane.
 	void		AddEdge(Number x1, Number y1, Number x2, Number y2);
 
-	// Sort masters by min X once we're set up.  Call this once to initialize when
+	// Sort masters by min X once we're std::set up.  Call this once to initialize when
 	// all edge are added.
 	void		SortMasters(void);
 
@@ -143,9 +143,9 @@ private:
 	// Active segments.  A note on memory management: we keep two extra vectors in the class so that they
 	// aren't deallocated and reallocated between calls into the scanner.  This saves a bunch of dealloc/realloc
 	// cycles at the expense of a little bit of memory.
-	vector<ActiveSeg>			actives;
-	vector<ActiveSeg>			temp_actives;
-	vector<ActiveSeg>			new_actives;
+	std::vector<ActiveSeg>			actives;
+	std::vector<ActiveSeg>			temp_actives;
+	std::vector<ActiveSeg>			new_actives;
 
 	void		RecalcActiveCurX(void);			// Recalc current Y intercepts.
 	void		CleanupFinishedMasters(void);	// Throw out masters that we're not using.
@@ -192,7 +192,7 @@ struct	BoxRasterizer {
 	// Continue at this interval...y1 must be at least >= to y2 from last time.
 	void	AdvanceScanline(Number y1, Number y2);
 
-	// Get the line from advance scanline.  It is a list of interval pairs.
+	// Get the line from advance scanline.  It is a std::list of interval pairs.
 	// Note that we can call this only once per advance, because it swaps
 	// memory instead of copying.
 	void	GetLineTrash(vector<Number>& out_line);
@@ -206,7 +206,7 @@ private:
 
 		Number				y1;							// Current output.
 		Number				y2;
-		vector<Number>		output;
+		std::vector<Number>		output;
 
 	// Utilities to do interval intersection.  Not really part of the class, but this keeps them
 	// from gumming up the namespace.
@@ -256,7 +256,7 @@ void		PolyRasterizer<Number>::AddEdge(Number x1, Number y1, Number x2, Number y2
 }
 
 
-// Sort masters by min X once we're set up.  Easy: we define operator< for our segs.
+// Sort masters by min X once we're std::set up.  Easy: we define operator< for our segs.
 template<typename Number>
 void		PolyRasterizer<Number>::SortMasters(void)
 {

@@ -49,11 +49,11 @@ enum { kMsg_Close = WED_PRIVATE_MSG_BASE };
 
 class RadioButton {
 public:
-	RadioButton(int x0, int y0, WED_Settings * parent,  const int * var, const string& desc, const char * text0, const char * text1);
+	RadioButton(int x0, int y0, WED_Settings * parent,  const int * var, const std::string& desc, const char * text0, const char * text1);
 	~RadioButton() {};
 };
 
-RadioButton::RadioButton(int x0, int y0, WED_Settings * parent,  const int * var, const string& desc, const char * text0, const char * text1)
+RadioButton::RadioButton(int x0, int y0, WED_Settings * parent,  const int * var, const std::string& desc, const char * text0, const char * text1)
 {
 	const char * texture = "check_buttons.png";
 	int r_yes[4] = { 0, 1, 1, 3 };
@@ -134,7 +134,7 @@ void WED_Settings::ReceiveMessage(
 	}
 	else if(inMsg == (intptr_t) &gFontSize)
 	{
-			string new_val;
+			std::string new_val;
 			((GUI_TextField *) inParam)->GetDescriptor(new_val);
 			gFontSize = max(10,min(18,atoi(new_val.c_str())));
 			GUI_SetFontSizes(gFontSize);
@@ -231,7 +231,7 @@ WED_Settings::WED_Settings(GUI_Commander * cmdr) : GUI_Window("WED Preferences",
 	mFont_box->SetParent(this);
 	mFont_box->AddListener(this);
 	mFont_box->SetKeyMsg((intptr_t) &gFontSize, (intptr_t) mFont_box);
-	mFont_box->SetDescriptor(to_string(gFontSize));
+	mFont_box->SetDescriptor(std::to_string(gFontSize));
 	mFont_box->Show();
 	mFont_box->SetKeyAllowed(GUI_KEY_RETURN, false);
 	mFont_box->SetKeyAllowed(GUI_VK_ESCAPE, false);
@@ -270,7 +270,7 @@ WED_Application::~WED_Application()
 	if (mSettingsWin) delete mSettingsWin;
 }
 
-void	WED_Application::OpenFiles(const vector<string>& inFiles)
+void	WED_Application::OpenFiles(const std::vector<std::string>& inFiles)
 {
 }
 
@@ -296,7 +296,7 @@ int		WED_Application::HandleCommand(int command)
 			// We used to have a nice PDF published with WED, but...WED is changing fast
 			// and it stops going final to have to wait for doc complete.  So let's put
 			// the manual online and off we go.
-//			string path;
+//			std::string path;
 //			if (GUI_GetTempResourcePath("WEDManual.pdf",path))
 //			{
 //				GUI_LaunchURL(path.c_str());
@@ -309,7 +309,7 @@ int		WED_Application::HandleCommand(int command)
 	}
 }
 
-int		WED_Application::CanHandleCommand(int command, string& ioName, int& ioCheck)
+int		WED_Application::CanHandleCommand(int command, std::string& ioName, int& ioCheck)
 {
 	switch(command) {
 	case gui_Undo:		ioName = "&Undo"; return 0;

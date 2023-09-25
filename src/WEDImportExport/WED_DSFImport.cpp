@@ -71,7 +71,7 @@
 #define NO_NET !ROAD_EDITING
 #define NO_EXC 0
 
-static void debug_it(const vector<BezierPoint2>& pts)
+static void debug_it(const std::vector<BezierPoint2>& pts)
 {
 	for(int n = 0; n < pts.size(); ++n)
 		printf("%d) %lf,%lf (%lf,%lf/%lf,%lf)\n",
@@ -84,7 +84,7 @@ static void debug_it(const vector<BezierPoint2>& pts)
 			pts[n].hi.y() - pts[n].pt.y());
 }
 
-static bool end_match(const string& str, const char suf[4])
+static bool end_match(const std::string& str, const char suf[4])
 {
 	if(str.size() >= 4)
 		return memcmp(str.c_str() + str.size() - 4, suf, 4) == 0;
@@ -142,46 +142,46 @@ public:
 	int					req_level_fac[7];
 
 	struct	tbl_entry {
-		string				vpath;
-		string				name;
+		std::string				vpath;
+		std::string				name;
 		dsf_import_category	cat;
 
 		tbl_entry(const char * c) : vpath(c)
 		{
 			size_t pos = vpath.find_last_of('/');
-			if(pos == string::npos)
+			if(pos == std::string::npos)
 				name = vpath;
 			else
 				name = c + pos + 1;
 
 			cat = dsf_cat_objects;
-			if(vpath.find("/terrain_FX/") != string::npos)
+			if(vpath.find("/terrain_FX/") != std::string::npos)
 				cat = dsf_cat_terrain_fx;
-			else if(vpath.find("/pavement_FX/") != string::npos)
+			else if(vpath.find("/pavement_FX/") != std::string::npos)
 				cat = dsf_cat_pavement_fx;
 		};
 	};
 
-	vector<tbl_entry>	obj_table;
-	vector<tbl_entry>	pol_table;
-	vector<string>		net_table;
+	std::vector<tbl_entry>	obj_table;
+	std::vector<tbl_entry>	pol_table;
+	std::vector<std::string>		net_table;
 
 	WED_Thing *			master_parent;
 	WED_Thing *			bucket_parents[dsf_cat_DIM];
 	WED_Archive *		archive;
 
-	vector<BezierPoint2>pts,uvs;
-	vector<int>			walls;
+	std::vector<BezierPoint2>pts,uvs;
+	std::vector<int>			walls;
 	WED_Thing *			ring;
 	WED_Thing *			poly;
 	bool				want_uv;
 	bool				want_bezier;
 	bool				want_wall;
 	int 				dsf_cat_filter;       // categories, e.g. .for, .obj
-	vector<string>		dsf_AptID_filter;     // Airport ID's
-	vector<bool>		filter_table;     	  // Airport ID IDX
+	std::vector<std::string>		dsf_AptID_filter;     // Airport ID's
+	std::vector<bool>		filter_table;     	  // Airport ID IDX
 	bool				filter_on;            // global switch to filter out stuff
-	vector<Bbox2>		cull_bounds;
+	std::vector<Bbox2>		cull_bounds;
 	int					is_in_bounds;
 	int					autogen_rings;
 	int					autogen_spelling;
@@ -215,13 +215,13 @@ public:
 		return bucket_parents[cat];
 	}
 
-	vector<WED_ExclusionZone *> accum_exclusions;
+	std::vector<WED_ExclusionZone *> accum_exclusions;
 
-	vector<pair<Point2, int> >	accum_road;
-	pair<int, int>		accum_road_type;
+	std::vector<std::pair<Point2, int> >	accum_road;
+	std::pair<int, int>		accum_road_type;
 
 #if !NO_NET
-	typedef map<pair<int, int>, WED_RoadNode *> road_node_map_t;
+	typedef std::map<std::pair<int, int>, WED_RoadNode *> road_node_map_t;
 	road_node_map_t road_nodes;
 	unsigned int        road_start_ID;
 #endif
@@ -283,7 +283,7 @@ public:
 				z->GetMax()->GetLocation(gis_Geo, b_new.p2);
 				if(b_new == b)
 				{
-					set<int> s;
+					std::set<int> s;
 					z->GetExclusions(s);
 					s.insert(k);
 					z->SetExclusions(s);
@@ -294,7 +294,7 @@ public:
 			WED_ExclusionZone * z = WED_ExclusionZone::CreateTyped(archive);
 			z->SetName("Exclusion Zone");
 			z->SetParent(get_cat_parent(dsf_cat_exclusion),get_cat_parent(dsf_cat_exclusion)->CountChildren());
-			set<int> s;
+			std::set<int> s;
 			s.insert(k);
 			z->SetExclusions(s);
 
@@ -448,8 +448,8 @@ public:
 			DebugAssert(me->accum_road.empty());
 
 			me->road_start_ID = (unsigned int) inCoordinates[3];
-			me->accum_road_type = make_pair(inNetworkType, inNetworkSubtype);
-			me->accum_road.push_back(make_pair(Point2(inCoordinates[0], inCoordinates[1]), int(inCoordinates[2])));
+			me->accum_road_type = std::make_pair(inNetworkType, inNetworkSubtype);
+			me->accum_road.push_back(std::make_pair(Point2(inCoordinates[0], inCoordinates[1]), int(inCoordinates[2])));
 		}
 #endif
 	}
@@ -462,7 +462,7 @@ public:
 #if !NO_NET
 		DSF_Importer * me = (DSF_Importer *) inRef;
 		if(me->dsf_cat_filter & dsf_filter_roads && !me->filter_on)
-			me->accum_road.push_back(make_pair(Point2(inCoordinates[0], inCoordinates[1]), int(inCoordinates[2])));
+			me->accum_road.push_back(std::make_pair(Point2(inCoordinates[0], inCoordinates[1]), int(inCoordinates[2])));
 #endif
 	}
 
@@ -495,40 +495,40 @@ public:
 		unsigned int inNetworkType = me->accum_road_type.first;
 		unsigned int inStartNodeID = me->road_start_ID;
 
-		road_node_map_t::iterator sn = me->road_nodes.find(make_pair(inNetworkType, inStartNodeID));
+		road_node_map_t::iterator sn = me->road_nodes.find(std::make_pair(inNetworkType, inStartNodeID));
 		WED_RoadNode * road_start;
 		if(sn == me->road_nodes.end())
 		{
 			WED_RoadNode * start_node = WED_RoadNode::CreateTyped(me->archive);
 			start_node->SetParent(me->get_cat_parent(dsf_cat_roads),me->get_cat_parent(dsf_cat_roads)->CountChildren());
-			stringstream ss;
+			std::stringstream ss;
 			ss << inStartNodeID;
 			start_node->SetLocation(gis_Geo, Point2(me->accum_road[0].first));
 			start_node->SetName(ss.str());
-			me->road_nodes[make_pair(inNetworkType, inStartNodeID)] = start_node;
+			me->road_nodes[std::make_pair(inNetworkType, inStartNodeID)] = start_node;
 			road_start = start_node;
 		}
 		else
 			road_start = sn->second;
 
 		unsigned int inEndNodeID = inCoordinates[3];
-		road_node_map_t::iterator en = me->road_nodes.find(make_pair(me->accum_road_type.first, inEndNodeID));
+		road_node_map_t::iterator en = me->road_nodes.find(std::make_pair(me->accum_road_type.first, inEndNodeID));
 		WED_RoadNode * road_end;
 		if(en == me->road_nodes.end())
 		{
 			WED_RoadNode * end_node = WED_RoadNode::CreateTyped(me->archive);
 			end_node->SetParent(me->get_cat_parent(dsf_cat_roads),me->get_cat_parent(dsf_cat_roads)->CountChildren());
-			stringstream ss;
+			std::stringstream ss;
 			ss << inEndNodeID;
 			end_node->SetLocation(gis_Geo, Point2(inCoordinates[0], inCoordinates[1]));
 			end_node->SetName(ss.str());
-			me->road_nodes[make_pair(me->accum_road_type.first, inEndNodeID)] = end_node;
+			me->road_nodes[std::make_pair(me->accum_road_type.first, inEndNodeID)] = end_node;
 			road_end = end_node;
 		}
 		else
 			road_end = en->second;
 
-		me->accum_road.push_back(make_pair(Point2(inCoordinates[0], inCoordinates[1]), int(inCoordinates[2])));
+		me->accum_road.push_back(std::make_pair(Point2(inCoordinates[0], inCoordinates[1]), int(inCoordinates[2])));
 
 		DebugAssert(me->accum_road.size() > 1);
 
@@ -616,7 +616,7 @@ public:
 					void *			inRef)
 	{
 		DSF_Importer * me = (DSF_Importer *) inRef;
-		string r  = me->pol_table[inPolygonType].vpath;
+		std::string r  = me->pol_table[inPolygonType].vpath;
 
 		me->poly = NULL;
 		me->ring = NULL;
@@ -860,7 +860,7 @@ public:
 
 		if(me->want_bezier)
 		{
-			vector<BezierPoint2>	pc, uc;
+			std::vector<BezierPoint2>	pc, uc;
 //			debug_it(me->pts);
 //			debug_it(me->uvs);
 
@@ -869,7 +869,7 @@ public:
 
 			if(me->want_wall)
 			{
-				vector<int> wc;
+				std::vector<int> wc;
 				auto w = me->walls.begin();
 				for(auto p : me->pts)
 				{
@@ -981,7 +981,7 @@ public:
 		{
 			// make a single winding out of all connected windings
 			int n_wdg = me->poly->CountChildren() - 1;
-			vector<WED_Thing *> wdgs;
+			std::vector<WED_Thing *> wdgs;
 			for(int n = 0; n < n_wdg; ++n)
 			{
 				wdgs.push_back(me->poly->GetNthChild(1));
@@ -1146,7 +1146,7 @@ int DSF_Import(const char * path, WED_Thing * base)
 	return res;
 }
 
-int DSF_Import_Partial(const char * path, WED_Thing * base, int inCatFilter, const vector<Bbox2>& inBounds, const vector<string>& inAptFilter)
+int DSF_Import_Partial(const char * path, WED_Thing * base, int inCatFilter, const std::vector<Bbox2>& inBounds, const std::vector<std::string>& inAptFilter)
 {
 	DSF_Importer importer;
 
@@ -1183,32 +1183,32 @@ int		WED_CanImportRoads(IResolver * resolver)
 	ISelection * sel = WED_GetSelect(resolver);
 	if(!sel->IterateSelectionAnd(Iterate_IsClass,(void*) WED_ExclusionZone::sClass)) return 0;
 
-	vector<WED_Thing *> things;
+	std::vector<WED_Thing *> things;
 	sel->IterateSelectionOr(Iterate_CollectThings, &things);
 
 	for(auto t : things)
 	{
 		WED_ExclusionZone * excl = dynamic_cast<WED_ExclusionZone *>(t);
 		if(excl == nullptr) return 0;
-		set<int> excl_types;
+		std::set<int> excl_types;
 		excl->GetExclusions(excl_types);
 		if(excl_types.count(exclude_Net)) return 1;
 	}
 	return 0;
 }
 
-void add_all_global_DSF(const Bbox2& bb, set<string>& matching_dsf)
+void add_all_global_DSF(const Bbox2& bb, std::set<std::string>& matching_dsf)
 {
-	pair<int, int> glob_scn = gPackageMgr->GlobalPackages();
+	std::pair<int, int> glob_scn = gPackageMgr->GlobalPackages();
 
 	for (int lon = floor(bb.xmin()); lon < ceil(bb.xmax()); lon++)
 		for (int lat = floor(bb.ymin()); lat < ceil(bb.ymax()); lat++)
 			for (int pkg = glob_scn.first; pkg <= glob_scn.second; pkg++)
 			{
-				string path;
+				std::string path;
 				gPackageMgr->GetNthPackagePath(pkg, path);
-				string dirname(FILE_get_file_name(path));
-				if (dirname.find("Demo Area") != string::npos || dirname.find("Global Scenery") != string::npos)
+				std::string dirname(FILE_get_file_name(path));
+				if (dirname.find("Demo Area") != std::string::npos || dirname.find("Global Scenery") != std::string::npos)
 				{
 					char buf[256];
 					snprintf(buf, sizeof(buf), "%s" DIR_STR "Earth nav data" DIR_STR "%+03d%+04d" DIR_STR "%+03d%+04d.dsf", path.c_str(),
@@ -1227,16 +1227,16 @@ void	WED_DoImportRoads(IResolver * resolver)
 	ISelection * sel = WED_GetSelect(resolver);
 	if(!sel->IterateSelectionAnd(Iterate_IsClass,(void*) WED_ExclusionZone::sClass)) return ;
 
-	vector<WED_Thing *> things;
+	std::vector<WED_Thing *> things;
 	sel->IterateSelectionOr(Iterate_CollectThings, &things);
 
-	vector<Bbox2> excl_bounds;
+	std::vector<Bbox2> excl_bounds;
 	int dsf_filters = 0;
 	for(auto t : things)
 	{
 		WED_ExclusionZone * excl = dynamic_cast<WED_ExclusionZone *>(t);
 		if(excl == nullptr) return;
-		set<int> excl_types;
+		std::set<int> excl_types;
 		excl->GetExclusions(excl_types);
 		if(excl_types.count(exclude_Net)) dsf_filters |= dsf_filter_roads;
 		if(excl_types.count(exclude_Obj)) dsf_filters |= dsf_filter_autogen;
@@ -1246,7 +1246,7 @@ void	WED_DoImportRoads(IResolver * resolver)
 		excl_bounds.push_back(b);
 	}
 
-	set<string> matching_dsf;
+	std::set<std::string> matching_dsf;
 
 	for (const auto& bb : excl_bounds)
 		add_all_global_DSF(bb, matching_dsf);
@@ -1263,7 +1263,7 @@ void	WED_DoImportRoads(IResolver * resolver)
 			int result = DSF_Import_Partial(path.c_str(), g, dsf_filters, excl_bounds);
 			if(result != dsf_ErrOK)
 			{
-				string msg = string("The file '") + path + string("' could not be imported as a DSF:\n")
+				std::string msg = std::string("The file '") + path + std::string("' could not be imported as a DSF:\n")
 							+ dsfErrorMessages[result];
 				DoUserAlert(msg.c_str());
 				wrl->AbortOperation();
@@ -1300,7 +1300,7 @@ void	WED_DoImportDSF(IResolver * resolver)
 			int result = DSF_Import(path,g);
 			if(result != dsf_ErrOK)
 			{
-				string msg = string("The file '") + path + string("' could not be imported as a DSF:\n")
+				std::string msg = std::string("The file '") + path + std::string("' could not be imported as a DSF:\n")
 							+ dsfErrorMessages[result];
 				DoUserAlert(msg.c_str());
 				wrl->AbortOperation();
@@ -1316,13 +1316,13 @@ void	WED_DoImportDSF(IResolver * resolver)
 }
 
 
-static WED_Thing * find_airport_by_icao_recursive(const string& icao, WED_Thing * who)
+static WED_Thing * find_airport_by_icao_recursive(const std::string& icao, WED_Thing * who)
 {
 	if(WED_Airport::sClass == who->GetClass())
 	{
 		WED_Airport * apt = dynamic_cast<WED_Airport *>(who);
 		DebugAssert(apt);
-		string aicao;
+		std::string aicao;
 		apt->GetICAO(aicao);
 
 		if(aicao == icao)

@@ -75,10 +75,10 @@ public:
 
 };
 
-class apply_properties_visitor : public MapBFSVisitor<set<int>, Block_2 > {
+class apply_properties_visitor : public MapBFSVisitor<std::set<int>, Block_2 > {
 public:
 
-	typedef	set<int>				Prop_t;
+	typedef	std::set<int>				Prop_t;
 	const vector<BLOCK_face_data> *	feature_map;
 	Prop_t							initial;
 	
@@ -154,15 +154,15 @@ void	create_block(
 				DebugAssert(in_data[n].feature != 0);
 	#endif
 	
-	// First we are going to build up a curve list and bulk insert them all.  Each curve has the polygon number as its data.
+	// First we are going to build up a curve std::list and bulk insert them all.  Each curve has the polygon number as its data.
 	// This should be faster than doing a series of piece-wise inserts.
 
 #if 0
 	vector<Block_2::X_monotone_curve_2>	keep;
-	set<pair<Point_2,Point_2> >	we_have;
+	std::set<std::pair<Point_2,Point_2> >	we_have;
 	for(int n = 0; n < in_bounds.size(); ++n)
 	{
-		pair<Point_2,Point_2>	s(in_bounds[n].source(),in_bounds[n].target());
+		std::pair<Point_2,Point_2>	s(in_bounds[n].source(),in_bounds[n].target());
 		if(s.first < s.second) swap(s.first,s.second);
 		if(we_have.count(s) == 0)
 		{
@@ -179,13 +179,13 @@ void	create_block(
 #if 0
 	FastCDT	cdt;
 	FastCDT::Face_handle hint;
-	vector<pair<FastCDT::Vertex_handle, FastCDT::Vertex_handle> >	vv;
+	vector<std::pair<FastCDT::Vertex_handle, FastCDT::Vertex_handle> >	vv;
 	
-	set<pair<FastCDT::Vertex_handle, FastCDT::Vertex_handle> > we_have;
+	std::set<std::pair<FastCDT::Vertex_handle, FastCDT::Vertex_handle> > we_have;
 	
 	for(int n = 0; n < in_bounds.size(); ++n)
 	{
-		pair<FastCDT::Vertex_handle,FastCDT::Vertex_handle>	r;
+		std::pair<FastCDT::Vertex_handle,FastCDT::Vertex_handle>	r;
 		r.first = cdt.insert(C(in_bounds[n].source()),hint);
 		hint = r.first->face();
 		r.second = cdt.insert(C(in_bounds[n].target()),hint);
@@ -241,7 +241,7 @@ bool	can_insert_into_block(
 {
 	// Run a bulk location on the entire block...TBD: there may be blocks where sweeping is worse than marching.
 	// Anyway, we get a bunch of pairs of the locate point and the actual part of the arrangement we hit.
-	vector<pair<Point_2, CGAL::Object> >	pts;
+	vector<std::pair<Point_2, CGAL::Object> >	pts;
 	CGAL::locate(block, bounds.vertices_begin(), bounds.vertices_end(), back_inserter(pts));
 	
 	// Quick check: if ANY of our points are inside a non empty face, we are by definition hosed.
@@ -301,10 +301,10 @@ void	do_insert_into_block(
 
 	CollectEdges(block, &collector, bounds, NULL);
 
-	set<Block_2::Face_handle>	faces;
+	std::set<Block_2::Face_handle>	faces;
 	FindFacesForEdgeSet<Block_2>(collector.results, faces);
 
-	for(set<Block_2::Face_handle>::iterator f = faces.begin(); f != faces.end(); ++f)
+	for(std::set<Block_2::Face_handle>::iterator f = faces.begin(); f != faces.end(); ++f)
 		(*f)->set_data(data);
 }					
 
@@ -547,7 +547,7 @@ bool	within_err_metric(Pmwx::Halfedge_handle h1, Pmwx::Halfedge_handle h2, const
 
 bool	build_convex_polygon(
 				Pmwx::Ccb_halfedge_circulator									ccb,
-				vector<pair<Pmwx::Halfedge_handle, Pmwx::Halfedge_handle> >&	sides,
+				vector<std::pair<Pmwx::Halfedge_handle, Pmwx::Halfedge_handle> >&	sides,
 				const CoordTranslator2&											trans,
 				Polygon2&														metric_bounds,
 				double															max_err_mtrs,
@@ -589,7 +589,7 @@ bool	build_convex_polygon(
 	
 		--stop;
 //		printf("Pushing side of %d, %d\n", circulator_distance_to(start, circ),circulator_distance_to(start,stop));
-		sides.push_back(pair<Pmwx::Halfedge_handle,Pmwx::Halfedge_handle>(circ, stop));
+		sides.push_back(std::pair<Pmwx::Halfedge_handle,Pmwx::Halfedge_handle>(circ, stop));
 		++stop;
 		circ = stop;
 	
@@ -689,8 +689,8 @@ bool	build_convex_polygon(
 }
 
 int	pick_major_axis(
-				vector<pair<Pmwx::Halfedge_handle, Pmwx::Halfedge_handle> >&	sides,				// Per side: inclusive range of half-edges "consolidated" into the sides.
-				Polygon2&														bounds,			// Inset boundary in metric, first side matched to the list.
+				vector<std::pair<Pmwx::Halfedge_handle, Pmwx::Halfedge_handle> >&	sides,				// Per side: inclusive range of half-edges "consolidated" into the sides.
+				Polygon2&														bounds,			// Inset boundary in metric, first side matched to the std::list.
 				Vector2&														v_x,
 				Vector2&														v_y)
 {

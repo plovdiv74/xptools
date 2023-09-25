@@ -145,7 +145,7 @@ void			WED_Archive::SetUndoManager(WED_UndoMgr * mgr)
 	mUndoMgr = mgr;
 }
 
-void			WED_Archive::__StartCommand(const string& inName, const char * file, int line)
+void			WED_Archive::__StartCommand(const std::string& inName, const char * file, int line)
 {
 	DebugAssert(mUndoMgr != NULL);
 	mUndoMgr->__StartCommand(inName, file, line);

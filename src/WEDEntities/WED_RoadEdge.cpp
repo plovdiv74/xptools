@@ -83,7 +83,7 @@ bool			WED_RoadEdge::IsOneway(void) const
 	return false;
 }
 
-pair<double, double> WED_RoadEdge::GetWidth(void) const
+std::pair<double, double> WED_RoadEdge::GetWidth(void) const
 {
 	if(auto r = get_valid_road_info())
 	{
@@ -92,10 +92,10 @@ pair<double, double> WED_RoadEdge::GetWidth(void) const
 		{
 			auto rd = r->road_types.find(vr->second.rd_type);
 			if ( rd != r->road_types.end())
-				return make_pair(rd->second.width, rd->second.traffic_width);
+				return std::make_pair(rd->second.width, rd->second.traffic_width);
 		}
 	}
-	return make_pair(0, 0);
+	return std::make_pair(0, 0);
 }
 
 void		WED_RoadEdge::GetNthPropertyInfo(int n, PropertyInfo_t& info) const
@@ -150,7 +150,7 @@ void		WED_RoadEdge::GetNthPropertyDict(int n, PropertyDict_t& dict) const
 		{
 			for(auto i : r->vroad_types)
 			{
-				dict[i.first] = make_pair(i.second.description, true);
+				dict[i.first] = std::make_pair(i.second.description, true);
 			}
 			return;
 		}
@@ -158,7 +158,7 @@ void		WED_RoadEdge::GetNthPropertyDict(int n, PropertyDict_t& dict) const
 	WED_GISEdge::GetNthPropertyDict(n, dict);
 }
 
-void		WED_RoadEdge::GetNthPropertyDictItem(int n, int e, string& item) const
+void		WED_RoadEdge::GetNthPropertyDictItem(int n, int e, std::string& item) const
 {
 	if(n == PropertyItemNumber(&subtype))
 	{

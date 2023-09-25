@@ -927,7 +927,7 @@ void	WED_VertexTool::ControlsHandlesBy(intptr_t id, int n, const Vector2& delta,
 // |         | * |   | = |        |
 // \ a21 a22 /   \ y /   \ rhs.dy /
 //
-// and returns the vector (x, y).
+// and returns the std::vector (x, y).
 static Vector2 solve_2x2(double a11, double a12, double a21, double a22, const Vector2 & rhs)
 {
 	double d_recip = 1.0 / (a11*a22 - a12*a21);
@@ -955,7 +955,7 @@ static Vector2 find_intersection(const Vector2 & p1, const Vector2 & v1, const V
 //
 // There are more accurate algorithms than Tiller-Hanson, but it is accurate enough for our
 // purposes, yields visually pleasing results and is easy to implement.
-static void offset_bezier(const vector<BezierPoint2> & src, vector<BezierPoint2> & dst, bool closed, double distance_m)
+static void offset_bezier(const std::vector<BezierPoint2> & src, std::vector<BezierPoint2> & dst, bool closed, double distance_m)
 {
 	// Square of the minimum length for a control polygon edge (0.1 mm). Below this, we will
 	// consider the two points of the edge to be conincident to avoid numerical problems arising
@@ -977,7 +977,7 @@ static void offset_bezier(const vector<BezierPoint2> & src, vector<BezierPoint2>
 	}
 
 	// Gather the points of the source control polygon.
-	vector<Point2> src_pts(3 * src.size());
+	std::vector<Point2> src_pts(3 * src.size());
 	for (size_t i = 0; i < np; ++i)
 	{
 		src_pts[3 * i] = src[i].lo;
@@ -987,7 +987,7 @@ static void offset_bezier(const vector<BezierPoint2> & src, vector<BezierPoint2>
 
 	// Determine each point of the destination control polygon by offsetting its two adjacent edges,
 	// then intersecting them.
-	vector<Point2> dst_pts(src_pts.size());
+	std::vector<Point2> dst_pts(src_pts.size());
 	for (size_t i = 0; i < src_pts.size(); ++i)
 	{
 		// Find the previous point that is at least the required distance away.
@@ -1171,7 +1171,7 @@ void	WED_VertexTool::ControlsLinksBy	 (intptr_t id, int c, const Vector2& delta,
 			Vector2 delta_m = VectorLLToMeters(p1, Vector2(mAnchor, io_pt));
 			double distance = n.dot(delta_m);
 
-			vector<BezierPoint2> dst;
+			std::vector<BezierPoint2> dst;
 			offset_bezier(mSrcBezier, dst, seq->IsClosed(), distance);
 
 			for (int i = 0; i < np; ++i)
@@ -1205,7 +1205,7 @@ void	WED_VertexTool::ControlsLinksBy	 (intptr_t id, int c, const Vector2& delta,
 			}
 
 			//mroe: thats to makes sure that [at least] the snap points exactly matches .
-			//the vector math is precise  , so this is possibly a bit paranoid .
+			//the std::vector math is precise  , so this is possibly a bit paranoid .
 			if(dist1 <= dist2)
 			{
 				gp1->SetLocation(gis_Geo,sp1);
@@ -1260,7 +1260,7 @@ void WED_VertexTool::GetEntityInternal(void) const
 
 	ISelection * sel = WED_GetSelect(GetResolver());
 	DebugAssert(sel != NULL);
-	vector<ISelectable *>	iu;
+	std::vector<ISelectable *>	iu;
 
 	mEntityCache.clear();
 
@@ -1271,7 +1271,7 @@ void WED_VertexTool::GetEntityInternal(void) const
 	Bbox2	bounds;
 	GetZoomer()->GetMapVisibleBounds(bounds.p1.x_,bounds.p1.y_,bounds.p2.x_,bounds.p2.y_);
 
-	for (vector<ISelectable *>::iterator i = iu.begin(); i != iu.end(); ++i)
+	for (std::vector<ISelectable *>::iterator i = iu.begin(); i != iu.end(); ++i)
 	{
 		IGISEntity * gent = SAFE_CAST(IGISEntity,*i);
 		if (gent) AddEntityRecursive(gent, bounds);
@@ -1385,7 +1385,7 @@ void		WED_VertexTool::AddSnapPointRecursive(IGISEntity * e, const Bbox2& vis_are
 		if (pt)
 		{
 			pt->GetLocation(gis_Geo,loc);
-			mSnapCache.push_back(pair<Point2,IGISEntity *>(loc, e));
+			mSnapCache.push_back(std::pair<Point2,IGISEntity *>(loc, e));
 		}
 		break;
 	case gis_Point_Bezier:
@@ -1393,13 +1393,13 @@ void		WED_VertexTool::AddSnapPointRecursive(IGISEntity * e, const Bbox2& vis_are
 		if (bt)
 		{
 			bt->GetLocation(gis_Geo,loc);
-			mSnapCache.push_back(pair<Point2,IGISEntity *>(loc, e));
+			mSnapCache.push_back(std::pair<Point2,IGISEntity *>(loc, e));
 //			if (sel->IsSelected(e))
 			{
 				if (bt->GetControlHandleLo(gis_Geo,loc))
-					mSnapCache.push_back(pair<Point2,IGISEntity *>(loc, e));
+					mSnapCache.push_back(std::pair<Point2,IGISEntity *>(loc, e));
 				if (bt->GetControlHandleHi(gis_Geo,loc))
-					mSnapCache.push_back(pair<Point2,IGISEntity *>(loc, e));
+					mSnapCache.push_back(std::pair<Point2,IGISEntity *>(loc, e));
 			}
 		}
 		break;

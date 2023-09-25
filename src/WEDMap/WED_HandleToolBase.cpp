@@ -287,11 +287,11 @@ int			WED_HandleToolBase::HandleClickDown			(int inX, int inY, int inButton, GUI
 		mSelManip.clear();
 		bool has_click = false;
 		ISelection * sel = WED_GetSelect(GetResolver());
-		set<ISelectable *> sel_set;
+		std::set<ISelectable *> sel_set;
 		sel->GetSelectionSet(sel_set);
 		WED_Thing * t, *p;
 		IGISEntity * e;
-		for(set<ISelectable *>::iterator s = sel_set.begin(); s != sel_set.end(); ++s)
+		for(std::set<ISelectable *>::iterator s = sel_set.begin(); s != sel_set.end(); ++s)
 		if ((t = dynamic_cast<WED_Thing *>(*s)) != NULL)
 		if ((e = dynamic_cast<IGISEntity *>(*s)) != NULL)
 		{
@@ -345,7 +345,7 @@ int			WED_HandleToolBase::HandleClickDown			(int inX, int inY, int inButton, GUI
 				mSelManip.clear();
 				sel_set.clear();
 				sel->GetSelectionSet(sel_set);
-				for(set<ISelectable *>::iterator s = sel_set.begin(); s != sel_set.end(); ++s)
+				for(std::set<ISelectable *>::iterator s = sel_set.begin(); s != sel_set.end(); ++s)
 				if ((t = dynamic_cast<WED_Thing *>(*s)) != NULL)
 				if ((e = dynamic_cast<IGISEntity *>(*s)) != NULL)
 				{
@@ -386,7 +386,7 @@ int			WED_HandleToolBase::HandleClickDown			(int inX, int inY, int inButton, GUI
 
 		if (sel && ent_base)
 		{
-			set<IGISEntity *>	sel_set;
+			std::set<IGISEntity *>	sel_set;
 			Bbox2	bounds(
 							GetZoomer()->PixelToLL(Point2(mDragX, mDragY)),
 							GetZoomer()->PixelToLL(Point2(inX, inY)));
@@ -400,7 +400,7 @@ int			WED_HandleToolBase::HandleClickDown			(int inX, int inY, int inButton, GUI
 
 			sel->GetSelectionVector(mSelSave);
 
-			for (set<IGISEntity *>::iterator i = sel_set.begin(); i != sel_set.end(); ++i)
+			for (std::set<IGISEntity *>::iterator i = sel_set.begin(); i != sel_set.end(); ++i)
 			if (mSelToggle)
 				sel->Toggle((*i));
 			else
@@ -435,7 +435,7 @@ but takes all point objects, plus all area objects that are completely enclosed 
 To add type-based selection, the search now never stops upon a first find. But rather adds a layer ontop, that in case of
 single-point searches filter the result and only keeps a single find - according to the a certain "selection priority list".
 
-As this select function is also used to add/extend existing selections, this also requires the initail selection set to be saved
+As this select function is also used to add/extend existing selections, this also requires the initail selection std::set to be saved
 and only "new" finds after the filtering to be added.
 
 */
@@ -445,7 +445,7 @@ and only "new" finds after the filtering to be added.
 void WED_HandleToolBase::ProcessSelection(
 							IGISEntity *		entity,
 							Bbox2&				bounds,
-							set<IGISEntity *>&	result)
+							std::set<IGISEntity *>&	result)
 {
 	Point2 sel_p1(bounds.p1);
 	bool pt_sel(bounds.is_point());
@@ -454,7 +454,7 @@ void WED_HandleToolBase::ProcessSelection(
 	double	icon_dist_v = fabs(GetZoomer()->YPixelToLat(0)-GetZoomer()->YPixelToLat(SELECTION_BOX_SIZE));
 	if(pt_sel) bounds.expand(icon_dist_h,icon_dist_v); // select things even a bit further away
 
-//	set<IGISEntity *> result_old;
+//	std::set<IGISEntity *> result_old;
 //	if(pt_sel) { result_old = result; result.clear(); } // start from scratch, so can filter only the new selections later
 #if DEBUG_PRINTF_N_LINES
 	gMeshLines.clear();
@@ -467,14 +467,14 @@ void WED_HandleToolBase::ProcessSelection(
 	{
 		IGISEntity * keeper = NULL;
 		if(!keeper)
-			for(set<IGISEntity *> ::iterator i = result.begin(); i != result.end(); ++i)
+			for(std::set<IGISEntity *> ::iterator i = result.begin(); i != result.end(); ++i)
 			{
 				if( (*i)->GetGISClass() ==  gis_Composite &&                                     //  for Marquee tool only, prevents selecting the world
 					strcmp((*i)->GetGISSubtype(), "WED_AirportBoundary") == 0 )  { printf("AirportBdry\n"); keeper = *i;  break; }
 			}
 		if(!keeper)
-		{	vector<IGISEntity *> candidates;
-			for(set<IGISEntity *> ::iterator i = result.begin(); i != result.end(); ++i)         // anything point-like comes first
+		{	std::vector<IGISEntity *> candidates;
+			for(std::set<IGISEntity *> ::iterator i = result.begin(); i != result.end(); ++i)         // anything point-like comes first
 			{
 				if( (*i)->GetGISClass() == gis_Point ||
 					(*i)->GetGISClass() == gis_Point_Bezier ||
@@ -486,7 +486,7 @@ void WED_HandleToolBase::ProcessSelection(
 			else if(candidates.size() > 1)                                                       // find the closest point
 			{
 				double min_distance = 1.0E9;
-				for(vector<IGISEntity *> ::iterator i = candidates.begin(); i != candidates.end(); ++i)  // anything point-like comes first
+				for(std::vector<IGISEntity *> ::iterator i = candidates.begin(); i != candidates.end(); ++i)  // anything point-like comes first
 				{
 					IGISPoint * poi = SAFE_CAST(IGISPoint, *i);
 					Point2 pos;
@@ -500,14 +500,14 @@ void WED_HandleToolBase::ProcessSelection(
 			}
 		}
 		if(!keeper)
-			for(set<IGISEntity *> ::iterator i = result.begin(); i != result.end(); ++i)     // area-type objects that create 3D "above ground" stuff
+			for(std::set<IGISEntity *> ::iterator i = result.begin(); i != result.end(); ++i)     // area-type objects that create 3D "above ground" stuff
 			{
 				if( ((*i)->GetGISClass() ==  gis_Polygon || (*i)->GetGISClass() ==  gis_Composite) && (
 					strcmp((*i)->GetGISSubtype(), "WED_ForestPlacement") == 0 ||
 					strcmp((*i)->GetGISSubtype(), "WED_FacadePlacement") == 0 ) ) { printf("Forest/Facade\n"); keeper = *i;  break; }
 			}
 		if(!keeper)
-			for(set<IGISEntity *> ::iterator i = result.begin(); i != result.end(); ++i)     // then any kind of line-type objects
+			for(std::set<IGISEntity *> ::iterator i = result.begin(); i != result.end(); ++i)     // then any kind of line-type objects
 			{
 				if( (*i)->GetGISClass() ==  gis_Line ||
 					(*i)->GetGISClass() ==  gis_Edge ||
@@ -515,25 +515,25 @@ void WED_HandleToolBase::ProcessSelection(
 					(*i)->GetGISClass() ==  gis_Chain   ) { printf("Line\n");  keeper = *i;  break; }
 			}
 		if(!keeper)
-			for(set<IGISEntity *> ::iterator i = result.begin(); i != result.end(); ++i)     // now the polygons, in similar order as typical LAYER_GROUP assignments
+			for(std::set<IGISEntity *> ::iterator i = result.begin(); i != result.end(); ++i)     // now the polygons, in similar order as typical LAYER_GROUP assignments
 			{
 				if( ((*i)->GetGISClass() ==  gis_Polygon || (*i)->GetGISClass() ==  gis_Composite) && (
 					strcmp((*i)->GetGISSubtype(),"WED_PolygonPlacement") == 0 ||                           // Textured Polys
 					strcmp((*i)->GetGISSubtype(),"WED_DrapedOrthophoto") == 0 ) ) { printf("Polygon\n"); keeper = *i;  break; } // Draped Polys - also Ground Painted Signs
 			}
 		if(!keeper)
-			for(set<IGISEntity *> ::iterator i = result.begin(); i != result.end(); ++i)     // Runways
+			for(std::set<IGISEntity *> ::iterator i = result.begin(); i != result.end(); ++i)     // Runways
 			{
 				if( (*i)->GetGISClass() ==  gis_Line_Width )                      { printf("Runway\n"); keeper = *i;  break; }
 			}
 		if(!keeper)
-			for(set<IGISEntity *> ::iterator i = result.begin(); i != result.end(); ++i)
+			for(std::set<IGISEntity *> ::iterator i = result.begin(); i != result.end(); ++i)
 			{
 				if( (*i)->GetGISClass() ==  gis_Polygon ||
 					(*i)->GetGISClass() ==  gis_Area )                            { printf("Taxiway\n"); keeper = *i;  break; }     // all other polygons and areas - like Taxiways
 			}                                                                                                             // consider it a catch-all
 		if(!keeper)
-			for(set<IGISEntity *> ::iterator i = result.begin(); i != result.end(); ++i)
+			for(std::set<IGISEntity *> ::iterator i = result.begin(); i != result.end(); ++i)
 			{
 				if( (*i)->GetGISClass() ==  gis_BoundingBox )                       { printf("Exclusion\n"); keeper = *i;  break; }              //  thats exclusion zones
 			}
@@ -542,7 +542,7 @@ void WED_HandleToolBase::ProcessSelection(
 
 #undef printf
 #if DEBUG_PRINTF_N_LINES
-		for(set<IGISEntity *> ::iterator i = result.begin(); i != result.end(); ++i)
+		for(std::set<IGISEntity *> ::iterator i = result.begin(); i != result.end(); ++i)
 			printf("Total selected GISClass #%d Subtype %s\n", (*i)->GetGISClass()-gis_Point, (*i)->GetGISSubtype());
 #endif
 		if(keeper) { result.clear(); result.insert(keeper); }    // ok found something from our priority list, only keep that one
@@ -554,7 +554,7 @@ void WED_HandleToolBase::ProcessSelection(
 			else
 			{
 				printf("duh - this should only happen if a mLockedItems list is active. Multiple items are selected,\nbut none of them are in the priority list for object selection:\n");
-				for(set<IGISEntity *> ::iterator i = result.begin(); i != result.end(); ++i)
+				for(std::set<IGISEntity *> ::iterator i = result.begin(); i != result.end(); ++i)
 					printf("Selected are GISClass #%d Subtype %s\n", (*i)->GetGISClass()-gis_Point, (*i)->GetGISSubtype());
 				result.clear();
 			}
@@ -574,7 +574,7 @@ void WED_HandleToolBase::ProcessSelectionRecursive(
 							int				pt_sel,
 							double			icon_dist_h,
 							double			icon_dist_v,
-							set<IGISEntity *>&	result)
+							std::set<IGISEntity *>&	result)
 {
 	Point2	psel; if(pt_sel) psel = bounds.centroid();
 	double	frame_dist  = icon_dist_v/2;
@@ -715,7 +715,7 @@ void		WED_HandleToolBase::HandleClickDrag			(int inX, int inY, int inButton, GUI
 			Bbox2 new_b(old_b);
 			new_b += delta;
 
-			for (vector<IGISEntity *>::iterator e =	mSelManip.begin(); e != mSelManip.end(); ++e)
+			for (std::vector<IGISEntity *>::iterator e =	mSelManip.begin(); e != mSelManip.end(); ++e)
 			{
 				(*e)->Rescale(gis_Geo,old_b, new_b);
 			}
@@ -753,7 +753,7 @@ void		WED_HandleToolBase::HandleClickDrag			(int inX, int inY, int inButton, GUI
 			ISelection * sel = SAFE_CAST(ISelection, WED_GetSelect(GetResolver()));
 			if (sel && ent_base)
 			{
-				set<IGISEntity *>	sel_set;
+				std::set<IGISEntity *>	sel_set;
 				Bbox2	bounds(
 								GetZoomer()->PixelToLL(Point2(mDragX, mDragY)),
 								GetZoomer()->PixelToLL(Point2(inX, inY)));
@@ -761,13 +761,13 @@ void		WED_HandleToolBase::HandleClickDrag			(int inX, int inY, int inButton, GUI
 				ProcessSelection(ent_base, bounds, sel_set);
 
 				sel->Clear();
-				for (vector<ISelectable *>::iterator u = mSelSave.begin(); u != mSelSave.end(); ++u)
+				for (std::vector<ISelectable *>::iterator u = mSelSave.begin(); u != mSelSave.end(); ++u)
 					sel->Insert(*u);
 				#if OPTIMIZE
 					provide accelerated sel-save-restore ops!
 				#endif
 
-				for (set<IGISEntity *>::iterator i = sel_set.begin(); i != sel_set.end(); ++i)
+				for (std::set<IGISEntity *>::iterator i = sel_set.begin(); i != sel_set.end(); ++i)
 				if (mSelToggle)
 					sel->Toggle((*i));
 				else
@@ -854,7 +854,7 @@ void		WED_HandleToolBase::KillOperation(bool mouse_is_down)
 
 void		WED_HandleToolBase::GetSelTotalBounds(Bbox2 &bounds)
 {
-	for(vector<IGISEntity *>::iterator ei = mSelManip.begin(); ei != mSelManip.end(); ++ei)
+	for(std::vector<IGISEntity *>::iterator ei = mSelManip.begin(); ei != mSelManip.end(); ++ei)
 	{
 		Bbox2 local;
 		(*ei)->GetBounds(gis_Geo,local);
@@ -977,7 +977,7 @@ void		WED_HandleToolBase::DrawStructure			(bool inCurrent, GUI_GraphState * g)
 		g->SetState(false,false,false, false,false, false,false);
 		glColor4fv(WED_Color_RGBA(wed_Marquee));
 
-		vector<Point2> pts;
+		std::vector<Point2> pts;
 		BoxToPoints(GetZoomer()->PixelToLL(Point2(mDragX, mDragY)), GetZoomer()->PixelToLL(Point2(mSelX, mSelY)), GetZoomer(), pts);
 
 		glBegin(GL_LINE_LOOP);

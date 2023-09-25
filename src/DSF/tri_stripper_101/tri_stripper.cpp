@@ -114,7 +114,7 @@ void tri_stripper::Strip(primitives_vector * out_pPrimitivesVector)
 
 
 
-	// Put the results into the user's vector
+	// Put the results into the user's std::vector
 
 	std::swap(m_PrimitivesVector, (* out_pPrimitivesVector));
 
@@ -296,7 +296,7 @@ void tri_stripper::Stripify()
 
 
 
-	// Reset the candidate list
+	// Reset the candidate std::list
 
 	m_NextCandidates.clear();
 
@@ -308,7 +308,7 @@ void tri_stripper::Stripify()
 
 
 
-		// There is no triangle in the candidates list, refill it with the loneliest triangle
+		// There is no triangle in the candidates std::list, refill it with the loneliest triangle
 
 		const size_t HeapTop = m_TriHeap.top().TriPos();
 
@@ -342,7 +342,7 @@ void tri_stripper::Stripify()
 
 
 
-		// We must discard the triangle we inserted in the candidate list from the heap
+		// We must discard the triangle we inserted in the candidate std::list from the heap
 
 		// if it led to nothing. (We simply removed it if it hasn't been removed by BuildStrip() yet)
 
@@ -390,7 +390,7 @@ inline tri_stripper::triangle_strip tri_stripper::FindBestStrip()
 
 
 
-		// Discard useless triangles from the candidates list
+		// Discard useless triangles from the candidates std::list
 
 		if ((m_Triangles[m_NextCandidates.back()].marked()) || (m_TriHeap[m_NextCandidates.back()].Degree() == 0)) {
 
@@ -908,7 +908,7 @@ void tri_stripper::MarkTriAsTaken(const size_t i)
 
 
 
-			// Update the candidate list if cache is enabled
+			// Update the candidate std::list if cache is enabled
 
 			if ((m_Cache.size() > 0) && (NewDegree.Degree() > 0))
 
@@ -1020,7 +1020,7 @@ inline void tri_stripper::AddTriToIndices(const triangle & Tri, const triangle_s
 
 {
 
-	// Add Tri indices in the right order into the latest Indices vector.
+	// Add Tri indices in the right order into the latest Indices std::vector.
 
 	switch (Order) {
 

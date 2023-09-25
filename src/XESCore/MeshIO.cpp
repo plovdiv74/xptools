@@ -150,7 +150,7 @@ void WriteMesh(FILE * fi, CDT& mesh, int inAtomID, ProgressFunc func)
 			writer2.WriteFloat(FT[j]->info().normal[1]);
 			writer2.WriteFloat(FT[j]->info().normal[2]);
 			writer2.WriteInt(FT[j]->info().terrain_border.size());
-			for (set<int>::iterator tb = FT[j]->info().terrain_border.begin();
+			for (std::set<int>::iterator tb = FT[j]->info().terrain_border.begin();
 				tb != FT[j]->info().terrain_border.end(); ++tb)
 			{
 				writer2.WriteInt(*tb);

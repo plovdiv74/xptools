@@ -143,7 +143,7 @@ void		WED_LibraryPreviewPane::ReceiveMessage(GUI_Broadcaster * inSrc, intptr_t i
 	}
 }
 
-void WED_LibraryPreviewPane::SetResource(const string& r, int res_type, int variants)
+void WED_LibraryPreviewPane::SetResource(const std::string& r, int res_type, int variants)
 {
 	mRes = r;
 	mType = res_type;
@@ -434,7 +434,7 @@ GUI_DragOperation   WED_LibraryPreviewPane::Drop(int x, int y, GUI_DragData * dr
 }
 
 
-#define VIEW_DISTANCE 2.5   // set to 0 for isometric, non-perspective view used before WED 2.1
+#define VIEW_DISTANCE 2.5   // std::set to 0 for isometric, non-perspective view used before WED 2.1
 #define USE_2X2MSAA 1
 
 void	WED_LibraryPreviewPane::begin3d(const int *b, double radius_m)
@@ -591,7 +591,7 @@ void	WED_LibraryPreviewPane::Draw(GUI_GraphState * g)
 			DrawOneItem(mType, mRes, b, g);
 }
 
-void	WED_LibraryPreviewPane::DrawOneItem(int type, const string& res, int b[4], GUI_GraphState * g, const char * label)
+void	WED_LibraryPreviewPane::DrawOneItem(int type, const std::string& res, int b[4], GUI_GraphState * g, const char * label)
 {
 	const XObj8 * o = nullptr;
 	const agp_t * agp = nullptr;
@@ -601,7 +601,7 @@ void	WED_LibraryPreviewPane::DrawOneItem(int type, const string& res, int b[4], 
 	const for_info_t * fst = nullptr;
 	const str_info_t * str = nullptr;
 	const road_info_t * rd = nullptr;
-	map<int,road_info_t::vroad_t>::const_iterator vr_it;
+	std::map<int,road_info_t::vroad_t>::const_iterator vr_it;
 
 	if(!res.empty())
 	{	switch(type) {
@@ -714,7 +714,7 @@ void	WED_LibraryPreviewPane::DrawOneItem(int type, const string& res, int b[4], 
 			if (mResMgr->GetFac(res, fac, mVariant))
 			{
 				Polygon2 footprint;
-				vector<int> choices;
+				std::vector<int> choices;
 				Vector2 dir(mWid,0);
 				Point2 corner(-mWid*0.5, mWid*0.5);
 

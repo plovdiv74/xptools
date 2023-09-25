@@ -46,7 +46,7 @@ void WED_KeyObjects::CopyFrom(const WED_KeyObjects * rhs)
 
 IBase *	WED_KeyObjects::Directory_Find(const char * name)
 {
-	map<string,int>::iterator i = choices.find(name);
+	std::map<std::string,int>::iterator i = choices.find(name);
 	if (i != choices.end())
 		return FetchPeer(i->second);
 	return WED_Thing::Directory_Find(name);
@@ -55,14 +55,14 @@ IBase *	WED_KeyObjects::Directory_Find(const char * name)
 
 void WED_KeyObjects::Directory_Edit(const char * name, IBase * who)
 {
-	string n(name);
+	std::string n(name);
 	WED_Persistent * target = SAFE_CAST(WED_Persistent,who);
 	if (target == NULL && who != NULL)
-		AssertPrintf("Can't set a non-persistent to %s\n", name);
+		AssertPrintf("Can't std::set a non-persistent to %s\n", name);
 
 	int id = target ? target->GetID() : 0;
 
-	map<string,int>::iterator i = choices.find(n);
+	std::map<std::string,int>::iterator i = choices.find(n);
 	if (i != choices.end() && i->second == id) return;
 
 	StateChanged();
@@ -80,9 +80,9 @@ bool 			WED_KeyObjects::ReadFrom(IOReader * reader)
 		int b;
 		int id;
 		reader->ReadInt(b);
-		vector<char> buf(b);
+		std::vector<char> buf(b);
 		reader->ReadBulk(&*buf.begin(), b, false);
-		string key(buf.begin(),buf.end());
+		std::string key(buf.begin(),buf.end());
 		reader->ReadInt(id);
 		choices[key] = id;
 	}
@@ -93,7 +93,7 @@ void 			WED_KeyObjects::WriteTo(IOWriter * writer)
 {
 	WED_Thing::WriteTo(writer);
 	writer->WriteInt(choices.size());
-	for (map<string,int>::iterator it = choices.begin(); it != choices.end(); ++it)
+	for (std::map<std::string,int>::iterator it = choices.begin(); it != choices.end(); ++it)
 	{
 		writer->WriteInt(it->first.size());
 		writer->WriteBulk(it->first.c_str(),it->first.size(),false);
@@ -104,7 +104,7 @@ void 			WED_KeyObjects::WriteTo(IOWriter * writer)
 void			WED_KeyObjects::AddExtraXML(WED_XMLElement * obj)
 {
 	WED_XMLElement * xml = obj->add_sub_element("keys");
-	for(map<string,int>::iterator i = choices.begin(); i != choices.end(); ++i)
+	for(std::map<std::string,int>::iterator i = choices.begin(); i != choices.end(); ++i)
 	{
 		WED_XMLElement * c = xml->add_sub_element("key");
 		c->add_attr_stl_str("name",i->first);

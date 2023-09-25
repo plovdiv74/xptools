@@ -163,13 +163,13 @@
 	TOKEN(af_MaxAngle)
 	TOKEN(af_BlockErr)
 	
-	TOKEN(af_WaterEdge)			// Boolean props - if present they are set to 1 when twe are next to this.
+	TOKEN(af_WaterEdge)			// Boolean props - if present they are std::set to 1 when twe are next to this.
 	TOKEN(af_RoadEdge)
 	TOKEN(af_PrimaryEdge)
 	TOKEN(af_RailEdge)
 	TOKEN(af_LocalPercent)		// Percentage of surrounding road meets this type
 	TOKEN(af_RailPercent)
-	TOKEN(af_Median)			// For some reason, set to 2 when we are median strip...why??
+	TOKEN(af_Median)			// For some reason, std::set to 2 when we are median strip...why??
 	
 /*******************NETWORK TYPE CODES***********************************
  * These types define network features on a map.
@@ -800,7 +800,7 @@
 	TOKEN(use_Rail)
 	TOKEN(use_Power)
 
-	/* X-Plane Road Types - this is the master list of all road types that
+	/* X-Plane Road Types - this is the master std::list of all road types that
 	   x-plane knows about. */
 
 	/* Six and four-lane highways...may be together or seprated.  If separated,
@@ -893,7 +893,7 @@
 #if EXTRACT_TOKENS
 
 	/******************** MISC ENUMERATIONS ****************************
-	 * This is a set of misc. enums kept in param defs for file saving.
+	 * This is a std::set of misc. enums kept in param defs for file saving.
 	 *******************************************************************/
 
 

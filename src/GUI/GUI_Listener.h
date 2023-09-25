@@ -41,7 +41,7 @@ private:
 
 	friend	class	GUI_Broadcaster;
 
-	set<GUI_Broadcaster *>	mBroadcasters;
+	std::set<GUI_Broadcaster *>	mBroadcasters;
 
 };
 

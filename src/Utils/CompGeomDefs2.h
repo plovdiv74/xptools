@@ -438,7 +438,7 @@ struct	Polygon2 : public vector<Point2> {
 	template <typename __Iterator>
 				Polygon2(__Iterator s, __Iterator e) : vector<Point2>(s,e) { }
 
-	struct const_side_iterator : public std::iterator<forward_iterator_tag, Segment2> {
+	struct const_side_iterator : public std::iterator<std::forward_iterator_tag, Segment2> {
 	
 		const Polygon2 * p_;
 		int n_;
@@ -2116,7 +2116,7 @@ void approximate_bezier_sequence_epsi(
 						__output_iterator		o,
 						double					epsi)
 {
-	pair<Point2,int>	lp;
+	std::pair<Point2,int>	lp;
 	Bezier2	b;	
 	if(s == e) return;
 	lp = *s;

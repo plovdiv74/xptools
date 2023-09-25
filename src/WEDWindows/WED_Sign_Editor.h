@@ -27,11 +27,11 @@ struct sign_token {
 };
 
 struct sign_data {
-	vector<sign_token>	front;
-	vector<sign_token>	back;
+	std::vector<sign_token>	front;
+	std::vector<sign_token>	back;
 
-	bool	from_code(const string& code);
-	string	to_code() const;
+	bool	from_code(const std::string& code);
+	std::string	to_code() const;
 	void	recalc_borders();	// sets borders of each glyph as needed
 
 	int		calc_width(int side); // width of whole sign in pixels
@@ -47,7 +47,7 @@ struct sign_data {
 	
 int plot_token(const sign_token& sign, int x, int y, float scale, GUI_GraphState * g);
 
-void RenderSign(GUI_GraphState * state, int x, int y, const string& sign_text, float scale, int font_id, const float color[4]);
+void RenderSign(GUI_GraphState * state, int x, int y, const std::string& sign_text, float scale, int font_id, const float color[4]);
 	
 class WED_Sign_Editor : public GUI_Timer, public GUI_EditorInsert {
 public:

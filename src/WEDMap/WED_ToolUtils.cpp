@@ -104,14 +104,14 @@ static WED_Thing *	FindCommonParent(WED_Thing * a, WED_Thing * b)
 
 WED_Thing *	WED_FindParent(ISelection * isel, WED_Thing * require_this, WED_Thing * backup_choice)
 {
-	vector<ISelectable *> sel;
+	std::vector<ISelectable *> sel;
 	isel->GetSelectionVector(sel);
 
 	WED_Thing * common_parent = NULL;
 
 	if (sel.empty()) return backup_choice;
 
-	for (vector<ISelectable *>::iterator iter = sel.begin(); iter != sel.end(); ++iter)
+	for (std::vector<ISelectable *>::iterator iter = sel.begin(); iter != sel.end(); ++iter)
 	{
 		WED_Thing * obj = SAFE_CAST(WED_Thing, *iter);
 		if (obj)
@@ -307,7 +307,7 @@ WED_Thing *		WED_GetContainerForHost(IResolver * resolver, WED_Thing * host, boo
 		return wrl;
 }
 
-static void	WED_GetSelectionInOrderRecursive(ISelection * sel, WED_Thing * who, vector<WED_Thing *>& out_sel)
+static void	WED_GetSelectionInOrderRecursive(ISelection * sel, WED_Thing * who, std::vector<WED_Thing *>& out_sel)
 {
 	if (sel->IsSelected(who)) out_sel.push_back(who);
 	int c = who->CountChildren();
@@ -315,7 +315,7 @@ static void	WED_GetSelectionInOrderRecursive(ISelection * sel, WED_Thing * who, 
 		WED_GetSelectionInOrderRecursive(sel, who->GetNthChild(n), out_sel);
 }
 
-void	WED_GetSelectionInOrder(IResolver * resolver, vector<WED_Thing *>& out_sel)
+void	WED_GetSelectionInOrder(IResolver * resolver, std::vector<WED_Thing *>& out_sel)
 {
 	ISelection * sel = WED_GetSelect(resolver);
 	WED_Thing * wrl = WED_GetWorld(resolver);
@@ -328,7 +328,7 @@ static int			WED_GetSelectionRecursiveOne(ISelectable * what, void * container)
 	WED_Thing * who = dynamic_cast<WED_Thing *>(what);
 	if (who == NULL) return 0;
 
-	set<WED_Thing *> * sel = (set<WED_Thing *> *) container;
+	std::set<WED_Thing *> * sel = (std::set<WED_Thing *> *) container;
 
 	sel->insert(who);
 	int c = who->CountChildren();
@@ -337,7 +337,7 @@ static int			WED_GetSelectionRecursiveOne(ISelectable * what, void * container)
 	return 0;
 }
 
-void			WED_GetSelectionRecursive(IResolver * resolver, set<WED_Thing *>& out_sel)
+void			WED_GetSelectionRecursive(IResolver * resolver, std::set<WED_Thing *>& out_sel)
 {
 	out_sel.clear();
 	ISelection * sel = WED_GetSelect(resolver);
@@ -359,7 +359,7 @@ bool			WED_IsSelectionNested(IResolver * resolver)
 bool WED_IsFolder(WED_Thing * what)
 {
 #if 0  // this code is nice and abstract, but all those dynamic_casts are SLOW. Its usually not relevant as the
-	   // hierachy list is cached - but when changing selection with a huge selection set this here is 6% of the overall reponse time
+	   // hierachy list is cached - but when changing selection with a huge selection std::set this here is 6% of the overall reponse time
 	if(dynamic_cast<IGISPolygon*>(what))					return false;
 	if(dynamic_cast<IGISPointSequence*>(what))				return false;
 	if(dynamic_cast<IGISComposite*>(what))					return true;
@@ -374,7 +374,7 @@ bool WED_IsFolder(WED_Thing * what)
 WED_Thing *		WED_HasSingleSelectionOfType(IResolver * resolver, const char * in_class)
 {
 	ISelection * sel = WED_GetSelect(resolver);
-	vector<WED_Thing *> who;
+	std::vector<WED_Thing *> who;
 	sel->IterateSelectionOr(Iterate_CollectThings, &who);
 	if(who.size() != 1) return NULL;
 	if(strcmp(who[0]->GetClass(), in_class) != 0) return NULL;
@@ -424,12 +424,12 @@ const char *	WED_GetParentForClass(const char * in_class)
 	return NULL;
 }
 
-static void WED_LookupRunwayRecursiveOneway(const WED_Thing * thing, set<int>& runways)
+static void WED_LookupRunwayRecursiveOneway(const WED_Thing * thing, std::set<int>& runways)
 {
 	const WED_Runway * rwy = (thing->GetClass() == WED_Runway::sClass) ? dynamic_cast<const WED_Runway *>(thing) : NULL;
 	if(rwy)
 	{
-		pair<int,int> e = rwy->GetRunwayEnumsOneway();
+		std::pair<int,int> e = rwy->GetRunwayEnumsOneway();
 		if(e.first != atc_Runway_None) runways.insert(e.first);
 		if(e.second != atc_Runway_None) runways.insert(e.second);
 	}
@@ -439,7 +439,7 @@ static void WED_LookupRunwayRecursiveOneway(const WED_Thing * thing, set<int>& r
 	}
 }
 
-static void WED_LookupRunwayRecursiveTwoway(const WED_Thing * thing, set<int>& runways)
+static void WED_LookupRunwayRecursiveTwoway(const WED_Thing * thing, std::set<int>& runways)
 {
 	const WED_Runway * rwy = (thing->GetClass() == WED_Runway::sClass) ? dynamic_cast<const WED_Runway *>(thing) : NULL;
 	if(rwy)
@@ -454,13 +454,13 @@ static void WED_LookupRunwayRecursiveTwoway(const WED_Thing * thing, set<int>& r
 	}
 }
 
-void			WED_GetAllRunwaysOneway(const WED_Airport * airport, set<int>& runways)
+void			WED_GetAllRunwaysOneway(const WED_Airport * airport, std::set<int>& runways)
 {
 	runways.clear();
 	WED_LookupRunwayRecursiveOneway(airport,runways);
 }
 
-void			WED_GetAllRunwaysTwoway(const WED_Airport * airport, set<int>& runways)
+void			WED_GetAllRunwaysTwoway(const WED_Airport * airport, std::set<int>& runways)
 {
 	runways.clear();
 	WED_LookupRunwayRecursiveTwoway(airport,runways);
@@ -635,7 +635,7 @@ int Iterate_HasSelectedParent(ISelectable * what, void * ref)
 
 int Iterate_CollectChildPointSequences(ISelectable * what, void * ref)
 {
-	vector<IGISPointSequence *> * container = (vector<IGISPointSequence *> *) ref;
+	std::vector<IGISPointSequence *> * container = (std::vector<IGISPointSequence *> *) ref;
 	IGISPolygon * poly = dynamic_cast<IGISPolygon *>(what);
 	IGISPointSequence * ps = dynamic_cast<IGISPointSequence *>(what);
 	if (ps) container->push_back(ps);
@@ -651,7 +651,7 @@ int Iterate_CollectChildPointSequences(ISelectable * what, void * ref)
 
 int Iterate_CollectEntities(ISelectable * what, void * ref)
 {
-	vector<IGISEntity *> * container = (vector<IGISEntity *> *) ref;
+	std::vector<IGISEntity *> * container = (std::vector<IGISEntity *> *) ref;
 	IGISEntity * who = dynamic_cast<IGISEntity *>(what);
 	if (who) container->push_back(who);
 	return 0;
@@ -659,7 +659,7 @@ int Iterate_CollectEntities(ISelectable * what, void * ref)
 
 int Iterate_CollectEntitiesUV(ISelectable * what, void * ref)
 {
-	vector<IGISEntity *> * container = (vector<IGISEntity *> *) ref;
+	std::vector<IGISEntity *> * container = (std::vector<IGISEntity *> *) ref;
 	IGISEntity * who = dynamic_cast<IGISEntity *>(what);
 	if (who && who->HasLayer(gis_UV)) container->push_back(who);
 	return 0;
@@ -667,7 +667,7 @@ int Iterate_CollectEntitiesUV(ISelectable * what, void * ref)
 
 int Iterate_CollectThings(ISelectable * what, void * ref)
 {
-	vector<WED_Thing *> * container = (vector<WED_Thing *> *) ref;
+	std::vector<WED_Thing *> * container = (std::vector<WED_Thing *> *) ref;
 	WED_Thing * who = dynamic_cast<WED_Thing *>(what);
 	if (who) container->push_back(who);
 	return 0;
@@ -675,7 +675,7 @@ int Iterate_CollectThings(ISelectable * what, void * ref)
 
 int Iterate_CollectRequiredParents(ISelectable * what, void * ref)
 {
-	set<string> * classes = (set<string> *) ref;
+	std::set<std::string> * classes = (std::set<std::string> *) ref;
 	WED_Thing * w = dynamic_cast<WED_Thing *>(what);
 	if(w)
 	{
@@ -688,7 +688,7 @@ int Iterate_CollectRequiredParents(ISelectable * what, void * ref)
 		// to be in a flow) then those needs are ALREADY met.
 
 		// So.  Gather up all of the kids reqs.
-		set<string>  child_reqs;
+		std::set<std::string>  child_reqs;
 		for(int n = 0; n < w->CountChildren(); ++n)
 			Iterate_CollectRequiredParents(w->GetNthChild(n), &child_reqs);
 
@@ -696,7 +696,7 @@ int Iterate_CollectRequiredParents(ISelectable * what, void * ref)
 		child_reqs.erase(w->GetClass());
 
 		// Pass on the rest.
-		for(set<string>::iterator i = child_reqs.begin(); i != child_reqs.end(); ++i)
+		for(std::set<std::string>::iterator i = child_reqs.begin(); i != child_reqs.end(); ++i)
 			classes->insert(*i);
 
 		// Since this is recursive, the only required parents that 'flow out' are the ones not met
@@ -793,7 +793,7 @@ bool IsGraphEdge(WED_Thing * what)
 }
 
 /*
-void CollectRecursive(WED_Thing * root, bool(* filter)(WED_Thing *), vector<WED_Thing *>& items)
+void CollectRecursive(WED_Thing * root, bool(* filter)(WED_Thing *), std::vector<WED_Thing *>& items)
 {
 	if(filter(root)) items.push_back(root);
 	int nn = root->CountChildren();
@@ -801,7 +801,7 @@ void CollectRecursive(WED_Thing * root, bool(* filter)(WED_Thing *), vector<WED_
 		CollectRecursive(root->GetNthChild(n), filter, items);
 }
 
-void CollectRecursive(WED_Thing * root, bool(* filter)(WED_Thing *, void * ref), void * ref, vector<WED_Thing *>& items)
+void CollectRecursive(WED_Thing * root, bool(* filter)(WED_Thing *, void * ref), void * ref, std::vector<WED_Thing *>& items)
 {
 	if(filter(root,ref)) items.push_back(root);
 	int nn = root->CountChildren();

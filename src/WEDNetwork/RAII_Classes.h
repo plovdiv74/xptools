@@ -34,20 +34,20 @@
 class RAII_CurlHandle
 {
 public:
-	RAII_CurlHandle(const string& url, int buf_reserve_size=0);
+	RAII_CurlHandle(const std::string& url, int buf_reserve_size=0);
 	
 	//Get curl_http_get_file handle
 	curl_http_get_file& get_curl_handle();
 
 	//Gets the curl_http_get_file buffer
-	const vector<char>& get_dest_buffer() const;
+	const std::vector<char>& get_dest_buffer() const;
 
 private:
 	RAII_CurlHandle(const RAII_CurlHandle& copy);
 	RAII_CurlHandle& operator= (const RAII_CurlHandle& rhs);
 
 	//A buffer of chars to be filled
-	vector<char> m_dest_buffer;
+	std::vector<char> m_dest_buffer;
 
 	curl_http_get_file m_curl_handle;
 };
@@ -58,19 +58,19 @@ private:
 class RAII_FileHandle
 {
 public:
-	RAII_FileHandle(const string& fname, const string& mode);
+	RAII_FileHandle(const std::string& fname, const std::string& mode);
 	RAII_FileHandle(const char* fname, const char* mode);
 	~RAII_FileHandle();
 
 	int close();
-	const string& path();
+	const std::string& path();
 
 	operator bool() const { return mFile != NULL; }
 	FILE* operator()() { return mFile; }
 
 private:
 	FILE* mFile;
-	string mPath;
+	std::string mPath;
 };
 //---------------------------------------------------------------------------//
 #endif

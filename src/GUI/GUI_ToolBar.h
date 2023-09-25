@@ -34,7 +34,7 @@ public:
 
 			void	SizeToBitmap(void);
 
-			void	SetToolTips(const vector<string>& in_tips);
+			void	SetToolTips(const std::vector<std::string>& in_tips);
 			void	DisableTool(int idx);
 
 	virtual	void	SetValue(float inValue);
@@ -46,13 +46,13 @@ public:
 	virtual	void	MouseDrag(int x, int y, int button);
 	virtual	void	MouseUp  (int x, int y, int button);
 
-	virtual	int		GetHelpTip(int x, int y, int tip_bounds[4], string& tip);
+	virtual	int		GetHelpTip(int x, int y, int tip_bounds[4], std::string& tip);
 
 private:
 
-	vector<string>	mTips;
-	vector<int>		mEnabled;
-	string			mResource;
+	std::vector<std::string>	mTips;
+	std::vector<int>		mEnabled;
+	std::string			mResource;
 	int				mH;
 	int				mV;
 

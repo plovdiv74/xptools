@@ -73,7 +73,7 @@ private:
 	bool		has_distance;		double	distance;
 	bool		has_heading;		double	heading;
 
-	string	tool_name;
+	std::string	tool_name;
 
 };
 

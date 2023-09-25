@@ -40,19 +40,19 @@ GUI_PopupButton::~GUI_PopupButton()
 {
 }
 
-void		GUI_PopupButton::SetDescriptor(const string& inDesc)
+void		GUI_PopupButton::SetDescriptor(const std::string& inDesc)
 {
 	GUI_Control::SetDescriptor(inDesc);
 
 	mItems.clear();
 
-	string::const_iterator b, e;
+	std::string::const_iterator b, e;
 	b = inDesc.begin();
 	while (b != inDesc.end())
 	{
 		e = b;
 		while (e != inDesc.end() && *e != '\n') ++e;
-		mItems.push_back(string(b,e));
+		mItems.push_back(std::string(b,e));
 		if (e != inDesc.end()) ++e;
 		b = e;
 	}
@@ -64,7 +64,7 @@ void		GUI_PopupButton::SetDescriptor(const string& inDesc)
 
 void		GUI_PopupButton::Draw(GUI_GraphState * state)
 {
-	string desc, sub;
+	std::string desc, sub;
 
 	int bounds[4];
 	GetBounds(bounds);
@@ -96,7 +96,7 @@ void		GUI_PopupButton::Draw(GUI_GraphState * state)
 
 int			GUI_PopupButton::MouseDown(int x, int y, int button)
 {
-	vector<GUI_MenuItem_t>	items;
+	std::vector<GUI_MenuItem_t>	items;
 
 	items.resize(mItems.size()+1);
 	for (int n = 0; n < mItems.size(); ++n)

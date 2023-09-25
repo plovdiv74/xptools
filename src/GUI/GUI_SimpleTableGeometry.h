@@ -60,7 +60,7 @@ private:
 			void		ExtendTo(int x);
 
 			int			mRowHeight;
-			vector<int>	mCols;
+			std::vector<int>	mCols;
 };
 
 #endif

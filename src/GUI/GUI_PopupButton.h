@@ -38,7 +38,7 @@ public:
 						 GUI_PopupButton();
 	virtual				~GUI_PopupButton();
 
-	virtual	void		SetDescriptor(const string& inDesc);
+	virtual	void		SetDescriptor(const std::string& inDesc);
 	virtual	void		Draw(GUI_GraphState * state);
 
 	virtual	int			MouseDown(int x, int y, int button);
@@ -49,7 +49,7 @@ public:
 
 private:
 
-		vector<string>		mItems;
+		std::vector<std::string>		mItems;
 
 };
 

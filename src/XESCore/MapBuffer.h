@@ -27,7 +27,7 @@
 #include "MapDefs.h"
 #include "MapPolygon.h"
 
-// A tagged polygon is a set of curves such that the end points are all linked to form a polygon.  This allows you
+// A tagged polygon is a std::set of curves such that the end points are all linked to form a polygon.  This allows you
 // to have a per-edge parameter.
 typedef vector<Curve_2>				TaggedPolygon_t;
 
@@ -41,7 +41,7 @@ void	UntagPolygon(
 
 
 // Polygon buffering - positive inset means smaller.  If "in_insets" is not null, it must be one inset per side.  The inset array
-// must always be positive - use in_inset (the master scale) for outset.  A new polygon set is returned that contains the area
+// must always be positive - use in_inset (the master scale) for outset.  A new polygon std::set is returned that contains the area
 // contained by the original polygon after the buffering op.
 
 // Input polygons:

@@ -91,7 +91,7 @@ void MeshSimplify::run_vertex(CDT::Vertex_handle q)
 	// Collect the neighbors first; once we remove q, the connectivity to
 	// our neighbors will be gone!
 	
-	list<CDT::Vertex_handle>	neighbors;
+	std::list<CDT::Vertex_handle>	neighbors;
 	CDT::Vertex_circulator circ, stop;
 	circ = stop = q->incident_vertices();
 	do {
@@ -129,7 +129,7 @@ void MeshSimplify::run_vertex(CDT::Vertex_handle q)
 		DebugAssert("!Why were we in the Q??");
 	}
 	
-	for(list<CDT::Vertex_handle>::iterator n = neighbors.begin(); n != neighbors.end(); ++n)
+	for(std::list<CDT::Vertex_handle>::iterator n = neighbors.begin(); n != neighbors.end(); ++n)
 	{
 		update_q(*n);
 	}
@@ -231,7 +231,7 @@ bool	 MeshSimplify::can_remove_topo(CDT::Vertex_handle p, CDT::Vertex_handle q, 
 
 #if 0
 	
-	// The original paper suggested that we iterate around the platelet of 'q' and make sure that the entire set of sub-contours
+	// The original paper suggested that we iterate around the platelet of 'q' and make sure that the entire std::set of sub-contours
 	// between p and r are both (1) fully on one side of the PR supporting line and (2) not on the SAME side of the PR supporting line.
 	//
 	// THIS IS NOT GOOD ENOUGH!!  OBSERVE:
@@ -253,7 +253,7 @@ bool	 MeshSimplify::can_remove_topo(CDT::Vertex_handle p, CDT::Vertex_handle q, 
 	//
 	//
 
-	list<Point_2>	pr, rp;
+	std::list<Point_2>	pr, rp;
 
 	// Start with face to left of qr.
 	CDT::Face_circulator f = q->incident_faces(qr.first);
@@ -313,7 +313,7 @@ bool	 MeshSimplify::can_remove_topo(CDT::Vertex_handle p, CDT::Vertex_handle q, 
 }
 
 // This tells us if q can be removed from a network topology standpoint - we can't do this
-// if q's degree isn't 2.  If we CAN remove, p and r are set to the neighboring vertices.
+// if q's degree isn't 2.  If we CAN remove, p and r are std::set to the neighboring vertices.
 bool MeshSimplify::can_remove_locked(CDT::Vertex_handle q, CDT::Vertex_handle& p, CDT::Vertex_handle& r)
 {
 	if(IsEdgeVertex(mesh, q)) return false;

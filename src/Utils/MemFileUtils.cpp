@@ -159,11 +159,11 @@ struct	MFFileSet {
 
 	MF_FileType			mType;			// Type of directory (directory, zip files, or gz tar ball.
 	bool				mHasListing;	// Is the dir listing already loaded?
-	string				mPath;			// Our path
+	std::string				mPath;			// Our path
 	unzFile				mZipFile;		// The open zip archive for zip files
-	vector<string>		mNames;			// Per file - filename
-	vector<int>			mSizes;			// Per file - size of this file in bytes
-	vector<char *>		mFileData;		// Per file - bytes of this file if pre-loaded (NULLs allowed to keep array ok.)
+	std::vector<std::string>		mNames;			// Per file - filename
+	std::vector<int>			mSizes;			// Per file - size of this file in bytes
+	std::vector<char *>		mFileData;		// Per file - bytes of this file if pre-loaded (NULLs allowed to keep array ok.)
 };
 
 struct	MFMemFile {
@@ -182,11 +182,11 @@ struct	MFMemFile {
 
 /*
 	Three kinds of file sets:
-	- File set made from a directory...lazily create directory.  Test files with stat or open.
+	- File std::set made from a directory...lazily create directory.  Test files with stat or open.
 	  Create a regular mem file for each entry using the regular file.
-	- File set made from a zip archive.  Immediately decompress the headers.  Decompress a file as
+	- File std::set made from a zip archive.  Immediately decompress the headers.  Decompress a file as
 	  need for an individual file, then nuke it when done.
-	- File set made from a gz tar ball...immediately unzip, process whole tar ball keeping various
+	- File std::set made from a gz tar ball...immediately unzip, process whole tar ball keeping various
 	  file chunks around.  Just return the buffer on open, don't nuke it later.
 
 	A few kinds of files:
@@ -199,7 +199,7 @@ struct	MFMemFile {
 
 bool	StringVectorCB(const char * fname, bool dir, void * ref)
 {
-	vector<string> * v = (vector<string> *) ref;
+	std::vector<std::string> * v = (std::vector<std::string> *) ref;
 	v->push_back(fname);
 	return false;
 }
@@ -308,7 +308,7 @@ MFFileSet *		FileSet_Open(const char * inPath)
 
 void			FileSet_Close(MFFileSet * fs)
 {
-	for (vector<char *>::iterator i = fs->mFileData.begin(); i != fs->mFileData.end(); ++i)
+	for (std::vector<char *>::iterator i = fs->mFileData.begin(); i != fs->mFileData.end(); ++i)
 	{
 		if (*i)
 			free(*i);
@@ -352,7 +352,7 @@ MFMemFile *		FileSet_OpenNth(MFFileSet * fs, int n)
 
 	if (fs->mType == mf_Directory)
 	{
-		string	fpath = fs->mPath + DIR_CHAR + fs->mNames[n];
+		std::string	fpath = fs->mPath + DIR_CHAR + fs->mNames[n];
 		return MemFile_Open(fpath.c_str());
 	} else if (fs->mType == mf_ZipFile || fs->mType == mf_ZipFiles) {
 
@@ -388,7 +388,7 @@ MFMemFile *		FileSet_OpenSpecific(MFFileSet * fs, const char * fname)
 {
 	if (fs->mType == mf_Directory)
 	{
-		string fpath = fs->mPath + DIR_CHAR + fname;
+		std::string fpath = fs->mPath + DIR_CHAR + fname;
 		return MemFile_Open(fpath.c_str());
 	} else if (fs->mType == mf_ZipFiles || fs->mType == mf_ZipFile)
 	{
@@ -653,7 +653,7 @@ char			TextScanner_ExtractChar(MFTextScanner * inScanner, int inBegin)
 	return *(line + inBegin);
 }
 
-void			TextScanner_ExtractString(MFTextScanner * inScanner, int inBegin, int inEnd, string& outString, bool inTrim)
+void			TextScanner_ExtractString(MFTextScanner * inScanner, int inBegin, int inEnd, std::string& outString, bool inTrim)
 {
 	const char * line = TextScanner_GetBegin(inScanner);
 	const char * sp = line + inBegin;
@@ -663,7 +663,7 @@ void			TextScanner_ExtractString(MFTextScanner * inScanner, int inBegin, int inE
 	while (sp < ep && isspace(*(ep-1)))
 		--ep;
 
-	outString = string(sp, ep);
+	outString = std::string(sp, ep);
 }
 
 long			TextScanner_ExtractLong(MFTextScanner * inScanner, int inBegin, int inEnd)
@@ -764,15 +764,15 @@ void	TextScanner_TokenizeLine(MFTextScanner * inScanner, const char * inDelim, c
 
 static 	bool TokenizeToVector(const char * inBegin, const char * inEnd, void * inRef)
 {
-	pair<vector<string>,int> * v = (pair<vector<string>,int> *) inRef;
+	std::pair<std::vector<std::string>,int> * v = (std::pair<std::vector<std::string>,int> *) inRef;
 
-	v->first.push_back(string(inBegin, inEnd));
+	v->first.push_back(std::string(inBegin, inEnd));
 	return v->first.size() < v->second;
 }
 
 int				TextScanner_FormatScan(MFTextScanner * inScanner, const char * fmt, ...)
 {
-	pair<vector<string>, int>	tokens;
+	std::pair<std::vector<std::string>, int>	tokens;
 	const  char * stop_pt = strstr(fmt, "|");
 	int inMax = (stop_pt ? (stop_pt - fmt - 1) : -1);
 	tokens.second = strlen(fmt);
@@ -785,7 +785,7 @@ int				TextScanner_FormatScan(MFTextScanner * inScanner, const char * fmt, ...)
 	int * iptr;
 	short * sptr;
 	char * tptr;
-	string *	Tptr;
+	std::string *	Tptr;
 
 	while (*fmt && n < tokens.first.size())
 	{
@@ -795,7 +795,7 @@ int				TextScanner_FormatScan(MFTextScanner * inScanner, const char * fmt, ...)
 		case 'i':	iptr = va_arg(arg, int*);			*iptr = atoi(tokens.first[n].c_str());			break;
 		case 's':	sptr = va_arg(arg, short*);			*sptr = atoi(tokens.first[n].c_str());			break;
 		case 't':	tptr = va_arg(arg, char*);			strcpy(tptr,tokens.first[n].c_str());				break;
-		case 'T':	Tptr = va_arg(arg, string*);		*Tptr = tokens.first[n];							break;
+		case 'T':	Tptr = va_arg(arg, std::string*);		*Tptr = tokens.first[n];							break;
 		}
 		++fmt;
 		++n;
@@ -816,7 +816,7 @@ bool	MF_IterateDirectory(const char * dirPath, bool (* cbFunc)(const char * file
 	{
 		struct stat ss;
 
-		string	fullPath(dirPath);
+		std::string	fullPath(dirPath);
 		fullPath += DIR_CHAR;
 		fullPath += ent->d_name;
 
@@ -1007,7 +1007,7 @@ MF_GetDirectoryBulk(
 		        ( strcmp ( ent->d_name, ".." ) ==0 ) )
 			continue;
 
-		string	fullPath ( path );
+		std::string	fullPath ( path );
 		fullPath += DIR_CHAR;
 		fullPath += ent->d_name;
 
@@ -1123,17 +1123,17 @@ int		MFS_done(MFScanner * s)
 }
 
 
-void	MFS_string_eol(MFScanner * s, string * out_string)
+void	MFS_string_eol(MFScanner * s, std::string * out_string)
 {
 	while(s->cur<s->end && isspace(*s->cur) && !iseoln(*s->cur) )s->cur++;	const char * c1=s->cur;
-	while(s->cur<s->end && !iseoln(*s->cur)						)s->cur++;	const char * c2=s->cur;	if(out_string)*out_string=string(c1,c2);
+	while(s->cur<s->end && !iseoln(*s->cur)						)s->cur++;	const char * c2=s->cur;	if(out_string)*out_string=std::string(c1,c2);
 	while(s->cur<s->end && (iseoln(*s->cur) || isspace(*s->cur)))s->cur++;
 }
 
-void	MFS_string(MFScanner * s, string * out_string)
+void	MFS_string(MFScanner * s, std::string * out_string)
 {
 	while(s->cur<s->end &&  isspace(*s->cur) && !iseoln(*s->cur)	)s->cur++;	const char* c1=s->cur;
-	while(s->cur<s->end && !isspace(*s->cur) && !iseoln(*s->cur)	)s->cur++;	const char* c2=s->cur;	if(out_string)*out_string=string(c1,c2);
+	while(s->cur<s->end && !isspace(*s->cur) && !iseoln(*s->cur)	)s->cur++;	const char* c2=s->cur;	if(out_string)*out_string=std::string(c1,c2);
 }
 
 int		MFS_string_match(MFScanner * s, const char * input, int eol_ok)
@@ -1230,12 +1230,12 @@ double	MFS_double(MFScanner * s)
 // X-Plane uses standard headers for most of its files...the format is:
 //
 // A|I
-// <version number> [copy right string]
+// <version number> [copy right std::string]
 // [identifier]
 //
 // This routine returns the version number of the file, or 0 if the header doesn't match.
 
-int		MFS_xplane_header(MFScanner * s, int * versions, const char * identifier, string * copyright)
+int		MFS_xplane_header(MFScanner * s, int * versions, const char * identifier, std::string * copyright)
 {
 	// Sanity checks!
 	if(s->begin==NULL) return 0;
@@ -1250,7 +1250,7 @@ int		MFS_xplane_header(MFScanner * s, int * versions, const char * identifier, s
 	MFS_string_eol(s,NULL);
 	if(scan_frst_chr!='A' && scan_frst_chr!='I')return 0;
 
-	// Second line: version.  Copyright string might optionally be after.
+	// Second line: version.  Copyright std::string might optionally be after.
 	int scan_vers_int=MFS_int(s);
 	MFS_string_eol(s,copyright);
 	int n=0;

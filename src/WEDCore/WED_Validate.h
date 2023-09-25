@@ -204,22 +204,22 @@ struct	validation_error_t {
 	// This constructor creates a validation error with a single object ("who") participating.  Due to C++ weirdness
 	// we have to template; the assumption is that "who" is a WED_Thing derivative.
 	template <typename T>
-	validation_error_t(const string& m, validate_error_t error_code, T * who, WED_Airport * a) :
+	validation_error_t(const std::string& m, validate_error_t error_code, T * who, WED_Airport * a) :
 	msg(m), airport(a), err_code(error_code) { bad_objects.push_back(who); }
 
 	// This constructor takes an arbitrary container of ptrs to WED_Thing derivatives and builds a single validation
 	// failure with every object listed.
 	template <typename T>
-	validation_error_t(const string& m, validate_error_t error_code, const T& container, WED_Airport * a) :
+	validation_error_t(const std::string& m, validate_error_t error_code, const T& container, WED_Airport * a) :
 	msg(m), airport(a), err_code(error_code) { copy(container.begin(), container.end(), back_inserter(bad_objects)); }
 
 	WED_Airport *		airport;		// NULL if error is in an object outside ANY airport
-	vector<WED_Thing *>	bad_objects;	// object(s) involved in the validation error - at least one required.
-	string				msg;
+	std::vector<WED_Thing *>	bad_objects;	// object(s) involved in the validation error - at least one required.
+	std::string				msg;
 	validate_error_t	err_code;
 };
 
-typedef vector<validation_error_t> validation_error_vector;
+typedef std::vector<validation_error_t> validation_error_vector;
 
 enum validation_result_t {
 	validation_errors = 0,

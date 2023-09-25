@@ -30,7 +30,7 @@
 
 #define KPIXELS 2     // maximum texture size per side in kibi-pixels before splitting up orthos at import into smaller chunks
 
-WED_Ring * WED_RingfromImage(char * path, WED_Archive * arch, WED_MapZoomerNew * zoomer, bool use_bezier, vector<Point2> * gcp)
+WED_Ring * WED_RingfromImage(char * path, WED_Archive * arch, WED_MapZoomerNew * zoomer, bool use_bezier, std::vector<Point2> * gcp)
 {
 	Point2	coords[4];
 	int has_geo = 0;
@@ -172,13 +172,13 @@ void	WED_MakeOrthos(IResolver * inResolver, WED_MapZoomerNew * zoomer)
 		int last_answer = -1;  // on multi-file import, only ask _once_ to use full or reduced size import
 		while(*path)
 		{
-			string base_tex(FILE_get_file_name(path));
-			string img_path(path);
+			std::string base_tex(FILE_get_file_name(path));
+			std::string img_path(path);
 			lib->ReducePath(img_path);
 				
 			if (base_tex.find(" ") == base_tex.npos && img_path[0] != '.' && img_path[0] != DIR_CHAR && img_path[1] != ':')
 			{
-				vector<Point2> gcp;
+				std::vector<Point2> gcp;
 				WED_Ring * rng0 = WED_RingfromImage(path, arch, zoomer, true, &gcp);
 				int gcp_divs = intround(sqrt(gcp.size()));
 				if (rng0)
@@ -267,7 +267,7 @@ void	WED_MakeOrthos(IResolver * inResolver, WED_MapZoomerNew * zoomer)
 								dpol->SetResource(img_path);
 								dpol->SetSubTexture(b);             // Turn on auto-redraping. So one can punch holes into them w/o distortion.
 
-								string::size_type pos = base_tex.find_last_of('.');
+								std::string::size_type pos = base_tex.find_last_of('.');
 								char s[10] = ""; if(x0 > 0 || y0 > 0) snprintf(s,10,"+%dk+%dk", x0, y0);
 								dpol->SetName(base_tex.substr(0,pos) + s + base_tex.substr(pos));
 

@@ -52,10 +52,10 @@
 struct open_doc_t {
 	WED_Document *			d;
 	WED_DocumentWindow *	w;
-	string					n;
+	std::string					n;
 };
 
-static vector<open_doc_t>	sDocs;
+static std::vector<open_doc_t>	sDocs;
 
 static int kDefaultBounds[4] = { 0, 0, 700, 500 };
 
@@ -160,7 +160,7 @@ WED_StartWindow::~WED_StartWindow()
 	delete mPackageList;
 }
 
-void	WED_StartWindow::ShowMessage(const string& msg)
+void	WED_StartWindow::ShowMessage(const std::string& msg)
 {
 	mCaption = msg;
 	if (mCaption.empty())
@@ -171,7 +171,7 @@ void	WED_StartWindow::ShowMessage(const string& msg)
 		if (gPackageMgr->HasSystemFolder())
 		{
 			bool autostart(false);
-			string name(gApplication->args.get_value("--package"));
+			std::string name(gApplication->args.get_value("--package"));
 			if(name.empty())
 			{
 				gPackageMgr->GetRecentName(name);
@@ -244,7 +244,7 @@ void	WED_StartWindow::Draw(GUI_GraphState * state)
 		}
 	}
 
-	string m(mCaption);
+	std::string m(mCaption);
 	if (mCaption.empty())
 	{
 		GUI_DrawStretched(state, "startup_bar.png", child, kTileAll);
@@ -252,8 +252,8 @@ void	WED_StartWindow::Draw(GUI_GraphState * state)
 		if (mScroller->IsVisible()) 
 		{
 			gPackageMgr->GetXPlaneFolder(m);
-			m = string("Scenery packages in: ") + m;
-			m += "  ( X-Plane version " + string(gPackageMgr->GetXPversion()) + " )";
+			m = std::string("Scenery packages in: ") + m;
+			m += "  ( X-Plane version " + std::string(gPackageMgr->GetXPversion()) + " )";
 			child[3] = me[3] - MARGIN_AT_TOP + (MARGIN_AT_TOP-f) * 0.5 + 3 ;
 		} 
 		else 
@@ -344,7 +344,7 @@ int			WED_StartWindow::HandleCommand(int command)
 		{
 			if (!gPackageMgr->SetXPlaneFolder(buf))
 			{
-				string msg = string("'") + buf + "' is not the base of a X-Plane installation.\n"
+				std::string msg = std::string("'") + buf + "' is not the base of a X-Plane installation.\n"
 				                + "It needs to have 'Custom Scenery' and 'Resources/default scenery' folders inside it.";
 				DoUserAlert(msg.c_str());
 			}	
@@ -360,7 +360,7 @@ int			WED_StartWindow::HandleCommand(int command)
 		if (!gPackageMgr->HasSystemFolder()) return 1;
 		if (mPackageList->HasSelection())
 		{
-			string name;
+			std::string name;
 			int n = mPackageList->GetSelection(&name);
 			//gPackageMgr->GetNthCustomPackagePath(n,path);
 
@@ -381,7 +381,7 @@ int			WED_StartWindow::HandleCommand(int command)
 					mPackageList->LockPackage(nd.n);
 					gPackageMgr->SetRecentName(name);
 					nd.d->AddListener(this);
-				} catch(exception& e) {
+				} catch(std::exception& e) {
 					DoUserAlert(e.what());				
 				} catch (...) {
 					DoUserAlert("An unknown error occurred.");
@@ -394,7 +394,7 @@ int			WED_StartWindow::HandleCommand(int command)
 
 }
 
-int			WED_StartWindow::CanHandleCommand(int command, string& ioName, int& ioCheck)
+int			WED_StartWindow::CanHandleCommand(int command, std::string& ioName, int& ioCheck)
 {
 	switch(command) {
 	case wed_NewPackage:	return gPackageMgr->HasSystemFolder();

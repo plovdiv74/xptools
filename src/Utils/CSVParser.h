@@ -32,23 +32,23 @@ public:
 	class CSVTable
 	{
 	public:
-		typedef vector<string> CSVRow;
+		typedef std::vector<std::string> CSVRow;
 		
 		//A header is just a special row
 		typedef CSVRow CSVHeader;
 		
 	
-		CSVTable(const CSVHeader& header, const vector<CSVRow>& rows) : mHeader(header), mRows(rows) { }
+		CSVTable(const CSVHeader& header, const std::vector<CSVRow>& rows) : mHeader(header), mRows(rows) { }
 		~CSVTable() { }
 
 		const CSVHeader& GetHeader() const { return mHeader; }
-		const vector<CSVRow>& GetRows() const { return mRows; }
+		const std::vector<CSVRow>& GetRows() const { return mRows; }
 	private:
 		CSVHeader      mHeader;
-		vector<CSVRow> mRows;
+		std::vector<CSVRow> mRows;
 	};
 
-	CSVParser(char delimiter, const string& input);
+	CSVParser(char delimiter, const std::string& input);
 	CSVTable ParseCSV();
 	
 private:
@@ -63,13 +63,13 @@ private:
 	};
 
 	// Given the current state, consume the current character and return the new state, taking all actions needed.
-	FSM LookupTable(FSM current_state, int pos, string & token);
+	FSM LookupTable(FSM current_state, int pos, std::string & token);
 	
 	//Delimiter to look for (,,\t,;,etc)
 	char mDelimiter;
 
 	//Input for the parser
-	const string& mInput;
+	const std::string& mInput;
 };
 
 #if DEV

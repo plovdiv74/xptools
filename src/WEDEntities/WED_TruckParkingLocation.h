@@ -21,7 +21,7 @@ public:
 
 	void	SetTruckType(int truckType);
 	int		GetTruckType(void) const;
-	string	GetTruckCustom(void) const;
+	std::string	GetTruckCustom(void) const;
 
 	void	SetNumberOfCars(int numberOfCars);
 	int		GetNumberOfCars(void) const;

@@ -108,7 +108,7 @@ void		WED_Map::AddLayer(WED_MapLayer * layer)
 	mLayers.push_back(layer);
 }
 
-void		WED_Map::SetFilter(const string& filterName, const MapFilter_t& hide_filter, const MapFilter_t& lock_filter)
+void		WED_Map::SetFilter(const std::string& filterName, const MapFilter_t& hide_filter, const MapFilter_t& lock_filter)
 {
 	mFilterName = filterName;
 	mHideFilter = hide_filter;
@@ -151,7 +151,7 @@ void		WED_Map::Draw(GUI_GraphState * state)
 	glClear(GL_DEPTH_BUFFER_BIT);
 	state->EnableDepth(false,false);
 
-	vector<WED_MapLayer *>::iterator l;
+	std::vector<WED_MapLayer *>::iterator l;
 	for (l = mLayers.begin(); l != mLayers.end(); ++l)
 	if((*l)->IsVisible())
 	{
@@ -217,13 +217,13 @@ void		WED_Map::Draw(GUI_GraphState * state)
 
 	{
 		WED_Airport * apt = WED_GetCurrentAirport(mResolver);
-		string n = "(No current airport.)";
+		std::string n = "(No current airport.)";
 		if (apt)
 		{
-			string an, icao;
+			std::string an, icao;
 			apt->GetName(an);
 			apt->GetICAO(icao);
-			n = an + string("(") + icao + string(")");
+			n = an + std::string("(") + icao + std::string(")");
 		}
 		GUI_FontDraw(state, font_UI_Basic, white, b[0]+5,b[3] - 3.0*textH, n.c_str());
 	}
@@ -432,7 +432,7 @@ int			WED_Map::MouseDown(int x, int y, int button)
 	if(button==0)
 	{
 		mClickLayer = NULL;
-		for(vector<WED_MapLayer *>::iterator l = mLayers.begin(); l != mLayers.end(); ++l)
+		for(std::vector<WED_MapLayer *>::iterator l = mLayers.begin(); l != mLayers.end(); ++l)
 		{
 			bool draw_ent_v, draw_ent_s, wants_sel, wants_clicks;
 			(*l)->GetCaps(draw_ent_v, draw_ent_s, wants_sel, wants_clicks);

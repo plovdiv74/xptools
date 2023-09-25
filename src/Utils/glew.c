@@ -295,10 +295,10 @@ static GLboolean _glewStrSame3 (const GLubyte** a, GLuint* na, const GLubyte* b,
 }
 
 /*
- * Search for name in the extensions string. Use of strstr()
+ * Search for name in the extensions std::string. Use of strstr()
  * is not sufficient because extension names can be prefixes of
  * other extension names. Could use strtok() but the constant
- * string returned by glGetString might be in read-only memory.
+ * std::string returned by glGetString might be in read-only memory.
  */
 #if !defined(GLEW_OSMESA)
 #if !defined(__APPLE__) || defined(GLEW_APPLE_GLX)
@@ -6486,9 +6486,9 @@ static const char * _glewExtensionLookup[] = {
   NULL
 };
 
-/* Detected in the extension string or strings */
+/* Detected in the extension std::string or strings */
 static GLboolean  _glewExtensionString[801];
-/* Detected via extension string or experimental mode */
+/* Detected via extension std::string or experimental mode */
 static GLboolean* _glewExtensionEnabled[] = {
 #ifdef GL_VERSION_1_2
   &__GLEW_VERSION_1_2,
@@ -16239,12 +16239,12 @@ static GLenum GLEWAPIENTRY glewContextInit ()
       {
         ext = (const char *) getStringi(GL_EXTENSIONS, i);
 
-        /* Based on extension string(s), glewGetExtension purposes */
+        /* Based on extension std::string(s), glewGetExtension purposes */
         enable = _glewGetExtensionString(ext);
         if (enable)
           *enable = GL_TRUE;
 
-        /* Based on extension string(s), experimental mode, glewIsSupported purposes */
+        /* Based on extension std::string(s), experimental mode, glewIsSupported purposes */
         enable = _glewGetExtensionEnable(ext);
         if (enable)
           *enable = GL_TRUE;
@@ -16269,17 +16269,17 @@ static GLenum GLEWAPIENTRY glewContextInit ()
         i = _glewNextNonSpace(i);
         j = _glewNextSpace(i);
 
-        /* Copy extension into NUL terminated string */
+        /* Copy extension into NUL terminated std::string */
         if (j-i >= (ptrdiff_t) sizeof(ext))
           continue;
         _glewStrCopy(ext, i, ' ');
 
-        /* Based on extension string(s), glewGetExtension purposes */
+        /* Based on extension std::string(s), glewGetExtension purposes */
         enable = _glewGetExtensionString(ext);
         if (enable)
           *enable = GL_TRUE;
 
-        /* Based on extension string(s), experimental mode, glewIsSupported purposes */
+        /* Based on extension std::string(s), experimental mode, glewIsSupported purposes */
         enable = _glewGetExtensionEnable(ext);
         if (enable)
           *enable = GL_TRUE;
@@ -18364,7 +18364,7 @@ GLenum eglewInit (EGLDisplay display)
   EGLEW_VERSION_1_1   = EGLEW_VERSION_1_2 == GL_TRUE || ( major == 1 && minor >= 1 ) ? GL_TRUE : GL_FALSE;
   EGLEW_VERSION_1_0   = EGLEW_VERSION_1_1 == GL_TRUE || ( major == 1 && minor >= 0 ) ? GL_TRUE : GL_FALSE;
 
-  /* query EGL extension string */
+  /* query EGL extension std::string */
   extStart = (const GLubyte*) queryString(display, EGL_EXTENSIONS);
   if (extStart == 0)
     extStart = (const GLubyte *)"";
@@ -19527,10 +19527,10 @@ GLenum GLEWAPIENTRY wglewInit ()
   GLboolean crippled;
   const GLubyte* extStart;
   const GLubyte* extEnd;
-  /* find wgl extension string query functions */
+  /* find wgl extension std::string query functions */
   _wglewGetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC)glewGetProcAddress((const GLubyte*)"wglGetExtensionsStringARB");
   _wglewGetExtensionsStringEXT = (PFNWGLGETEXTENSIONSSTRINGEXTPROC)glewGetProcAddress((const GLubyte*)"wglGetExtensionsStringEXT");
-  /* query wgl extension string */
+  /* query wgl extension std::string */
   if (_wglewGetExtensionsStringARB == NULL)
     if (_wglewGetExtensionsStringEXT == NULL)
       extStart = (const GLubyte*)"";
@@ -20566,7 +20566,7 @@ GLenum glxewInit ()
       break;
     }
   }
-  /* query GLX extension string */
+  /* query GLX extension std::string */
   extStart = 0;
   if (glXGetCurrentDisplay != NULL)
     extStart = (const GLubyte*)glXGetClientString(display, GLX_EXTENSIONS);

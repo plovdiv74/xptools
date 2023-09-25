@@ -39,7 +39,7 @@ struct	CoordTranslator2 {
 
 
 // BEN SAYS: part of the goal here is to start REMOVING code that was based on UNSTABLE math and have
-// ONE set of master algorithms, based on robust CGAL foundations.  So..just about all of the polygon code
+// ONE std::set of master algorithms, based on robust CGAL foundations.  So..just about all of the polygon code
 // running on non-CGAL is being removed.
 
 #if 0
@@ -82,7 +82,7 @@ void	InsetPolygon3(
 /*
  * CalcMaxInset
  *
- * Given a CCW polygon and a vector of distances to inset the
+ * Given a CCW polygon and a std::vector of distances to inset the
  * polygon, this routine will calculate the maximum multiplyer
  * for those distances that the polygon may be inset before
  * the inset polygon becomes non-simple.  At this inset point,
@@ -103,7 +103,7 @@ void	InsetPolygon3(
  * the maximum simple inset not contain islands!
  *
  * When calculating a ring, collision of the beginning and end
- * of the ring are not detected; for this reason, set inIsRing
+ * of the ring are not detected; for this reason, std::set inIsRing
  * to true even for non-ring collisions.  This is not perfect but
  * will produce strange results less often.
  *
@@ -134,14 +134,14 @@ void ExtendBoundingSphereToSphere(const Sphere3& newSphere, Sphere3& ioSphere);
 /*
  * FastBoundingSphere
  *
- * Given an unsorted list of points this routine calculates an
+ * Given an unsorted std::list of points this routine calculates an
  * approximate bounding sphere that contains all of them.  It does not
  * calculate the absolutely smallest bounding sphere (which is very slow)
  * but calculates a very close approximation.
  *
  */
 void	FastBoundingSphere(
-				const vector<Point3>&		inPoints,
+				const std::vector<Point3>&		inPoints,
 				Sphere3&					outSphere);
 
 /*
@@ -161,8 +161,8 @@ bool	PointInPolygon3(
  *
  * Given two points and up to 2 control points, create a chain of points that
  * represents this bezier curve.  inStart and inEnda re always the first and last
- * points in the vector.  inNumSegments is how many segments to create.  There will
- * be inNumSegments+1 points in the vector _unless_ there is not a start or end
+ * points in the std::vector.  inNumSegments is how many segments to create.  There will
+ * be inNumSegments+1 points in the std::vector _unless_ there is not a start or end
  * curve.  (In this case, the straight line is created with two end points and no
  * intermediate points.)
  *
@@ -182,7 +182,7 @@ void	BezierCurve(
 				int							inNumSegments,
 				double						inProtectStart,
 				double						inProtectEnd,
-				vector<Point3>&				outPoints);
+				std::vector<Point3>&				outPoints);
 
 /*
  * ChainToQuadStrip
@@ -193,13 +193,13 @@ void	BezierCurve(
  *
  */
 void	ChainToQuadStrip(
-				const vector<Point3>&		inChain,
-				const vector<Vector3>&		inUp,
-				const vector<double>&		inWidth,
-				vector<Point3>&				outQuadStrip);
+				const std::vector<Point3>&		inChain,
+				const std::vector<Vector3>&		inUp,
+				const std::vector<double>&		inWidth,
+				std::vector<Point3>&				outQuadStrip);
 
 void	ReverseQuadStrip(
-				vector<Point3>&				ioQuadStrip);
+				std::vector<Point3>&				ioQuadStrip);
 
 /*
  * RemoveEndsFromQuadStrip
@@ -217,15 +217,15 @@ void	ReverseQuadStrip(
  *
  */
 void	RemoveFromQuadStripFront(
-				vector<Point3>&				ioChain,
+				std::vector<Point3>&				ioChain,
 				double						inRemoveFromStart,
-				vector<Point3>&				outFront,
+				std::vector<Point3>&				outFront,
 				bool						inTrimOffBevel);
 
 void	RemoveFromQuadStripBack(
-				vector<Point3>&				ioChain,
+				std::vector<Point3>&				ioChain,
 				double						inRemoveFromEnd,
-				vector<Point3>&				outBack,
+				std::vector<Point3>&				outBack,
 				bool						inTrimOffBevel);
 
 /*
@@ -237,7 +237,7 @@ void	RemoveFromQuadStripBack(
  *
  */
 double	LongerSideOfQuad(
-				const vector<Point3>&		inChain);
+				const std::vector<Point3>&		inChain);
 
 /*
  * ClipToHalfPlane3
@@ -307,12 +307,12 @@ void	MakePolygonConvex(Polygon2& ioPolygon);
 
 
 // union (A OR B) of two multi winding polygons. Outer contours clockwise, holes counter-clockwise
-vector<Polygon2> PolygonUnion(const vector<Polygon2>& mpolyA, const vector<Polygon2>& mpolyB);
+std::vector<Polygon2> PolygonUnion(const std::vector<Polygon2>& mpolyA, const std::vector<Polygon2>& mpolyB);
 
 // intersection (A AND B)
-vector<Polygon2> PolygonIntersect(const vector<Polygon2>& mpolyA, const vector<Polygon2>& mpolyB);
+std::vector<Polygon2> PolygonIntersect(const std::vector<Polygon2>& mpolyA, const std::vector<Polygon2>& mpolyB);
 
 // cut away B from A (A not B)
-vector<Polygon2> PolygonCut(const vector<Polygon2>& mpolyA, const vector<Polygon2>& mpolyB);
+std::vector<Polygon2> PolygonCut(const std::vector<Polygon2>& mpolyA, const std::vector<Polygon2>& mpolyB);
 
 #endif

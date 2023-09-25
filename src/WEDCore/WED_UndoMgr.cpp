@@ -64,7 +64,7 @@ static const char * trim_file(const char * p)
 	return ret;
 }
 
-void	WED_UndoMgr::__StartCommand(const string& inName, const char * file, int line)
+void	WED_UndoMgr::__StartCommand(const std::string& inName, const char * file, int line)
 {
 	while(mUndo.size() > MAX_UNDO_LEVELS)
 	{
@@ -135,7 +135,7 @@ bool	WED_UndoMgr::UndoToMark(void)
 {
 	if (mUndoSinceMark < 0)
 	{
-		LOG_MSG("I/Undo UndoToMark fail for no mark set");
+		LOG_MSG("I/Undo UndoToMark fail for no mark std::set");
 		return true;
 	}
 
@@ -158,13 +158,13 @@ bool	WED_UndoMgr::HasRedo(void) const
 	return !mRedo.empty();
 }
 
-string	WED_UndoMgr::GetUndoName(void) const
+std::string	WED_UndoMgr::GetUndoName(void) const
 {
 	DebugAssert(!mUndo.empty());
 	return "&Undo " + mUndo.back()->GetName();
 }
 
-string	WED_UndoMgr::GetRedoName(void) const
+std::string	WED_UndoMgr::GetRedoName(void) const
 {
 	DebugAssert(!mRedo.empty());
 	return "&Redo " + mRedo.front()->GetName();

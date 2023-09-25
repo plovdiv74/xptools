@@ -63,7 +63,7 @@ class	WED_NWInfoLayer;
 
 	Note: the map pane is _not_ a commander.  Commanders participate in focus in a direct chain -- that is, two commanders can't "share" focus.  But
 	the map pane has to share focus with the property panes...that is, while keyboard focus is in the property pane, the map pane still has to be
-	in the chain so that some of the menu items, like "show terrasever" work.  So...we develop a separate set of APIs and let the document window
+	in the chain so that some of the menu items, like "show terrasever" work.  So...we develop a separate std::set of APIs and let the document window
 	"shop around" keyboard and menu choices to everyone.
 
 */
@@ -80,13 +80,13 @@ public:
 			void		ZoomShowSel(double scale = 1.05);   // scale is area shown vs size of object, i.e. by default 5% margin all around
 			void		CenterOnPoint(const Point2& centerLL);
 
-			void		SetResource(const string& r, int res_type);
+			void		SetResource(const std::string& r, int res_type);
 
 			GUI_Pane *	GetTopBar(void);
 
 			int				Map_KeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFlags)	 	;
 			int				Map_HandleCommand(int command) 									;
-			int				Map_CanHandleCommand(int command, string& ioName, int& ioCheck) ;
+			int				Map_CanHandleCommand(int command, std::string& ioName, int& ioCheck) ;
 	virtual	int				MouseMove(int x, int y);
 
 			void			FromPrefs(IDocPrefs * prefs);
@@ -104,8 +104,8 @@ private:
 
 	WED_Map *				mMap;
 
-	vector<WED_MapLayer *>	mLayers;
-	vector<WED_MapToolNew *>mTools;
+	std::vector<WED_MapLayer *>	mLayers;
+	std::vector<WED_MapToolNew *>mTools;
 
 	WED_SlippyMap *			mSlippyMap;
 	WED_StructureLayer *	mStructureLayer;

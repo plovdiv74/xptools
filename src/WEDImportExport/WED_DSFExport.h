@@ -30,11 +30,11 @@ class	WED_Airport;
 struct	DSF_export_info_t;
 
 // You will need the IResolver in case you're handling a orthophoto
-int DSF_Export(WED_Thing * base, IResolver * resolver, const string& in_package, set<WED_Thing *>& problem_items);
-int DSF_ExportTile(WED_Thing * base, IResolver * resolver, const string& pkg, int x, int y, set <WED_Thing *>& problem_children, DSF_export_info_t * export_info = nullptr);
+int DSF_Export(WED_Thing * base, IResolver * resolver, const std::string& in_package, std::set<WED_Thing *>& problem_items);
+int DSF_ExportTile(WED_Thing * base, IResolver * resolver, const std::string& pkg, int x, int y, std::set <WED_Thing *>& problem_children, DSF_export_info_t * export_info = nullptr);
 
 // 
-int DSF_ExportAirportOverlay(IResolver * resolver, WED_Airport  * who, const string& package, set<WED_Thing *>& problem_children);
+int DSF_ExportAirportOverlay(IResolver * resolver, WED_Airport  * who, const std::string& package, std::set<WED_Thing *>& problem_children);
 
 
 #endif /* WED_DSFExport_H */

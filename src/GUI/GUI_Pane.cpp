@@ -128,8 +128,8 @@ void		GUI_Pane::TrapFocus(void)
 #endif
 void GUI_Pane::PrintDebugInfo(int indentLevel)
 {
-	//Creates a temporary string
-	string temp;
+	//Creates a temporary std::string
+	std::string temp;
 	//gets the descriptor
 	GetDescriptor(temp);
 	//If it has a name
@@ -178,8 +178,8 @@ void GUI_Pane::PrintDebugInfo(int indentLevel)
 
 void GUI_Pane::FPrintDebugInfo(FILE * pFile, int indentLevel)
 {
-	//Creates a temporary string
-	string temp;
+	//Creates a temporary std::string
+	std::string temp;
 	//gets the descriptor
 	GetDescriptor(temp);
 	//If it has a name
@@ -266,11 +266,11 @@ GUI_Pane::~GUI_Pane()
 {
 	if (mParent)
 	{
-		vector<GUI_Pane *>::iterator self = find(mParent->mChildren.begin(),mParent->mChildren.end(), this);
+		std::vector<GUI_Pane *>::iterator self = find(mParent->mChildren.begin(),mParent->mChildren.end(), this);
 		if (self != mParent->mChildren.end())
 			mParent->mChildren.erase(self);
 	}
-	for (vector<GUI_Pane *>::iterator p = mChildren.begin(); p != mChildren.end(); ++p)
+	for (std::vector<GUI_Pane *>::iterator p = mChildren.begin(); p != mChildren.end(); ++p)
 	{
 		(*p)->mParent = NULL;	// prevent them from dialing us back!
 		delete *p;
@@ -296,7 +296,7 @@ void		GUI_Pane::SetParent(GUI_Pane * inParent)
 {
 	if (mParent != NULL)
 	{
-		vector<GUI_Pane *>::iterator me = find(mParent->mChildren.begin(),mParent->mChildren.end(), this);
+		std::vector<GUI_Pane *>::iterator me = find(mParent->mChildren.begin(),mParent->mChildren.end(), this);
 		if (me != mParent->mChildren.end())
 			mParent->mChildren.erase(me);
 	}
@@ -349,7 +349,7 @@ void		GUI_Pane::SetBounds(int inBounds[4])
 		oldBounds[2] != mBounds[2] ||
 		oldBounds[3] != mBounds[3])
 	{
-		for (vector<GUI_Pane *>::iterator c = mChildren.begin(); c != mChildren.end(); ++c)
+		for (std::vector<GUI_Pane *>::iterator c = mChildren.begin(); c != mChildren.end(); ++c)
 			(*c)->ParentResized(oldBounds, mBounds);
 		Refresh();
 	}
@@ -381,7 +381,7 @@ void		GUI_Pane::SetSticky(float inSticky[4])
 
 void		GUI_Pane::ParentResized(int inOldBounds[4], int inNewBounds[4])
 {
-	// Basically the rule is: if our sticky bit is set, follow our side, otherwise
+	// Basically the rule is: if our sticky bit is std::set, follow our side, otherwise
 	// follow the opposite side.  So both bits means we stretch, but one or the other
 	// means we are tied to that side.  We no-op on NO bits, to just leave us alone...
 	// having a field that follows both opposite walls is not really useful.
@@ -414,7 +414,7 @@ void		GUI_Pane::SetID(int id)
 GUI_Pane *	GUI_Pane::FindByID(int id)
 {
 	if (id == mID) return this;
-	for (vector<GUI_Pane *>::iterator c = mChildren.begin(); c != mChildren.end(); ++c)
+	for (std::vector<GUI_Pane *>::iterator c = mChildren.begin(); c != mChildren.end(); ++c)
 	{
 		GUI_Pane * who = (*c)->FindByID(id);
 		if (who) return who;
@@ -429,7 +429,7 @@ GUI_Pane *	GUI_Pane::FindByPoint(int x, int y)
 	GetBounds(bounds);
 	if (x < bounds[0] || x > bounds[2] || y < bounds[1] || y > bounds[3]) return NULL;
 
-	for (vector<GUI_Pane *>::iterator c = mChildren.begin(); c != mChildren.end(); ++c)
+	for (std::vector<GUI_Pane *>::iterator c = mChildren.begin(); c != mChildren.end(); ++c)
 	{
 		GUI_Pane * who = (*c)->FindByPoint(x,y);
 		if (who) return who;
@@ -438,12 +438,12 @@ GUI_Pane *	GUI_Pane::FindByPoint(int x, int y)
 }
 
 
-void		GUI_Pane::GetDescriptor(string& outDesc) const
+void		GUI_Pane::GetDescriptor(std::string& outDesc) const
 {
 	outDesc = mDesc;
 }
 
-void		GUI_Pane::SetDescriptor(const string& inDesc)
+void		GUI_Pane::SetDescriptor(const std::string& inDesc)
 {
 	mDesc = inDesc;
 }
@@ -551,7 +551,7 @@ int			GUI_Pane::TakeFocus(void)
 			return 0;
 	}
 
-	// Try to set the focus variable.  This is
+	// Try to std::set the focus variable.  This is
 	// handled by some smart superclass.  If this
 	// barfs, well, we're not focused.
 	if (this->InternalSetFocus(this))
@@ -608,7 +608,7 @@ void		GUI_Pane::InternalDraw(GUI_GraphState * state)
 		glScissor(vb[0], vb[1], vb[2]-vb[0], vb[3]-vb[1]);
 
 		this->Draw(state);
-		for (vector<GUI_Pane *>::iterator c = mChildren.begin(); c != mChildren.end(); ++c)
+		for (std::vector<GUI_Pane *>::iterator c = mChildren.begin(); c != mChildren.end(); ++c)
 		{
 			(*c)->InternalDraw(state);
 		}
@@ -623,7 +623,7 @@ GUI_Pane *	GUI_Pane::InternalMouseMove(int x, int y)
 			y >= mBounds[1] && y <= mBounds[3])
 		{
 			GUI_Pane * target;
-			for (vector<GUI_Pane *>::reverse_iterator c = mChildren.rbegin(); c != mChildren.rend(); ++c)
+			for (std::vector<GUI_Pane *>::reverse_iterator c = mChildren.rbegin(); c != mChildren.rend(); ++c)
 			{
 				target = (*c)->InternalMouseMove(x, y);
 				if (target) return target;
@@ -639,9 +639,9 @@ GUI_Pane *	GUI_Pane::InternalMouseDown(int x, int y, int button)
 {
 	if (mVisible)
 	{
-		for (set<GUI_Pane *>::iterator t = mTrap.begin(); t != mTrap.end();)
+		for (std::set<GUI_Pane *>::iterator t = mTrap.begin(); t != mTrap.end();)
 		{
-			set<GUI_Pane *>::iterator w(t);
+			std::set<GUI_Pane *>::iterator w(t);
 			++t;
 			if (!(*w)->TrapNotify(x,y,button))
 			mTrap.erase(w);
@@ -651,7 +651,7 @@ GUI_Pane *	GUI_Pane::InternalMouseDown(int x, int y, int button)
 			y >= mBounds[1] && y <= mBounds[3])
 		{
 			GUI_Pane * target;
-			for (vector<GUI_Pane *>::reverse_iterator c = mChildren.rbegin(); c != mChildren.rend(); ++c)
+			for (std::vector<GUI_Pane *>::reverse_iterator c = mChildren.rbegin(); c != mChildren.rend(); ++c)
 			{
 				target = (*c)->InternalMouseDown(x, y, button);
 				if (target) return target;
@@ -671,7 +671,7 @@ int			GUI_Pane::InternalMouseWheel(int x, int y, int dist, int axis)
 		if (x >= mBounds[0] && x <= mBounds[2] &&
 			y >= mBounds[1] && y <= mBounds[3])
 		{
-			for (vector<GUI_Pane *>::reverse_iterator c = mChildren.rbegin(); c != mChildren.rend(); ++c)
+			for (std::vector<GUI_Pane *>::reverse_iterator c = mChildren.rbegin(); c != mChildren.rend(); ++c)
 			{
 				if ((*c)->InternalMouseWheel(x, y, dist, axis)) return 1;
 			}
@@ -691,7 +691,7 @@ int			GUI_Pane::InternalGetCursor(int x, int y)
 		if (x >= mBounds[0] && x <= mBounds[2] &&
 			y >= mBounds[1] && y <= mBounds[3])
 		{
-			for (vector<GUI_Pane *>::reverse_iterator c = mChildren.rbegin(); c != mChildren.rend(); ++c)
+			for (std::vector<GUI_Pane *>::reverse_iterator c = mChildren.rbegin(); c != mChildren.rend(); ++c)
 			{
 				ret = (*c)->InternalGetCursor(x, y);
 				if (ret != gui_Cursor_None) return ret;
@@ -703,14 +703,14 @@ int			GUI_Pane::InternalGetCursor(int x, int y)
 	return ret;
 }
 
-int		GUI_Pane::InternalGetHelpTip(int x, int y, int tip_bounds[4], string& tip)
+int		GUI_Pane::InternalGetHelpTip(int x, int y, int tip_bounds[4], std::string& tip)
 {
 	if (mVisible)
 	{
 		if (x >= mBounds[0] && x <= mBounds[2] &&
 			y >= mBounds[1] && y <= mBounds[3])
 		{
-			for (vector<GUI_Pane *>::reverse_iterator c = mChildren.rbegin(); c != mChildren.rend(); ++c)
+			for (std::vector<GUI_Pane *>::reverse_iterator c = mChildren.rbegin(); c != mChildren.rend(); ++c)
 			{
 				if ((*c)->InternalGetHelpTip(x, y, tip_bounds, tip)) return 1;
 			}

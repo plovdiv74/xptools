@@ -58,7 +58,7 @@ bool	ReadShapeFile(
 			const char *			feature_desc,			// name of feature to use or feature file map to use
 			double					io_bounds[4],			// input: cropping box if desired.  output: actual map bounds.
 			double					simplify_mtr,			// For line imports: if > 0, apply this many meters maximum erro douglas-peuker to reduce vertex count.
-			int						grid_divisions,			// If > 0, granularity of the grid to apply.  This requires io_bounds to be set.
+			int						grid_divisions,			// If > 0, granularity of the grid to apply.  This requires io_bounds to be std::set.
 			ProgressFunc			inFunc);
 
 bool	RasterShapeFile(

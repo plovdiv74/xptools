@@ -46,7 +46,7 @@
 */
 typedef struct { TESShalfEdge e, eSym; } EdgePair;
 
-/* MakeEdge creates a new pair of half-edges which form their own loop.
+/* MakeEdge creates a new std::pair of half-edges which form their own loop.
 * No vertex or face structures are allocated, but these must be assigned
 * before the current edge operation is completed.
 */
@@ -61,10 +61,10 @@ static TESShalfEdge *MakeEdge( TESSmesh* mesh, TESShalfEdge *eNext )
 	e = &pair->e;
 	eSym = &pair->eSym;
 
-	/* Make sure eNext points to the first edge of the edge pair */
+	/* Make sure eNext points to the first edge of the edge std::pair */
 	if( eNext->Sym < eNext ) { eNext = eNext->Sym; }
 
-	/* Insert in circular doubly-linked list before eNext.
+	/* Insert in circular doubly-linked std::list before eNext.
 	* Note that the prev pointer is stored in Sym->next.
 	*/
 	ePrev = eNext->Sym->next;
@@ -111,9 +111,9 @@ static void Splice( TESShalfEdge *a, TESShalfEdge *b )
 
 /* MakeVertex( newVertex, eOrig, vNext ) attaches a new vertex and makes it the
 * origin of all edges in the vertex loop to which eOrig belongs. "vNext" gives
-* a place to insert the new vertex in the global vertex list.  We insert
+* a place to insert the new vertex in the global vertex std::list.  We insert
 * the new vertex *before* vNext so that algorithms which walk the vertex
-* list will not see the newly created vertices.
+* std::list will not see the newly created vertices.
 */
 static void MakeVertex( TESSvertex *newVertex, 
 					   TESShalfEdge *eOrig, TESSvertex *vNext )
@@ -124,7 +124,7 @@ static void MakeVertex( TESSvertex *newVertex,
 
 	assert(vNew != NULL);
 
-	/* insert in circular doubly-linked list before vNext */
+	/* insert in circular doubly-linked std::list before vNext */
 	vPrev = vNext->prev;
 	vNew->prev = vPrev;
 	vPrev->next = vNew;
@@ -144,9 +144,9 @@ static void MakeVertex( TESSvertex *newVertex,
 
 /* MakeFace( newFace, eOrig, fNext ) attaches a new face and makes it the left
 * face of all edges in the face loop to which eOrig belongs.  "fNext" gives
-* a place to insert the new face in the global face list.  We insert
+* a place to insert the new face in the global face std::list.  We insert
 * the new face *before* fNext so that algorithms which walk the face
-* list will not see the newly created faces.
+* std::list will not see the newly created faces.
 */
 static void MakeFace( TESSface *newFace, TESShalfEdge *eOrig, TESSface *fNext )
 {
@@ -156,7 +156,7 @@ static void MakeFace( TESSface *newFace, TESShalfEdge *eOrig, TESSface *fNext )
 
 	assert(fNew != NULL); 
 
-	/* insert in circular doubly-linked list before fNext */
+	/* insert in circular doubly-linked std::list before fNext */
 	fPrev = fNext->prev;
 	fNew->prev = fPrev;
 	fPrev->next = fNew;
@@ -181,7 +181,7 @@ static void MakeFace( TESSface *newFace, TESShalfEdge *eOrig, TESSface *fNext )
 }
 
 /* KillEdge( eDel ) destroys an edge (the half-edges eDel and eDel->Sym),
-* and removes from the global edge list.
+* and removes from the global edge std::list.
 */
 static void KillEdge( TESSmesh *mesh, TESShalfEdge *eDel )
 {
@@ -190,7 +190,7 @@ static void KillEdge( TESSmesh *mesh, TESShalfEdge *eDel )
 	/* Half-edges are allocated in pairs, see EdgePair above */
 	if( eDel->Sym < eDel ) { eDel = eDel->Sym; }
 
-	/* delete from circular doubly-linked list */
+	/* delete from circular doubly-linked std::list */
 	eNext = eDel->next;
 	ePrev = eDel->Sym->next;
 	eNext->Sym->next = ePrev;
@@ -201,7 +201,7 @@ static void KillEdge( TESSmesh *mesh, TESShalfEdge *eDel )
 
 
 /* KillVertex( vDel ) destroys a vertex and removes it from the global
-* vertex list.  It updates the vertex loop to point to a given new vertex.
+* vertex std::list.  It updates the vertex loop to point to a given new vertex.
 */
 static void KillVertex( TESSmesh *mesh, TESSvertex *vDel, TESSvertex *newOrg )
 {
@@ -215,7 +215,7 @@ static void KillVertex( TESSmesh *mesh, TESSvertex *vDel, TESSvertex *newOrg )
 		e = e->Onext;
 	} while( e != eStart );
 
-	/* delete from circular doubly-linked list */
+	/* delete from circular doubly-linked std::list */
 	vPrev = vDel->prev;
 	vNext = vDel->next;
 	vNext->prev = vPrev;
@@ -225,7 +225,7 @@ static void KillVertex( TESSmesh *mesh, TESSvertex *vDel, TESSvertex *newOrg )
 }
 
 /* KillFace( fDel ) destroys a face and removes it from the global face
-* list.  It updates the face loop to point to a given new face.
+* std::list.  It updates the face loop to point to a given new face.
 */
 static void KillFace( TESSmesh *mesh, TESSface *fDel, TESSface *newLface )
 {
@@ -239,7 +239,7 @@ static void KillFace( TESSmesh *mesh, TESSface *fDel, TESSface *newLface )
 		e = e->Lnext;
 	} while( e != eStart );
 
-	/* delete from circular doubly-linked list */
+	/* delete from circular doubly-linked std::list */
 	fPrev = fDel->prev;
 	fNext = fDel->next;
 	fNext->prev = fPrev;
@@ -523,7 +523,7 @@ TESShalfEdge *tessMeshConnect( TESSmesh *mesh, TESShalfEdge *eOrg, TESShalfEdge 
 /******************** Other Operations **********************/
 
 /* tessMeshZapFace( fZap ) destroys a face and removes it from the
-* global face list.  All edges of fZap will have a NULL pointer as their
+* global face std::list.  All edges of fZap will have a NULL pointer as their
 * left face.  Any edges which also have a NULL pointer as their right face
 * are deleted entirely (along with any isolated vertices this produces).
 * An entire mesh can be deleted by zapping its faces, one at a time,
@@ -564,7 +564,7 @@ void tessMeshZapFace( TESSmesh *mesh, TESSface *fZap )
 		}
 	} while( e != eStart );
 
-	/* delete from circular doubly-linked list */
+	/* delete from circular doubly-linked std::list */
 	fPrev = fZap->prev;
 	fNext = fZap->next;
 	fNext->prev = fPrev;

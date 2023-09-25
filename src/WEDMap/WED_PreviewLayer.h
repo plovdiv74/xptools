@@ -99,7 +99,7 @@ private:
 	int								mObjDensity;
 
 	// This stuff is built temporarily between the entity and final draw.
-	vector<WED_PreviewItem *>	mPreviewItems;
+	std::vector<WED_PreviewItem *>	mPreviewItems;
 	int							mRunwayLayer;		// Keep adding 1 to layer as we find runways, etc.  This means the runway's layer order
 	int							mTaxiLayer;			// IS the hierarchy/export order, which is good.
 	int							mShoulderLayer;

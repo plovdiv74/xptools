@@ -31,7 +31,7 @@
 
 	Insetting a polygon - THEORY OF OPERATION
 
-	Insetting an arbitary nested set of concave polygons is very complex.  Huge thanks to Fernando Cacciola for basically
+	Insetting an arbitary nested std::set of concave polygons is very complex.  Huge thanks to Fernando Cacciola for basically
 	teaching me via a series of emails how do to this right.
 
 	This is an explanation based on first principles...it was NOT obvious how I came to this implementation - the
@@ -81,11 +81,11 @@
 	One special case: if two sides are parallel then their planes form one plane and we don't have a clear
 	intersection point.  We can just take the normal to the edge and use that to pick one among the line.
 
-	The set of possible events is the intersection of every supporting plane in the polygon with all others.
-	It is important to realize that no event can possibly exist outside this set.  Furthermore since sides
-	are not created, this set cannot grow!!  (However this is an upper bound on events.)
+	The std::set of possible events is the intersection of every supporting plane in the polygon with all others.
+	It is important to realize that no event can possibly exist outside this std::set.  Furthermore since sides
+	are not created, this std::set cannot grow!!  (However this is an upper bound on events.)
 
-	The set of actual events is the subset of possible events that make topological sense at the time we hit
+	The std::set of actual events is the subset of possible events that make topological sense at the time we hit
 	them.  If we take all events in time order, we can check to make sure that the event takes place within
 	the finite swept region that the sides trace out.  If it does not, it is a possible but not actual event,
 	which is a result of intersecting infinite planes.  (Or finite planes that are too big - remember topological
@@ -104,14 +104,14 @@
 	STRATEGY
 
 	We manage reflex/vertex and bisector events very differently.  For reflex events we generate the full
-	set of events up front and then check each one as we encounter it to see if it is topologically actual
+	std::set of events up front and then check each one as we encounter it to see if it is topologically actual
 	or just possible.
 
 	For bisector events, we generate only the actual bisector events up front (by running around the rings
 	of the polygons).  Then as we update topology, we destroy and recreate bisector events on the fly.
 
 	The goal here is to reduce up-front processing so that small insets won't require huge numbers of
-	events.  We pre-build all reflex events because the set of 'revealed' vertex events can be very large
+	events.  We pre-build all reflex events because the std::set of 'revealed' vertex events can be very large
 	for a topological change; it's faster to build them up front than to do the deltas.
 
 
@@ -171,7 +171,7 @@ struct	SK_Edge {
 	SK_Vertex *		next;
 	SK_Polygon * 	owner;
 
-	set<SK_Event *>	events;
+	std::set<SK_Event *>	events;
 
 #if DEV
 	~SK_Edge() { prev = DELETED_VERTEX; next = DELETED_VERTEX; owner = DELETED_POLYGON; }
@@ -217,7 +217,7 @@ struct	SK_Vertex {
 
 struct	SK_Polygon {
 	SK_Polygon *		parent;
-	set<SK_Polygon *>	children;
+	std::set<SK_Polygon *>	children;
 	SK_Edge *			ccb;
 
 	int	num_sides(void) const { if (!ccb) return 0; SK_Edge * iter = ccb, * stop = ccb; int ctr = 0; do { ++ctr; iter=iter->next->next; } while (iter != stop); return ctr;}
@@ -231,7 +231,7 @@ struct	SK_Polygon {
 /* Event Struct
  *
  * An event consists of three edges that come together at the same time in a single point during a sweep.
- * If the event is a reflex event, the flag is set.  It has a ref to itself in the prioriy Q.
+ * If the event is a reflex event, the flag is std::set.  It has a ref to itself in the prioriy Q.
  *
  */
 struct	SK_Event {
@@ -596,7 +596,7 @@ static void SK_CombinePolys(SK_Polygon * live, SK_Polygon * die)
 {
 	Assert(live->parent == die->parent || live == die->parent);
 	live->children.insert(die->children.begin(), die->children.end());
-	for(set<SK_Polygon *>::iterator i = die->children.begin(); i != die->children.end(); ++i)
+	for(std::set<SK_Polygon *>::iterator i = die->children.begin(); i != die->children.end(); ++i)
 		(*i)->parent = live;
 	die->parent->children.erase(die);
 	SK_Edge * iter, * stop;
@@ -698,7 +698,7 @@ static void SK_InsetPolyIntoComplexPolygonList(SK_Polygon * world, ComplexPolygo
 
 	outPolys.reserve(world->children.size());
 
-	for (set<SK_Polygon *>::iterator outers = world->children.begin(); outers != world->children.end(); ++outers)
+	for (std::set<SK_Polygon *>::iterator outers = world->children.begin(); outers != world->children.end(); ++outers)
 	{
 		Assert((*outers)->ccb != NULL);
 		outPolys.push_back(ComplexPolygon2());
@@ -718,7 +718,7 @@ static void SK_InsetPolyIntoComplexPolygonList(SK_Polygon * world, ComplexPolygo
 			iter = iter->next->next;
 		} while (iter != stop);
 
-		for (set<SK_Polygon *>::iterator holes = (*outers)->children.begin(); holes != (*outers)->children.end(); ++holes)
+		for (std::set<SK_Polygon *>::iterator holes = (*outers)->children.begin(); holes != (*outers)->children.end(); ++holes)
 		{
 			Assert((*holes)->children.empty());
 			Assert((*holes)->ccb != NULL);
@@ -737,7 +737,7 @@ static void SK_InsetPolyIntoComplexPolygonList(SK_Polygon * world, ComplexPolygo
 
 static void SK_PolygonDestroy(SK_Polygon * ioPolygon)
 {
-	for (set<SK_Polygon *>::iterator c = ioPolygon->children.begin(); c != ioPolygon->children.end(); ++c)
+	for (std::set<SK_Polygon *>::iterator c = ioPolygon->children.begin(); c != ioPolygon->children.end(); ++c)
 		SK_PolygonDestroy(*c);
 	SK_Edge * circ, * stop, * nuke;
 	circ = stop = ioPolygon->ccb;
@@ -758,7 +758,7 @@ static void SK_PolygonDestroy(SK_Polygon * ioPolygon)
 #if DEV
 static void DebugValidatePoly(SK_Polygon * p)
 {
-	for (set<SK_Polygon*>::iterator c = p->children.begin(); c != p->children.end(); ++c)
+	for (std::set<SK_Polygon*>::iterator c = p->children.begin(); c != p->children.end(); ++c)
 	{
 		DebugAssert((*c)->parent == p);
 		DebugValidatePoly(*c);
@@ -782,7 +782,7 @@ static void DebugValidatePoly(SK_Polygon * p)
 		iter = iter->next->next;
 
 		SK_Edge * e = v->next;
-		for (set<SK_Event*>::iterator evt = e->events.begin(); evt != e->events.end(); ++evt)
+		for (std::set<SK_Event*>::iterator evt = e->events.begin(); evt != e->events.end(); ++evt)
 		{
 			DebugAssert((*evt)->e1 == e || (*evt)->e2 == e || (*evt)->e3 == e);
 		}
@@ -818,7 +818,7 @@ static void DebugValidateEventMap(const EventMap& eventMap)
  * we can extrude. */
 static void SK_PolygonSplitAntennas(SK_Polygon * ioPolygon)
 {
-	for (set<SK_Polygon *>::iterator c = ioPolygon->children.begin(); c != ioPolygon->children.end(); ++c)
+	for (std::set<SK_Polygon *>::iterator c = ioPolygon->children.begin(); c != ioPolygon->children.end(); ++c)
 		SK_PolygonSplitAntennas(*c);
 
 	SK_Vertex * iter, * stop;
@@ -872,7 +872,7 @@ static void SK_PolygonSplitAntennas(SK_Polygon * ioPolygon)
 /* Find all very sharp reflex vertices and mitre with a side similar to an antenna, to prevent insanely sharp vertices. */
 static void SK_PolygonMitreReflexVertices(SK_Polygon * poly)
 {
-	for (set<SK_Polygon *>::iterator c = poly->children.begin(); c != poly->children.end(); ++c)
+	for (std::set<SK_Polygon *>::iterator c = poly->children.begin(); c != poly->children.end(); ++c)
 		SK_PolygonMitreReflexVertices(*c);
 
 	if (poly->ccb)
@@ -935,7 +935,7 @@ static void SK_PolygonMitreReflexVertices(SK_Polygon * poly)
 /* Reset all vertices in the polygon to a given time. */
 static bool SK_AdvanceVertices(SK_Polygon * poly, double advance_time)
 {
-	for (set<SK_Polygon *>::iterator c = poly->children.begin(); c != poly->children.end(); ++c)
+	for (std::set<SK_Polygon *>::iterator c = poly->children.begin(); c != poly->children.end(); ++c)
 		if (!SK_AdvanceVertices(*c, advance_time))
 			return false;
 
@@ -964,9 +964,9 @@ static bool SK_AdvanceVertices(SK_Polygon * poly, double advance_time)
 /* Delete any empty polygons. */
 static void SK_RemoveEmptyPolygons(SK_Polygon * who, EventMap& ioMap)
 {
-	for (set<SK_Polygon *>::iterator c = who->children.begin(); c != who->children.end(); )
+	for (std::set<SK_Polygon *>::iterator c = who->children.begin(); c != who->children.end(); )
 	{
-		set<SK_Polygon *>::iterator i(c);
+		std::set<SK_Polygon *>::iterator i(c);
 		++c;
 		SK_RemoveEmptyPolygons(*i, ioMap);
 	}
@@ -1200,8 +1200,8 @@ static void	SK_DestroyEvent(SK_Event * the_event, EventMap& ioMap)
  * before nuking an edge to make sure that it is no longer part of the queue. */
 static void	SK_DestroyEventsForEdge(SK_Edge * the_edge, EventMap& ioMap, bool inReflex)
 {
-	set<SK_Event *> reflex_events;
-	set<SK_Event *>::iterator eventIter;
+	std::set<SK_Event *> reflex_events;
+	std::set<SK_Event *>::iterator eventIter;
 	for (eventIter = the_edge->events.begin(); eventIter != the_edge->events.end(); ++eventIter)
 		if ((*eventIter)->reflex_event == inReflex)
 			reflex_events.insert(*eventIter);
@@ -1212,10 +1212,10 @@ static void	SK_DestroyEventsForEdge(SK_Edge * the_edge, EventMap& ioMap, bool in
 	}
 }
 
-/* This creates all bisector events for a polygon world set. */
+/* This creates all bisector events for a polygon world std::set. */
 static void SK_CreateVertexEventsForPolygon(SK_Polygon * poly, double min_time, EventMap& ioMap)
 {
-	for (set<SK_Polygon *>::iterator c = poly->children.begin(); c != poly->children.end(); ++c)
+	for (std::set<SK_Polygon *>::iterator c = poly->children.begin(); c != poly->children.end(); ++c)
 		SK_CreateVertexEventsForPolygon(*c, min_time, ioMap);
 
 	SK_Edge * iter, * stop;
@@ -1232,7 +1232,7 @@ static void SK_CreateVertexEventsForPolygon(SK_Polygon * poly, double min_time, 
 /* This checks a reflex vertex against a polygon. */
 static void SK_CreateReflexEventsForVertexAndPolygon(SK_Polygon * poly, SK_Vertex * vert, double min_time, EventMap& ioMap)
 {
-	for (set<SK_Polygon *>::iterator c = poly->children.begin(); c != poly->children.end(); ++c)
+	for (std::set<SK_Polygon *>::iterator c = poly->children.begin(); c != poly->children.end(); ++c)
 		SK_CreateReflexEventsForVertexAndPolygon(*c, vert, min_time, ioMap);
 
 	SK_Edge * iter, * stop;
@@ -1255,7 +1255,7 @@ static void SK_CreateReflexEventsForVertexAndPolygon(SK_Polygon * poly, SK_Verte
 /* This creates all reflex events for a polygon. */
 static void SK_CreateReflexEventsForPolygon(SK_Polygon * poly, SK_Polygon * world, double min_time, EventMap& ioMap)
 {
-	for (set<SK_Polygon *>::iterator c = poly->children.begin(); c != poly->children.end(); ++c)
+	for (std::set<SK_Polygon *>::iterator c = poly->children.begin(); c != poly->children.end(); ++c)
 		SK_CreateReflexEventsForPolygon(*c, world, min_time, ioMap);
 
 	SK_Vertex * iter, * stop;
@@ -1332,7 +1332,7 @@ int	SK_InsetPolygon(
 #if GRAPHIC_LOGGING
 		gMeshPoints.clear();
 #endif
-		pair<EventMap::iterator, EventMap::iterator> possible_events = events.equal_range(base_time);
+		std::pair<EventMap::iterator, EventMap::iterator> possible_events = events.equal_range(base_time);
 
 		SK_Event * evt = NULL;
 		bool made_change = false;
@@ -1361,12 +1361,12 @@ int	SK_InsetPolygon(
 		if (evt)
 		{
 			gMeshLines.clear();
-			gMeshLines.push_back(pair<Point2,Point3>(evt->e1->ends.p1,Point3(0.7,0.3,0.2)));
-			gMeshLines.push_back(pair<Point2,Point3>(evt->e1->ends.p2,Point3(0.7,0.3,0.2)));
-			gMeshLines.push_back(pair<Point2,Point3>(evt->e2->ends.p1,Point3(0.7,0.3,0.2)));
-			gMeshLines.push_back(pair<Point2,Point3>(evt->e2->ends.p2,Point3(0.7,0.3,0.2)));
-			gMeshLines.push_back(pair<Point2,Point3>(evt->e3->ends.p1,Point3(0.3,0.3,0.7)));
-			gMeshLines.push_back(pair<Point2,Point3>(evt->e3->ends.p2,Point3(0.3,0.3,0.7)));
+			gMeshLines.push_back(std::pair<Point2,Point3>(evt->e1->ends.p1,Point3(0.7,0.3,0.2)));
+			gMeshLines.push_back(std::pair<Point2,Point3>(evt->e1->ends.p2,Point3(0.7,0.3,0.2)));
+			gMeshLines.push_back(std::pair<Point2,Point3>(evt->e2->ends.p1,Point3(0.7,0.3,0.2)));
+			gMeshLines.push_back(std::pair<Point2,Point3>(evt->e2->ends.p2,Point3(0.7,0.3,0.2)));
+			gMeshLines.push_back(std::pair<Point2,Point3>(evt->e3->ends.p1,Point3(0.3,0.3,0.7)));
+			gMeshLines.push_back(std::pair<Point2,Point3>(evt->e3->ends.p2,Point3(0.3,0.3,0.7)));
 
 //			gMeshLines.push_back(evt->e1->prev->location);
 //			gMeshLines.push_back(evt->e1->next->location);
@@ -1388,13 +1388,13 @@ int	SK_InsetPolygon(
 			{
 				evt = events.begin()->second;
 #if GRAPHIC_LOGGING
-				gMeshLines.push_back(pair<Point2,Point3>(evt->e1->ends.p1,Point3(0.7,0.3,0.2)));
-				gMeshLines.push_back(pair<Point2,Point3>(evt->e1->ends.p2,Point3(0.7,0.3,0.2)));
-				gMeshLines.push_back(pair<Point2,Point3>(evt->e2->ends.p1,Point3(0.7,0.3,0.2)));
-				gMeshLines.push_back(pair<Point2,Point3>(evt->e2->ends.p2,Point3(0.7,0.3,0.2)));
-				gMeshLines.push_back(pair<Point2,Point3>(evt->e3->ends.p1,Point3(0.3,0.3,0.7)));
-				gMeshLines.push_back(pair<Point2,Point3>(evt->e3->ends.p2,Point3(0.3,0.3,0.7)));
-				gMeshPoints.push_back(pair<Point2,Point3>(Point2(evt->cross.x,evt->cross.y), Point3(1.0, 0.0, 0.0)));
+				gMeshLines.push_back(std::pair<Point2,Point3>(evt->e1->ends.p1,Point3(0.7,0.3,0.2)));
+				gMeshLines.push_back(std::pair<Point2,Point3>(evt->e1->ends.p2,Point3(0.7,0.3,0.2)));
+				gMeshLines.push_back(std::pair<Point2,Point3>(evt->e2->ends.p1,Point3(0.7,0.3,0.2)));
+				gMeshLines.push_back(std::pair<Point2,Point3>(evt->e2->ends.p2,Point3(0.7,0.3,0.2)));
+				gMeshLines.push_back(std::pair<Point2,Point3>(evt->e3->ends.p1,Point3(0.3,0.3,0.7)));
+				gMeshLines.push_back(std::pair<Point2,Point3>(evt->e3->ends.p2,Point3(0.3,0.3,0.7)));
+				gMeshPoints.push_back(std::pair<Point2,Point3>(Point2(evt->cross.x,evt->cross.y), Point3(1.0, 0.0, 0.0)));
 #endif
 #if LOG_SKELETONS
 				printf("Trashing %s vertex at time %lf - none in this time are possible, xon = %lf,%lf.\n", evt->reflex_event ? "reflex" : "bisector", base_time, evt->cross.x, evt->cross.y);
@@ -1409,7 +1409,7 @@ int	SK_InsetPolygon(
 			printf("Executed reflect event, passed eval.t = %lf.\n", base_time);
 #endif
 #if GRAPHIC_LOGGING
-			gMeshPoints.push_back(pair<Point2,Point3>(Point2(evt->cross.x,evt->cross.y), Point3(1.0, 1.0, 1.0)));
+			gMeshPoints.push_back(std::pair<Point2,Point3>(Point2(evt->cross.x,evt->cross.y), Point3(1.0, 1.0, 1.0)));
 #endif
 			////////////////////////////////////////////
 
@@ -1485,13 +1485,13 @@ int	SK_InsetPolygon(
 
 				// MIGRATE CHILDREN
 
-				set<SK_Polygon *>	moveTo;
-				for (set<SK_Polygon *>::iterator c = op->children.begin(); c != op->children.end(); ++c)
+				std::set<SK_Polygon *>	moveTo;
+				for (std::set<SK_Polygon *>::iterator c = op->children.begin(); c != op->children.end(); ++c)
 				{
 					if (SK_PointInRing(np->ccb, (*c)->ccb->next, base_time))
 						moveTo.insert(*c);
 				}
-				for (set<SK_Polygon *>::iterator m = moveTo.begin(); m != moveTo.end(); ++m)
+				for (std::set<SK_Polygon *>::iterator m = moveTo.begin(); m != moveTo.end(); ++m)
 				{
 					DebugAssert((*m)->parent == op);
 					np->children.insert(*m);
@@ -1539,7 +1539,7 @@ int	SK_InsetPolygon(
 			// we need to migrate to ER.
 
 
-			set<SK_Event *>	clones;
+			std::set<SK_Event *>	clones;
 			EventMap::iterator nextEvt = events.begin();
 			++nextEvt;
 			for (; nextEvt != events.end(); ++nextEvt)
@@ -1555,7 +1555,7 @@ int	SK_InsetPolygon(
 				}
 			}
 
-			for (set<SK_Event *>::iterator citer = clones.begin(); citer != clones.end(); ++citer)
+			for (std::set<SK_Event *>::iterator citer = clones.begin(); citer != clones.end(); ++citer)
 			{
 				SK_Event * clone = new SK_Event(**citer);
 				clone->e3 = er;
@@ -1611,7 +1611,7 @@ int	SK_InsetPolygon(
 			printf("Executed bisector event, t = %lf.\n", base_time);
 #endif
 #if GRAPHIC_LOGGING
-			gMeshPoints.push_back(pair<Point2,Point3>(Point2(evt->cross.x,evt->cross.y), Point3(1.0, 1.0, 1.0)));
+			gMeshPoints.push_back(std::pair<Point2,Point3>(Point2(evt->cross.x,evt->cross.y), Point3(1.0, 1.0, 1.0)));
 #endif
 			// Middle edge is being deleted.
 
@@ -1662,9 +1662,9 @@ int	SK_InsetPolygon(
 	for (EventMap::iterator eiter = events.begin(); eiter != events.end(); ++eiter)
 	{
 		if (eiter->second->reflex_event)
-			gMeshPoints.push_back(pair<Point2,Point3>(Point2(eiter->second->cross.x,eiter->second->cross.y), Point3(0.2, 0.2, 0.8)));
+			gMeshPoints.push_back(std::pair<Point2,Point3>(Point2(eiter->second->cross.x,eiter->second->cross.y), Point3(0.2, 0.2, 0.8)));
 		else
-			gMeshPoints.push_back(pair<Point2,Point3>(Point2(eiter->second->cross.x,eiter->second->cross.y), Point3(0.2, 0.8, 0.2)));
+			gMeshPoints.push_back(std::pair<Point2,Point3>(Point2(eiter->second->cross.x,eiter->second->cross.y), Point3(0.2, 0.8, 0.2)));
 	}
 #endif
 
@@ -1676,10 +1676,10 @@ int	SK_InsetPolygon(
  		valid = SK_AdvanceVertices(world, base_time);
 
 #if LOG_SKELETONS
- 	for (set<SK_Polygon *>::iterator i = world->children.begin(); i != world->children.end(); ++i)
+ 	for (std::set<SK_Polygon *>::iterator i = world->children.begin(); i != world->children.end(); ++i)
  	{
  		printf("Poly has %d sides.\n", (*i)->num_sides());
- 		for (set<SK_Polygon *>::iterator j = (*i)->children.begin(); j != (*i)->children.end(); ++j)
+ 		for (std::set<SK_Polygon *>::iterator j = (*i)->children.begin(); j != (*i)->children.end(); ++j)
 	 		printf("   Hole has %d sides.\n", (*j)->num_sides());
  	}
 #endif

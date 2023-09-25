@@ -28,7 +28,7 @@
 ForestRuleVector	gForestRules;
 ForestInfoMap gForestInfo;
 
-static bool	ReadForestRule(const vector<string>& tokens, void * ref)
+static bool	ReadForestRule(const std::vector<std::string>& tokens, void * ref)
 {
 	if(tokens.size() != 7)
 	{
@@ -49,14 +49,14 @@ static bool	ReadForestRule(const vector<string>& tokens, void * ref)
 	
 	gForestInfo[r.forest_type] = ForestInfo_t();
 
-	set<int>	lus;
+	std::set<int>	lus;
 	
 	if(!TokenizeEnumSet(tokens[1],lus))
 	{
 		printf("Illegal lu in %s\n", tokens[1].c_str());
 		return false;
 	}
-	for(set<int>::iterator lu = lus.begin(); lu != lus.end(); ++lu)
+	for(std::set<int>::iterator lu = lus.begin(); lu != lus.end(); ++lu)
 	{
 		r.landuse = *lu;
 		gForestRules.push_back(r);
@@ -72,7 +72,7 @@ void	LoadForestTables(void)
 	RegisterLineHandler("FOREST_RULE", ReadForestRule, NULL);
 	LoadConfigFile("forests.txt");
 	
-	set<int>	all_forests;
+	std::set<int>	all_forests;
 	for(ForestInfoMap::iterator i = gForestInfo.begin(); i != gForestInfo.end(); ++i)
 		all_forests.insert(i->first);
 	
@@ -86,7 +86,7 @@ void	LoadForestTables(void)
 				all_forests.erase(r->forest_type);
 		}
 	}
-	for(set<int>::iterator a = all_forests.begin(); a != all_forests.end(); ++a)
+	for(std::set<int>::iterator a = all_forests.begin(); a != all_forests.end(); ++a)
 	{
 		printf("WARNING: forest type %s is not used by any rule.\n", FetchTokenString(*a));
 	}

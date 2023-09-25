@@ -64,7 +64,7 @@ enum {
 
 GUI_FormWindow::GUI_FormWindow(
 								GUI_Commander *			cmdr,
-								const string&			title,
+								const std::string&			title,
 								int						width,
 								int						height) :
 	GUI_Window(title.c_str(), xwin_style_centered|xwin_style_movable|xwin_style_modal|xwin_style_visible, calc_form_bounds(mFormBounds, width, height), cmdr)
@@ -134,9 +134,9 @@ GUI_FormWindow::~GUI_FormWindow()
 }
 
 void		GUI_FormWindow::Reset(
-								const string&			aux_label,
-								const string&			ok_label,
-								const string&			cancel_label,
+								const std::string&			aux_label,
+								const std::string&			ok_label,
+								const std::string&			cancel_label,
 								bool					auto_return)
 {
 	mReturnSubmit = auto_return;
@@ -191,12 +191,12 @@ void		GUI_FormWindow::Reset(
 	mInsertY = mFormBounds[3] - 10;
 }
 
-void		GUI_FormWindow::AddLabel(const string&			msg)
+void		GUI_FormWindow::AddLabel(const std::string&			msg)
 {
-	vector<string>	lines;
+	std::vector<std::string>	lines;
 	tokenize_string(msg.begin(),msg.end(),back_inserter(lines), '\n');
 	
-	for(vector<string>::iterator l = lines.begin(); l != lines.end(); ++l)
+	for(std::vector<std::string>::iterator l = lines.begin(); l != lines.end(); ++l)
 	{
 
 		GUI_Label * label = new GUI_Label();
@@ -224,8 +224,8 @@ void		GUI_FormWindow::AddLabel(const string&			msg)
 
 void		GUI_FormWindow::AddField(
 								int						id,
-								const string&			label_text,
-								const string&			default_text,
+								const std::string&			label_text,
+								const std::string&			default_text,
 								field_type				ft)
 {
 	DebugAssert(id > 0);
@@ -291,8 +291,8 @@ void		GUI_FormWindow::AddField(
 
 void		GUI_FormWindow::AddFieldNoEdit(
 								int						id,
-								const string&			label_text,
-								const string&			default_text)
+								const std::string&			label_text,
+								const std::string&			default_text)
 {
 	DebugAssert(id > 0);
 	GUI_Label * label = new GUI_Label();
@@ -345,11 +345,11 @@ void		GUI_FormWindow::ReceiveMessage(
 	}
 }
 
-string		GUI_FormWindow::GetField(
+std::string		GUI_FormWindow::GetField(
 								int						id)
 {
 	GUI_Pane * who = FindByID(id);
-	string ret;
+	std::string ret;
 	if(who) who->GetDescriptor(ret);
 	return ret;
 }
@@ -370,9 +370,9 @@ int			GUI_FormWindow::HandleKeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFl
 	{
 		GUI_Commander * now = this->GetFocusForCommander();
 #if LIN
-		vector<GUI_Commander*>::iterator i = std::find(mFocusRing.begin(),mFocusRing.end(),now);
+		std::vector<GUI_Commander*>::iterator i = std::find(mFocusRing.begin(),mFocusRing.end(),now);
 #else
-		vector<GUI_Commander*>::iterator i = find(mFocusRing.begin(),mFocusRing.end(),now);
+		std::vector<GUI_Commander*>::iterator i = find(mFocusRing.begin(),mFocusRing.end(),now);
 #endif	
 		int idx = distance(mFocusRing.begin(),i);
 		

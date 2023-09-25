@@ -70,7 +70,7 @@
 #include "GUI_TextTable.h"
 #include "WED_Colors.h"
 
-#define ALLOW_MULTI_IMPORT 1                       // set this if you want to allow to import multiple airports at a time
+#define ALLOW_MULTI_IMPORT 1                       // std::set this if you want to allow to import multiple airports at a time
 #define MULTI_MAX_FILES TYLER_MODE ? 50000 : 300   // Prevent too many files to be downloaded in one swoop - its REALLY slow
 
 #if ALLOW_MULTI_IMPORT
@@ -119,8 +119,8 @@ enum imp_dialog_msg
 
 
 //--Mem File Utils code for virtually handling the downloaded zip file--
-//Returns an empty string if everything went well, the error message if not
-string MemFileHandling(const string & zipPath, const string & filePath, const string & ICAO, bool & has_dsf)
+//Returns an empty std::string if everything went well, the error message if not
+std::string MemFileHandling(const std::string & zipPath, const std::string & filePath, const std::string & ICAO, bool & has_dsf)
 //Scope to ensure all the MemFile stuff stays inside here
 {
 	//A representation of the zipfile
@@ -128,9 +128,9 @@ string MemFileHandling(const string & zipPath, const string & filePath, const st
 	if(zipRep == NULL)
 	{
 #if DEV
-		return string("Could not create memory mapped version of " + zipPath + ". Check if the file exists or if you have sufficient permissions");
+		return std::string("Could not create memory mapped version of " + zipPath + ". Check if the file exists or if you have sufficient permissions");
 #else
-		return string("Could not open " + zipPath + ". Check if the file exists or if you have sufficient permissions");
+		return std::string("Could not open " + zipPath + ". Check if the file exists or if you have sufficient permissions");
 #endif
 	}
 	int fileCount = FileSet_Count(zipRep) - 1;
@@ -154,7 +154,7 @@ string MemFileHandling(const string & zipPath, const string & filePath, const st
 			continue;
 		}
 #endif
-		string writeMode;
+		std::string writeMode;
 		if(fileName == (ICAO + ".txt"))
 		{
 			has_dsf = true;
@@ -165,7 +165,7 @@ string MemFileHandling(const string & zipPath, const string & filePath, const st
 			writeMode = "wb";
 		}
 
-		RAII_FileHandle f(string(filePath + fileName), writeMode.c_str());
+		RAII_FileHandle f(std::string(filePath + fileName), writeMode.c_str());
 
 		if(f)
 		{
@@ -175,23 +175,23 @@ string MemFileHandling(const string & zipPath, const string & filePath, const st
 			if(write_result != MemFile_GetEnd(currentFile)-MemFile_GetBegin(currentFile))
 			{
 				MemFile_Close(currentFile);
-				return string("Could not create file at " + string(filePath + fileName) + ", please ensure you have enough hard drive space and permissions");
+				return std::string("Could not create file at " + std::string(filePath + fileName) + ", please ensure you have enough hard drive space and permissions");
 			}
 			MemFile_Close(currentFile);
 		}
 		else
 		{
 			MemFile_Close(currentFile);
-			return string("Could not create file at " + filePath + fileName + ", please ensure you have sufficient hard drive space and permissions");
+			return std::string("Could not create file at " + filePath + fileName + ", please ensure you have sufficient hard drive space and permissions");
 		}
 		fileCount--;
 	}
 	FileSet_Close(zipRep);
-	return string();
+	return std::string();
 }//end MemFile stuff
 //---------------------------------------------------------------------------//
 
-typedef vector<char> JSON_BUF;
+typedef std::vector<char> JSON_BUF;
 
 //Our private class for the import dialog
 class WED_GatewayImportDialog : public GUI_Window, public GUI_Listener, public GUI_Timer, public GUI_Destroyable
@@ -229,12 +229,12 @@ private:
 	WED_file_cache_request	mCacheRequest;
 
 	//The buffers of the specific packs downloaded at the end
-	vector<string>	mSpecificBufs;
+	std::vector<std::string>	mSpecificBufs;
 
 //--GUI parts
 
 	//Changes the decoration of the GUI window's title, buttons, etc, based on the stage
-	void DecorateGUIWindow(string labelDesc="");
+	void DecorateGUIWindow(std::string labelDesc="");
 	//--For the whole dialog box
 	GUI_FilterBar	 *		mFilter;
 	GUI_Packer *			mPacker;
@@ -263,7 +263,7 @@ private:
 	void StartICAODownload();
 
 	//From the downloaded JSON, fill the ICAO table
-	void FillICAOFromJSON(const string& json_string);
+	void FillICAOFromJSON(const std::string& json_string);
 		//--ICAO Table Provider/Geometry
 #if ALLOW_MULTI_IMPORT
 		WED_AptTable			mICAO_AptProvider;
@@ -286,7 +286,7 @@ private:
 	GUI_Table *				mVersions_Table;
 	GUI_Header *			mVersions_Header;
 	//index of the current selection
-	set<int>				mVersions_VersionsSelected;
+	std::set<int>				mVersions_VersionsSelected;
 	GUI_TextTable			mVersions_TextTable;
 	GUI_TextTableHeader		mVersions_TextTableHeader;
 
@@ -294,11 +294,11 @@ private:
 	bool StartVersionsDownload();
 
 	//From the downloaded JSON, fill the versions table
-	void FillVersionsFromJSON(const string& json_string);
+	void FillVersionsFromJSON(const std::string& json_string);
 
 	//Once a specific version is downloaded this method decodes and imports it into the document
 	//Returns a pointer to the last imported airport
-	WED_Airport * ImportSpecificVersion(const string& json_string);
+	WED_Airport * ImportSpecificVersion(const std::string& json_string);
 
 	//Keeps the versions downloading until they have all been (atleast attempted to download)
 	//returns false if there is nothing left in the queue
@@ -433,7 +433,7 @@ WED_GatewayImportDialog::~WED_GatewayImportDialog()
 void WED_GatewayImportDialog::Next()
 {
 #if ALLOW_MULTI_IMPORT
-	set<int> apts;
+	std::set<int> apts;
 #endif
 	switch(mPhase)
 	{
@@ -453,7 +453,7 @@ void WED_GatewayImportDialog::Next()
 			int max_imports = MULTI_MAX_FILES;   // some artifical limit to prevent WED locking up for hours when selecting the whole gateway ...
 			mVersions_VersionsSelected.clear();
 			mVersions_Vers.clear();
-			for(set<int>::iterator apt = apts.begin(); apt != apts.end(); ++apt)
+			for(std::set<int>::iterator apt = apts.begin(); apt != apts.end(); ++apt)
 			{
 				VerInfo_t v;
 				v.icao = mICAO_Apts.at(*apt).icao; v.sceneryId = mICAO_Apts.at(*apt).kind_code;
@@ -568,7 +568,7 @@ void WED_GatewayImportDialog::TimerFired()
 			//Attempt to open the file we just downloaded
 			RAII_FileHandle file(res.out_path.c_str(),"r");
 
-			string file_contents;
+			std::string file_contents;
 			if(FILE_read_file_to_string(file(), file_contents) == 0)
 			{
 				file.close();
@@ -646,7 +646,7 @@ void WED_GatewayImportDialog::TimerFired()
 	}//end if res.out_status != cache_status_downloading && ... != cache_status_not_started
 }//end WED_GatewayImportDialog::TimerFired()
 
-void WED_GatewayImportDialog::FillICAOFromJSON(const string& json_string)
+void WED_GatewayImportDialog::FillICAOFromJSON(const std::string& json_string)
 {
 	Json::Value root;
 	Json::Reader reader;
@@ -681,14 +681,14 @@ void WED_GatewayImportDialog::FillICAOFromJSON(const string& json_string)
 			cur_airport.icao = tmp["AirportCode"].asString();
 			cur_airport.name = tmp["AirportName"].asString();
 
-			string code;
+			std::string code;
 			Json::Value meta(Json::objectValue);
 			meta.swap(tmp["metadata"]);
 			if (meta.size())
 			{
 				code = meta["icao_code"].asString();
 
-				string code2 = meta["faa_code"].asString();
+				std::string code2 = meta["faa_code"].asString();
 				if(code.size() && code2.size())
 				{
 					if(code != code2)
@@ -700,13 +700,13 @@ void WED_GatewayImportDialog::FillICAOFromJSON(const string& json_string)
 				code2 = meta["local_code"].asString();
 				if(code.size() && code2.size())
 				{
-					if(code.find(code2) == string::npos)
+					if(code.find(code2) == std::string::npos)
 						code += "," + code2;
 				}
 				else
 					code += code2;
 			}
-			cur_airport.meta_data.push_back(make_pair("IcaoFaaLocal", code));   // pseudo-tag to support selection by ANY of these 3 tags
+			cur_airport.meta_data.push_back(std::make_pair("IcaoFaaLocal", code));   // pseudo-tag to support selection by ANY of these 3 tags
 			cur_airport.kind_code = 0;                                          // scenery-ID of not deprecated, recommended version, if any
 			
 			if(gModeratorMode)
@@ -724,16 +724,16 @@ void WED_GatewayImportDialog::FillICAOFromJSON(const string& json_string)
 					{
 						if(res.out_status == cache_status_downloading)
 						{
-							this_thread::sleep_for(chrono::milliseconds(100));
+							std::this_thread::sleep_for(std::chrono::milliseconds(100));
 							res = gFileCache.request_file(mCacheRequest);
 						}
 					}
 
-					string vers_info;
+					std::string vers_info;
 					if(res.out_status == cache_status_available && FILE_read_file_to_string(res.out_path, vers_info) == 0)
 					{
-						string AcceptDate;
-						string Artist;
+						std::string AcceptDate;
+						std::string Artist;
 						Json::Value root2;
 						Json::Reader reader2;
 						bool success = reader2.parse(vers_info,root2);
@@ -755,10 +755,10 @@ void WED_GatewayImportDialog::FillICAOFromJSON(const string& json_string)
 								break;
 							}
 						}
-						cur_airport.meta_data.push_back(make_pair(AcceptDate.substr(0,10), Artist));
+						cur_airport.meta_data.push_back(std::make_pair(AcceptDate.substr(0,10), Artist));
 					}
 					else
-						cur_airport.meta_data.push_back(make_pair("Unknown", "Dnld timed out"));
+						cur_airport.meta_data.push_back(std::make_pair("Unknown", "Dnld timed out"));
 				}
 				else
 					cur_airport.kind_code = tmp["RecommendedSceneryId"].asInt();        // mis-using that property to support multi-airport import
@@ -766,12 +766,12 @@ void WED_GatewayImportDialog::FillICAOFromJSON(const string& json_string)
 			else
 			{
 				if(tmp["ExcludeSubmissions"].asInt())
-					cur_airport.meta_data.push_back(make_pair("Indefinitely", "Gateway Moderator"));
+					cur_airport.meta_data.push_back(std::make_pair("Indefinitely", "Gateway Moderator"));
 				else
 				{
-					string reserved = tmp["checkedOutBy"].asString();
+					std::string reserved = tmp["checkedOutBy"].asString();
 					if (!reserved.empty())
-						cur_airport.meta_data.push_back(make_pair(tmp["checkOutEndDate"].asString().substr(0,10), reserved));
+						cur_airport.meta_data.push_back(std::make_pair(tmp["checkOutEndDate"].asString().substr(0,10), reserved));
 				}
 				if(tmp["Deprecated"].asInt() == 0)
 					cur_airport.kind_code = tmp["RecommendedSceneryId"].asInt();        // mis-using that property to support multi-airport import
@@ -784,7 +784,7 @@ void WED_GatewayImportDialog::FillICAOFromJSON(const string& json_string)
 	if(gModeratorMode) mICAO_AptProvider.SelectHeaderCell(3);
 }
 
-void WED_GatewayImportDialog::FillVersionsFromJSON(const string& json_string)
+void WED_GatewayImportDialog::FillVersionsFromJSON(const std::string& json_string)
 {
 	//Now that we have our json_string we'll be turning it into a JSON object
 	Json::Value root(Json::objectValue);
@@ -826,7 +826,7 @@ void WED_GatewayImportDialog::FillVersionsFromJSON(const string& json_string)
 		//Dates will appear as ISO8601: https://en.wikipedia.org/wiki/ISO_8601
 		//For example 2014-07-31T14:34:47.000Z
 
-		//If the date string exists go with the date string, else go with a default
+		//If the date std::string exists go with the date std::string, else go with a default
 		tmp.dateUploaded = curScenery.operator[]("dateUpload").asString()   != "" ? curScenery.operator[]("dateUpload").asString() : "0000-00-00T00:00:00.000Z";
 		tmp.dateAccepted = curScenery.operator[]("dateAccepted").asString() != "" ? curScenery.operator[]("dateAccepted").asString() : "0000-00-00T00:00:00.000Z";
 		tmp.dateApproved = curScenery.operator[]("dateApproved").asString() != "" ? curScenery.operator[]("dateApproved").asString() : "0000-00-00T00:00:00.000Z";
@@ -834,8 +834,8 @@ void WED_GatewayImportDialog::FillVersionsFromJSON(const string& json_string)
 		tmp.status = curScenery["Status"].asString();
 
 		//!!features is not needed to read!!
-		//string features_str = curScenery.operator[]("features").asString();
-		//tmp.features = vector<char>(features_str.begin(), features_str.end());
+		//std::string features_str = curScenery.operator[]("features").asString();
+		//tmp.features = std::vector<char>(features_str.begin(), features_str.end());
 
 		tmp.artistComments    = curScenery.operator[]("artistComments").asString()    != "" ? curScenery.operator[]("artistComments").asString() : "N/A";
 		tmp.moderatorComments = curScenery.operator[]("moderatorComments").asString() != "" ? curScenery.operator[]("moderatorComments").asString() : "N/A";
@@ -916,7 +916,7 @@ void WED_GatewayImportDialog::ReceiveMessage(
 		SelectWithFile();
 	case GUI_TABLE_CONTENT_CHANGED:
 		{
-			set<int> sel;
+			std::set<int> sel;
 			mICAO_AptProvider.GetSelection(sel);
 			mNextButton->SetDescriptor(sel.size() < 2 ? "Next" : gModeratorMode ? "Import Accepted" : "Import Recommened");
 		}
@@ -954,7 +954,7 @@ bool WED_GatewayImportDialog::StartVersionsDownload()
 	//1.Get the airport from the current selection, then get its sceneryid from mICAO_Apts
 
 	//index of the current selection
-	set<int> out_selection;
+	std::set<int> out_selection;
 	mICAO_AptProvider.GetSelection(out_selection);
 	if(out_selection.empty())
 		return false;
@@ -966,7 +966,7 @@ bool WED_GatewayImportDialog::StartVersionsDownload()
 	mCacheRequest.in_url = WED_get_GW_api_url() + "airport/" + current_apt.icao;
 	mCacheRequest.in_domain = cache_domain_airport_versions_json;
 
-	stringstream ss;
+	std::stringstream ss;
 	ss << "scenery_packs" << DIR_STR << "GatewayImport" << DIR_STR << current_apt.icao;
 	mCacheRequest.in_folder_prefix = ss.str();
 
@@ -986,14 +986,14 @@ bool WED_GatewayImportDialog::NextVersionsDownload()
 	std::set<int>::iterator index = mVersions_VersionsSelected.begin();
 
 	//Start the download
-	mCacheRequest.in_url = WED_get_GW_api_url() + "scenery/" + to_string(mVersions_Vers[*index].sceneryId);
+	mCacheRequest.in_url = WED_get_GW_api_url() + "scenery/" + std::to_string(mVersions_Vers[*index].sceneryId);
 	mCacheRequest.in_domain = cache_domain_scenery_pack;
-	mCacheRequest.in_folder_prefix = string("scenery_packs" DIR_STR "GatewayImport" DIR_STR) + mVersions_Vers[*index].icao;
+	mCacheRequest.in_folder_prefix = std::string("scenery_packs" DIR_STR "GatewayImport" DIR_STR) + mVersions_Vers[*index].icao;
 
 	if(gFileCache.request_file(mCacheRequest).out_status == cache_status_available)
 	{
 		if(mVersions_VersionsSelected.size() > 1)
-			DecorateGUIWindow(string("Airport ") + mVersions_Vers[*index].icao + " is cached already.");
+			DecorateGUIWindow(std::string("Airport ") + mVersions_Vers[*index].icao + " is cached already.");
 		else
 			DecorateGUIWindow("Importing airport(s), please wait...");
 		Start(0.005);   // process w/no delay, but not too fast so multiple timer events accumulate
@@ -1006,7 +1006,7 @@ bool WED_GatewayImportDialog::NextVersionsDownload()
 	return true;
 }
 
-WED_Airport * WED_GatewayImportDialog::ImportSpecificVersion(const string& json_string)
+WED_Airport * WED_GatewayImportDialog::ImportSpecificVersion(const std::string& json_string)
 {
 	//Now that we have our rawJSONString we'll be turning it into a JSON object
 	Json::Value root = Json::Value(Json::objectValue);
@@ -1026,26 +1026,26 @@ WED_Airport * WED_GatewayImportDialog::ImportSpecificVersion(const string& json_
 		return NULL;
 	}
 
-	string zipString = root["scenery"]["masterZipBlob"].asString();
-	vector<char> outString = vector<char>(zipString.length());
+	std::string zipString = root["scenery"]["masterZipBlob"].asString();
+	std::vector<char> outString = std::vector<char>(zipString.length());
 
 	char * outP;
 	decode(&*zipString.begin(),&*zipString.end(),&*outString.begin(),&outP);
 
-	//Fixes the terrible vector padding bug by shrinking it back down to precisely the correct size
+	//Fixes the terrible std::vector padding bug by shrinking it back down to precisely the correct size
 	outString.resize(outP - &*outString.begin());
 
 #if TEST_AT_START
 	//Anything beyond cannot be tested at the start or wouldn't be useful.
 	return NULL;
 #endif
-	string filePath("");
+	std::string filePath("");
 
 	ILibrarian * lib = WED_GetLibrarian(mResolver);
     lib->LookupPath(filePath);
 
-	string mICAOid = root["scenery"]["icao"].asString();
-	string zipPath = filePath + mICAOid + ".zip";
+	std::string mICAOid = root["scenery"]["icao"].asString();
+	std::string zipPath = filePath + mICAOid + ".zip";
 
 	if(!outString.empty())
 	{
@@ -1058,13 +1058,13 @@ WED_Airport * WED_GatewayImportDialog::ImportSpecificVersion(const string& json_
 			{
 				mPhase = imp_dialog_error;
 #if DEV
-				stringstream ss;
+				std::stringstream ss;
 				ss << write_result;
 
-				string wr = ss.str();
+				std::string wr = ss.str();
 				ss.str() = "";
 				ss << outString.size();
-				string out_s = ss.str();
+				std::string out_s = ss.str();
 				DecorateGUIWindow("Could not create file at " + zipPath + ", write_result: " + wr + ", outstring.size(): " + out_s);
 #else
 				DecorateGUIWindow("Could not create file at " + zipPath + ", please ensure you have enough space and sufficient permissions");
@@ -1072,7 +1072,7 @@ WED_Airport * WED_GatewayImportDialog::ImportSpecificVersion(const string& json_
 				int removeVal = FILE_delete_file(zipPath.c_str(), false);
 				if(removeVal != 0)
 				{
-					//DoUserAlert(string("Could not remove temporary file " + zipPath + ". You may delete this file if you wish").c_str());//TODO - is this not helpful to the user?
+					//DoUserAlert(std::string("Could not remove temporary file " + zipPath + ". You may delete this file if you wish").c_str());//TODO - is this not helpful to the user?
 				}
 				return NULL;//Exit before we can continue
 			}
@@ -1087,7 +1087,7 @@ WED_Airport * WED_GatewayImportDialog::ImportSpecificVersion(const string& json_
 
 	bool has_dsf = false;
 
-	string res = MemFileHandling(zipPath,filePath,mICAOid,has_dsf);
+	std::string res = MemFileHandling(zipPath,filePath,mICAOid,has_dsf);
 
 	if(res.size() != 0)
 	{
@@ -1098,11 +1098,11 @@ WED_Airport * WED_GatewayImportDialog::ImportSpecificVersion(const string& json_
 
 	WED_Thing * wrl = WED_GetWorld(mResolver);
 
-	string aptdatPath = filePath + mICAOid + ".dat";
+	std::string aptdatPath = filePath + mICAOid + ".dat";
 
 	//The one out_apt will be the WED_Thing we'll be putting the rest of our
 	//Operation inside of
-	vector<WED_Airport *> out_apt;
+	std::vector<WED_Airport *> out_apt;
 	WED_ImportOneAptFile(aptdatPath,wrl,&out_apt);
 
 	WED_Airport * g = NULL;
@@ -1116,7 +1116,7 @@ WED_Airport * WED_GatewayImportDialog::ImportSpecificVersion(const string& json_
 		g->SetSceneryID(root["scenery"]["sceneryId"].asInt());
 	}
 
-	string dsfTextPath = filePath + mICAOid + ".txt";
+	std::string dsfTextPath = filePath + mICAOid + ".txt";
 	if(has_dsf && g)
 	{
 		WED_ImportText(dsfTextPath.c_str(), (WED_Thing *) g);
@@ -1131,23 +1131,23 @@ WED_Airport * WED_GatewayImportDialog::ImportSpecificVersion(const string& json_
 	{
 		if(FILE_delete_file(dsfTextPath.c_str(),0) != 0)
 		{
-			//DoUserAlert(string("Could not remove temporary file " + dsfTextPath + ". You may delete this file if you wish").c_str());//TODO - is this not helpful to the user?
+			//DoUserAlert(std::string("Could not remove temporary file " + dsfTextPath + ". You may delete this file if you wish").c_str());//TODO - is this not helpful to the user?
 		}
 	}
 	if(FILE_delete_file(aptdatPath.c_str(),0) != 0)
 	{
-		//DoUserAlert(string("Could not remove temporary file " + aptdatPath + ". You may delete this file if you wish").c_str());//TODO - is this not helpful to the user?
+		//DoUserAlert(std::string("Could not remove temporary file " + aptdatPath + ". You may delete this file if you wish").c_str());//TODO - is this not helpful to the user?
 	}
 	if(FILE_delete_file(zipPath.c_str(),0) != 0)
 	{
-		//DoUserAlert(string("Could not remove temporary file " + zipPath + ". You may delete this file if you wish").c_str());//TODO - is this not helpful to the user?
+		//DoUserAlert(std::string("Could not remove temporary file " + zipPath + ". You may delete this file if you wish").c_str());//TODO - is this not helpful to the user?
 	}
 #endif
 
 	return g;
 }
 
-void WED_GatewayImportDialog::DecorateGUIWindow(string labelDesc)
+void WED_GatewayImportDialog::DecorateGUIWindow(std::string labelDesc)
 {
 	switch(mPhase)
 	{
@@ -1397,20 +1397,20 @@ void	WED_DoImportDSFText(IResolver * resolver)
 
 	char dir_path[200];
 	bool success = GetFilePathFromUser(getFile_PickFolder, "Import all files in directory...", "Import", FILE_DIALOG_IMPORT_DSF, dir_path, sizeof(dir_path));
-	const string dir = string(dir_path) + '/';
+	const std::string dir = std::string(dir_path) + '/';
 	if(success)
 	{
 		wrl->StartOperation("Import DSF");
 		auto t0 = std::chrono::high_resolution_clock::now();
 
-		vector<string> all_files;
+		std::vector<std::string> all_files;
 		FILE_get_directory(dir, &all_files, NULL);
 		
 		for(const auto& nam_apt : all_files)
 		{
 			if(nam_apt.compare(nam_apt.length() - 4, 4, ".dat") == 0)
 			{
-				vector<WED_Airport*> this_apt;
+				std::vector<WED_Airport*> this_apt;
 				WED_ImportOneAptFile(dir + nam_apt, wrl, &this_apt);
 				Assert(this_apt.size() == 1);
 				WED_DoInvisibleUpdateMetadata(this_apt.front());

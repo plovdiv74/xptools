@@ -67,7 +67,7 @@ int BezierPtsCount(const Bezier2& b, WED_MapZoomerNew * z)
 void PointSequenceToVector(
 			IGISPointSequence *		ps,
 			WED_MapZoomerNew *		z,
-			vector<Point2>&			pts,
+			std::vector<Point2>&			pts,
 			bool					get_uv,
 			bool					dupFirst)
 {
@@ -136,7 +136,7 @@ static void CALLBACK TessVertexUVh(const Point2 * p, float * h)
 }
 #endif
 
-void glPolygon2(const vector<Point2>& pts, bool has_uv, const vector<int>& extra_contours, bool show_all, float height)
+void glPolygon2(const std::vector<Point2>& pts, bool has_uv, const std::vector<int>& extra_contours, bool show_all, float height)
 {
 #if LIBTESS
 	TESStesselator * tess = tessNewTess(NULL);
@@ -158,7 +158,7 @@ void glPolygon2(const vector<Point2>& pts, bool has_uv, const vector<int>& extra
 	tessAddContour(tess, 2, pts_p, (has_uv ? 4 : 2) * sizeof(TESSreal), n_todo);
 #else
 	const Point2* pts_p(pts.data());
-	vector<TESSreal>	raw_pts;
+	std::vector<TESSreal>	raw_pts;
 	raw_pts.reserve(pts.size() * 2);
 	auto next_cont = extra_contours.begin();
 	
@@ -276,9 +276,9 @@ void glPolygon2(const vector<Point2>& pts, bool has_uv, const vector<int>& extra
 #define 	line_BChequered    line_BoundaryEdge+2
 #define 	line_BBrokenWhite  line_BoundaryEdge+3
 
-void DrawLineAttrs(const Point2 * pts, int cnt, const set<int>& attrs)
+void DrawLineAttrs(const Point2 * pts, int cnt, const std::set<int>& attrs)
 {
-//  Its assumed that this is all set up already at this point
+//  Its assumed that this is all std::set up already at this point
 //	glColor4f()
 //	glLineWidth(1);
 //	glDisable(GL_LINE_STIPPLE);
@@ -290,7 +290,7 @@ void DrawLineAttrs(const Point2 * pts, int cnt, const set<int>& attrs)
 	}
 	else
 	{
-		for(set<int>::const_iterator a = attrs.begin(); a != attrs.end(); ++a)  // first layer: draw only line styles
+		for(std::set<int>::const_iterator a = attrs.begin(); a != attrs.end(); ++a)  // first layer: draw only line styles
 		{
 			int b = *a;
 			// do *some* guessing on closest aproximation for XP11.25 added line types. Don't want to put too much effort into this.
@@ -545,7 +545,7 @@ void DrawLineAttrs(const Point2 * pts, int cnt, const set<int>& attrs)
 				}
 			}
 		}
-		for(set<int>::const_iterator a = attrs.begin(); a != attrs.end(); ++a)  // second layer: do only draw lights, so they end up ontop of line styles
+		for(std::set<int>::const_iterator a = attrs.begin(); a != attrs.end(); ++a)  // second layer: do only draw lights, so they end up ontop of line styles
 		{
 			int b = *a;
 			// do *some* guessing on closest aproximation for XP11.25 added light types. Don't want to put too much effort into this.
@@ -615,7 +615,7 @@ void DrawLineAttrs(const Point2 * pts, int cnt, const set<int>& attrs)
 	glDisable(GL_LINE_STIPPLE);
 }
 
-void SideToPoints(IGISPointSequence * ps, int i, WED_MapZoomerNew * z,  vector<Point2>& pts)
+void SideToPoints(IGISPointSequence * ps, int i, WED_MapZoomerNew * z,  std::vector<Point2>& pts)
 {
 	Bezier2		b;
 	if (ps->GetSide(gis_Geo,i,b))
@@ -639,7 +639,7 @@ void SideToPoints(IGISPointSequence * ps, int i, WED_MapZoomerNew * z,  vector<P
 	}
 }
 
-void BoxToPoints(const Point2& p1, const Point2& p2, WED_MapZoomerNew * z, vector<Point2>& pts)
+void BoxToPoints(const Point2& p1, const Point2& p2, WED_MapZoomerNew * z, std::vector<Point2>& pts)
 {
 		Vector2 dLat(0.0, p1.y() - p2.y());
 		Vector2 dLon(p1.x() - p2.x(), 0.0);

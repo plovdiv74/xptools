@@ -120,7 +120,7 @@ void	WED_GISPoint::GetLocation(GISLayer_t l,     Point2& p) const
 //	CacheBuild();
 
 	// Ben says: 9/13/09 - the above comment is from WED 1.1 and seems like it is perhaps
-	// wrong.  Since we reval our cache every time we inval it (this pair invals our parents
+	// wrong.  Since we reval our cache every time we inval it (this std::pair invals our parents
 	// just once and then remembers that we did it) we should NOT ever be in a state where our
 	// own cache is invalid.  (Since we have no cache, how can it be invalid?  So we mark it as
 	// valid every time we inval, so the next inval will wrok.)

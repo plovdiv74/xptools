@@ -64,14 +64,14 @@ int gIsFeet;
 int gInfoDMS;
 int gModeratorMode;
 int gFontSize;
-string gCustomSlippyMap;
+std::string gCustomSlippyMap;
 int gOrthoExport;
 
-static set<WED_Document *> sDocuments;
-static map<string,string>	sGlobalPrefs;
+static std::set<WED_Document *> sDocuments;
+static std::map<std::string,std::string>	sGlobalPrefs;
 
 WED_Document::WED_Document(
-	const string& 		package,
+	const std::string& 		package,
 	double				inBounds[4]) :
 	//	mProperties(mDB.get()),
 	mPackage(package),
@@ -94,7 +94,7 @@ WED_Document::WED_Document(
 	sDocuments.insert(this);
 	mArchive.SetUndoManager(&mUndo);
 
-	string buf;
+	std::string buf;
 
 	mBounds[0] = inBounds[0];
 	mBounds[1] = inBounds[1];
@@ -130,7 +130,7 @@ WED_Document::~WED_Document()
 	BroadcastMessage(msg_DocumentDestroyed, 0);
 }
 
-string				WED_Document::GetFilePath(void) const
+std::string				WED_Document::GetFilePath(void) const
 {
 	return mFilePath + ".xml";
 }
@@ -182,13 +182,13 @@ void	WED_Document::Save(void)
 
 	//All or some of these are used through out
 
-	string xml = mFilePath;
+	std::string xml = mFilePath;
 	xml += ".xml";
 
-	string bakXML = xml;
+	std::string bakXML = xml;
 	bakXML = bakXML.insert((bakXML.length()-4),".bak");
 
-	string tempBakBak = bakXML;
+	std::string tempBakBak = bakXML;
 	tempBakBak = tempBakBak.insert((bakXML.length()-4),".bak");
 
 	auto t0 = std::chrono::high_resolution_clock::now();
@@ -244,7 +244,7 @@ void	WED_Document::Save(void)
 
 	if(xml_file == NULL)
 	{
-		string msg = "Can not open '" + xml + "' for writing.";
+		std::string msg = "Can not open '" + xml + "' for writing.";
 		DoUserAlert(msg.c_str());
 		return;
 	}
@@ -265,7 +265,7 @@ void	WED_Document::Save(void)
 
 	if(ferrorErr != 0 || fcloseErr != 0)
 	{
-		string msg =  "Error while writing '" + xml + "'";
+		std::string msg =  "Error while writing '" + xml + "'";
 #if 0
 		switch(stage)
 		{
@@ -320,7 +320,7 @@ void	WED_Document::Revert(void)
 {
 	if(this->IsDirty())
 	{
-		string msg = "Are you sure you want to revert the document '" + mPackage + "' to the saved version on disk?";
+		std::string msg = "Are you sure you want to revert the document '" + mPackage + "' to the saved version on disk?";
 		if(!ConfirmMessage(msg.c_str(),"Revert","Cancel"))
 			return;
 	}
@@ -331,7 +331,7 @@ void	WED_Document::Revert(void)
 	try {
 		WED_XMLReader	reader;
 		reader.PushHandler(this);
-		string fname(mFilePath);
+		std::string fname(mFilePath);
 		fname+=".xml";
 		mArchive.ClearAll();
 
@@ -339,7 +339,7 @@ void	WED_Document::Revert(void)
 		bool xml_exists;
 		LOG_MSG("I/Doc reading XML from %s\n", fname.c_str());
 
-		string result = reader.ReadFile(fname.c_str(),&xml_exists);
+		std::string result = reader.ReadFile(fname.c_str(),&xml_exists);
 
 		for (auto sp : mDocPrefs)
 			LOG_MSG("I/Doc prefs %s = %s\n", sp.first.c_str(), sp.second.c_str());
@@ -366,7 +366,7 @@ void	WED_Document::Revert(void)
 				// THEN the root contains three well-known objects by name - so their order isn't super-important as
 				// children or in the archive.  The "World" is the outer most spatial group, the "selection" is our one
 				// and only selection object, and "choices" is our key-value dictionary for various random crap we'll
-				// need.  (Currently only current airprt is set in the key-value lookup.)
+				// need.  (Currently only current airprt is std::set in the key-value lookup.)
 
 				WED_Root * root = WED_Root::CreateTyped(&mArchive);				// Root object anchors all WED things and supports named searches.
 				WED_Select * sel = WED_Select::CreateTyped(&mArchive);			// Sel and key-choice objs are known by name in the root!
@@ -390,7 +390,7 @@ void	WED_Document::Revert(void)
 
 	if(WED_Repair(this))
 	{
-		string msg = string("Warning: the package '") + mPackage + string("' has some corrupt contents."
+		std::string msg = std::string("Warning: the package '") + mPackage + std::string("' has some corrupt contents."
 					"They have been deleted so that the document can be opened.  If you have a better backup of the project, do not save these changes.");
 		DoUserAlert(msg.c_str());
 		mUndo.PurgeUndo();
@@ -418,7 +418,7 @@ bool	WED_Document::TryClose(void)
 {
 	if (IsDirty())
 	{
-		string msg = string("Save changes to scenery package ") + mPackage + string(" before closing?");
+		std::string msg = std::string("Save changes to scenery package ") + mPackage + std::string(" before closing?");
 
 		switch(DoSaveDiscardDialog("Save changes before closing...",msg.c_str())) {
 		case close_Save:	Save();	break;
@@ -474,7 +474,7 @@ IBase *	WED_Document::Resolver_Find(const char * in_path)
 		{
 			ep = sp;
 			while (*ep != 0 && *ep != '[' && *ep != '.') ++ep;
-			string comp(sp,ep);
+			std::string comp(sp,ep);
 
 			IDirectory * dir = SAFE_CAST(IDirectory,who);
 			if (dir == NULL) return NULL;
@@ -500,8 +500,8 @@ void *		WED_Document::QueryInterface(const char * class_id)
 
 bool	WED_Document::TryCloseAll(void)
 {
-	set<WED_Document *>	documents(sDocuments);
-	for (set<WED_Document *>::iterator p = documents.begin(); p != documents.end(); ++p)
+	std::set<WED_Document *>	documents(sDocuments);
+	for (std::set<WED_Document *>::iterator p = documents.begin(); p != documents.end(); ++p)
 	{
 		if (!(*p)->TryClose()) return false;
 	}
@@ -510,12 +510,12 @@ bool	WED_Document::TryCloseAll(void)
 
 
 
-void	WED_Document::LookupPath(string& io_path)
+void	WED_Document::LookupPath(std::string& io_path)
 {
 	io_path = gPackageMgr->ComputePath(mPackage, io_path);
 }
 
-void	WED_Document::ReducePath(string& io_path)
+void	WED_Document::ReducePath(std::string& io_path)
 {
 	io_path = gPackageMgr->ReducePath(mPackage, io_path);
 }
@@ -566,7 +566,7 @@ void		WED_Document::WriteDoublePref(const char * in_key, double in_value, unsign
 	WriteStringPref(in_key, buf, type);
 }
 
-string			WED_Document::ReadStringPref(const char * in_key, const string& in_default, unsigned type)
+std::string			WED_Document::ReadStringPref(const char * in_key, const std::string& in_default, unsigned type)
 {
 	std::string value;
 	if (ReadPrefInternal(in_key, type, value))
@@ -575,7 +575,7 @@ string			WED_Document::ReadStringPref(const char * in_key, const string& in_defa
 		return in_default;
 }
 
-void		WED_Document::WriteStringPref(const char * in_key, const string& in_value, unsigned type)
+void		WED_Document::WriteStringPref(const char * in_key, const std::string& in_value, unsigned type)
 {
 	if (type & pref_type_doc)
 		mDocPrefs[in_key] = in_value;
@@ -583,15 +583,15 @@ void		WED_Document::WriteStringPref(const char * in_key, const string& in_value,
 		sGlobalPrefs[in_key] = in_value;
 }
 
-void		WED_Document::ReadIntSetPref(const char * in_key, set<int>& out_value)
+void		WED_Document::ReadIntSetPref(const char * in_key, std::set<int>& out_value)
 {
-	string key(in_key);
-	map<string,set<int> >::iterator i = mDocPrefsItems.find(key);
+	std::string key(in_key);
+	std::map<std::string,std::set<int> >::iterator i = mDocPrefsItems.find(key);
 	if (i == mDocPrefsItems.end()) return;
 	out_value = i->second;
 }
 
-void		WED_Document::WriteIntSetPref(const char * in_key, const set<int>& in_value)
+void		WED_Document::WriteIntSetPref(const char * in_key, const std::set<int>& in_value)
 {
 	mDocPrefsItems[in_key] = in_value;
 }
@@ -620,11 +620,11 @@ void	WED_Document::WriteGlobalPrefs(void)
 	GUI_SetPrefString("preferences","use_feet",gIsFeet ? "1" : "0");
 	GUI_SetPrefString("preferences","InfoDMS",gInfoDMS ? "1" : "0");
 	GUI_SetPrefString("preferences","CustomSlippyMap",gCustomSlippyMap.c_str());
-	string FontSize(to_string(gFontSize));
+	std::string FontSize(std::to_string(gFontSize));
 	GUI_SetPrefString("preferences","FontSize",FontSize.c_str());
 	GUI_SetPrefString("preferences","OrthoExport",gOrthoExport ? "1" : "0");
 
-	for (map<string,string>::iterator i = sGlobalPrefs.begin(); i != sGlobalPrefs.end(); ++i)
+	for (std::map<std::string,std::string>::iterator i = sGlobalPrefs.begin(); i != sGlobalPrefs.end(); ++i)
 		if(i->first != "doc/xml_compatibility")          // why NOT write that ? Cuz WED 2.0 ... 2.2 read that and if an PRE wed-2.0 document
 			                                             // is opened - it uses this instead, resulting in false warnings
 			GUI_SetPrefString("doc_prefs", i->first.c_str(), i->second.c_str());
@@ -698,7 +698,7 @@ void		WED_Document::StartElement(
 		}
 		if(v)
 		{
-			set<int>& ip(mDocPrefsItems[mDocPrefsActName]);
+			std::set<int>& ip(mDocPrefsItems[mDocPrefsActName]);
 			ip.insert(atoi(v));
 		}
 		else
@@ -717,7 +717,7 @@ void WED_Document::Panic(void)
 {
 	// Panic case: means undo system blew up.  Try to save off the current project with a special "crash" extension - if we get lucky,
 	// we save the user's work.
-	string xml = mFilePath;
+	std::string xml = mFilePath;
 	xml += ".crash.xml";
 
 	FILE * xml_file = fopen(xml.c_str(),"w");
@@ -728,10 +728,10 @@ void WED_Document::Panic(void)
 	}
 }
 
-bool		WED_Document::ReadPrefInternal(const char * in_key, unsigned type, string &out_value) const
+bool		WED_Document::ReadPrefInternal(const char * in_key, unsigned type, std::string &out_value) const
 {
-	string key(in_key);
-	map<string, string>::const_iterator i;
+	std::string key(in_key);
+	std::map<std::string, std::string>::const_iterator i;
 	bool found = false;
 	if (type & pref_type_doc)
 	{
@@ -758,17 +758,17 @@ void		WED_Document::WriteXML(FILE * xml_file)
 		mArchive.SaveToXML(&top_level);
 		WED_XMLElement * pref;
 		WED_XMLElement * prefs = top_level.add_sub_element("prefs");
-		for(map<string,set<int> >::iterator pi = mDocPrefsItems.begin(); pi != mDocPrefsItems.end(); ++pi)
+		for(std::map<std::string,std::set<int> >::iterator pi = mDocPrefsItems.begin(); pi != mDocPrefsItems.end(); ++pi)
 		{
 			pref = prefs->add_sub_element("pref");
 			pref->add_attr_stl_str("name",pi->first);
-			for(set<int>::iterator i = pi->second.begin(); i != pi->second.end(); ++i)
+			for(std::set<int>::iterator i = pi->second.begin(); i != pi->second.end(); ++i)
 			{
 				WED_XMLElement *item = pref->add_sub_element("item");
 				item->add_attr_int("value",*i);
 			}
 		}
-		for(map<string,string>::iterator p = mDocPrefs.begin(); p != mDocPrefs.end(); ++p)
+		for(std::map<std::string,std::string>::iterator p = mDocPrefs.begin(); p != mDocPrefs.end(); ++p)
 		{
 			pref = prefs->add_sub_element("pref");
 			pref->add_attr_stl_str("name",p->first);

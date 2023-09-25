@@ -71,7 +71,7 @@ WED_Airport::~WED_Airport()
 {
 }
 
-void	WED_Airport::GetICAO(string& i) const
+void	WED_Airport::GetICAO(std::string& i) const
 {
 	i = icao.value;
 }
@@ -87,14 +87,14 @@ int		WED_Airport::GetSceneryID(void) const
 }
 
 void		WED_Airport::SetAirportType(int x) { airport_type = x; }
-void		WED_Airport::SetICAO(const string& x) { icao = x; }
+void		WED_Airport::SetICAO(const std::string& x) { icao = x; }
 void		WED_Airport::SetSceneryID(int x) { scenery_id = x; }
 
 //Adds a Meta Data Key
-void		WED_Airport::AddMetaDataKey(const string& key, const string& value)
+void		WED_Airport::AddMetaDataKey(const std::string& key, const std::string& value)
 {
 	//Insert in alphabetical order
-	vector<meta_data_entry>::iterator itr;
+	std::vector<meta_data_entry>::iterator itr;
 	
 	for(itr = meta_data_vec_map.begin(); itr != meta_data_vec_map.end(); ++itr)
 	{
@@ -117,7 +117,7 @@ void		WED_Airport::AddMetaDataKey(const string& key, const string& value)
 	}
 	else 
 	{
-		//Move to the iterator to position
+		//Move to the std::iterator to position
 		while(key > itr->first)
 		{
 			itr++;
@@ -136,10 +136,10 @@ void		WED_Airport::AddMetaDataKey(const string& key, const string& value)
 }
 
 //Edits a given Meta Data key's value
-void	WED_Airport::EditMetaDataKey(const string& key, const string& value)
+void	WED_Airport::EditMetaDataKey(const std::string& key, const std::string& value)
 {
-	vector<meta_data_entry>::iterator itr = meta_data_vec_map.begin();
-	//Search through vector looking for the key to edit
+	std::vector<meta_data_entry>::iterator itr = meta_data_vec_map.begin();
+	//Search through std::vector looking for the key to edit
 	for( ; itr != meta_data_vec_map.end(); ++itr)
 	{
 		if(itr->first == key)
@@ -152,12 +152,12 @@ void	WED_Airport::EditMetaDataKey(const string& key, const string& value)
 	return;
 }
 
-////Removes a key/value pair
-//void		WED_Airport::RemoveMetaDataKey(const string& key)
+////Removes a key/value std::pair
+//void		WED_Airport::RemoveMetaDataKey(const std::string& key)
 //{
-//	vector<meta_data_entry>::iterator itr = meta_data_vec_map.begin();
+//	std::vector<meta_data_entry>::iterator itr = meta_data_vec_map.begin();
 //	
-//	//Search through vector looking for the key to remove
+//	//Search through std::vector looking for the key to remove
 //	for( ; itr != meta_data_vec_map.end(); ++itr)
 //	{
 //		if(itr->first == key)
@@ -172,9 +172,9 @@ void	WED_Airport::EditMetaDataKey(const string& key, const string& value)
 //	return;
 //}
 
-bool		WED_Airport::ContainsMetaDataKey(const string& key) const
+bool		WED_Airport::ContainsMetaDataKey(const std::string& key) const
 {
-	for(vector<meta_data_entry>::const_iterator itr = meta_data_vec_map.begin();
+	for(std::vector<meta_data_entry>::const_iterator itr = meta_data_vec_map.begin();
 		itr != meta_data_vec_map.end();
 		++itr)
 
@@ -198,10 +198,10 @@ int			WED_Airport::CountMetaDataKeys()
 	return meta_data_vec_map.size();
 }
 
-string		WED_Airport::GetMetaDataValue(const string& key) const
+std::string		WED_Airport::GetMetaDataValue(const std::string& key) const
 {
-	vector<meta_data_entry>::const_iterator itr = meta_data_vec_map.begin();
-	//Search through vector looking for the key to edit
+	std::vector<meta_data_entry>::const_iterator itr = meta_data_vec_map.begin();
+	//Search through std::vector looking for the key to edit
 	for( ; itr != meta_data_vec_map.end(); ++itr)
 	{
 		if(itr->first == key)
@@ -210,11 +210,11 @@ string		WED_Airport::GetMetaDataValue(const string& key) const
 		}
 	}
 
-	AssertPrintf(string("Meta data key " + key + " was not found!").c_str());
+	AssertPrintf(std::string("Meta data key " + key + " was not found!").c_str());
 	return "";//Note that we shouldn't ever get to this point
 }
 
-string		WED_Airport::GetMetaDataValue(int meta_data_enum) const
+std::string		WED_Airport::GetMetaDataValue(int meta_data_enum) const
 {
 	return WED_Airport::GetMetaDataValue(META_KeyName(meta_data_enum));
 }
@@ -239,9 +239,9 @@ void		WED_Airport::Import(const AptInfo_t& info, void (* print_func)(void *, con
 	//When importing from an apt.dat file, special non-sythetic entries are used and removed
 	
 	//Disallow duplicate keys
-	for(vector<meta_data_entry>::iterator key = meta_data_vec_map.begin(); key != meta_data_vec_map.end(); ++key)
+	for(std::vector<meta_data_entry>::iterator key = meta_data_vec_map.begin(); key != meta_data_vec_map.end(); ++key)
 	{
-		vector<meta_data_entry>::iterator compare_key = key + 1;
+		std::vector<meta_data_entry>::iterator compare_key = key + 1;
 		while(compare_key < meta_data_vec_map.end())
 		{
 			if(key->first == compare_key->first)
@@ -256,7 +256,7 @@ void		WED_Airport::Import(const AptInfo_t& info, void (* print_func)(void *, con
 		}
 	}
 
-	vector<meta_data_entry>::iterator i = meta_data_vec_map.begin();
+	std::vector<meta_data_entry>::iterator i = meta_data_vec_map.begin();
 	while(i != meta_data_vec_map.end())
 	{
 		if(i->first == "flatten")
@@ -293,9 +293,9 @@ void		WED_Airport::Export(AptInfo_t& info) const
 	info.beacon.color_code = apt_beacon_none;
 	info.meta_data = meta_data_vec_map;
 	if(always_flatten.value)
-		info.meta_data.push_back(make_pair(string("flatten"),string("1")));
+		info.meta_data.push_back(std::make_pair(std::string("flatten"),std::string("1")));
 	if(drive_on_left.value)
-		info.meta_data.push_back(make_pair(string("drive_on_left"),string("1")));
+		info.meta_data.push_back(std::make_pair(std::string("drive_on_left"),std::string("1")));
 }
 
 //--IPropertyObject------------------------------------------------------------
@@ -372,7 +372,7 @@ void		WED_Airport::GetNthPropertyDict(int n, PropertyDict_t& dict) const
 	WED_GISComposite::GetNthPropertyDict(n, dict);
 }
 
-void		WED_Airport::GetNthPropertyDictItem(int n, int e, string& item) const
+void		WED_Airport::GetNthPropertyDictItem(int n, int e, std::string& item) const
 {
 	WED_GISComposite::GetNthPropertyDictItem(n, e, item);
 }
@@ -448,18 +448,18 @@ bool 			WED_Airport::ReadFrom(IOReader * reader)
 	
 	while (i--)
 	{
-		//Read the key string length, then string
+		//Read the key std::string length, then std::string
 		int key_len;
 		reader->ReadInt(key_len);
 		
-		string key(key_len,'\0');
+		std::string key(key_len,'\0');
 		reader->ReadBulk(&(*key.begin()), key_len, false);
 		
-		//Read the value string length, then string
+		//Read the value std::string length, then std::string
 		int value_len;
 		reader->ReadInt(value_len);
 
-		string val (value_len, '\0');
+		std::string val (value_len, '\0');
 		reader->ReadBulk (&(*val.begin()), value_len, false);
 		
 		meta_data_vec_map.push_back(meta_data_entry(key,val));
@@ -473,13 +473,13 @@ void 			WED_Airport::WriteTo(IOWriter * writer)
 	
 	//Write the hashmap size
 	writer->WriteInt(meta_data_vec_map.size());
-	for (vector<meta_data_entry>::iterator it = meta_data_vec_map.begin(); it != meta_data_vec_map.end(); ++it)
+	for (std::vector<meta_data_entry>::iterator it = meta_data_vec_map.begin(); it != meta_data_vec_map.end(); ++it)
 	{
-		//Write the key string length and c-string
+		//Write the key std::string length and c-std::string
 		writer->WriteInt(it->first.size());
 		writer->WriteBulk(it->first.c_str(), it->first.length(), false);
 
-		//Write the value string length and c-string
+		//Write the value std::string length and c-std::string
 		writer->WriteInt(it->second.size());
 		writer->WriteBulk(it->second.c_str(), it->second.length(), false);
 	}
@@ -490,15 +490,15 @@ void 			WED_Airport::AddExtraXML(WED_XMLElement * obj)
 	WED_GISComposite::AddExtraXML(obj);
 
 	WED_XMLElement * xml = obj->add_sub_element("meta_data");
-	for(vector<meta_data_entry>::iterator i = meta_data_vec_map.begin(); i != meta_data_vec_map.end(); ++i)
+	for(std::vector<meta_data_entry>::iterator i = meta_data_vec_map.begin(); i != meta_data_vec_map.end(); ++i)
 	{
 		
 		WED_XMLElement * c = xml->add_sub_element("meta_data_entry");
 		
 		//Due to the fact we don't know what meta_data key we're going to have
-		//We have to save it as "pair","FAA,BDL". Sadly, its not a one to one mapping
+		//We have to save it as "std::pair","FAA,BDL". Sadly, its not a one to one mapping
 		//of Data Structure and Data Format, and is a bit redundant
-		c->add_attr_stl_str("pair", i->first + "," + i->second);
+		c->add_attr_stl_str("std::pair", i->first + "," + i->second);
 	}
 }
 
@@ -509,19 +509,19 @@ void			WED_Airport::StartElement(
 {
 	if(strcmp(name,"meta_data_entry") == 0)
 	{
-		const XML_Char * entry_value = get_att("pair",atts);
+		const XML_Char * entry_value = get_att("std::pair",atts);
 		if(entry_value != NULL)
 		{
 			//Will be something like "name_es, Talavera la Real Badajoz Airport"
-			const string entry_string = string(entry_value);
+			const std::string entry_string = std::string(entry_value);
 
-			const string key = entry_string.substr( 0, entry_string.find_first_of(','));
-			const string value = entry_string.substr(entry_string.find_first_of(',') + 1);
+			const std::string key = entry_string.substr( 0, entry_string.find_first_of(','));
+			const std::string value = entry_string.substr(entry_string.find_first_of(',') + 1);
 			meta_data_vec_map.push_back(meta_data_entry(key, value));
 		}
 		else
 		{
-			reader->FailWithError("Attribute pair is missing from meta_data_entry element");
+			reader->FailWithError("Attribute std::pair is missing from meta_data_entry element");
 		}
 	}
 	else

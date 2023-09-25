@@ -91,7 +91,7 @@ static unsigned char PADDING[64] = {
 	}
 
 /* The routine MD5Init initializes the message-digest context
-	 mdContext. All fields are set to zero.
+	 mdContext. All fields are std::set to zero.
  */
 void MD5Init (MD5_CTX *mdContext)
 {

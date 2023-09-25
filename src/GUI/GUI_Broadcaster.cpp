@@ -31,7 +31,7 @@ GUI_Broadcaster::GUI_Broadcaster()
 
 GUI_Broadcaster::~GUI_Broadcaster()
 {
-	for (set<GUI_Listener*>::iterator who = mListeners.begin();
+	for (std::set<GUI_Listener*>::iterator who = mListeners.begin();
 		who != mListeners.end(); ++who)
 	{
 		(*who)->mBroadcasters.erase(this);
@@ -42,9 +42,9 @@ void	GUI_Broadcaster::BroadcastMessage(intptr_t inMsg, intptr_t inParam)
 {
 	// We need to be careful because a listener may respond to a message by
 	// destroying itself and/or other listeners. So create a copy of the
-	// listener set that is guaranteed not to change while we're iterating, and
+	// listener std::set that is guaranteed not to change while we're iterating, and
 	// check that a listener still exists before sending a message to it.
-	set<GUI_Listener*> listeners = mListeners;
+	std::set<GUI_Listener*> listeners = mListeners;
 	for (GUI_Listener* who : listeners)
 	{
 		if (mListeners.count(who))

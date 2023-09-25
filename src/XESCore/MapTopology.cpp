@@ -31,7 +31,7 @@
 #if 0
 struct FaceIsWet { bool operator()(const Face_handle f) const { return f->data().IsWater(); } };
 
-void	FindAdjacentWetFaces(Face_handle inFace, set<Face_handle>& outFaces)
+void	FindAdjacentWetFaces(Face_handle inFace, std::set<Face_handle>& outFaces)
 {
 	outFaces.clear();
 	typedef CollectionVisitor<Pmwx,Face_handle, FaceIsWet>	Collector;
@@ -64,11 +64,11 @@ bool		IsAdjacentWater(Face_const_handle in_face, bool unbounded_is_wet)
 #if 0
 
 
-void	FindConnectedWetFaces(Face_handle inFace, set<Face_handle>& outFaces)
+void	FindConnectedWetFaces(Face_handle inFace, std::set<Face_handle>& outFaces)
 {
 	DebugAssert(inFace->data().IsWater());
 	outFaces.clear();
-	set<Face_handle>	working;
+	std::set<Face_handle>	working;
 	working.insert(inFace);
 
 	while (!working.empty())
@@ -76,9 +76,9 @@ void	FindConnectedWetFaces(Face_handle inFace, set<Face_handle>& outFaces)
 		Face_handle cur = *working.begin();
 		working.erase(cur);
 		outFaces.insert(cur);
-		set<Face_handle> adjacent;
+		std::set<Face_handle> adjacent;
 		FindAdjacentWetFaces(cur, adjacent);
-		for (set<Face_handle>::iterator f = adjacent.begin(); f != adjacent.end(); ++f)
+		for (std::set<Face_handle>::iterator f = adjacent.begin(); f != adjacent.end(); ++f)
 		if (!(*f)->is_unbounded())
 		if (outFaces.count(*f) == 0)
 			working.insert(*f);
@@ -99,7 +99,7 @@ void	CleanFace(
 //
 // But we need to consider who "owns" the edges!
 //
-	set<Halfedge_handle> nuke;
+	std::set<Halfedge_handle> nuke;
 	Assert(!inFace->is_unbounded());
 
 	Pmwx::Ccb_halfedge_circulator stop, iter;
@@ -111,7 +111,7 @@ void	CleanFace(
 		++iter;
 	} while (iter != stop);
 
-	for (set<Halfedge_handle>::iterator kill = nuke.begin(); kill != nuke.end(); ++kill)
+	for (std::set<Halfedge_handle>::iterator kill = nuke.begin(); kill != nuke.end(); ++kill)
 	{
 		inMap.remove_edge(*kill);
 	}

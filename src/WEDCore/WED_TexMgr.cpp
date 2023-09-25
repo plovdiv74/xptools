@@ -37,13 +37,13 @@
 	#include <GL/gl.h>
 #endif
 
-WED_TexMgr::WED_TexMgr(const string& package) : mPackage(package)
+WED_TexMgr::WED_TexMgr(const std::string& package) : mPackage(package)
 {
 }
 
 WED_TexMgr::~WED_TexMgr()
 {
-	for(map<string,TexInfo *>::iterator t = mTexes.begin(); t != mTexes.end(); ++t)
+	for(std::map<std::string,TexInfo *>::iterator t = mTexes.begin(); t != mTexes.end(); ++t)
 	{
 		GLuint id = t->second->tex_id;
 		glDeleteTextures(1, &id);
@@ -98,7 +98,7 @@ void		WED_TexMgr::GetTexInfo(
 
 WED_TexMgr::TexInfo *	WED_TexMgr::LoadTexture(const char * path, bool is_absolute, int flags)
 {
-	string fpath(is_absolute ? path : gPackageMgr->ComputePath(mPackage, path));
+	std::string fpath(is_absolute ? path : gPackageMgr->ComputePath(mPackage, path));
 	TexInfo * inf = NULL;
 
 	GLuint tn;

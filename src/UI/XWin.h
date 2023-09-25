@@ -158,7 +158,7 @@ public:
 	virtual	void			DragEnter(int inX, int inY)=0;
 	virtual	void			DragOver(int inX, int inY)=0;
 	virtual	void			DragLeave(void)=0;
-	virtual	void			ReceiveFiles(const vector<string>& inFiles, int inX, int inY)=0;
+	virtual	void			ReceiveFiles(const std::vector<std::string>& inFiles, int inX, int inY)=0;
 	virtual	int				KeyPressed(uint32_t inKey, long msg, long p1, long p2)=0;
 	virtual	int				HandleMenuCmd(xmenu inMenu, int inCommand)=0;
 
@@ -220,7 +220,7 @@ public:
 
 	// This is sent to the sub-class to get our help tip.  We need to do this in the Mac because the
 	// tool tip call comes from obj-C.
-	virtual int					CalcHelpTip(int x, int y, int bounds[4], string& msg) { return 0; }
+	virtual int					CalcHelpTip(int x, int y, int bounds[4], std::string& msg) { return 0; }
 
 	// These handlers are sent to the sub-class on Mac only if we are NOT doing default DND support so
 	// that GUI_window can implement its own drag handling.   The passed in value is an NSDraggingInfo
@@ -261,7 +261,7 @@ public:
 
 	static	void	RegisterClass(HINSTANCE hInstance);
 	virtual	void	ReceiveFilesFromDrag(
-						const vector<string>& inFiles);
+						const std::vector<std::string>& inFiles);
 
 #endif
 
@@ -281,7 +281,7 @@ public:
 
 	void ClearMenus();
 	int GetMenuBarHeight(void);
-	virtual void ReceiveFilesFromDrag(const string& inFiles);
+	virtual void ReceiveFilesFromDrag(const std::string& inFiles);
 	bool mInited;
 
 protected:

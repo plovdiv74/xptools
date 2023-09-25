@@ -375,12 +375,12 @@ void WED_GISChain::Reverse(GISLayer_t l)
 		Assert(has_bezier == (mCachePtsBezier[n] != NULL));
 	}
 	
-	vector<Point2>	p(np);
-	vector<Point2>	p_l(np);
-	vector<Point2>	p_h(np);
-	vector<int>		split(np);
-	vector<int>		has_lo(np);
-	vector<int>		has_hi(np);
+	std::vector<Point2>	p(np);
+	std::vector<Point2>	p_l(np);
+	std::vector<Point2>	p_h(np);
+	std::vector<int>		split(np);
+	std::vector<int>		has_lo(np);
+	std::vector<int>		has_hi(np);
 
 	for(n = 0; n < np; ++n)
 	{
@@ -420,7 +420,7 @@ void WED_GISChain::Reverse(GISLayer_t l)
 			t = np - n - 2;
 			WED_AirportNode * a_n = dynamic_cast <WED_AirportNode *> (GetNthChild(n));  // note to self: mCache would yield no speedup here, as we dynamic_cast every point only once
 			WED_AirportNode * a_t = dynamic_cast <WED_AirportNode *> (GetNthChild(t));  // thus we get away with NOT expanding RebuildCache to work for 'gis_Apt" layers :)
-			set<int>	tmp1, tmp2;
+			std::set<int>	tmp1, tmp2;
 			
 			a_n->GetAttributes(tmp1);
 			a_t->GetAttributes(tmp2);
@@ -460,12 +460,12 @@ void WED_GISChain::Shuffle(GISLayer_t l)
 		Assert(has_bezier == (mCachePtsBezier[n] != NULL));
 	}
 	
-	vector<Point2>	p(np);
-	vector<Point2>	p_l(np);
-	vector<Point2>	p_h(np);
-	vector<int>		split(np);
-	vector<int>		has_lo(np);
-	vector<int>		has_hi(np);
+	std::vector<Point2>	p(np);
+	std::vector<Point2>	p_l(np);
+	std::vector<Point2>	p_h(np);
+	std::vector<int>		split(np);
+	std::vector<int>		has_lo(np);
+	std::vector<int>		has_hi(np);
 
 	for(n = 0; n < np; ++n)
 	{

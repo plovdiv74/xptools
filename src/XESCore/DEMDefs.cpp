@@ -739,7 +739,7 @@ void DEMGeo::fill_nearest(void)
 	// We have to use a queue of work - if we iterate over the entire DEM
 	// multiple times (to get a breadth-first search) performance is too
 	// slow with a 1000x1000 DEM.
-	list<pair<int,int> >	todo_list;
+	std::list<std::pair<int,int> >	todo_list;
 	
 	for(y = 0; y < mHeight; ++y)
 	for(x = 0; x < mWidth; ++x)
@@ -749,7 +749,7 @@ void DEMGeo::fill_nearest(void)
 		if(get(x+x_off[n],y+y_off[n]) != DEM_NO_DATA)
 			break;
 		if(n < 8)
-			todo_list.push_back(pair<int,int>(x,y));
+			todo_list.push_back(std::pair<int,int>(x,y));
 	}
 	
 	while(!todo_list.empty())
@@ -773,7 +773,7 @@ void DEMGeo::fill_nearest(void)
 			{
 				float e = get(dx,dy);
 				if(e == DEM_NO_DATA)
-					todo_list.push_back(pair<int,int>(dx,dy));
+					todo_list.push_back(std::pair<int,int>(dx,dy));
 				else
 					helper.Accum(e, DEM_NO_DATA);
 				}

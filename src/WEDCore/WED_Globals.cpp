@@ -24,9 +24,9 @@
 
 #if DEV || DEBUG_VIS_LINES
 
-vector<pair<Point2,Point3> >		gMeshPoints;
-vector<pair<Point2,Point3> >		gMeshLines;
-vector<pair<Polygon2,Point3> >		gMeshPolygons;
+std::vector<std::pair<Point2,Point3> >		gMeshPoints;
+std::vector<std::pair<Point2,Point3> >		gMeshLines;
+std::vector<std::pair<Polygon2,Point3> >		gMeshPolygons;
 
 void	debug_mesh_bbox(const Bbox2& bb1, float r1, float g1, float b1, float r2, float g2, float b2)
 {
@@ -43,18 +43,18 @@ void	debug_mesh_segment(const Segment2& s1, float r1, float g1, float b1, float 
 
 void	debug_mesh_line(const Point2& p1, const Point2& p2, float r1, float g1, float b1, float r2, float g2, float b2)
 {
-	gMeshLines.push_back(pair<Point2,Point3>(p1,Point3(r1,g1,b1)));
-	gMeshLines.push_back(pair<Point2,Point3>(p2,Point3(r2,g2,b2)));
+	gMeshLines.push_back(std::pair<Point2,Point3>(p1,Point3(r1,g1,b1)));
+	gMeshLines.push_back(std::pair<Point2,Point3>(p2,Point3(r2,g2,b2)));
 }
 
 void	debug_mesh_point(const Point2& p1, float r1, float g1, float b1)
 {
-	gMeshPoints.push_back(pair<Point2,Point3>(p1,Point3(r1,g1,b1)));
+	gMeshPoints.push_back(std::pair<Point2,Point3>(p1,Point3(r1,g1,b1)));
 }
 
 void	debug_mesh_polygon(const Polygon2& p1, float r1, float g1, float b1)
 {
-	gMeshPolygons.push_back(pair<Polygon2,Point3>(p1,Point3(r1,g1,b1)));
+	gMeshPolygons.push_back(std::pair<Polygon2,Point3>(p1,Point3(r1,g1,b1)));
 }
 #endif
 

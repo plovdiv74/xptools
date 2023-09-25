@@ -356,8 +356,8 @@ public:
 
 private:
 
-		pair<int,int>	get_lr(int a, int b);
-		pair<int,int>	get_bt(int a, int b);
+		std::pair<int,int>	get_lr(int a, int b);
+		std::pair<int,int>	get_bt(int a, int b);
 		
 		void			emit_pair(vector<Block_2::X_monotone_curve_2>& curves, const Vector2& va, const Vector2& vb, int a1, int b1, int a2, int b2, int c1, int c2);
 
@@ -460,7 +460,7 @@ int	candy_bar::build_curves(vector<BLOCK_face_data>& parts, const Vector2& va, c
 		a = 0;
 		while(a < m_a_divs)
 		{
-			pair<int,int> bp(get_bt(a,b));
+			std::pair<int,int> bp(get_bt(a,b));
 			
 			aa = a + 1;
 			while(aa < m_a_divs && get_bt(aa,b) == bp)
@@ -477,7 +477,7 @@ int	candy_bar::build_curves(vector<BLOCK_face_data>& parts, const Vector2& va, c
 		b = 0;
 		while(b < m_b_divs)
 		{
-			pair<int,int> bp(get_lr(a,b));
+			std::pair<int,int> bp(get_lr(a,b));
 			
 			bb = b + 1;
 			while(bb < m_b_divs && get_lr(a,bb) == bp)
@@ -546,7 +546,7 @@ void			candy_bar::emit_pair(vector<Block_2::X_monotone_curve_2>& curves, const V
 	}
 }
 
-pair<int,int>	candy_bar::get_lr(int a, int b)
+std::pair<int,int>	candy_bar::get_lr(int a, int b)
 {
 	DebugAssert(a >= 0);
 	DebugAssert(a <= m_a_divs);
@@ -568,7 +568,7 @@ pair<int,int>	candy_bar::get_lr(int a, int b)
 	return make_pair(l,r);			
 }
 
-pair<int,int>	candy_bar::get_bt(int a, int b)
+std::pair<int,int>	candy_bar::get_bt(int a, int b)
 {
 	DebugAssert(b >= 0);
 	DebugAssert(b <= m_b_divs);
@@ -670,7 +670,7 @@ inline	void	MoveSegLeft(const Segment2& l1, double dist, Segment2& l2)
 	DebugAssert(l2.p1 != l2.p2);
 }
 
-static pair<int,bool>	WidestRoadTypeForSegment(Pmwx::Halfedge_const_handle he)
+static std::pair<int,bool>	WidestRoadTypeForSegment(Pmwx::Halfedge_const_handle he)
 {
 	int	best_type = NO_VALUE;
 	bool flip = false;
@@ -687,7 +687,7 @@ static pair<int,bool>	WidestRoadTypeForSegment(Pmwx::Halfedge_const_handle he)
 
 	for (GISNetworkSegmentVector::const_iterator i = he->twin()->data().mSegments.begin(); i != he->twin()->data().mSegments.end(); ++i)
 	{
-		if(i->mRepType == NO_VALUE)	return pair<int,bool>(i->mFeatType,true);
+		if(i->mRepType == NO_VALUE)	return std::pair<int,bool>(i->mFeatType,true);
 		if (gNetReps[i->mRepType].width() > best_width)
 		{
 			best_type = i->mRepType;
@@ -695,10 +695,10 @@ static pair<int,bool>	WidestRoadTypeForSegment(Pmwx::Halfedge_const_handle he)
 			best_width = gNetReps[i->mRepType].width();
 		}
 	}
-	return pair<int,bool>(best_type, flip);
+	return std::pair<int,bool>(best_type, flip);
 }
 
-float WidthForSegment(const pair<int,bool>& seg_type)
+float WidthForSegment(const std::pair<int,bool>& seg_type)
 {
 	if(gNetReps.count(seg_type.first) == 0) return 0.0f;
 	if(seg_type.second)
@@ -713,7 +713,7 @@ static bool edges_match(Block_2::Halfedge_handle a, Block_2::Halfedge_handle b)
 		   a->twin()->face()->data().feature== b->twin()->face()->data().feature;
 }
 
-static EdgeRule_t * edge_for_road(const pair<int,bool>& road_type, int zoning, int variant, float height)
+static EdgeRule_t * edge_for_road(const std::pair<int,bool>& road_type, int zoning, int variant, float height)
 {
 	for(EdgeRuleTable::iterator e = gEdgeRules.begin(); e != gEdgeRules.end(); ++e)
 	if(e->zoning == zoning && e->road_type == road_type.first)
@@ -1103,20 +1103,20 @@ inline int find_last_bot_type(const vector<reg_info_t>& r, int t)
 template <typename P>	void set_first(P& p, typename P::first_type v) {	p.first = v; }
 template <typename P>	void set_second(P& p, typename P::second_type v){ p.second = v;}
 
-typedef void (* pair_set_f)(pair<double, double>& p, double v);
+typedef void (* pair_set_f)(std::pair<double, double>& p, double v);
 
 const double UNDEF = -8192.0;
 
 template <pair_set_f func>
-void add_one_split(double x, double y, map<double,pair<double,double> >& times)
+void add_one_split(double x, double y, map<double,std::pair<double,double> >& times)
 {	
-	pair<map<double,pair<double,double> >::iterator,bool> it = times.insert(make_pair(x,make_pair(UNDEF, UNDEF)));
+	std::pair<map<double,std::pair<double,double> >::iterator,bool> it = times.insert(make_pair(x,make_pair(UNDEF, UNDEF)));
 	func(it.first->second, y);
 }
 
 
 template <pair_set_f func>
-void split_segment(const Segment2& s, double a_start, double a_stop, map<double,pair<double, double> >& times, const double * split_lines, int split_count)
+void split_segment(const Segment2& s, double a_start, double a_stop, map<double,std::pair<double, double> >& times, const double * split_lines, int split_count)
 {
 	if(s.p1.x() >= a_start && s.p1.x() <= a_stop)
 		add_one_split<func>(s.p1.x(),s.p1.y(),times);
@@ -1209,7 +1209,7 @@ static int	init_subdivisions(
 
 	DebugAssert(info->fac_id != NO_VALUE || info->agb_id != NO_VALUE);
 
-	vector<pair<Pmwx::Halfedge_handle,Pmwx::Halfedge_handle> >	sides;
+	vector<std::pair<Pmwx::Halfedge_handle,Pmwx::Halfedge_handle> >	sides;
 	Polygon2													mbounds;		// The block in metric bounds
 	Polygon2													abounds;		// The block in axis-aligned bounds
 	
@@ -1365,12 +1365,12 @@ static int	init_subdivisions(
 			// If we have to consider whether a block 'transitions' the safety zones on the top or bottom...
 			// and subdivide accordingly.
 			
-			map<double, pair<double, double> >	bound_times;
+			map<double, std::pair<double, double> >	bound_times;
 			
 			split_segment<set_first>(bottom_seg, a_start, a_stop, bound_times, all_splits, num_splits);
 			split_segment<set_second>(top_seg, a_start, a_stop, bound_times, all_splits, num_splits);
 			
-			for(map<double,pair<double,double> >::iterator i = bound_times.begin(); i != bound_times.end(); ++i)
+			for(map<double,std::pair<double,double> >::iterator i = bound_times.begin(); i != bound_times.end(); ++i)
 			{
 				if(i->second.first == UNDEF)
 					i->second.first = bottom_seg.y_at_x(i->first);
@@ -1384,7 +1384,7 @@ static int	init_subdivisions(
 			DebugAssert(bound_times.begin()->first == a_start);
 			DebugAssert(nth_from(bound_times.end(),-1)->first == a_stop);
 			
-			map<double,pair<double,double> >::iterator p1,p2;
+			map<double,std::pair<double,double> >::iterator p1,p2;
 			p1 = bound_times.begin();
 			p2 = p1;
 			++p2;
@@ -1944,7 +1944,7 @@ static int	init_subdivisions(
 	// One last sanity check: for now we assume that whomever the hell called us doesn't have "divets" cut out
 	// of our top and bottom.  
 
-	// If this code blows up, we can find and black-list these angular regions from the AGB.
+	// If this code blows up, we can find and black-std::list these angular regions from the AGB.
 	
 	#if DEV
 	for(i = right_top; i != left_top; i = abounds.next(i))
@@ -2016,8 +2016,8 @@ static int	init_subdivisions(
 	// negative space of the AGB region and produce a series of cut intervals and primitive types.
 	// When we hit a facade region, we'll use a formula to subdivide it - it might be quite large.
 /*
-	vector<pair<double, bool> >	a_cuts;
-	vector<pair<int, float>	>	a_features, b_features;
+	vector<std::pair<double, bool> >	a_cuts;
+	vector<std::pair<int, float>	>	a_features, b_features;
 
 	double last = bounds[0];
 
@@ -2058,11 +2058,11 @@ static int	init_subdivisions(
 			float accum = 0.0;
 			for(int n = 0; n < fac_rule->facs.size(); ++n)
 			{
-				a_cuts.push_back(pair<double,bool>(
+				a_cuts.push_back(std::pair<double,bool>(
 					double_interp(
 							0,fac.first,fac_rule->width_real,fac.second,accum + RandRange(-2,2)),false));
-				a_features.push_back(pair<int,float>(fac_rule->facs[n].fac_id_front,RandRange(fac_rule->facs[n].height_min,fac_rule->facs[n].height_max)));
-				b_features.push_back(pair<int,float>(fac_rule->facs[n].fac_id_back,RandRange(fac_rule->facs[n].height_min,fac_rule->facs[n].height_max)));
+				a_features.push_back(std::pair<int,float>(fac_rule->facs[n].fac_id_front,RandRange(fac_rule->facs[n].height_min,fac_rule->facs[n].height_max)));
+				b_features.push_back(std::pair<int,float>(fac_rule->facs[n].fac_id_back,RandRange(fac_rule->facs[n].height_min,fac_rule->facs[n].height_max)));
 				a_features.back().second = min(a_features.back().second,max(f->data().GetParam(af_HeightObjs,0.0),16.0f));
 				b_features.back().second = min(b_features.back().second,max(f->data().GetParam(af_HeightObjs,0.0),16.0f));
 
@@ -2086,9 +2086,9 @@ static int	init_subdivisions(
 			
 			for(double s = 0.0; s < subdiv; s += 1.0)
 			{
-				a_cuts.push_back(pair<double,bool>(double_interp(0,agb.first,subdiv,agb.second,s),true));
-				a_features.push_back(pair<int,bool>(info->agb_id,0.0));
-				b_features.push_back(pair<int,bool>(info->agb_id,0.0));
+				a_cuts.push_back(std::pair<double,bool>(double_interp(0,agb.first,subdiv,agb.second,s),true));
+				a_features.push_back(std::pair<int,bool>(info->agb_id,0.0));
+				b_features.push_back(std::pair<int,bool>(info->agb_id,0.0));
 			}		
 		}
 				
@@ -2100,9 +2100,9 @@ static int	init_subdivisions(
 	}
 
 	
-	a_cuts.push_back(pair<double,bool>(bounds[2]+1,false));
-	a_features.push_back(pair<int,float>(NO_VALUE,0.0));
-	b_features.push_back(pair<int,float>(NO_VALUE,0.0));
+	a_cuts.push_back(std::pair<double,bool>(bounds[2]+1,false));
+	a_features.push_back(std::pair<int,float>(NO_VALUE,0.0));
+	b_features.push_back(std::pair<int,float>(NO_VALUE,0.0));
 	a_cuts.front().first -= 1.0;
 */
 	/***********************************************************************************************
@@ -2309,7 +2309,7 @@ bool edge_ok_for_ag(const Point2& i, const Point2& j, CoordTranslator2& c, const
 }
 
 
-static bool mismatched_edge_types(const pair<int,bool>& e1, const pair<int,bool>& e2, int zoning, int variant, float height, bool fill_edges)
+static bool mismatched_edge_types(const std::pair<int,bool>& e1, const std::pair<int,bool>& e2, int zoning, int variant, float height, bool fill_edges)
 {
 	float w1 = WidthForSegment(e1);
 	float w2 = WidthForSegment(e2);
@@ -3120,8 +3120,8 @@ static void	init_mesh(CDT& mesh, CoordTranslator2& translator, vector<Block_2::X
 	DebugAssert(in_range(root, translator));
 	DebugAssert(!mesh.is_infinite(root));
 	
-	set<CDT::Face_handle>	visited;
-	set<CDT::Face_handle>	to_visit;
+	std::set<CDT::Face_handle>	visited;
+	std::set<CDT::Face_handle>	to_visit;
 	to_visit.insert(root);
 
 	Bbox2	 lim;
@@ -3462,7 +3462,7 @@ bool	init_block(
 	/* Funky post processing step... */
 
 /*	
-	list<Block_2::Halfedge_handle>	splits_we_do_not_want;
+	std::list<Block_2::Halfedge_handle>	splits_we_do_not_want;
 	for(Block_2::Edge_iterator e = out_block.edges_begin(); e != out_block.edges_end(); ++e)
 	if(!e->face()->is_unbounded() && !e->twin()->face()->is_unbounded())
 	{
@@ -3487,7 +3487,7 @@ bool	init_block(
 //						1,0,0,1,0,0);
 		}
 	}
-	for(list<Block_2::Halfedge_handle>::iterator k =	splits_we_do_not_want.begin(); k != splits_we_do_not_want.end(); ++k)
+	for(std::list<Block_2::Halfedge_handle>::iterator k =	splits_we_do_not_want.begin(); k != splits_we_do_not_want.end(); ++k)
 		out_block.remove_edge(*k);
 	if(!splits_we_do_not_want.empty())
 		clean_block(out_block);
@@ -4121,7 +4121,7 @@ void	extract_features(
 						Bbox2	total_forest_bounds;
 						for(Polygon2::iterator p = forest.front().begin(); p != forest.front().end(); ++p)
 							total_forest_bounds += *p;
-						set<Face_handle>	forest_faces;
+						std::set<Face_handle>	forest_faces;
 						forest_index.query_value(total_forest_bounds,set_inserter(forest_faces));
 						
 						vector<BLOCK_face_data>		block_types;
@@ -4129,7 +4129,7 @@ void	extract_features(
 						
 						block_types.push_back(BLOCK_face_data());
 						forest_type_idx[NO_VALUE] = 0;
-						for(set<Face_handle>::iterator f = forest_faces.begin(); f != forest_faces.end(); ++f)
+						for(std::set<Face_handle>::iterator f = forest_faces.begin(); f != forest_faces.end(); ++f)
 						{
 							int ft = (*f)->data().mTerrainType;
 							if(forest_type_idx.count(ft) == 0)
@@ -4142,7 +4142,7 @@ void	extract_features(
 						block_types.push_back(BLOCK_face_data(usage_OOB, 0));
 						vector<Block_2::X_monotone_curve_2>	curves;
 						
-						for(set<Face_handle>::iterator f = forest_faces.begin(); f != forest_faces.end(); ++f)
+						for(std::set<Face_handle>::iterator f = forest_faces.begin(); f != forest_faces.end(); ++f)
 						{
 							DebugAssert(forest_type_idx.count((*f)->data().mTerrainType));
 							int ft = forest_type_idx[(*f)->data().mTerrainType];

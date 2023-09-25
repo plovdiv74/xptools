@@ -46,7 +46,7 @@ class	WED_XMLElement;
 
 /* memory size optimization for LARGE datasets, e.g. all 38,000+ Global Airports:
 
-   These macros create a *single* string containing the properties WED name and both XML names,
+   These macros create a *single* std::string containing the properties WED name and both XML names,
    saving 2 pointers in each property item.
    Every WED_Thing has on average 10 WED_Properties, the Global Airports have as of mid 2019 ~14 million WED_Things,
    so this adds up to over 2 GB of memory for just these two extra pointers saved, some 30% of total memory.
@@ -59,7 +59,7 @@ class	WED_XMLElement;
 
 /* more memory size and access time optimization for LARGE datasets, e.g. all 38,000+ Global Airports:
 
-   And the STL container vector<WED_PropertyItem *> is responsible for a good chunk of all that pain,
+   And the STL container std::vector<WED_PropertyItem *> is responsible for a good chunk of all that pain,
    as the pointer array is on the heap, requireing a second memory access to resolve. With large
    data structures, pretty much every memory access is a cache miss. So making this a memory-local
    fixed array gains speed in every read/write to any property.
@@ -67,17 +67,17 @@ class	WED_XMLElement;
    All WED_PropertyItems are part of the same class, max WED_PropertyHelper memory size is ~2kb
    Due to alignof(class) == 8 that relative distance can be encoded with just 1 byte.
 
-   So the vector<class *> is reduced a memory-local char[]
+   So the std::vector<class *> is reduced a memory-local char[]
 
    This saves another 24% of total memory and 5% CPU time on load, save and export.
 
    The maximum number of properties for any WEDEntity is 31 right now (Runways), so we define the
    byte array to have a rounded up 32 entrie
 
-   Set below to 0 to disable this trickery and use a plain vector<void *> again and also make mParent
+   Set below to 0 to disable this trickery and use a plain std::vector<void *> again and also make mParent
    pointing from each property back to the WED_Thing a full pointer and not just an 8 bit relative pointer.
 
-   Using some more clever vector like LLVM's SmallVector or boosts small_vector would eliminate the
+   Using some more clever std::vector like LLVM's SmallVector or boosts small_vector would eliminate the
    need for a fixed array here. In that case - an inline size of 16 elements would suffice to hold 
    the relaive offsets for all entities except runways - only those have more properties. So that saves 
    even more memory and reduced any need in the future to re-adjust this fixed array for increased couunts !
@@ -93,7 +93,7 @@ public:
 
 	virtual void		GetPropertyInfo(PropertyInfo_t& info)=0;
 	virtual	void		GetPropertyDict(PropertyDict_t& dict)=0;
-	virtual	void		GetPropertyDictItem(int e, string& item)=0;
+	virtual	void		GetPropertyDictItem(int e, std::string& item)=0;
 	virtual void		GetProperty(PropertyVal_t& val) const=0;
 	virtual void		SetProperty(const PropertyVal_t& val, WED_PropertyHelper * parent)=0;
 	virtual	void 		ReadFrom(IOReader * reader)=0;
@@ -134,7 +134,7 @@ private:
 	17bit to store other information, as long as we zero those bits out before the pointer is actually used.
 	*/
 	#define PTR_CLR(x) (x & ((1ULL << 47) - 1ULL))
-	uintptr_t			mTitle;      // the two MSBytes hold offsets to make the const char * point to the 2nd and 3rd word in the string
+	uintptr_t			mTitle;      // the two MSBytes hold offsets to make the const char * point to the 2nd and 3rd word in the std::string
 	WED_PropertyHelper* mParent;
 #endif
 };
@@ -162,7 +162,7 @@ public:
 	virtual	int		CountProperties(void) const;
 	virtual	void		GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
 	virtual	void		GetNthPropertyDict(int n, PropertyDict_t& dict) const;
-	virtual	void		GetNthPropertyDictItem(int n, int e, string& item) const;
+	virtual	void		GetNthPropertyDictItem(int n, int e, std::string& item) const;
 	virtual	void		GetNthProperty(int n, PropertyVal_t& val) const;
 	virtual	void		SetNthProperty(int n, const PropertyVal_t& val);
 	virtual	void		DeleteNthProperty(int n) { };
@@ -189,7 +189,7 @@ public:
 #if PROP_PTR_OPT
 	relPtr				mItems;
 #else
-	vector<WED_PropertyItem *>		mItems;
+	std::vector<WED_PropertyItem *>		mItems;
 #endif
 
 	friend class		WED_PropertyItem;
@@ -213,7 +213,7 @@ public:
 
 	virtual void		GetPropertyInfo(PropertyInfo_t& info);
 	virtual	void		GetPropertyDict(PropertyDict_t& dict);
-	virtual	void		GetPropertyDictItem(int e, string& item);
+	virtual	void		GetPropertyDictItem(int e, std::string& item);
 	virtual void		GetProperty(PropertyVal_t& val) const;
 	virtual void		SetProperty(const PropertyVal_t& val, WED_PropertyHelper * parent);
 	virtual	void 		ReadFrom(IOReader * reader);
@@ -238,7 +238,7 @@ public:
 
 	virtual void		GetPropertyInfo(PropertyInfo_t& info);
 	virtual	void		GetPropertyDict(PropertyDict_t& dict);
-	virtual	void		GetPropertyDictItem(int e, string& item);
+	virtual	void		GetPropertyDictItem(int e, std::string& item);
 	virtual void		GetProperty(PropertyVal_t& val) const;
 	virtual void		SetProperty(const PropertyVal_t& val, WED_PropertyHelper * parent);
 	virtual	void 		ReadFrom(IOReader * reader);
@@ -269,7 +269,7 @@ public:
 
 	virtual void		GetPropertyInfo(PropertyInfo_t& info);
 	virtual	void		GetPropertyDict(PropertyDict_t& dict);
-	virtual	void		GetPropertyDictItem(int e, string& item);
+	virtual	void		GetPropertyDictItem(int e, std::string& item);
 	virtual void		GetProperty(PropertyVal_t& val) const;
 	virtual void		SetProperty(const PropertyVal_t& val, WED_PropertyHelper * parent);
 	virtual	void 		ReadFrom(IOReader * reader);
@@ -306,22 +306,22 @@ public:
 	virtual void		GetPropertyInfo(PropertyInfo_t& info);
 };
 
-// A string, edited as text.
+// A std::string, edited as text.
 class	WED_PropStringText : public WED_PropertyItem {
 public:
 
-	string			value;
+	std::string			value;
 
-							operator string&() { return value; }
-							operator string() const { return value; }
-	WED_PropStringText&	operator=(const string& v);
+							operator std::string&() { return value; }
+							operator std::string() const { return value; }
+	WED_PropStringText&	operator=(const std::string& v);
 
-	WED_PropStringText(WED_PropertyHelper * parent, const char * title, int offset, const string& initial) :
+	WED_PropStringText(WED_PropertyHelper * parent, const char * title, int offset, const std::string& initial) :
 		WED_PropertyItem(parent, title, offset), value(initial) { }
 
 	virtual void		GetPropertyInfo(PropertyInfo_t& info);
 	virtual	void		GetPropertyDict(PropertyDict_t& dict);
-	virtual	void		GetPropertyDictItem(int e, string& item);
+	virtual	void		GetPropertyDictItem(int e, std::string& item);
 	virtual void		GetProperty(PropertyVal_t& val) const;
 	virtual void		SetProperty(const PropertyVal_t& val, WED_PropertyHelper * parent);
 	virtual	void 		ReadFrom(IOReader * reader);
@@ -330,22 +330,22 @@ public:
 	virtual	bool		WantsAttribute(const char * ele, const char * att_name, const char * att_value);
 };
 
-// A file path, saved as an STL string, edited by the file-open dialog box.
+// A file path, saved as an STL std::string, edited by the file-open dialog box.
 class	WED_PropFileText : public WED_PropertyItem {
 public:
 
-	string			value;
+	std::string			value;
 
-						operator string&() { return value; }
-						operator string() const { return value; }
-	WED_PropFileText& operator=(const string& v);
+						operator std::string&() { return value; }
+						operator std::string() const { return value; }
+	WED_PropFileText& operator=(const std::string& v);
 
-	WED_PropFileText(WED_PropertyHelper * parent, const char * title, int offset, const string& initial) :
+	WED_PropFileText(WED_PropertyHelper * parent, const char * title, int offset, const std::string& initial) :
 		WED_PropertyItem(parent, title, offset), value(initial) { }
 
 	virtual void		GetPropertyInfo(PropertyInfo_t& info);
 	virtual	void		GetPropertyDict(PropertyDict_t& dict);
-	virtual	void		GetPropertyDictItem(int e, string& item);
+	virtual	void		GetPropertyDictItem(int e, std::string& item);
 	virtual void		GetProperty(PropertyVal_t& val) const;
 	virtual void		SetProperty(const PropertyVal_t& val, WED_PropertyHelper * parent);
 	virtual	void 		ReadFrom(IOReader * reader);
@@ -370,7 +370,7 @@ public:
 
 	virtual void		GetPropertyInfo(PropertyInfo_t& info);
 	virtual	void		GetPropertyDict(PropertyDict_t& dict);
-	virtual	void		GetPropertyDictItem(int e, string& item);
+	virtual	void		GetPropertyDictItem(int e, std::string& item);
 	virtual void		GetProperty(PropertyVal_t& val) const;
 	virtual void		SetProperty(const PropertyVal_t& val, WED_PropertyHelper * parent);
 	virtual	void 		ReadFrom(IOReader * reader);
@@ -379,19 +379,19 @@ public:
 	virtual	bool		WantsAttribute(const char * ele, const char * att_name, const char * att_value);
 };
 
-// A set of enumerated items.  Stored as an STL set of int values, edited as a multi-check popup.  We store the domain.
-// Exclusive?  While the data model is always a set, the exclusive flag enforces "pick at most 1" behavior in the UI (e.g. pick a new value deselects the old) - some users like that sometimes.
+// A std::set of enumerated items.  Stored as an STL std::set of int values, edited as a multi-check popup.  We store the domain.
+// Exclusive?  While the data model is always a std::set, the exclusive flag enforces "pick at most 1" behavior in the UI (e.g. pick a new value deselects the old) - some users like that sometimes.
 // In exclusive a user CAN pick no enums at all.  (Set enums usually don't have a "none" enum value.)
 class	WED_PropIntEnumSet : public WED_PropertyItem, public WED_XMLHandler {
 public:
 
-	set<int>	value;
+	std::set<int>	value;
 	int			domain;
 	int			exclusive;
 
-						operator set<int>&() { return value; }
-						operator set<int>() const { return value; }
-	WED_PropIntEnumSet& operator=(const set<int>& v);
+						operator std::set<int>&() { return value; }
+						operator std::set<int>() const { return value; }
+	WED_PropIntEnumSet& operator=(const std::set<int>& v);
 
 	WED_PropIntEnumSet& operator+=(const int v)
 	{ if(value.count(v) == 0)
@@ -406,7 +406,7 @@ public:
 
 	virtual void		GetPropertyInfo(PropertyInfo_t& info);
 	virtual	void		GetPropertyDict(PropertyDict_t& dict);
-	virtual	void		GetPropertyDictItem(int e, string& item);
+	virtual	void		GetPropertyDictItem(int e, std::string& item);
 	virtual void		GetProperty(PropertyVal_t& val) const;
 	virtual void		SetProperty(const PropertyVal_t& val, WED_PropertyHelper * parent);
 	virtual	void 		ReadFrom(IOReader * reader);
@@ -426,26 +426,26 @@ public:
 
 // Set of enums stored as a bit-field.  The export values for the enum domain must be a bitfield.
 // This is:
-// - Stored as a set<int> internally.
+// - Stored as a std::set<int> internally.
 // - Almost always saved/restored as a bit-field.
 // - Edited as a popup with multiple checks.
 class	WED_PropIntEnumBitfield : public WED_PropertyItem {
 public:
 
-	set<int>		value;
+	std::set<int>		value;
 	int			domain;
 	int			can_be_none;
 
-						operator set<int>&() { return value; }
-						operator set<int>() const { return value; }
-	WED_PropIntEnumBitfield& operator=(const set<int>& v);
+						operator std::set<int>&() { return value; }
+						operator std::set<int>() const { return value; }
+	WED_PropIntEnumBitfield& operator=(const std::set<int>& v);
 
 	WED_PropIntEnumBitfield(WED_PropertyHelper * parent, const char * title, int offset, int idomain, int be_none) :
 		WED_PropertyItem(parent, title, offset), domain(idomain), can_be_none(be_none) { }
 
 	virtual void		GetPropertyInfo(PropertyInfo_t& info);
 	virtual	void		GetPropertyDict(PropertyDict_t& dict);
-	virtual	void		GetPropertyDictItem(int e, string& item);
+	virtual	void		GetPropertyDictItem(int e, std::string& item);
 	virtual void		GetProperty(PropertyVal_t& val) const;
 	virtual void		SetProperty(const PropertyVal_t& val, WED_PropertyHelper * parent);
 	virtual	void 		ReadFrom(IOReader * reader);
@@ -457,7 +457,7 @@ public:
 
 
 // VIRTUAL ITEM: A FILTERED display.
-// This item doesn't REALLY create data - it provides a filtered view of another enum set, showing only the enums within a given range.
+// This item doesn't REALLY create data - it provides a filtered view of another enum std::set, showing only the enums within a given range.
 // This is used to take ALL taxiway attributes and show only lights or only lines.
 class	WED_PropIntEnumSetFilter : public WED_PropertyItem {
 public:
@@ -473,7 +473,7 @@ public:
 
 	virtual void		GetPropertyInfo(PropertyInfo_t& info);
 	virtual	void		GetPropertyDict(PropertyDict_t& dict);
-	virtual	void		GetPropertyDictItem(int e, string& item);
+	virtual	void		GetPropertyDictItem(int e, std::string& item);
 	virtual void		GetProperty(PropertyVal_t& val) const;
 	virtual void		SetProperty(const PropertyVal_t& val, WED_PropertyHelper * parent);
 	virtual	void 		ReadFrom(IOReader * reader);
@@ -496,7 +496,7 @@ public:
 		WED_PropertyItem(parent, title, offset), host(ihost), exclusive(iexclusive) { }
 	virtual void		GetPropertyInfo(PropertyInfo_t& info);
 	virtual	void		GetPropertyDict(PropertyDict_t& dict);
-	virtual	void		GetPropertyDictItem(int e, string& item);
+	virtual	void		GetPropertyDictItem(int e, std::string& item);
 	virtual void		GetProperty(PropertyVal_t& val) const;
 	virtual void		SetProperty(const PropertyVal_t& val, WED_PropertyHelper * parent);
 	virtual	void 		ReadFrom(IOReader * reader);
@@ -506,7 +506,7 @@ public:
 };
 
 // VIRTUAL ITEM: A FILTERED matrix display.
-// This item doesn't REALLY create data - it provides a filtered view of another enum set, showing only the enums within a given range.
+// This item doesn't REALLY create data - it provides a filtered view of another enum std::set, showing only the enums within a given range.
 // This is used to take ALL taxiway attributes and show only lights or only lines.
 
 class	WED_PropIntEnumSetFilterVal : public WED_PropIntEnumSetFilter {

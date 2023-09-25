@@ -124,7 +124,7 @@ void	IndexAirports(const AptVector& apts, AptIndex& index)
 	}
 }
 
-void	FindAirports(const Bbox2& bounds, const AptIndex& index, set<int>& apts)
+void	FindAirports(const Bbox2& bounds, const AptIndex& index, std::set<int>& apts)
 {
 	apts.clear();
 	int x1 = floor(bounds.xmin() - 0.5);
@@ -134,7 +134,7 @@ void	FindAirports(const Bbox2& bounds, const AptIndex& index, set<int>& apts)
 	for (int x = x1; x <= x2; ++x)
 	for (int y = y1; y <= y2; ++y)
 	{
-		pair<AptIndex::const_iterator,AptIndex::const_iterator>	range = index.equal_range(hash_ll(x,y));
+		std::pair<AptIndex::const_iterator,AptIndex::const_iterator>	range = index.equal_range(hash_ll(x,y));
 		for (AptIndex::const_iterator i = range.first; i != range.second; ++i)
 		{
 			apts.insert(i->second);
@@ -417,24 +417,24 @@ AptPolygonIterator& AptPolygonIterator::operator=(const AptPolygonIterator& rhs)
 bool AptPolygonIterator::operator==(const AptPolygonIterator& rhs) const { return i == rhs.i && p == rhs.p; }
 bool AptPolygonIterator::operator!=(const AptPolygonIterator& rhs) const { return i != rhs.i || p != rhs.p; }
 
-pair<Point2, int>	AptPolygonIterator::operator*(void) const
+std::pair<Point2, int>	AptPolygonIterator::operator*(void) const
 {
 	switch(p) {
 	case -1:
 		DebugAssert(apt_code_is_curve(i->code));
-		return pair<Point2,int>(Point2(2.0 * i->pt.x() - i->ctrl.x(), 2.0 * i->pt.y() - i->ctrl.y()),p);
+		return std::pair<Point2,int>(Point2(2.0 * i->pt.x() - i->ctrl.x(), 2.0 * i->pt.y() - i->ctrl.y()),p);
 	case 0:
-		return pair<Point2,int>(i->pt, p);
+		return std::pair<Point2,int>(i->pt, p);
 	case 1:
 		DebugAssert(apt_code_is_curve(i->code));
-		return pair<Point2,int>(i->ctrl, p);
+		return std::pair<Point2,int>(i->ctrl, p);
 	default:
 		DebugAssert(!"Should not be here.");
 		return make_pair(Point2(),0);
 	}
 }
 
-set<int> AptPolygonIterator::operator()(void) const {
+std::set<int> AptPolygonIterator::operator()(void) const {
 	return i->attributes;
 }
 
@@ -486,7 +486,7 @@ AptPolygonIterator& AptPolygonIterator::operator++(void)
 
 	if(apt_code_is_ring(i->code) || apt_code_is_end(i->code))
 	{
-		++i;				// Off the end case - set p to 0 for consistency
+		++i;				// Off the end case - std::set p to 0 for consistency
 		p = 0;				// but DO NOT deref I - it might be invalid.
 		return *this;
 	} else {

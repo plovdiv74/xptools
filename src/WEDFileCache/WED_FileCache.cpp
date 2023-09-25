@@ -38,8 +38,8 @@ WED_file_cache_request::WED_file_cache_request()
 {
 }
 
-WED_file_cache_request::WED_file_cache_request(CACHE_domain domain, const string & folder_prefix, const string & url,
-	const string & dir)
+WED_file_cache_request::WED_file_cache_request(CACHE_domain domain, const std::string & folder_prefix, const std::string & url,
+	const std::string & dir)
 	: in_domain(domain),
 	  in_folder_prefix(folder_prefix),
 	  in_url(url),
@@ -47,7 +47,7 @@ WED_file_cache_request::WED_file_cache_request(CACHE_domain domain, const string
 {
 }
 
-ostream & operator<<(ostream & os, const WED_file_cache_request & rhs)
+std::ostream & operator<<(std::ostream & os, const WED_file_cache_request & rhs)
 {
 	return os << " domain: " <<  rhs.in_domain << " prefix: " << rhs.in_folder_prefix << " url: " << rhs.in_url;
 }
@@ -55,7 +55,7 @@ ostream & operator<<(ostream & os, const WED_file_cache_request & rhs)
 //---------------------------------------------------------------------------//
 
 //--WED_file_cache_response--------------------------------------------------
-WED_file_cache_response::WED_file_cache_response(float download_progress, string error_human, CACHE_error_type error_type, string path, CACHE_status status)
+WED_file_cache_response::WED_file_cache_response(float download_progress, std::string error_human, CACHE_error_type error_type, std::string path, CACHE_status status)
 		: out_download_progress(download_progress),
 		  out_error_human(error_human),
 		  out_error_type(error_type),
@@ -99,17 +99,17 @@ void WED_FileCache::init(void)
 	if(FILE_make_dir_exist(CACHE_folder.c_str()))
 		AssertPrintf("Could not find or make the file cache, please check if you have sufficient rights to use the folder %s", CACHE_folder.c_str());
 
-	vector<string> files;
-	vector<string> dirs;
+	std::vector<std::string> files;
+	std::vector<std::string> dirs;
 #if KEEP_EXPIRED_CACHE_FILES
-	vector<int> files_to_delete;
+	std::vector<int> files_to_delete;
 	int dirs_to_delete = 0;
 #endif
 
 	if(FILE_get_directory_recursive(CACHE_folder, files, dirs) > 0)
 	{
-		sort(files.begin(), files.end(), less<string>());
-		vector<pair<int,int> > paired_files;  // Where pair is <file,file.cache_object_info>
+		sort(files.begin(), files.end(), std::less<std::string>());
+		std::vector<std::pair<int,int> > paired_files;  // Where std::pair is <file,file.cache_object_info>
 
 		int i = 0;
 		while(i < files.size())
@@ -133,9 +133,9 @@ void WED_FileCache::init(void)
 
 			//file_name_A should be "whatever" or "whatever.txt"
 			//file_name_B should always be file_name_A.append(CACHE_INFO_FILE_EXT)
-			string file_name_A = FILE_get_file_name(files[i]);
-			string actual_file_name_B = FILE_get_file_name(files[i+1]);
-			string required_file_name_B(file_name_A);
+			std::string file_name_A = FILE_get_file_name(files[i]);
+			std::string actual_file_name_B = FILE_get_file_name(files[i+1]);
+			std::string required_file_name_B(file_name_A);
 			required_file_name_B.append(CACHE_INFO_FILE_EXT);
 
 			if(!(actual_file_name_B == required_file_name_B))
@@ -149,7 +149,7 @@ void WED_FileCache::init(void)
 			}
 			else
 			{
-				pair<int,int> fp(i, i+1);
+				std::pair<int,int> fp(i, i+1);
 				paired_files.push_back(fp);
 				i += 2;
 			}
@@ -163,7 +163,7 @@ void WED_FileCache::init(void)
 
 			bool info_read_success = false;
 
-			string content;
+			std::string content;
 			int file_content_read = FILE_read_file_to_string(files[p.second], content);
 
 			if(file_content_read == 0)
@@ -204,7 +204,7 @@ void WED_FileCache::init(void)
 		
 		for(const auto& d : dirs)
 		{
-			vector<string> files_dummy, dirs_dummy;
+			std::vector<std::string> files_dummy, dirs_dummy;
 			int num_files = FILE_get_directory_recursive(d, files_dummy, dirs_dummy);
 			
 			if (num_files >= 0 && files_dummy.size() == 0)
@@ -229,8 +229,8 @@ void WED_FileCache::init(void)
 	}
 }
 
-//returns an error string if there is one
-static void interpret_error(curl_http_get_file& mCurl, string& out_error_human, CACHE_error_type& out_error_type)
+//returns an error std::string if there is one
+static void interpret_error(curl_http_get_file& mCurl, std::string& out_error_human, CACHE_error_type& out_error_type)
 {
 	out_error_human = "";
 	out_error_type = cache_error_type_unknown;
@@ -238,11 +238,11 @@ static void interpret_error(curl_http_get_file& mCurl, string& out_error_human, 
 	int err = mCurl.get_error();
 	bool bad_net = mCurl.is_net_fail();
 
-	stringstream ss;
+	std::stringstream ss;
 	ss.str() = "";
 	if(err <= CURL_LAST)
 	{
-		string msg = curl_easy_strerror((CURLcode) err);
+		std::string msg = curl_easy_strerror((CURLcode) err);
 		ss << "Download failed: " << msg << ". (" << err << ")";
 				
 		if(bad_net)
@@ -257,12 +257,12 @@ static void interpret_error(curl_http_get_file& mCurl, string& out_error_human, 
 	}
 	else if(err >= 100)
 	{
-		//Get the string of error data
-		vector<char>    errdat;
+		//Get the std::string of error data
+		std::vector<char>    errdat;
 		mCurl.get_error_data(errdat);
 				
 		bool is_ok = !errdat.empty();
-		for(vector<char>::iterator i = errdat.begin(); i != errdat.end(); ++i)
+		for(std::vector<char>::iterator i = errdat.begin(); i != errdat.end(); ++i)
 		{
 			//If the charecter is not printable
 			if(!isprint(*i))
@@ -274,7 +274,7 @@ static void interpret_error(curl_http_get_file& mCurl, string& out_error_human, 
 
 		if(is_ok)
 		{
-			string errmsg = string(errdat.begin(),errdat.end());
+			std::string errmsg = std::string(errdat.begin(),errdat.end());
 			ss << "Error Code " << err << ": " << errmsg;
 			out_error_type = cache_error_type_server_side;
 		}
@@ -308,7 +308,7 @@ WED_file_cache_response WED_FileCache::start_new_cache_object(WED_file_cache_req
 								   cache_status_downloading);
 }
 
-void WED_FileCache::remove_cache_object(vector<CACHE_CacheObject* >::iterator itr)
+void WED_FileCache::remove_cache_object(std::vector<CACHE_CacheObject* >::iterator itr)
 {
 	delete *itr;
 	CACHE_file_cache.erase(itr);
@@ -329,7 +329,7 @@ WED_file_cache_response WED_FileCache::request_file(const WED_file_cache_request
 		- cURL done?
 			* If okay, attempt to save to disk
 				o if save is success, set_disk_location to path, status is file_availible.
-				o else set_disk_location to "", out_error_human to "Bad disk write", set last_error_type to disk_write, status is file_error
+				o else set_disk_location to "", out_error_human to "Bad disk write", std::set last_error_type to disk_write, status is file_error
 			* Else, we're experiencing an error.
 				o get out_error_human message and last_error, activate cool_down, close hdnl, status is file_error
 		- cURL downloading as normal.
@@ -338,14 +338,14 @@ WED_file_cache_response WED_FileCache::request_file(const WED_file_cache_request
 		- CO on cooling?
 			* Set out_error_human/type, status is file_error
 		- CO on disk?
-			* If not stale, set out_path, return file_available
+			* If not stale, std::set out_path, return file_available
 			* Else delete old CO, retry with new CO start a new handle
 
 	Note: out_error_human is for client, last_error is for cool down
 	---------------------------------------------------------------------------
 	*/
 	
-	vector<CACHE_CacheObject* >::iterator itr = CACHE_file_cache.begin();
+	std::vector<CACHE_CacheObject* >::iterator itr = CACHE_file_cache.begin();
 	for ( ; itr != CACHE_file_cache.end(); ++itr)
 	{
 		if((**itr).get_disk_location() == url_to_cache_path(req))
@@ -392,7 +392,7 @@ WED_file_cache_response WED_FileCache::request_file(const WED_file_cache_request
 				*/
 
 				res.out_path = url_to_cache_path(req);
-				FILE_make_dir_exist(string(CACHE_folder + DIR_STR + req.in_folder_prefix).c_str());
+				FILE_make_dir_exist(std::string(CACHE_folder + DIR_STR + req.in_folder_prefix).c_str());
 
 				//We test if file and cache_file_info file save PERFECECTLY, with NO issues
 				//If anything went wrong we call it an error
@@ -403,8 +403,8 @@ WED_file_cache_response WED_FileCache::request_file(const WED_file_cache_request
 				
 				if(f() != NULL)
 				{
-					const vector<char>& buf = co.get_RAII_curl_hndl()->get_dest_buffer();
-					for(vector<char>::const_iterator itr = buf.begin(); itr != buf.end(); ++itr)
+					const std::vector<char>& buf = co.get_RAII_curl_hndl()->get_dest_buffer();
+					for(std::vector<char>::const_iterator itr = buf.begin(); itr != buf.end(); ++itr)
 					{
 						fprintf(f(),"%c",*itr);
 					}
@@ -414,7 +414,7 @@ WED_file_cache_response WED_FileCache::request_file(const WED_file_cache_request
 
 				bool good_info_save = false;
 
-				RAII_FileHandle cache_object_info(string(res.out_path).append(CACHE_INFO_FILE_EXT), "w");
+				RAII_FileHandle cache_object_info(std::string(res.out_path).append(CACHE_INFO_FILE_EXT), "w");
 				if(cache_object_info() != NULL && good_file_save == true)
 				{
 					Json::Value root(Json::objectValue);
@@ -480,7 +480,7 @@ WED_file_cache_response WED_FileCache::request_file(const WED_file_cache_request
 		int seconds_left = co.cool_down_seconds_left(pol);
 		if(seconds_left > 0)
 		{
-			return WED_file_cache_response(-1, "Cache cooling after failed network attempt, please wait: " + to_string(seconds_left) + " seconds...", cache_error_type_none, "", cache_status_cooling);
+			return WED_file_cache_response(-1, "Cache cooling after failed network attempt, please wait: " + std::to_string(seconds_left) + " seconds...", cache_error_type_none, "", cache_status_cooling);
 		}
 		else if(FILE_exists((*itr)->get_disk_location().c_str()) == true) //Check if file was deleted between requests
 		{
@@ -503,25 +503,25 @@ WED_file_cache_response WED_FileCache::request_file(const WED_file_cache_request
 	}
 }
 
-string WED_FileCache::file_in_cache(const WED_file_cache_request & req)
+std::string WED_FileCache::file_in_cache(const WED_file_cache_request & req)
 {
 	return request_file(req).out_path;
 }
 
-string WED_FileCache::url_to_cache_path(const WED_file_cache_request & req)
+std::string WED_FileCache::url_to_cache_path(const WED_file_cache_request & req)
 {
 	return CACHE_folder + DIR_STR + req.in_folder_prefix + DIR_STR + FILE_get_file_name(req.in_dir);
 }
 
-vector<string> WED_FileCache::get_files_available(CACHE_domain domain, string folder_prefix)
+std::vector<std::string> WED_FileCache::get_files_available(CACHE_domain domain, std::string folder_prefix)
 {
-	//vector<CACHE_CacheObject*> available_objs = CACHE_file_cache.a
-	return vector<string>();
+	//std::vector<CACHE_CacheObject*> available_objs = CACHE_file_cache.a
+	return std::vector<std::string>();
 }
 
 WED_FileCache::~WED_FileCache()
 {
-	for(vector<CACHE_CacheObject* >::iterator co = CACHE_file_cache.begin();
+	for(std::vector<CACHE_CacheObject* >::iterator co = CACHE_file_cache.begin();
 		co != CACHE_file_cache.end();
 		++co)
 	{

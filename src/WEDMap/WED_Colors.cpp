@@ -27,7 +27,7 @@
 #include "BitmapUtils.h"
 #include "WED_EnumSystem.h"
 
-vector<float>	colors;
+std::vector<float>	colors;
 
 #define	SWATCH_HEIGHT	10
 

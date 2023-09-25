@@ -251,7 +251,7 @@ double WED_MapZoomerNew::GetClickRadius(double p) const
 	return p * mPixel2DegLat();
 }
 
-pair<Point2, double> WED_MapZoomerNew::LLToPixelr(const Point2& p) const
+std::pair<Point2, double> WED_MapZoomerNew::LLToPixelr(const Point2& p) const
 {
 #if USE_GNOMONIC
 	if (!cam && mPixel2DegLat() < THR_GNOMONIC)

@@ -225,7 +225,7 @@ int			GUI_TextField::HandleKeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFla
 int			GUI_TextField::HandleCommand(int command)
 {
 	int s1, s2;
-	string txt;
+	std::string txt;
 	switch(command) {
 	case gui_Cut:
 		GetSelection(&s1, &s2);
@@ -267,7 +267,7 @@ int			GUI_TextField::HandleCommand(int command)
 	return 0;
 }
 
-int			GUI_TextField::CanHandleCommand(int command, string& ioName, int& ioCheck)
+int			GUI_TextField::CanHandleCommand(int command, std::string& ioName, int& ioCheck)
 {
 	switch(command) {
 	case gui_Cut:
@@ -460,7 +460,7 @@ void			GUI_TextField::DrawString(
 	int yy = y;
 	if(mPasswordChar)
 	{
-		vector<char> c(tEnd-tStart,mPasswordChar);
+		std::vector<char> c(tEnd-tStart,mPasswordChar);
 		char * c_ptr = &c[0];
 		GUI_FontDrawScaled(mState, mFont, mColorText,
 						x, yy, x + 10000, yy + GUI_GetLineHeight(mFont),

@@ -59,8 +59,8 @@ enum dsf_filter_category {
 };
 
 int		DSF_Import_Partial(const char * path, WED_Thing * base, int inCatFilter,
-							const vector<Bbox2> & inBounds = vector<Bbox2>(), const vector<string>& inAptFilter = vector<string>());
+							const std::vector<Bbox2> & inBounds = std::vector<Bbox2>(), const std::vector<std::string>& inAptFilter = std::vector<std::string>());
 
-void	add_all_global_DSF(const Bbox2& bb, set<string>& matching_dsf);
+void	add_all_global_DSF(const Bbox2& bb, std::set<std::string>& matching_dsf);
 
 #endif /* WED_DSFImport_H */

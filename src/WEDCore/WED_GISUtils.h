@@ -78,17 +78,17 @@ struct BezierPoint2uv : public BezierPoint2 {
 };
 
 
-struct BezierPolygon2p : public vector<Bezier2p> {
+struct BezierPolygon2p : public std::vector<Bezier2p> {
 };
 
-struct Polygon2p : public vector<Segment2p> {
+struct Polygon2p : public std::vector<Segment2p> {
 };
 
 
-struct BezierPolygon2uv : public vector<Bezier2uv> {
+struct BezierPolygon2uv : public std::vector<Bezier2uv> {
 };
 
-struct Polygon2uv : public vector<Segment2uv> {
+struct Polygon2uv : public std::vector<Segment2uv> {
 };
 
 /********************************************************************************************************************************************
@@ -156,33 +156,33 @@ int WED_HasBezierPol(IGISPolygon * pol);
 // For polygons, if the wanted orientation is CCW and CW (and not ZERO) then the polygon is reversed
 // as needed to get the desired orientation.
 
-bool	WED_VectorForPointSequence(IGISPointSequence * in_seq, vector<Segment2>& out_pol);			
-bool	WED_VectorForPointSequence(IGISPointSequence * in_seq, vector<Segment2p>& out_pol);			
-bool	WED_VectorForPointSequence(IGISPointSequence * in_seq, vector<Segment2uv>& out_pol);
+bool	WED_VectorForPointSequence(IGISPointSequence * in_seq, std::vector<Segment2>& out_pol);			
+bool	WED_VectorForPointSequence(IGISPointSequence * in_seq, std::vector<Segment2p>& out_pol);			
+bool	WED_VectorForPointSequence(IGISPointSequence * in_seq, std::vector<Segment2uv>& out_pol);
 
 bool	WED_PolygonForPointSequence(IGISPointSequence * in_seq, Polygon2& out_pol, int orientation);
 bool	WED_PolygonForPointSequence(IGISPointSequence * in_seq, Polygon2p& out_pol, int orientation);
 bool	WED_PolygonForPointSequence(IGISPointSequence * in_seq, Polygon2uv& out_pol, int orientation);
 
-bool	WED_PolygonWithHolesForPolygon(IGISPolygon * in_poly, vector<Polygon2>& out_pol);
-bool	WED_PolygonWithHolesForPolygon(IGISPolygon * in_poly, vector<Polygon2p>& out_pol);
-bool	WED_PolygonWithHolesForPolygon(IGISPolygon * in_poly, vector<Polygon2uv>& out_pol);
+bool	WED_PolygonWithHolesForPolygon(IGISPolygon * in_poly, std::vector<Polygon2>& out_pol);
+bool	WED_PolygonWithHolesForPolygon(IGISPolygon * in_poly, std::vector<Polygon2p>& out_pol);
+bool	WED_PolygonWithHolesForPolygon(IGISPolygon * in_poly, std::vector<Polygon2uv>& out_pol);
 
 // These routines return bezier polygons for the given point sequence.  Since we never have to worry about "oh we got a curve"
 // and we do not check orientation, no return codes are needed.
-void	WED_BezierVectorForPointSequence(IGISPointSequence * in_seq, vector<Bezier2>& out_pol);			
-void	WED_BezierVectorForPointSequence(IGISPointSequence * in_seq, vector<Bezier2p>& out_pol);			
-void	WED_BezierVectorForPointSequence(IGISPointSequence * in_seq, vector<Bezier2uv>& out_pol);
+void	WED_BezierVectorForPointSequence(IGISPointSequence * in_seq, std::vector<Bezier2>& out_pol);			
+void	WED_BezierVectorForPointSequence(IGISPointSequence * in_seq, std::vector<Bezier2p>& out_pol);			
+void	WED_BezierVectorForPointSequence(IGISPointSequence * in_seq, std::vector<Bezier2uv>& out_pol);
 
 void	WED_BezierPolygonForPointSequence(IGISPointSequence * in_seq, BezierPolygon2& out_pol, int orientation);				// requires closed ring
 void	WED_BezierPolygonForPointSequence(IGISPointSequence * in_seq, BezierPolygon2p& out_pol, int orientation);				// requires closed ring
 void	WED_BezierPolygonForPointSequence(IGISPointSequence * in_seq, BezierPolygon2uv& out_pol, int orientation);				// requires closed ring
 
-void	WED_BezierPolygonWithHolesForPolygon(IGISPolygon * in_poly, vector<BezierPolygon2>& out_pol);
-void	WED_BezierPolygonWithHolesForPolygon(IGISPolygon * in_poly, vector<BezierPolygon2p>& out_pol);
-void	WED_BezierPolygonWithHolesForPolygon(IGISPolygon * in_poly, vector<BezierPolygon2uv>& out_pol);
+void	WED_BezierPolygonWithHolesForPolygon(IGISPolygon * in_poly, std::vector<BezierPolygon2>& out_pol);
+void	WED_BezierPolygonWithHolesForPolygon(IGISPolygon * in_poly, std::vector<BezierPolygon2p>& out_pol);
+void	WED_BezierPolygonWithHolesForPolygon(IGISPolygon * in_poly, std::vector<BezierPolygon2uv>& out_pol);
 
-void	WED_BezierPolygonWithHolesForPolygon(IGISPolygon * in_poly, vector<Polygon2>& out_pol);
+void	WED_BezierPolygonWithHolesForPolygon(IGISPolygon * in_poly, std::vector<Polygon2>& out_pol);
 
 template<typename __BezierSeqIter, class __NodeType>
 void	WED_SetSequenceForIterator(__BezierSeqIter start, __BezierSeqIter end, WED_Thing * parent, bool is_ring);
@@ -317,8 +317,8 @@ void BezierPointSeqFromTriple(InputIterator s, InputIterator e, OutputIterator o
 	BezierConversionTraits<typename OutputIterator::container_type::value_type> traits;
 
 	bool got_it = false;					// This is true if we have seen ANY part of this triple-point before.
-	while(s != e)							// Basically the low control handle can only come first, so it must be set on lo, and
-	{										// The high control handle can only be set later.  So lo, middle, hi encodes properly.
+	while(s != e)							// Basically the low control handle can only come first, so it must be std::set on lo, and
+	{										// The high control handle can only be std::set later.  So lo, middle, hi encodes properly.
 		if(got_it && s->pt != p.pt)
 		{
 			*o = p;

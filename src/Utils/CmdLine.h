@@ -15,15 +15,15 @@ class CmdLine {
 public:
 #if LIN || APL
 	CmdLine(int argc, char const * const * argv);
-#else // Windows gets all its args as a single string
+#else // Windows gets all its args as a single std::string
 	CmdLine(const char * arg);
 #endif
 
-	// If your option is just a flag, get_value() will return an empty string; instead, check has_option()
-	bool	has_option(const string & option) const;
-	string	get_value(const string & option) const;
+	// If your option is just a flag, get_value() will return an empty std::string; instead, check has_option()
+	bool	has_option(const std::string & option) const;
+	std::string	get_value(const std::string & option) const;
 
-	using storage_type = unordered_map<string, string>;
+	using storage_type = std::unordered_map<std::string, std::string>;
 private:
 	const storage_type m_options;
 };

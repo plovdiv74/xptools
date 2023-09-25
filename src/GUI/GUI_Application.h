@@ -44,7 +44,7 @@ class GUI_Window;
 	1. App menus cannot be created dynamically on the fly because:
 
 	- They are replicated as each window is made, but existing windows will not receive the new additions.
-	- Accelerators are only set up at startup (so all menus must be set up before app-run.
+	- Accelerators are only std::set up at startup (so all menus must be std::set up before app-run.
 
 */
 
@@ -73,12 +73,12 @@ public:
 	virtual	void	AboutBox(void)=0;
 	virtual	void	Preferences(void)=0;
 	virtual	bool	CanQuit(void)=0;
-	virtual	void	OpenFiles(const vector<string>& inFiles)=0;
+	virtual	void	OpenFiles(const std::vector<std::string>& inFiles)=0;
 
 	// From GUI_Commander - app never refuses focus!
 	virtual	int				AcceptTakeFocus(void) 	{ return 1; }
 	virtual	int				HandleCommand(int command);
-	virtual	int				CanHandleCommand(int command, string& ioName, int& ioCheck);
+	virtual	int				CanHandleCommand(int command, std::string& ioName, int& ioCheck);
 
 
 #if APL
@@ -99,7 +99,7 @@ public:
 private:
 
     bool                    mDone;
-    set<GUI_Menu>           mMenus;
+    std::set<GUI_Menu>           mMenus;
 
 #if LIN
     const Fl_Menu_Item *	mMenu;

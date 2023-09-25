@@ -133,7 +133,7 @@ TEX_dds_desc::TEX_dds_desc(int width, int height, int mips, int BCtype)
 	Simply viewing the way pixels are stored in memory from low to high mem:
 	BMP contains RGBRGBRGB triplets.
 		(This is a direct byte-order read out of memory, so it can't get f-cked.
-	PNG lib returns RGBARGBARGBA quads, but only because we set it in BGR mode.  (Don't ask me.)
+	PNG lib returns RGBARGBARGBA quads, but only because we std::set it in BGR mode.  (Don't ask me.)
 		(As far as I can tell, pnglib is just goofy.)
 
 	TiffLib on Mach gives it to us in ARGB format...and on windows in BGRA format.
@@ -264,7 +264,7 @@ int		WriteBitmapToFile(const struct ImageInfo * inImage, const char * inFilePath
 		Assert(((inImage->width * inImage->channels + inImage->pad) % 4) == 0);
 		Assert(inImage->channels == 3);
 
-	/* First set up the appropriate header structures to match our bitmap. */
+	/* First std::set up the appropriate header structures to match our bitmap. */
 
 	header.signature1 = 'B';
 	header.signature2 = 'M';
@@ -339,9 +339,9 @@ int		CreateNewBitmap(long inWidth, long inHeight, short inChannels, struct Image
 	return 0;
 }
 
-int GetSupportedType(const string& path)
+int GetSupportedType(const std::string& path)
 {
-	string extension(FILE_get_file_extension(path));
+	std::string extension(FILE_get_file_extension(path));
 
 	if(extension == "bmp") return WED_BMP;
 	if(extension == "dds") return WED_DDS;
@@ -460,7 +460,7 @@ void	CopyBitmapSection(
 		(Ignore bicubic interpolation for a moment please...)
 		Every destination pixel is comprised of two pixels horizontally and two vertically.  We use these widths and heights to do the rescaling
 		of the image.  The goal is to have the rightmost pixel in the destination actually correspond to the rightmost pixel of the source.  In
-		otherwords, we want to get (inDstRight - 1) from (inSrcRight - 1).  Now since we use [inDstLeft - inDstRight) as our set of pixels, this
+		otherwords, we want to get (inDstRight - 1) from (inSrcRight - 1).  Now since we use [inDstLeft - inDstRight) as our std::set of pixels, this
 		is the last pixel we ask for.  But we have to subtract one from the width to get the rescaling right, otherwise we map inDstRight to
 		inSrcRight, which for very large upscales make inDstRight - 1 derive from inSrcRight - (something less than one) which is a pixel partially
 		off the right side of the bitmap, which is bad.
@@ -582,7 +582,7 @@ void	CopyBitmapSectionWarped(
 		(Ignore bicubic interpolation for a moment please...)
 		Every destination pixel is comprised of two pixels horizontally and two vertically.  We use these widths and heights to do the rescaling
 		of the image.  The goal is to have the rightmost pixel in the destination actually correspond to the rightmost pixel of the source.  In
-		otherwords, we want to get (inDstRight - 1) from (inSrcRight - 1).  Now since we use [inDstLeft - inDstRight) as our set of pixels, this
+		otherwords, we want to get (inDstRight - 1) from (inSrcRight - 1).  Now since we use [inDstLeft - inDstRight) as our std::set of pixels, this
 		is the last pixel we ask for.  But we have to subtract one from the width to get the rescaling right, otherwise we map inDstRight to
 		inSrcRight, which for very large upscales make inDstRight - 1 derive from inSrcRight - (something less than one) which is a pixel partially
 		off the right side of the bitmap, which is bad.
@@ -859,7 +859,7 @@ int	ConvertAlphaToBitmap(
 	{
 		/* For each pixel, only full opaque is taken.  Here's why: if the pixel is part alpha, then it is a blend of an
 		 * alpha pixel and a non-alpha pixel.  But...we don't have good color data for the alpha pixel; from the above
-		 * routine we set the color to black.  So the color data for this pixel is mixed with black.  When viewed the
+		 * routine we std::set the color to black.  So the color data for this pixel is mixed with black.  When viewed the
 		 * edges of a stretched bitmap will appear to turn dark before they fade out.
 		 *
 		 * But this point is moot anyway; we really only have one bit of alpha, on or off.  So we could pick any cutoff
@@ -1035,7 +1035,7 @@ int		CreateBitmapFromJPEG(const char * inFilePath, struct ImageInfo * outImageIn
 				if (cinfo.output_components == 1)
 					p[n*3+2] = p[n*3+1] = p[n*3] = p[n];
 				else
-					swap(p[n*3+2],p[n*3]);
+					std::swap(p[n*3+2],p[n*3]);
 			}
 			p -= linesize;
 		}
@@ -1104,7 +1104,7 @@ int		CreateBitmapFromJPEGData(void * inBytes, int inLength, struct ImageInfo * o
 				if (cinfo.output_components == 1)
 					p[n*3+2] = p[n*3+1] = p[n*3] = p[n];
 				else
-					swap(p[n*3+2],p[n*3]);
+					std::swap(p[n*3+2],p[n*3]);
 			}
 			p -= linesize;
 		}
@@ -1231,7 +1231,7 @@ int		CreateBitmapFromPNGData(const void * inStart, int inLength, struct ImageInf
 	default: goto bail;
 	}
 
-	// Some pngs have PNG_INFO_tRNS as a transparent index color...since we set "expansion" on this,
+	// Some pngs have PNG_INFO_tRNS as a transparent index color...since we std::set "expansion" on this,
 	// we need to update our channel count; lib png is going to write rgba data.
 	if(!leaveIndexed && png_get_valid(pngPtr,infoPtr,PNG_INFO_tRNS) && outImageInfo->channels == 3)
 		outImageInfo->channels = 4;
@@ -1639,16 +1639,16 @@ static void swap_bgra_y(struct ImageInfo& i)
 		unsigned char * srcp = i.data + x * i.channels + (i.height - y - 1) * (i.channels * i.width + i.pad);
 		unsigned char * dstp = i.data + x * i.channels +				   y	  * (i.channels * i.width + i.pad);
 
-		swap(dstp[2], dstp[0]);
+		std::swap(dstp[2], dstp[0]);
 		if(srcp != dstp)				// check for self-swap, don't undo, also don't waste time.
 		{
-			swap(srcp[0], srcp[2]);		// This swaps BGRA to RGBA
+			std::swap(srcp[0], srcp[2]);		// This swaps BGRA to RGBA
 
 // On mobile devices, we pre-encode DXT with 0,0 = lower left so the phone doesn't have to flip the DDS before feeding it into OpenGL.
 // This will look upside down on all viewers.
 #if !PHONE
 			for(int c = 0; c < i.channels; ++c)	// This flips the image.
-				swap(srcp[c], dstp[c]);
+				std::swap(srcp[c], dstp[c]);
 #endif
 		}
 	}
@@ -1660,7 +1660,7 @@ int	WriteBitmapToDDS(struct ImageInfo& ioImage, int dxt, const char * file_name,
 	Assert(ioImage.channels == 4);//Your number of channels better equal 4 or else
 	FILE * fi = fopen(file_name,"wb");
 	if (fi == NULL) return -1;
-	vector<unsigned char>	src_v, dst_v;
+	std::vector<unsigned char>	src_v, dst_v;
 	int flags = (dxt == 1 ? squish::kDxt1 : (dxt == 3 ? squish::kDxt3 : squish::kDxt5));
 	dst_v.resize(squish::GetStorageRequirements(ioImage.width,ioImage.height,flags));
 	unsigned char * dst_mem = &*dst_v.begin();
@@ -1831,7 +1831,7 @@ int	WriteBitmapToDDS_MT(struct ImageInfo& ioImage, int BCtype, const char * file
    full texture gets done haead of the mipmaps == no faster overall. */
 
 	#define MAX_WORKER_THREADS 3
-	thread threads[MAX_WORKER_THREADS];
+	std::thread threads[MAX_WORKER_THREADS];
 
 	/* don't waste thread startup time parallelizing so much for small textures, libsquish runs at 1+ Mpixels/sec */
 	int num_threads = (ioImage.height * ioImage.width >= 256 * 256) ? MAX_WORKER_THREADS : 1;
@@ -1847,9 +1847,9 @@ int	WriteBitmapToDDS_MT(struct ImageInfo& ioImage, int BCtype, const char * file
 		auto data = ioImage.data + start_line * ioImage.width * 4;
 
 		if(BCtype < 4)
-			threads[i] = thread(squish::CompressImage, data, ioImage.width, height, dst_ptr, flags);
+			threads[i] = std::thread(squish::CompressImage, data, ioImage.width, height, dst_ptr, flags);
 		else
-			threads[i] = thread(squish::CompressImageBC45, data, ioImage.width, height, dst_ptr, BCtype == 5);
+			threads[i] = std::thread(squish::CompressImageBC45, data, ioImage.width, height, dst_ptr, BCtype == 5);
 
 		start_line += height;
 		dst_ptr += squish::GetStorageRequirements(ioImage.width, height, flags);
@@ -2021,7 +2021,7 @@ int		CreateBitmapFromDDS(const char * inFilePath, struct ImageInfo * outImageInf
 		unsigned char * p = outImageInfo->data;
 		while(count--)
 		{
-			swap(p[0],p[2]);
+			std::swap(p[0],p[2]);
 			p += 4;
 		}
 		FlipImageY(*outImageInfo);

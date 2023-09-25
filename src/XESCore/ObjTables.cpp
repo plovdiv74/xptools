@@ -30,10 +30,10 @@ RepTable						gRepTable;
 RepFeatureIndex					gRepFeatureIndex;
 FeatureInfoTable				gFeatures;
 //FeatureToRepTable				gFeatureToRep;
-//set<int>						gFeatureAsFacade;
+//std::set<int>						gFeatureAsFacade;
 
-static set<int>					sKnownFeatures;
-static set<int>					sFeatureObjs;
+static std::set<int>					sKnownFeatures;
+static std::set<int>					sFeatureObjs;
 
 //RepAreaIndex					gFacadeAreaIndex;
 //RepAreaIndex					gObjectAreaIndex;
@@ -41,8 +41,8 @@ RepUsageTable					gRepUsage;
 int								gRepUsageTotal = 0;
 RepTableTerrainIndex			gRepTableTerrainIndex;
 
-string							gObjPlacementFile;
-string							gObjLibPrefix;
+std::string							gObjPlacementFile;
+std::string							gObjLibPrefix;
 
 static int ObjScheduleJump(int height)
 {
@@ -52,13 +52,13 @@ static int ObjScheduleJump(int height)
 					   return height+10; 	// 200+    meters: 50 meter jumps
 }
 
-bool	ReadPrefixLine(const vector<string>& tokens, void * ref)
+bool	ReadPrefixLine(const vector<std::string>& tokens, void * ref)
 {
 	gObjLibPrefix = tokens[1];
 	return true;
 }
 
-bool	ReadRepLine(const vector<string>& tokens, void * ref)
+bool	ReadRepLine(const vector<std::string>& tokens, void * ref)
 {
 	RepInfo_t	info;
 	int row_num;
@@ -110,7 +110,7 @@ bool	ReadRepLine(const vector<string>& tokens, void * ref)
 	}
 	else if (tokens[0] == "OBS_PROP")
 	{
-		string base_name;
+		std::string base_name;
 		int		height_min, height_max;
 		if (TokenizeLine(tokens, " eeffiiiis",
 			&info.feature, &info.terrain,
@@ -224,7 +224,7 @@ bool	ReadRepLine(const vector<string>& tokens, void * ref)
 	return true;
 }
 
-bool	ReadFeatureProps(const vector<string>& tokens, void * ref)
+bool	ReadFeatureProps(const std::vector<std::string>& tokens, void * ref)
 {
 	FeatureInfo info;
 	int	key;
@@ -276,7 +276,7 @@ void	LoadObjTables(void)
 //			gFeatureAsFacade.insert(i->first);
 //	}
 
-	hash_map<int, int>	mins, maxs;
+	std::hash_map<int, int>	mins, maxs;
 	for (int n = 0; n < gRepTable.size(); ++n)
 	{
 		int terrain = gRepTable[n].terrain;
@@ -286,12 +286,12 @@ void	LoadObjTables(void)
 										maxs[terrain] = max(maxs[terrain], n+1);
 	}
 
-	for (hash_map<int, int>::iterator range = mins.begin(); range != mins.end(); ++range)
+	for (std::hash_map<int, int>::iterator range = mins.begin(); range != mins.end(); ++range)
 	{
 		int terrain = range->first;
 		int ilow = range->second;
 		int ihi = maxs[terrain];
-		gRepTableTerrainIndex[terrain] = pair<int,int>(ilow, ihi);
+		gRepTableTerrainIndex[terrain] = std::pair<int,int>(ilow, ihi);
 	}
 }
 
@@ -322,7 +322,7 @@ int	QueryUsableFacsBySize(
 					int				inMaxResults)
 {
 	int 						ret = 0;
-	pair<int,int>				range = gRepTableTerrainIndex[terrain];
+	std::pair<int,int>				range = gRepTableTerrainIndex[terrain];
 	for (int row = range.first; row < range.second; ++row)
 	{
 		RepInfo_t& rec = gRepTable[row];
@@ -395,7 +395,7 @@ int QueryUsableObjsBySize(
 	// since the antenna is in the smack middle of the facade, it
 	// is conceivable that a huge object could fit there.
 
-	pair<int,int>				range = gRepTableTerrainIndex[terrain];
+	std::pair<int,int>				range = gRepTableTerrainIndex[terrain];
 	for (int row = range.first; row < range.second; ++row)
 	{
 		RepInfo_t& rec = gRepTable[row];
@@ -462,7 +462,7 @@ void CheckObjTable(void)
 			printf("WARNING: object %s references unknown terrain %s\n",FetchTokenString(gRepTable[n].obj_name), FetchTokenString(gRepTable[n].terrain));
 }
 
-void GetObjTerrainTypes(set<int>& outTypes)
+void GetObjTerrainTypes(std::set<int>& outTypes)
 {
 	for (int n = 0; n < gRepTable.size(); ++n)
 	if (gRepTable[n].terrain != NO_VALUE)

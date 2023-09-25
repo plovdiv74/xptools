@@ -41,7 +41,7 @@ public:
 	virtual	void	DrawVisualization(bool inCurrent, GUI_GraphState * g);
 	virtual	void	GetCaps(bool& draw_ent_v, bool& draw_ent_s, bool& cares_about_sel, bool& wants_clicks);
 	virtual	void	TimerFired(void);
-			void	SetMode(int mode);  // mode 0 = custom map string, 1..2 OSM and ERSI maps
+			void	SetMode(int mode);  // mode 0 = custom map std::string, 1..2 OSM and ERSI maps
 			int		GetMode(void);
 
 private:
@@ -52,11 +52,11 @@ private:
 	WED_file_cache_request* m_cache_request;
 
 	//The texture cache, where they key is the tile texture path on disk and the value is the texture id
-	map<string,int>	m_cache;
+	std::map<std::string,int>	m_cache;
 
 			int		mMapMode;
-			string	url_printf_fmt;
-			string	dir_printf_fmt;
+			std::string	url_printf_fmt;
+			std::string	dir_printf_fmt;
 			yCoord_t	y_coordinate_math;
 };
 

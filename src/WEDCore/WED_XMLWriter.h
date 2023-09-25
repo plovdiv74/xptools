@@ -44,7 +44,7 @@ public:
 	void					add_attr_int(const char * name, int value);
 	void					add_attr_double(const char * name, double value, int dec);
 	void					add_attr_c_str(const char * name, const char * str);
-	void					add_attr_stl_str(const char * name, const string& str);
+	void					add_attr_stl_str(const char * name, const std::string& str);
 	
 	WED_XMLElement *		add_sub_element(const char * name);
 	WED_XMLElement *		add_or_find_sub_element(const char * name);
@@ -65,8 +65,8 @@ private:
 		FILE *									file;
 		int										indent;
 		const char *							name;
-		vector<pair<const char *,string> >	attrs;
-		vector<WED_XMLElement *>			children;
+		std::vector<std::pair<const char *,std::string> >	attrs;
+		std::vector<WED_XMLElement *>			children;
 		WED_XMLElement *						parent;
 };	
 	

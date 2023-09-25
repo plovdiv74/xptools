@@ -64,17 +64,17 @@ public:
 			~WED_XMLReader();
 
 	void	PushHandler(WED_XMLHandler * handler);
-	void	FailWithError(const string& err);
+	void	FailWithError(const std::string& err);
 	
 	// Returns err msg or "" for none.
-	string	ReadFile(const char * filename, bool * exists);
+	std::string	ReadFile(const char * filename, bool * exists);
 
 private:
 
-	list<WED_XMLHandler *>	handlers;
-	list<bool>				new_handler_for_element;
+	std::list<WED_XMLHandler *>	handlers;
+	std::list<bool>				new_handler_for_element;
 	XML_Parser				parser;
-	string					err;
+	std::string					err;
 	
 	static void	StartElementHandler(void *userData,
 						const XML_Char *name,

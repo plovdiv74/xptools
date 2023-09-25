@@ -58,19 +58,19 @@ int		GUI_TabControl::GetNaturalHeight(void)
 	return 2 * GUI_GetLineHeight(font_UI_Basic) + 2 * TAB_PADDING;
 }
 
-void		GUI_TabControl::SetDescriptor(const string& inDesc)
+void		GUI_TabControl::SetDescriptor(const std::string& inDesc)
 {
 	GUI_Control::SetDescriptor(inDesc);
 
 	mItems.clear();
 
-	string::const_iterator b, e;
+	std::string::const_iterator b, e;
 	b = inDesc.begin();
 	while (b != inDesc.end())
 	{
 		e = b;
 		while (e != inDesc.end() && *e != '\n') ++e;
-		mItems.push_back(string(b,e));
+		mItems.push_back(std::string(b,e));
 		if (e != inDesc.end()) ++e;
 		b = e;
 	}

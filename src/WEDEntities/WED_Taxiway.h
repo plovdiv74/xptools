@@ -44,7 +44,7 @@ public:
 	void		Import(const AptTaxiway_t& x, void (* print_func)(void *, const char *, ...), void * ref);
 	void		Export(		 AptTaxiway_t& x) const;
 
-	virtual void			GetResource(string& r) const;
+	virtual void			GetResource(std::string& r) const;
 	virtual const char *	HumanReadableType(void) const { return "Taxiway"; }
 
 	virtual		void	GetNthPropertyDict(int n, PropertyDict_t& dict) const;

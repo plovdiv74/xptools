@@ -189,7 +189,6 @@
 		#define vector __dev_vector
 	#endif
 
-	using namespace std;
 #endif
 
 #include <stdio.h>
@@ -238,13 +237,13 @@
 			// modifying the client code in numerous places.
 			#include <fstream>
 			#define ofstream x_ofstream
-			class x_ofstream : public basic_ostream<char, char_traits<char>> 
+			class x_ofstream : public std::basic_ostream<char, std::char_traits<char>> 
 			{
 			public:
-				typedef basic_ofstream<char, char_traits<char>> _Myt;
-				typedef basic_ostream<char, char_traits<char>> _Mybase;
-				typedef basic_filebuf<char, char_traits<char>> _Myfb;
-				typedef basic_ios<char, char_traits<char>> _Myios;
+				typedef std::basic_ofstream<char, std::char_traits<char>> _Myt;
+				typedef std::basic_ostream<char, std::char_traits<char>> _Mybase;
+				typedef std::basic_filebuf<char, std::char_traits<char>> _Myfb;
+				typedef basic_ios<char, std::char_traits<char>> _Myios;
 
 				x_ofstream() :_Mybase(&_Filebuffer) {}
 				virtual ~x_ofstream() {}

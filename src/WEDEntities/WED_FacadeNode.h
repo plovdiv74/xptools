@@ -39,7 +39,7 @@ public:
 	virtual	bool	GetControlHandleHi (GISLayer_t l,       Point2& p) const;
 
 	virtual void	GetNthPropertyDict(int n, PropertyDict_t& dict) const;
-	virtual	void	GetNthPropertyDictItem(int n, int e, string& item) const;
+	virtual	void	GetNthPropertyDictItem(int n, int e, std::string& item) const;
 	virtual	void	PropEditCallback(int before);
 			int		GetWallType(void) const;
 			void		SetWallType(int wt);

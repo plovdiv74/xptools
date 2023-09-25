@@ -40,8 +40,8 @@ struct	ForestRule_t {
 	int			forest_type;
 };
 
-typedef vector<ForestRule_t>	ForestRuleVector;
-typedef	map<int, ForestInfo_t>	ForestInfoMap;
+typedef std::vector<ForestRule_t>	ForestRuleVector;
+typedef	std::map<int, ForestInfo_t>	ForestInfoMap;
 
 extern ForestRuleVector	gForestRules;
 extern ForestInfoMap gForestInfo;

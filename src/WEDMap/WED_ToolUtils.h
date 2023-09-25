@@ -48,8 +48,8 @@ WED_Thing *		WED_FindParent(ISelection * isel,	// Selected objects
 // Returns whether 'a' comes before 'b' in the object hierarchy
 bool			WED_ComesBeforeInHierarchy(WED_Thing * a, WED_Thing * b);
 
-void			WED_GetSelectionInOrder(IResolver * resolver, vector<WED_Thing *>& out_sel);
-void			WED_GetSelectionRecursive(IResolver * resolver, set<WED_Thing *>& out_sel);
+void			WED_GetSelectionInOrder(IResolver * resolver, std::vector<WED_Thing *>& out_sel);
+void			WED_GetSelectionRecursive(IResolver * resolver, std::set<WED_Thing *>& out_sel);
 bool			WED_IsSelectionNested(IResolver * resolver);		// Returns true if there are parent-children who are selected!
 
 
@@ -94,14 +94,14 @@ WED_Thing*		WED_HasSingleSelectionOfType(IResolver * resolver, const char * in_c
 const char *	WED_GetParentForClass(const char * in_class);
 
 
-void			WED_GetAllRunwaysOneway(const WED_Airport * airport, set<int>& runways);
-void			WED_GetAllRunwaysTwoway(const WED_Airport * airport, set<int>& runways);
+void			WED_GetAllRunwaysOneway(const WED_Airport * airport, std::set<int>& runways);
+void			WED_GetAllRunwaysTwoway(const WED_Airport * airport, std::set<int>& runways);
 
 //---------------------------------------------------------------------------------------------------------------------------------
 // FILTERS:
 //---------------------------------------------------------------------------------------------------------------------------------
 // These routines return properties of an object.  The void * param is uusally unused.  They return 1 if true, 0 if false.
-// They are designed such that we can run these on the selection (as an iterator) and get a response if ANY part of
+// They are designed such that we can run these on the selection (as an std::iterator) and get a response if ANY part of
 // the selection meets this.
 
 // Basic matching filters
@@ -109,7 +109,7 @@ int Iterate_ParentMismatch(ISelectable * what, void * ref);				// This object's 
 int Iterate_IsParentOf(ISelectable * what, void * ref);					// This object is a parent of (or is) "ref".
 int	Iterate_MatchesThing(ISelectable * what, void * ref);					// ref is a thing to match
 int	Iterate_NotMatchesThing(ISelectable * what, void * ref);				// ref is a thing to match
-// Type containment filters - ref is really a class string ptr.
+// Type containment filters - ref is really a class std::string ptr.
 int	Iterate_RequiresClass(ISelectable * what, void * ref);				// This object MUST have a certain type as part of its ancestors.
 int	Iterate_ChildRequiresClass(ISelectable * what, void * ref);			// This object MUST have an certain type as part of its ancestors.  Or one of our children requires this.
 int	Iterate_IsClass(ISelectable * what, void * ref);						// This object is an certain type.
@@ -126,11 +126,11 @@ int	Iterate_IsNonEmptyComposite(ISelectable * what, void * ref);			// We are a c
 int Iterate_HasSelectedParent(ISelectable * what, void * ref);				// ref is ISelection.
 
 // Collecting - these
-int	Iterate_CollectThings(ISelectable * what, void * ref);				// ref is ptr to vector<wed_thing>
-int Iterate_CollectRequiredParents(ISelectable * what, void * ref);		// ref is a set of strings that are the required classes.
-int Iterate_CollectChildPointSequences(ISelectable * what, void * ref);	// ref is a ptr to a vector<IGISPointSequence *>
-int Iterate_CollectEntities  (ISelectable * what, void * ref);			// ref is a ptr to a vector<IGISEntity *>
-int Iterate_CollectEntitiesUV(ISelectable * what, void * ref);			// ref is a ptr to a vector<IGISEntity *>  - only take entities with UV maps!
+int	Iterate_CollectThings(ISelectable * what, void * ref);				// ref is ptr to std::vector<wed_thing>
+int Iterate_CollectRequiredParents(ISelectable * what, void * ref);		// ref is a std::set of strings that are the required classes.
+int Iterate_CollectChildPointSequences(ISelectable * what, void * ref);	// ref is a ptr to a std::vector<IGISPointSequence *>
+int Iterate_CollectEntities  (ISelectable * what, void * ref);			// ref is a ptr to a std::vector<IGISEntity *>
+int Iterate_CollectEntitiesUV(ISelectable * what, void * ref);			// ref is a ptr to a std::vector<IGISEntity *>  - only take entities with UV maps!
 
 //---------------------------------------------------------------------------------------------------------------------------------
 // WORLD ITERATION
@@ -138,8 +138,8 @@ int Iterate_CollectEntitiesUV(ISelectable * what, void * ref);			// ref is a ptr
 
 bool IsGraphNode(WED_Thing * what);
 bool IsGraphEdge(WED_Thing * what);
-//void CollectRecursive(WED_Thing * root, bool(* filter)(WED_Thing *			  ),			 vector<WED_Thing *>& items);
-//void CollectRecursive(WED_Thing * root, bool(* filter)(WED_Thing *, void * ref), void * ref, vector<WED_Thing *>& items);
+//void CollectRecursive(WED_Thing * root, bool(* filter)(WED_Thing *			  ),			 std::vector<WED_Thing *>& items);
+//void CollectRecursive(WED_Thing * root, bool(* filter)(WED_Thing *, void * ref), void * ref, std::vector<WED_Thing *>& items);
 
 //---------------------------------------------------------------------------------------------------------------------------------
 // DRAG & DROP

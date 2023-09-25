@@ -274,7 +274,7 @@ void	WED_TCEMarqueeTool::ControlsMoveBy(intptr_t id, const Vector2& delta, Point
 		DebugAssert(ortho != NULL);
 		
 		WED_ResourceMgr * mResMgr = WED_GetResourceMgr(GetResolver());
-		string mRes; ortho->GetResource(mRes);
+		std::string mRes; ortho->GetResource(mRes);
 
 		const pol_info_t * pol;
 		mResMgr->GetPol(mRes,pol);
@@ -350,7 +350,7 @@ void	WED_TCEMarqueeTool::ControlsHandlesBy(intptr_t id, int c, const Vector2& de
 	Vector2	d(delta);
 	
 	if(mCacheBounds.xspan() != 0.0 && mCacheBounds.yspan() != 0.0)			// Don't run if bbox is degenerate - we can't preserve its aspect ratio, which is 0 or infinite.
-	if(delta.dx != 0.0 || delta.dy != 0.0)									// Don't run if no delta, we get a div-by-zero in vector project.
+	if(delta.dx != 0.0 || delta.dy != 0.0)									// Don't run if no delta, we get a div-by-zero in std::vector project.
 	if (mEditMode == tmm_Prop_Center || mEditMode == tmm_Prop)
 	{
 		if(c == 1 || c == 5)
@@ -469,12 +469,12 @@ bool	WED_TCEMarqueeTool::GetTotalBounds(void) const
 	DebugAssert(sel != NULL);
 	mCacheIconic = false;
 
-	vector<ISelectable *>	iu;
+	std::vector<ISelectable *>	iu;
 
 	sel->GetSelectionVector(iu);
 	if (iu.empty()) return false;
 	bool iconic = iu.size() == 1;
-	for (vector<ISelectable *>::iterator i = iu.begin(); i != iu.end(); ++i)
+	for (std::vector<ISelectable *>::iterator i = iu.begin(); i != iu.end(); ++i)
 	{
 		WED_Entity * went = SAFE_CAST(WED_Entity,*i);
 		if (went)
@@ -501,10 +501,10 @@ void	WED_TCEMarqueeTool::ApplyRescale(const Bbox2& old_bounds, const Bbox2& new_
 	ISelection * sel = WED_GetSelect(GetResolver());
 	DebugAssert(sel != NULL);
 
-	vector<ISelectable *>	iu;
+	std::vector<ISelectable *>	iu;
 
 	sel->GetSelectionVector(iu);
-	for (vector<ISelectable *>::iterator i = iu.begin(); i != iu.end(); ++i)
+	for (std::vector<ISelectable *>::iterator i = iu.begin(); i != iu.end(); ++i)
 	{
 		IGISEntity * ent = SAFE_CAST(IGISEntity,*i);
 		WED_Entity * went = SAFE_CAST(WED_Entity,*i);
@@ -531,10 +531,10 @@ void	WED_TCEMarqueeTool::ApplyRotate(const Point2& ctr, double angle)
 	ISelection * sel = WED_GetSelect(GetResolver());
 	DebugAssert(sel != NULL);
 
-	vector<ISelectable *>	iu;
+	std::vector<ISelectable *>	iu;
 
 	sel->GetSelectionVector(iu);
-	for (vector<ISelectable *>::iterator i = iu.begin(); i != iu.end(); ++i)
+	for (std::vector<ISelectable *>::iterator i = iu.begin(); i != iu.end(); ++i)
 	{
 		IGISEntity * ent = SAFE_CAST(IGISEntity,*i);
 		WED_Entity * went = SAFE_CAST(WED_Entity,*i);

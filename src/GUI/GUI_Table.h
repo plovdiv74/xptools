@@ -99,7 +99,7 @@ public:
 	virtual	void		CellMouseDrag(int cell_bounds[4], int cell_x, int cell_y, int mouse_x, int mouse_y, int button									  )=0;
 	virtual	void		CellMouseUp  (int cell_bounds[4], int cell_x, int cell_y, int mouse_x, int mouse_y, int button									  )=0;
 	virtual	int			CellGetCursor(int cell_bounds[4], int cell_x, int cell_y, int mouse_x, int mouse_y												  )=0;
-	virtual	int			CellGetHelpTip(int cell_bounds[4], int cell_x, int cell_y, int mouse_x, int mouse_y, string& tip								  )=0;
+	virtual	int			CellGetHelpTip(int cell_bounds[4], int cell_x, int cell_y, int mouse_x, int mouse_y, std::string& tip								  )=0;
 
 	virtual	GUI_DragOperation	CellDragEnter	(int cell_bounds[4], int cell_x, int cell_y, int mouse_x, int mouse_y, GUI_DragData * drag, GUI_DragOperation allowed, GUI_DragOperation recommended)=0;
 	virtual	GUI_DragOperation	CellDragWithin	(int cell_bounds[4], int cell_x, int cell_y, int mouse_x, int mouse_y, GUI_DragData * drag, GUI_DragOperation allowed, GUI_DragOperation recommended)=0;
@@ -118,7 +118,7 @@ public:
 	virtual	void		HeadMouseDrag(int cell_bounds[4], int cell_x, int mouse_x, int mouse_y, int button									  )=0;
 	virtual	void		HeadMouseUp  (int cell_bounds[4], int cell_x, int mouse_x, int mouse_y, int button									  )=0;
 	virtual	int			HeadGetCursor(int cell_bounds[4], int cell_x, int mouse_x, int mouse_y												  )=0;
-	virtual	int			HeadGetHelpTip(int cell_bounds[4], int cell_x, int mouse_x, int mouse_y, string& tip								  )=0;
+	virtual	int			HeadGetHelpTip(int cell_bounds[4], int cell_x, int mouse_x, int mouse_y, std::string& tip								  )=0;
 
 };
 
@@ -130,7 +130,7 @@ public:
 	virtual	void		SideMouseDrag(int cell_bounds[4], int cell_y, int mouse_x, int mouse_y, int button									  )=0;
 	virtual	void		SideMouseUp  (int cell_bounds[4], int cell_y, int mouse_x, int mouse_y, int button									  )=0;
 	virtual	int			SideGetCursor(int cell_bounds[4], int cell_y, int mouse_x, int mouse_y												  )=0;
-	virtual	int			SideGetHelpTip(int cell_bounds[4], int cell_y, int mouse_x, int mouse_y, string& tip								  )=0;
+	virtual	int			SideGetHelpTip(int cell_bounds[4], int cell_y, int mouse_x, int mouse_y, std::string& tip								  )=0;
 
 };
 
@@ -155,7 +155,7 @@ public:
 	virtual	void		MouseUp  (int x, int y, int button);
 	virtual	int			TrapNotify(int x, int y, int button);
 	virtual	int			GetCursor(int x, int y);
-	virtual	int			GetHelpTip(int x, int y, int tip_bounds[4], string& tip);
+	virtual	int			GetHelpTip(int x, int y, int tip_bounds[4], std::string& tip);
 
 	virtual	GUI_DragOperation			DragEnter	(int x, int y, GUI_DragData * drag, GUI_DragOperation allowed, GUI_DragOperation recommended);
 	virtual	GUI_DragOperation			DragOver	(int x, int y, GUI_DragData * drag, GUI_DragOperation allowed, GUI_DragOperation recommended);
@@ -223,7 +223,7 @@ public:
 	virtual	void		MouseDrag(int x, int y, int button);
 	virtual	void		MouseUp  (int x, int y, int button);
 	virtual	int			GetCursor(int x, int y);
-	virtual	int			GetHelpTip(int x, int y, int tip_bounds[4], string& tip);
+	virtual	int			GetHelpTip(int x, int y, int tip_bounds[4], std::string& tip);
 
 	virtual	void		ReceiveMessage(
 							GUI_Broadcaster *		inSrc,
@@ -259,7 +259,7 @@ public:
 	virtual	void		MouseDrag(int x, int y, int button);
 	virtual	void		MouseUp  (int x, int y, int button);
 	virtual	int			GetCursor(int x, int y);
-	virtual	int			GetHelpTip(int x, int y, int tip_bounds[4], string& tip);
+	virtual	int			GetHelpTip(int x, int y, int tip_bounds[4], std::string& tip);
 
 	virtual	void		ReceiveMessage(
 							GUI_Broadcaster *		inSrc,

@@ -108,14 +108,14 @@ struct hash<DSFTuple> HASH_PARENT(DSFTuple, std::size_t) {
 HASH_MAP_NAMESPACE_END
 
 typedef	vector<DSFTuple>			DSFTupleVector;
-typedef list<DSFTupleVector>		DSFTupleVectorVector;
+typedef std::list<DSFTupleVector>		DSFTupleVectorVector;
 
 /* A shared point pool.  Every point is pooled, and the
  * points are sorted spatially.  The shared point pool
  * is really N sub-point-pools, so each point ends up
- * with a pair of indices. */
+ * with a std::pair of indices. */
 
-typedef	pair<int, int>	DSFPointPoolLoc;
+typedef	std::pair<int, int>	DSFPointPoolLoc;
 typedef vector<DSFPointPoolLoc>	DSFPointPoolLocVector;
 
 class	DSFSharedPointPool {
@@ -133,7 +133,7 @@ public:
 	void			AddPool(DSFTuple& minFrac, DSFTuple& maxFrac);
 	void			AddPoolDirect(DSFTuple& minFrac, DSFTuple& maxFrac);
 
-	// This returns true if the set of points can be kept as a run...
+	// This returns true if the std::set of points can be kept as a run...
 	// it tests only whether the points span subpools, and can be
 	// run before any points are accepted.
 	bool			CanBeContiguous(const DSFTupleVector& inPoints);
@@ -141,7 +141,7 @@ public:
 	// Returns how many of these points will reuse existing vertices
 	int				CountShared(const DSFTupleVector& inPoints);
 
-	// This routine accepts a run as a contiguous set in one pool, and
+	// This routine accepts a run as a contiguous std::set in one pool, and
 	// returns the pool and index, or -1, -1 if any of the points are
 	// already in one of the point pools (and thus it should be shared).
 	// You can also limit these to a single pool if you have a pool #
@@ -174,7 +174,7 @@ private:
 
 	};
 
-	list<SharedSubPool>			mPools;
+	std::list<SharedSubPool>			mPools;
 	vector<int>					mUsageMapping;
 
 	DSFPointPoolLoc	AcceptContiguousPool(int pp, SharedSubPool * pool, const DSFTupleVector& inPoints);
@@ -223,7 +223,7 @@ private:
 
 	};
 
-	list<ContiguousSubPool>		mPools;
+	std::list<ContiguousSubPool>		mPools;
 	vector<int>					mUsageMapping;
 };
 

@@ -26,17 +26,17 @@
 
 #include "AssertUtils.h"
 
-template<typename T>				void trim(T& v);							// Remove extra space from a vector.
-template <class T>					void nuke_container(T& v);					// Clear a container, free vector memory
-template <typename I>				I nth_from(const I& i, int n);				// Return iterator that is "n" from input.  Like advance but inline with return value.
+template<typename T>				void trim(T& v);							// Remove extra space from a std::vector.
+template <class T>					void nuke_container(T& v);					// Clear a container, free std::vector memory
+template <typename I>				I nth_from(const I& i, int n);				// Return std::iterator that is "n" from input.  Like advance but inline with return value.
 template <typename C>				int count_circulator(C circulator);			// Number of items in one whole circulation.
-template<typename K, typename V>	K highest_key(const map<K,V>& histo);		// Return most common key vlaue in a histogram, linear time.
+template<typename K, typename V>	K highest_key(const std::map<K,V>& histo);		// Return most common key vlaue in a histogram, linear time.
 
 // Reverse a histogram (so go from key->number of items to item count -> which item), returning the total item count.
-template <typename K, typename V>	V reverse_histo(const map<K,V>& in_histo, multimap<V,K>& out_histo);
+template <typename K, typename V>	V reverse_histo(const std::map<K,V>& in_histo, std::map<V,K>& out_histo);
 
-// General purpose string tokenizer. Output iterator's value type must be constructed from PAIRs of input iterators.
-// (So if the input is a pair of string iterator, the output should be a back vector inserter where the vector contains strings (for exampe).
+// General purpose std::string tokenizer. Output std::iterator's value type must be constructed from PAIRs of input iterators.
+// (So if the input is a std::pair of std::string std::iterator, the output should be a back std::vector inserter where the std::vector contains strings (for exampe).
 template<class InputIterator, class Separator, class OutputIterator>
 void tokenize_string(InputIterator begin, InputIterator end, OutputIterator oi, Separator sep);
 
@@ -45,13 +45,13 @@ template<class InputIterator, class Separator, class OutputIterator>
 void tokenize_string_func(InputIterator begin, InputIterator end, OutputIterator oi, Separator sep);
 
 // Return true if any of the strings in the input range are case-insensitive sub-strings of the passed
-// in string.  Returns true if txt is empty, but false if the filter range is empty.
+// in std::string.  Returns true if txt is empty, but false if the filter range is empty.
 template <class InputIterator, class String>
 bool filter_match(const String& txt, InputIterator begin, InputIterator end);
 
 // SET UTILS
 
-// Simple inserter and eraser output iterator adapter for STL sets.
+// Simple inserter and eraser output std::iterator adapter for STL sets.
 template <class Container>	class set_insert_iterator;
 template <class Container>	inline set_insert_iterator<Container> set_inserter(Container& x) { return set_insert_iterator<Container>(x); }
 template <class Container>	class set_erase_iterator;
@@ -61,9 +61,9 @@ template <class Container>	inline set_erase_iterator<Container> set_eraser(Conta
 // Given two sets or sorted ranges, compute the length of their union without actually computing the union.  Linear time.
 template<typename _InputIterator1, typename _InputIterator2>
 size_t set_union_length(_InputIterator1 __first1, _InputIterator1 __last1, _InputIterator2 __first2, _InputIterator2 __last2);
-template <typename T>					size_t set_union_length(const set<T>& s1, const set<T>& s2);
+template <typename T>					size_t set_union_length(const std::set<T>& s1, const std::set<T>& s2);
 // Returns true if sub is a superset of S.
-template <typename T>					bool is_subset(const set<T>& sub, const set<T>& s);
+template <typename T>					bool is_subset(const std::set<T>& sub, const std::set<T>& s);
 
 // PRIORITY Q BASED ON TWO MAPS
 // You can reprioritize a single item in O(2LOGN) time by erasing it (by value) and then re-inserting it
@@ -189,7 +189,7 @@ public:
 };
 */
 
-//--Case insensitive string implementation-------------------------------------
+//--Case insensitive std::string implementation-------------------------------------
 //Thanks Herb Stutter http://www.gotw.ca/gotw/029.htm
 struct ci_char_traits : public std::char_traits<char>
 {
@@ -228,7 +228,7 @@ I nth_from(const I& i, int n)
 
 template <class Container>
 class set_insert_iterator
-	: public iterator<output_iterator_tag,void,void,void,void>
+	: public std::iterator<std::output_iterator_tag,void,void,void,void>
 {
 protected:
 	Container* container;
@@ -252,7 +252,7 @@ public:
 
 template <class Container>
 class set_erase_iterator
-	: public iterator<output_iterator_tag,void,void,void,void>
+	: public std::iterator<std::output_iterator_tag,void,void,void,void>
 {
 protected:
 	Container* container;
@@ -305,10 +305,10 @@ class pqueue {
 public:
 	typedef Priority								priority_type;
 	typedef Value									value_type;
-	typedef	multimap<priority_type,value_type>		map_type;
+	typedef	std::map<priority_type,value_type>		map_type;
 	typedef typename map_type::iterator				map_iterator;
 	typedef typename map_type::value_type			map_value_type;
-	typedef map<value_type, map_iterator>			back_link_type;
+	typedef std::map<value_type, map_iterator>			back_link_type;
 	typedef typename back_link_type::iterator		back_link_iterator;
 	typedef typename back_link_type::value_type		back_link_value_type;
 
@@ -447,10 +447,10 @@ bool filter_match(const String& haystack, InputIterator begin, InputIterator end
 
 
 template<typename K, typename V>
-K highest_key(const map<K,V>& histo)
+K highest_key(const std::map<K,V>& histo)
 {
-	typename map<K,V>::const_iterator best = histo.begin();
-	typename map<K,V>::const_iterator i(best);
+	typename std::map<K,V>::const_iterator best = histo.begin();
+	typename std::map<K,V>::const_iterator i(best);
 	++i;
 	while(i != histo.end())
 	{
@@ -496,27 +496,27 @@ size_t set_union_length(_InputIterator1 __first1, _InputIterator1 __last1,
 
 
 template <typename T>
-bool is_subset(const set<T>& sub, const set<T>& s)
+bool is_subset(const std::set<T>& sub, const std::set<T>& s)
 {
 	return includes(s.begin(),s.end(),sub.begin(),sub.end());
 }
 
 template <typename T>
-size_t set_union_length(const set<T>& s1, const set<T>& s2)
+size_t set_union_length(const std::set<T>& s1, const std::set<T>& s2)
 {
 	return set_union_length(s1.begin(),s1.end(),s2.begin(),s2.end());
 }
 
 
 template <typename K, typename V>
-V reverse_histo(const map<K,V>& in_histo, multimap<V,K>& out_histo)
+V reverse_histo(const std::map<K,V>& in_histo, std::map<V,K>& out_histo)
 {
 	V total = 0;
 	out_histo.clear();
-	for(typename map<K,V>::const_iterator h = in_histo.begin(); h != in_histo.end(); ++h)
+	for(typename std::map<K,V>::const_iterator h = in_histo.begin(); h != in_histo.end(); ++h)
 	{
 		total += h->second;
-		out_histo.insert(typename multimap<V,K>::value_type(h->second,h->first));
+		out_histo.insert(typename std::map<V,K>::value_type(h->second,h->first));
 	}
 	return total;
 }

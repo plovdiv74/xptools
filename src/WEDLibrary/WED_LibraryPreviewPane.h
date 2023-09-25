@@ -38,7 +38,7 @@ public:
 	WED_LibraryPreviewPane(GUI_Commander *cmdr, WED_ResourceMgr * res_mgr, ITexMgr * tex_mgr);
 
 	void				Draw(GUI_GraphState * state) override;
-	void				SetResource(const string& r, int res_type, int variants);
+	void				SetResource(const std::string& r, int res_type, int variants);
 	void				ClearResource(void);
 
 	void				ReceiveMessage(GUI_Broadcaster * inSrc, intptr_t inMsg, intptr_t inParam) override;
@@ -58,7 +58,7 @@ public:
 	GUI_DragOperation   Drop        (int x, int y, GUI_DragData * drag, GUI_DragOperation allowed, GUI_DragOperation recommended) override;
 
 private:
-	void				DrawOneItem(int type, const string& res, int b[4], GUI_GraphState * g, const char * label = nullptr);
+	void				DrawOneItem(int type, const std::string& res, int b[4], GUI_GraphState * g, const char * label = nullptr);
 	void 				UpdateFacadePreview(void);
 	void 				begin3d(const int *b, double radius_m);
 	void				end3d(const int *b);
@@ -73,7 +73,7 @@ private:
 	float				mZoom;
 	WED_ResourceMgr *	mResMgr;
 	ITexMgr *			mTexMgr;
-	string				mRes;
+	std::string				mRes;
 	int					mType;
 	int					mNumVariants;  // number of variants provided by object
 	int					mVariant;      // variant we want to show
@@ -84,7 +84,7 @@ private:
 	unsigned int		mColBuf, mDepthBuf;
 
 	bool				mLightBackground;
-	vector<pair<string, int> > mRess;
+	std::vector<std::pair<std::string, int> > mRess;
 };
 
 #endif

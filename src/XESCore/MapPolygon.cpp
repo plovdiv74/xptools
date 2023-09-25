@@ -26,7 +26,7 @@ void	PolygonFromFace(Pmwx::Face_const_handle in_face, Polygon_with_holes_2& out_
 {
 	// Ben says: EASY way would of course be to simply mark only that face as "included" and
 	// rebuild the PS off of the arrangement.  But this would involve copying the entire map and
-	// then the polygon set would have to delete 99.9% of it.  Too slow!
+	// then the polygon std::set would have to delete 99.9% of it.  Too slow!
 
 	// So instead, we rebuild the poly the old fashion way...we can use a PS with holes because we know
 	// a single mesh face is a single contiguous area!  By using the tighter data type we pass this assumption
@@ -208,7 +208,7 @@ static Face_handle	face_for_curve(
     if (eq_curr || eq_next)
       return Face_handle();
 
-    // Move to the next pair of incident halfedges.
+    // Move to the next std::pair of incident halfedges.
     curr = next++;
 
     // If we completed a full traversal around v without locating the
@@ -247,7 +247,7 @@ void	FillPolygonGaps(Polygon_set_2& ioPolygon, double dist)
 		while (stop != ++circ);
 	}
 
-	typedef multimap<double, pair<Vertex_handle,Vertex_handle > >		seg_queue_t;
+	typedef multimap<double, std::pair<Vertex_handle,Vertex_handle > >		seg_queue_t;
 	seg_queue_t															seg_queue;
 
 	int ctr=0;
@@ -263,7 +263,7 @@ void	FillPolygonGaps(Polygon_set_2& ioPolygon, double dist)
 		{
 //			CGAL::insert_curve(pmwx,Curve_2(possible_curve));
 //			debug_mesh_line(cgal2ben(possible_curve.source()),cgal2ben(possible_curve.target()),1,0,0,  0,1,0);
-			seg_queue.insert(seg_queue_t::value_type(len,pair<Vertex_handle, Vertex_handle>(*v1,*v2)));
+			seg_queue.insert(seg_queue_t::value_type(len,std::pair<Vertex_handle, Vertex_handle>(*v1,*v2)));
 		}
 	}
 
@@ -528,7 +528,7 @@ void MakePolygonSimple(const Polygon_2& inPolygon, vector<Polygon_2>& out_simple
 		f->set_contained(!f->is_unbounded());
 
 	// Ben says: ugliness: we cannot simply use the output iterator because
-	// the polygons set depends on the curve insertions being based on polygon windings.  Since we have 
+	// the polygons std::set depends on the curve insertions being based on polygon windings.  Since we have 
 	// thrown in self-intersecting curves, some of the curve directions will be whacked out.
 	// So...how to get our curves.  CCB of the holes in the unbounded face is not a simple polygon in the
 	// figure-8 case.  Instead, iterate and export all faces.  The fact that we have filled freaking 

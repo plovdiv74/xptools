@@ -55,7 +55,7 @@ public:
 
 			void		AddRadioFriend(GUI_Button * who);					// Each button knows its peers in the radio-button or web-button group.
 
-			void		SetHilite(int hilite);								// Manually set hilite state - needed for parent to turn off web-button hilite
+			void		SetHilite(int hilite);								// Manually std::set hilite state - needed for parent to turn off web-button hilite
 
 	virtual	void		SetValue(float inValue);
 
@@ -66,11 +66,11 @@ public:
 	virtual	void		Draw(GUI_GraphState * state);
 
 private:
-		vector<GUI_Button *>	mRadios;
+		std::vector<GUI_Button *>	mRadios;
 
 
 		GUI_ButtonType		mBehavior;
-		string				mResource;
+		std::string				mResource;
 		int					mCellOffReg[4];
 		int					mCellOffHilite[4];
 		int					mCellOnReg[4];

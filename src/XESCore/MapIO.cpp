@@ -241,7 +241,7 @@ void ReadAreaFeature(IOReader& inReader, GISAreaFeature_t& obj, const TokenConve
 
 // Numeric type for now is a lazy wrapper around quotient around mp_float.
 // lazy wrapper = ptr with lazy eval and lazy op tree.  Use ctor and exact() to get around this.
-// quotient is a numerator/denominator pair to make division exact.  I/O both members.
+// quotient is a numerator/denominator std::pair to make division exact.  I/O both members.
 // MP_Float is manual floating point - mantissa is vector of shorts, exponent is double.  Just IO it all.
 
 /*

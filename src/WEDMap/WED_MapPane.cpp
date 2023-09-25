@@ -260,10 +260,10 @@ WED_MapPane::WED_MapPane(GUI_Commander * cmdr, double map_bounds[4], IResolver *
 	this->PackPane(mToolbar,gui_Pack_Left);
 	mToolbar->SizeToBitmap();
 	mToolbar->AddListener(this);
-	vector<string>	tips;
+	std::vector<std::string>	tips;
 	for (int n = 0; n < mTools.size(); ++n)
 	{
-		string tip(mTools[n] ? mTools[n]->GetToolName() : string());
+		std::string tip(mTools[n] ? mTools[n]->GetToolName() : std::string());
 		if (kToolKeys[n])
 		{
 			char buf[5] = { " [x]" };
@@ -293,9 +293,9 @@ WED_MapPane::WED_MapPane(GUI_Commander * cmdr, double map_bounds[4], IResolver *
 
 	mMap->ZoomShowAll();
 
-	for(vector<WED_MapLayer *>::iterator l = mLayers.begin(); l != mLayers.end(); ++l)
+	for(std::vector<WED_MapLayer *>::iterator l = mLayers.begin(); l != mLayers.end(); ++l)
 		mMap->AddLayer(*l);
-	for(vector<WED_MapToolNew *>::iterator t = mTools.begin(); t != mTools.end(); ++t)
+	for(std::vector<WED_MapToolNew *>::iterator t = mTools.begin(); t != mTools.end(); ++t)
 	if(*t)
 		mMap->AddLayer(*t);
 
@@ -324,9 +324,9 @@ GUI_Pane *	WED_MapPane::GetTopBar(void)
 
 WED_MapPane::~WED_MapPane()
 {
-	for(vector<WED_MapLayer *>::iterator l = mLayers.begin(); l != mLayers.end(); ++l)
+	for(std::vector<WED_MapLayer *>::iterator l = mLayers.begin(); l != mLayers.end(); ++l)
 		delete *l;
-	for(vector<WED_MapToolNew *>::iterator t = mTools.begin(); t != mTools.end(); ++t)
+	for(std::vector<WED_MapToolNew *>::iterator t = mTools.begin(); t != mTools.end(); ++t)
 	if(*t)
 		delete *t;
 
@@ -341,7 +341,7 @@ int		WED_MapPane::MouseMove(int x, int y)
 	return 1;
 }
 
-void WED_MapPane::SetResource(const string& r, int res_type)
+void WED_MapPane::SetResource(const std::string& r, int res_type)
 {
 	switch(res_type) {
 	case res_Object:    mObjTool->SetResource(r);	mToolbar->SetValue(distance(mTools.begin(),find(mTools.begin(),mTools.end(),mObjTool)));	break;
@@ -453,7 +453,7 @@ int		WED_MapPane::Map_HandleCommand(int command)
 	}
 }
 
-int		WED_MapPane::Map_CanHandleCommand(int command, string& ioName, int& ioCheck)
+int		WED_MapPane::Map_CanHandleCommand(int command, std::string& ioName, int& ioCheck)
 {
 	Bbox2	box;
 
@@ -544,14 +544,14 @@ void			WED_MapPane::FromPrefs(IDocPrefs * prefs)
 			PropertyInfo_t	inf;
 			PropertyVal_t	val;
 			mTools[t]->GetNthPropertyInfo(p,inf);
-			string key = "map_";
+			std::string key = "map_";
 			key += mTools[t]->GetToolName();
 			key += "_";
 			key += inf.prop_name;
-			string v;
-			string::size_type s, e;
+			std::string v;
+			std::string::size_type s, e;
 
-			v = prefs->ReadStringPref(key.c_str(),string());
+			v = prefs->ReadStringPref(key.c_str(),std::string());
 			if (!v.empty())
 			{
 				val.prop_kind = inf.prop_kind;
@@ -616,12 +616,12 @@ void			WED_MapPane::ToPrefs(IDocPrefs * prefs)
 			mTools[t]->GetNthPropertyInfo(p,inf);
 			mTools[t]->GetNthProperty(p,val);
 
-			string key = "map_";
+			std::string key = "map_";
 			key += mTools[t]->GetToolName();
 			key += "_";
 			key += inf.prop_name;
 
-			string v;
+			std::string v;
 			char buf[16];
 			switch(val.prop_kind) {
 			case prop_Int:
@@ -641,7 +641,7 @@ void			WED_MapPane::ToPrefs(IDocPrefs * prefs)
 				v = val.string_val;
 				break;
 			case prop_EnumSet:
-				for (set<int>::iterator it = val.set_val.begin(); it != val.set_val.end(); ++it)
+				for (std::set<int>::iterator it = val.set_val.begin(); it != val.set_val.end(); ++it)
 				{
 					if (!v.empty()) v += ",";
 					snprintf(buf,16,"%d",*it);
@@ -808,7 +808,7 @@ void unhide_persistent(MapFilter_t& hide_list, const MapFilter_t& to_unhide)
 
 void		WED_MapPane::SetTabFilterMode(int mode)
 {
-	string title;
+	std::string title;
 	MapFilter_t hide_list, lock_list;
 
 	hide_all_persistents(hide_list);

@@ -65,7 +65,7 @@ const char * equip_strings[] = { "heavy", "jets", "turboprops", "props", "helos"
 const char * equip_strings_gate[] = { "heavy", "jets", "turboprops", "props", "helos", "fighters","all","A","B","C","D","E","F", NULL };
 const char * op_strings[] = { "arrivals", "departures", NULL };
 // TODO:
-// find a way to not have to keep this string in the same sequence with service enums defined in AptDefs.h and WED_Enums.h
+// find a way to not have to keep this std::string in the same sequence with service enums defined in AptDefs.h and WED_Enums.h
 const char * truck_type_strings[] = { "baggage_loader", "baggage_train", "crew_car", "crew_ferrari", "crew_limo", "fuel_jets", "fuel_liners", "fuel_props", "food", "gpu", "pushback", NULL };
 
 // LLLHHH
@@ -140,7 +140,7 @@ void print_bitfields(int(*fprintf)(void *, const char *, ...), void * fi, int fl
 	}
 }
 
-static void	parse_linear_codes(const string& codes, set<int> * attributes)
+static void	parse_linear_codes(const std::string& codes, std::set<int> * attributes)
 {
 	attributes->clear();
 	MFScanner scanner;
@@ -158,7 +158,7 @@ static void	print_apt_poly(int (*fprintf)(void * fi, const char * fmt, ...), voi
 		if (s->code == apt_lin_crv || s->code == apt_rng_crv || s-> code == apt_end_crv)
 		fprintf(fi, LLFMT, CGAL2DOUBLE(s->ctrl.y()),CGAL2DOUBLE(s->ctrl.x()));
 		if (s->code != apt_end_seg && s->code != apt_end_crv)
-			for (set<int>::const_iterator a = s->attributes.begin(); a != s->attributes.end(); ++a)
+			for (std::set<int>::const_iterator a = s->attributes.begin(); a != s->attributes.end(); ++a)
 			{
 				if (version < 1130)
 				{   // translate some of the new linestyles added with XP11.26 to the closest equivalent "classic" style available before that
@@ -259,23 +259,23 @@ static void CenterToCorners(Point2 location, double heading, double len, double 
 }
 
 
-string	ReadAptFile(const char * inFileName, AptVector& outApts)
+std::string	ReadAptFile(const char * inFileName, AptVector& outApts)
 {
 	outApts.clear();
 	MFMemFile * f = MemFile_Open(inFileName);
-	if (f == NULL) return string("memfile_open failed");
+	if (f == NULL) return std::string("memfile_open failed");
 
-	string err = ReadAptFileMem(MemFile_GetBegin(f), MemFile_GetEnd(f), outApts);
+	std::string err = ReadAptFileMem(MemFile_GetBegin(f), MemFile_GetEnd(f), outApts);
 	MemFile_Close(f);
 	return err;
 }
 
-string	ReadAptFileMem(const char * inBegin, const char * inEnd, AptVector& outApts)
+std::string	ReadAptFileMem(const char * inBegin, const char * inEnd, AptVector& outApts)
 {
 	outApts.clear();
 
 	MFTextScanner * s = TextScanner_OpenMem(inBegin, inEnd);
-	string ok;
+	std::string ok;
 
 	int ln = 0;
 
@@ -288,12 +288,12 @@ string	ReadAptFileMem(const char * inBegin, const char * inEnd, AptVector& outAp
 		int vers = 0;
 
 	if (TextScanner_IsDone(s))
-		ok = string("File is empty.");
+		ok = std::string("File is empty.");
 	if (ok.empty())
 	{
-		string app_win;
+		std::string app_win;
 		if (TextScanner_FormatScan(s, "T", &app_win) != 1) ok = "Invalid header";
-		if (app_win != "a" && app_win != "A" && app_win != "i" && app_win != "I") ok = string("Invalid header:") + app_win;
+		if (app_win != "a" && app_win != "A" && app_win != "i" && app_win != "I") ok = std::string("Invalid header:") + app_win;
 		TextScanner_Next(s);
 		++ln;
 	}
@@ -312,9 +312,9 @@ string	ReadAptFileMem(const char * inBegin, const char * inEnd, AptVector& outAp
 		++ln;
 	}
 
-	set<string>		centers;
-	string codez;
-	string			lat_str, lon_str, rot_str, len_str, wid_str;
+	std::set<std::string>		centers;
+	std::string codez;
+	std::string			lat_str, lon_str, rot_str, len_str, wid_str;
 	bool			hit_prob = false;
 	AptPolygon_t *	open_poly = NULL;
 	Point2			pt,ctrl;
@@ -325,7 +325,7 @@ string	ReadAptFileMem(const char * inBegin, const char * inEnd, AptVector& outAp
 	while (ok.empty() && !TextScanner_IsDone(s) && !forceDone)
 	{
 		int		rec_code;
-		string	dis, blas, vasi;
+		std::string	dis, blas, vasi;
 		int		len_code, liting_code;
 		POINT2	center_loc;
 		float	rwy_heading;
@@ -402,15 +402,15 @@ string	ReadAptFileMem(const char * inBegin, const char * inEnd, AptVector& outAp
 				ok = "Illegal old runway";
 				center_loc = POINT2(p1x, p1y);
 			if (sscanf(dis.c_str(),"%d.%d", &rwy->disp1_ft,&rwy->disp2_ft) != 2)
-				ok = string("Illegal displaced thresholds in old runway") + dis;
+				ok = std::string("Illegal displaced thresholds in old runway") + dis;
 			if (sscanf(blas.c_str(),"%d.%d", &rwy->blast1_ft,&rwy->blast2_ft) != 2)
-				ok = string("Illegal blast-pads in old runway: ") + blas;
+				ok = std::string("Illegal blast-pads in old runway: ") + blas;
 
 			rwy->vasi_angle1 = rwy->vasi_angle2 = 300;
 			if (vers >= 810)
 			{
 				if (sscanf(blas.c_str(),"%d.%d", &rwy->vasi_angle1,&rwy->vasi_angle2) != 2)
-					ok = string("Illegal VASI in old runway: ") + blas;
+					ok = std::string("Illegal VASI in old runway: ") + blas;
 			}
 			if(rwy->vasi_angle1 == 0) rwy->vasi_angle1 = 300;
 			if(rwy->vasi_angle2 == 0) rwy->vasi_angle2 = 300;
@@ -691,7 +691,7 @@ string	ReadAptFileMem(const char * inBegin, const char * inEnd, AptVector& outAp
 			else
 			{
 				AptGate_t gate;
-				string equip, ramp_type;
+				std::string equip, ramp_type;
 				if (TextScanner_FormatScan(s, "iddfTTT|",
 					&rec_code,
 					&p1y,
@@ -732,8 +732,8 @@ string	ReadAptFileMem(const char * inBegin, const char * inEnd, AptVector& outAp
 					else if (!outApts.back().gates.back().airlines.empty()) ok = "Error: repeateded airline information for a gate.";
 					else {
 						AptGate_t & tmp_gate = outApts.back().gates.back();
-						string size_char = "\0";
-						string ramp_op_type_human_string;
+						std::string size_char = "\0";
+						std::string ramp_op_type_human_string;
 
 						//Attempt to scan 1301 size [A-F] ramp_ai_operation_type airport strings
 						if(TextScanner_FormatScan(s,"iTTT|",
@@ -750,10 +750,10 @@ string	ReadAptFileMem(const char * inBegin, const char * inEnd, AptVector& outAp
 
 						if(tmp_gate.width < 0 || tmp_gate.width > 5)
 						{
-							ok = string("Error: ") + size_char[0] + " is not a valid gate size";
+							ok = std::string("Error: ") + size_char[0] + " is not a valid gate size";
 						}
 
-						//Loop through every string in ramp_air_operation_type
+						//Loop through every std::string in ramp_air_operation_type
 						//including the end of the array (a null terminator)
 						for (int i = 0; i < NUM_RAMP_OP_TYPES && ok == ""; i++)
 						{
@@ -761,7 +761,7 @@ string	ReadAptFileMem(const char * inBegin, const char * inEnd, AptVector& outAp
 							//we have a problem
 							if(ramp_operation_type_strings[i] == NULL)
 							{
-								ok = string("Error: ") + ramp_op_type_human_string + "is not a real Ramp Operation Type";
+								ok = std::string("Error: ") + ramp_op_type_human_string + "is not a real Ramp Operation Type";
 								break;
 							}
 
@@ -787,10 +787,10 @@ string	ReadAptFileMem(const char * inBegin, const char * inEnd, AptVector& outAp
 				}
 
 				//Start after "1302 "
-				string full_entry_text(TextScanner_GetBegin(s) + 5,TextScanner_GetEnd(s));
+				std::string full_entry_text(TextScanner_GetBegin(s) + 5,TextScanner_GetEnd(s));
 
-				string key = full_entry_text.substr(0, full_entry_text.find_first_of(" "));
-				string value = full_entry_text.substr(full_entry_text.find_first_of(" ") + 1);
+				std::string key = full_entry_text.substr(0, full_entry_text.find_first_of(" "));
+				std::string value = full_entry_text.substr(full_entry_text.find_first_of(" ") + 1);
 
 				// Before the first public 10.50 beta, we were using "faa_id" as a key,
 				// but that obviously didn't fit with the "_code" suffix for the rest of the identifiers,
@@ -798,7 +798,7 @@ string	ReadAptFileMem(const char * inBegin, const char * inEnd, AptVector& outAp
 				if(key == "faa_id")
 					key = "faa_code";
 
-				outApts.back().meta_data.push_back(std::pair<string,string>(key,value));
+				outApts.back().meta_data.push_back(std::pair<std::string,std::string>(key,value));
 				break;
 			}
 		case apt_flow_def:
@@ -864,7 +864,7 @@ string	ReadAptFileMem(const char * inBegin, const char * inEnd, AptVector& outAp
 			else if (outApts.empty()) ok = "Error: traffic pattern outside an airport.";
 			else if (outApts.back().flows.empty()) ok = "Error: traffic pattern outside a flow.";
 			else {
-				string side;
+				std::string side;
 				if(TextScanner_FormatScan(s,"iTT", &rec_code,
 					&outApts.back().flows.back().pattern_runway,
 					&side) != 3) ok =  "Error: incorrect pattrn record";
@@ -880,7 +880,7 @@ string	ReadAptFileMem(const char * inBegin, const char * inEnd, AptVector& outAp
 			else {
 				outApts.back().flows.back().runway_rules.push_back(AptRunwayRule_t());
 				AptRunwayRule_t * this_rule = &outApts.back().flows.back().runway_rules.back();
-				string op, equip;
+				std::string op, equip;
 
 				if(TextScanner_FormatScan(s,"iTiTTiiT|", &rec_code,
 					&this_rule->runway,
@@ -913,7 +913,7 @@ string	ReadAptFileMem(const char * inBegin, const char * inEnd, AptVector& outAp
 			else if (outApts.empty()) ok = "Error: taxi layout node outside an airport.";
 			else {
 				outApts.back().taxi_route.nodes.push_back(AptRouteNode_t());
-				string flags;
+				std::string flags;
 				if(TextScanner_FormatScan(s,"iddTiT|",
 					&rec_code,
 					&outApts.back().taxi_route.nodes.back().location.y_,
@@ -928,7 +928,7 @@ string	ReadAptFileMem(const char * inBegin, const char * inEnd, AptVector& outAp
 			else if (outApts.empty()) ok = "Error: taxi layout edge outside an airport.";
 			else {
 				outApts.back().taxi_route.edges.push_back(AptRouteEdge_t());
-				string oneway_flag, runway_flag;
+				std::string oneway_flag, runway_flag;
 				if(TextScanner_FormatScan(s,"iiiTTT|",
 					&rec_code,
 					&outApts.back().taxi_route.edges.back().src,
@@ -954,7 +954,7 @@ string	ReadAptFileMem(const char * inBegin, const char * inEnd, AptVector& outAp
 			else if (outApts.back().taxi_route.edges.empty()) ok = "Error: taxi layout shape point without an edge.";
 			else if (!last_edge) ok = "Error: taxi shape point without a previous edge for this airport.";
 			else {
-				last_edge->shape.push_back(make_pair(Point2(),false));
+				last_edge->shape.push_back(std::make_pair(Point2(),false));
 				if(TextScanner_FormatScan(s,"idd", &rec_code,
 					&last_edge->shape.back().first.y_,
 					&last_edge->shape.back().first.x_) != 3) ok = "Error: illegal shape point record.";
@@ -967,7 +967,7 @@ string	ReadAptFileMem(const char * inBegin, const char * inEnd, AptVector& outAp
 			else if (outApts.back().taxi_route.edges.empty()) ok = "Error: taxi layout shape point without an edge.";
 			else if (!last_edge) ok = "Error: taxi control point without a previous edge for this airport.";
 			else {
-				last_edge->shape.push_back(make_pair(Point2(),true));
+				last_edge->shape.push_back(std::make_pair(Point2(),true));
 				if(TextScanner_FormatScan(s,"idd", &rec_code,
 					&last_edge->shape.back().first.y_,
 					&last_edge->shape.back().first.x_) != 3) ok = "Error: illegal control point record.";
@@ -982,9 +982,9 @@ string	ReadAptFileMem(const char * inBegin, const char * inEnd, AptVector& outAp
 			else if (outApts.empty()) ok = "Error: taxi active zone outside an airport.";
 			else if (outApts.back().taxi_route.edges.empty()) ok = "Error: taxi taxi active zone without an edge.";
 			else {
-				string flags, runways;
+				std::string flags, runways;
 				if(TextScanner_FormatScan(s,"iTT", &rec_code, &flags, &runways) != 3) ok = "Error: illegal active zone record.";
-				vector<string> runways_parsed;
+				std::vector<std::string> runways_parsed;
 				tokenize_string(runways.begin(), runways.end(), back_inserter(runways_parsed), ',');
 				if(flags.find("departure") != flags.npos)
 					copy(runways_parsed.begin(),runways_parsed.end(), set_inserter(outApts.back().taxi_route.edges.back().hot_depart));
@@ -999,7 +999,7 @@ string	ReadAptFileMem(const char * inBegin, const char * inEnd, AptVector& outAp
 			else if (outApts.empty()) ok = "Error: taxi layout truck edge outside an airport.";
 			else {
 				outApts.back().taxi_route.service_roads.push_back(AptServiceRoadEdge_t());
-				string oneway_flag, runway_flag;
+				std::string oneway_flag, runway_flag;
 				if(TextScanner_FormatScan(s,"iiiTT|",
 					&rec_code,
 					&outApts.back().taxi_route.service_roads.back().src,
@@ -1018,7 +1018,7 @@ string	ReadAptFileMem(const char * inBegin, const char * inEnd, AptVector& outAp
 			{
 				outApts.back().truck_parking.push_back(AptTruckParking_t());
 
-				string truck_type_str;
+				std::string truck_type_str;
 				double lat, lon;
 				if (TextScanner_FormatScan(s,"iddfTiT|",
 					&rec_code,
@@ -1036,7 +1036,7 @@ string	ReadAptFileMem(const char * inBegin, const char * inEnd, AptVector& outAp
 
 				if (truck_type_str == "\0")
 				{
-					ok = "Error: Truck type string cannot be null";
+					ok = "Error: Truck type std::string cannot be null";
 				}
 
 				const char** str = truck_type_strings;
@@ -1078,8 +1078,8 @@ string	ReadAptFileMem(const char * inBegin, const char * inEnd, AptVector& outAp
 			else
 			{
 				double lat, lon, heading = 0.0;
-				string truck_types_for_dest;
-				string name;
+				std::string truck_types_for_dest;
+				std::string name;
 				if(TextScanner_FormatScan(s,"idddTT|",
 											&rec_code,
 											&lat,
@@ -1099,7 +1099,7 @@ string	ReadAptFileMem(const char * inBegin, const char * inEnd, AptVector& outAp
 				//TODO: One day create a multi_scan_bitfields if this case happens again?
 				std::vector<std::string> tokenized;
 				tokenize_string(truck_types_for_dest.begin(), truck_types_for_dest.end(), back_inserter(tokenized), '|');
-				for (vector<string>::iterator itr = tokenized.begin(); itr != tokenized.end(); ++itr)
+				for (std::vector<std::string>::iterator itr = tokenized.begin(); itr != tokenized.end(); ++itr)
 				{
 					const char** str = truck_type_strings;
 					while (*str != NULL)
@@ -1297,8 +1297,8 @@ bool	WriteAptFileProcs(int (* fprintf)(void * fi, const char * fmt, ...), void *
 #if TYLER_MODE
 			if(apt->meta_data.at(i).second.empty()) continue;
 #endif
-			string key = apt->meta_data.at(i).first;
-			string value = apt->meta_data.at(i).second;
+			std::string key = apt->meta_data.at(i).first;
+			std::string value = apt->meta_data.at(i).second;
 
 			if (key == "faa_code"  ||
 				key == "iata_code" ||
@@ -1306,7 +1306,7 @@ bool	WriteAptFileProcs(int (* fprintf)(void * fi, const char * fmt, ...), void *
 				key == "region_code")
 			{
 				//Convert each to
-				::transform(value.begin(), value.end(), value.begin(), ::toupper);
+				std::transform(value.begin(), value.end(), value.begin(), ::toupper);
 			}
 
 			fprintf(fi, "%d %s %s" CRLF, apt_meta_data, key.c_str(), value.c_str());
@@ -1516,7 +1516,7 @@ bool	WriteAptFileProcs(int (* fprintf)(void * fi, const char * fmt, ...), void *
 				fprintf(fi, "%2d %s" CRLF, apt_taxi_header, apt->taxi_route.name.c_str());
 
 				//write all nodes in network
-				for (vector<AptRouteNode_t>::const_iterator n = apt->taxi_route.nodes.begin();
+				for (std::vector<AptRouteNode_t>::const_iterator n = apt->taxi_route.nodes.begin();
 					n != apt->taxi_route.nodes.end();
 					++n)
 				{
@@ -1527,7 +1527,7 @@ bool	WriteAptFileProcs(int (* fprintf)(void * fi, const char * fmt, ...), void *
 			//If we have any, write all edges
 			if (!apt->taxi_route.edges.empty())
 			{
-				for(vector<AptRouteEdge_t>::const_iterator e = apt->taxi_route.edges.begin(); e != apt->taxi_route.edges.end(); ++e)
+				for(std::vector<AptRouteEdge_t>::const_iterator e = apt->taxi_route.edges.begin(); e != apt->taxi_route.edges.end(); ++e)
 				{
 					fprintf(fi,"%2d %d %d %s ", apt_taxi_edge, e->src, e->dst, e->oneway ? "oneway" : "twoway");
 					if(e->runway)
@@ -1541,30 +1541,30 @@ bool	WriteAptFileProcs(int (* fprintf)(void * fi, const char * fmt, ...), void *
 					fprintf(fi," %s" CRLF, e->name.c_str());
 
 #if HAS_CURVED_ATC_ROUTE
-					for(vector<pair<Point2,bool> >::const_iterator s = e->shape.begin(); s != e->shape.end(); ++s)
+					for(std::vector<std::pair<Point2,bool> >::const_iterator s = e->shape.begin(); s != e->shape.end(); ++s)
 						fprintf(fi,"%d" LLFMT2 CRLF, (s->second && has_atc3) ? apt_taxi_control : apt_taxi_shape, s->first.y(), s->first.x());
 #else
-					for(vector<pair<Point2,bool> >::const_iterator s = e->shape.begin(); s != e->shape.end(); ++s)
+					for(std::vector<std::pair<Point2,bool> >::const_iterator s = e->shape.begin(); s != e->shape.end(); ++s)
 						fprintf(fi,"%d" LLFMT2 CRLF, apt_taxi_shape, s->first.y(), s->first.x());
 #endif
 					if(!e->hot_depart.empty())
 					{
 						fprintf(fi,"%2d departure", apt_taxi_active);
-						for(set<string>::const_iterator s = e->hot_depart.begin(); s != e->hot_depart.end(); ++s)
+						for(std::set<std::string>::const_iterator s = e->hot_depart.begin(); s != e->hot_depart.end(); ++s)
 							fprintf(fi,"%c%s", s == e->hot_depart.begin() ? ' ' : ',', s->c_str());
 						fprintf(fi,CRLF);
 					}
 					if(!e->hot_arrive.empty())
 					{
 						fprintf(fi,"%2d arrival", apt_taxi_active);
-						for(set<string>::const_iterator s = e->hot_arrive.begin(); s != e->hot_arrive.end(); ++s)
+						for(std::set<std::string>::const_iterator s = e->hot_arrive.begin(); s != e->hot_arrive.end(); ++s)
 							fprintf(fi,"%c%s", s == e->hot_arrive.begin() ? ' ' : ',', s->c_str());
 						fprintf(fi,CRLF);
 					}
 					if(!e->hot_ils.empty())
 					{
 						fprintf(fi,"%2d ils", apt_taxi_active);
-						for(set<string>::const_iterator s = e->hot_ils.begin(); s != e->hot_ils.end(); ++s)
+						for(std::set<std::string>::const_iterator s = e->hot_ils.begin(); s != e->hot_ils.end(); ++s)
 							fprintf(fi,"%c%s", s == e->hot_ils.begin() ? ' ' : ',', s->c_str());
 						fprintf(fi,CRLF);
 					}
@@ -1574,14 +1574,14 @@ bool	WriteAptFileProcs(int (* fprintf)(void * fi, const char * fmt, ...), void *
 			//If we have any, write all service roads
 			if (has_atc3)
 			{
-				for (vector<AptServiceRoadEdge_t>::const_iterator e = apt->taxi_route.service_roads.begin(); e != apt->taxi_route.service_roads.end(); ++e)
+				for (std::vector<AptServiceRoadEdge_t>::const_iterator e = apt->taxi_route.service_roads.begin(); e != apt->taxi_route.service_roads.end(); ++e)
 				{
 					fprintf(fi, "%d %d %d %s" NFMT CRLF, apt_taxi_truck_edge, e->src, e->dst, e->oneway ? "oneway" : "twoway" N(e));
 #if HAS_CURVED_ATC_ROUTE
-					for (vector<pair<Point2, bool> >::const_iterator s = e->shape.begin(); s != e->shape.end(); ++s)
+					for (std::vector<std::pair<Point2, bool> >::const_iterator s = e->shape.begin(); s != e->shape.end(); ++s)
 						fprintf(fi, "%d" LLFMT2 CRLF, (s->second && has_atc3) ? apt_taxi_control : apt_taxi_shape, s->first.y(), s->first.x());
 #else
-					for (vector<pair<Point2, bool> >::const_iterator s = e->shape.begin(); s != e->shape.end(); ++s)
+					for (std::vector<std::pair<Point2, bool> >::const_iterator s = e->shape.begin(); s != e->shape.end(); ++s)
 						fprintf(fi, "%d" LLFMT2 CRLF, apt_taxi_shape, s->first.y(), s->first.x());
 #endif
 				}
@@ -1614,7 +1614,7 @@ bool	WriteAptFileProcs(int (* fprintf)(void * fi, const char * fmt, ...), void *
 						fprintf(fi, "%d" LLFMT2 " %.1f ",
 							apt_truck_destination, dst->location.y_, dst->location.x_, dst->heading);
 
-						for (set<int>::const_iterator tt = dst->truck_types.begin(); tt != dst->truck_types.end(); ++tt)
+						for (std::set<int>::const_iterator tt = dst->truck_types.begin(); tt != dst->truck_types.end(); ++tt)
 						{
 							fprintf(fi, tt == dst->truck_types.begin() ? "%s" : "|%s",
 								truck_type_strings[*tt]);
@@ -1655,10 +1655,10 @@ static void OGL_push_quad(AptInfo_t *		io_airport, float r, float g, float b, co
 
 static void CalcPavementBezier(AptInfo_t * io_airport, AptPolygon_t * poly, float r, float  g, float b, float simp)
 {
-	vector<vector<Bezier2> >	windings;
+	std::vector<std::vector<Bezier2> >	windings;
 	AptPolygonToBezier(*poly, windings,true);
 
-	for(vector<vector<Bezier2> >::iterator w = windings.begin(); w != windings.end(); ++w)
+	for(std::vector<std::vector<Bezier2> >::iterator w = windings.begin(); w != windings.end(); ++w)
 	{
 		io_airport->ogl.push_back(AptInfo_t::AptLineLoop_t());
 		AptInfo_t::AptLineLoop_t * l = &io_airport->ogl.back();
@@ -1782,7 +1782,7 @@ static int runway_color_code(int apt_kind, const AptRunway_t& r)
 	if(apt_kind == apt_seaport)	return col_water;
 	if(apt_kind == apt_heliport) return col_heli;
 
-	// Any major lights _will_ get put down by X-Plane.  If these are incorrectly set on,
+	// Any major lights _will_ get put down by X-Plane.  If these are incorrectly std::set on,
 	// this is an authoring error and we expect people to see it and fix it. So honor
 	// these.
 	if(r.app_light_code[0] != apt_app_none || r.app_light_code[1] != apt_app_none)
@@ -1892,7 +1892,7 @@ inline int apt_app_fwd(int code)
 	}
 }
 
-static void strip_x(string& s)
+static void strip_x(std::string& s)
 {
 	while(!s.empty() && s[s.length()-1] == 'x')
 		s.erase(s.end()-1);
@@ -1904,7 +1904,7 @@ inline int recip_num(int n)
 	return n > 18 ? n - 18 : n + 18;
 }
 
-static string recip_name(const string& ident)
+static std::string recip_name(const std::string& ident)
 {
 	if (ident.empty()) return "xxx";
 	char buf[20];
@@ -2016,15 +2016,15 @@ void	ConvertForward(AptInfo_t& io_apt)
 
 bool	CheckATCRouting(const AptInfo_t& io_apt)
 {
-	set<int>	valid_ids;
-	for(vector<AptRouteNode_t>::const_iterator n = io_apt.taxi_route.nodes.begin(); n != io_apt.taxi_route.nodes.end(); ++n)
+	std::set<int>	valid_ids;
+	for(std::vector<AptRouteNode_t>::const_iterator n = io_apt.taxi_route.nodes.begin(); n != io_apt.taxi_route.nodes.end(); ++n)
 	{
 		if(valid_ids.count(n->id))
 			return false;		// dupe ID
 		valid_ids.insert(n->id);
 	}
 
-	for(vector<AptRouteEdge_t>::const_iterator e = io_apt.taxi_route.edges.begin(); e != io_apt.taxi_route.edges.end(); ++e)
+	for(std::vector<AptRouteEdge_t>::const_iterator e = io_apt.taxi_route.edges.begin(); e != io_apt.taxi_route.edges.end(); ++e)
 	{
 		if(valid_ids.count(e->src) == 0)			// Invalid node IDs
 			return false;

@@ -92,8 +92,8 @@ const double recip_4294967295 = 1.0 / 4294967295.0;
 
 /*double	R_DECODE_SCALED(
 						unsigned int index, unsigned int pool, unsigned int plane,
-						const vector<vector<unsigned short> >& points, const vector<int>& depths,
-						const vector<vector<float> >& scale, const vector<vector<float> >& delta)
+						const std::vector<std::vector<unsigned short> >& points, const std::vector<int>& depths,
+						const std::vector<std::vector<float> >& scale, const std::vector<std::vector<float> >& delta)
 {
 	double sc = scale[pool][plane];
 	double dl = delta[pool][plane];
@@ -105,8 +105,8 @@ const double recip_4294967295 = 1.0 / 4294967295.0;
 
 double	R_DECODE_SCALED32(
 						unsigned int index, unsigned int pool, unsigned int plane,
-						const vector<vector<unsigned int> >& points, const vector<int>& depths,
-						const vector<vector<float> >& scale, const vector<vector<float> >& delta)
+						const std::vector<std::vector<unsigned int> >& points, const std::vector<int>& depths,
+						const std::vector<std::vector<float> >& scale, const std::vector<std::vector<float> >& delta)
 {
 	double sc = scale[pool][plane];
 	double dl = delta[pool][plane];
@@ -399,26 +399,26 @@ someday check footer when in sloooow mode
 	/* Read raw geodata. */
 
 	int n;	//,i,p;
-//	vector<vector<unsigned short> >	planarDataRaw;	// Per plane array of shorts
-	vector<vector<double> 		>	planarData;		// Per plane array of doubles
-	vector<int>						planeDepths;	// Per plane plane count
-	vector<int>						planeSizes;		// Per plane length of plane
-	vector<vector<double> >			planeScales;	// Per plane scaling factor
-	vector<vector<double> >			planeOffsets;	// Per plane offset
+//	std::vector<std::vector<unsigned short> >	planarDataRaw;	// Per plane array of shorts
+	std::vector<std::vector<double> 		>	planarData;		// Per plane array of doubles
+	std::vector<int>						planeDepths;	// Per plane plane count
+	std::vector<int>						planeSizes;		// Per plane length of plane
+	std::vector<std::vector<double> >			planeScales;	// Per plane scaling factor
+	std::vector<std::vector<double> >			planeOffsets;	// Per plane offset
 
-//	vector<vector<unsigned int> >	planarData32Raw;// Per plane array of shorts
-	vector<vector<double> >			planarData32;	// Per plane array of shorts
-	vector<int>						planeDepths32;	// Per plane plane count
-	vector<int>						planeSizes32;	// Per plane length of plane
-	vector<vector<double> >			planeScales32;	// Per plane scaling factor
-	vector<vector<double> >			planeOffsets32;	// Per plane offset
+//	std::vector<std::vector<unsigned int> >	planarData32Raw;// Per plane array of shorts
+	std::vector<std::vector<double> >			planarData32;	// Per plane array of shorts
+	std::vector<int>						planeDepths32;	// Per plane plane count
+	std::vector<int>						planeSizes32;	// Per plane length of plane
+	std::vector<std::vector<double> >			planeScales32;	// Per plane scaling factor
+	std::vector<std::vector<double> >			planeOffsets32;	// Per plane offset
 
 
 	n = 0;
 	while (geodContainer.GetNthAtomOfID(def_PointScaleAtom, n++, scalAtom))
 	{
-		planeScales.push_back(vector<double>());
-		planeOffsets.push_back(vector<double>());
+		planeScales.push_back(std::vector<double>());
+		planeOffsets.push_back(std::vector<double>());
 		scalAtom.Reset();
 		while (!scalAtom.Done())
 		{
@@ -437,8 +437,8 @@ someday check footer when in sloooow mode
 	n = 0;
 	while (geodContainer.GetNthAtomOfID(def_PointScale32Atom, n++, scalAtom))
 	{
-		planeScales32.push_back(vector<double>());
-		planeOffsets32.push_back(vector<double>());
+		planeScales32.push_back(std::vector<double>());
+		planeOffsets32.push_back(std::vector<double>());
 		scalAtom.Reset();
 		while (!scalAtom.Done())
 		{
@@ -465,9 +465,9 @@ someday check footer when in sloooow mode
 		int pCount = poolAtom.GetPlaneCount();
 		planeDepths.push_back(pCount);
 		planeSizes.push_back(aSize);
-//		planarDataRaw.push_back(vector<unsigned short>());
+//		planarDataRaw.push_back(std::vector<unsigned short>());
 //		planarDataRaw.back().resize(aSize * pCount);
-		planarData.push_back(vector<double>());
+		planarData.push_back(std::vector<double>());
 		planarData.back().resize(aSize * pCount);
 //		poolAtom.DecompressShort(pCount, aSize, 1, (short *) &*planarDataRaw.back().begin());
 		poolAtom.DecompressShortToDoubleInterleaved(pCount, aSize, &*planarData.back().begin(),
@@ -484,9 +484,9 @@ someday check footer when in sloooow mode
 		int pCount = poolAtom.GetPlaneCount();
 		planeDepths32.push_back(pCount);
 		planeSizes32.push_back(aSize);
-//		planarData32Raw.push_back(vector<unsigned int>());
+//		planarData32Raw.push_back(std::vector<unsigned int>());
 //		planarData32Raw.back().resize(aSize * pCount);
-		planarData32.push_back(vector<double>());
+		planarData32.push_back(std::vector<double>());
 		planarData32.back().resize(aSize * pCount);
 //		poolAtom.DecompressInt(pCount, aSize, 1, (int *) &*planarData32Raw.back().begin());
 
@@ -689,7 +689,7 @@ someday check footer when in sloooow mode
 
 		unsigned short	polyParam;
 
-//		vector<double>	triCoord;
+//		std::vector<double>	triCoord;
 		int				triCoordDim;
 		unsigned short	pool;
 

@@ -32,8 +32,8 @@ void	XGrinder_Quit(void);
 xmenu	XGrinder_AddMenu(const char * title, const char ** items);
 
 // These are routines you must provide!
-void	XGrindFiles(const vector<string>& fileList);
-void	XGrindInit(string& outTitle);
+void	XGrindFiles(const std::vector<std::string>& fileList);
+void	XGrindInit(std::string& outTitle);
 int		XGrinderMenuPick(xmenu menu, int item);
 
 #endif

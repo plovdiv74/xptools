@@ -42,11 +42,11 @@ typedef	struct tiff TIFF;
 // of the CORNERS of the image go?  If the image is an area pixel WITHIN a tile,
 // these are going to seem to be a bit small for a tile!
 
-// Pass the pointer to the vector and get it filled with coordinates of evenly spaced points to perfectly warp/project 
+// Pass the pointer to the std::vector and get it filled with coordinates of evenly spaced points to perfectly warp/project 
 // the texture to the WED stereographic map. Also used for accurate placement of orthophoto subtextures upon import.
 
-bool	FetchTIFFCorners(const char * inFileName, double corners[8], int& post_pos, vector<Point2> * gcp=nullptr);
-bool	FetchTIFFCornersWithTIFF(TIFF * inTiff, double corners[8], int& post_pos, vector<Point2> * gcp=nullptr);
+bool	FetchTIFFCorners(const char * inFileName, double corners[8], int& post_pos, std::vector<Point2> * gcp=nullptr);
+bool	FetchTIFFCornersWithTIFF(TIFF * inTiff, double corners[8], int& post_pos, std::vector<Point2> * gcp=nullptr);
 
 // This routine converts UTM to lat/lon coordinates.  X and Y should be
 // in meters.  Zone should be positive 1-60 for north or -1-60 for south.

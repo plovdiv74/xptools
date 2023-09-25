@@ -19,8 +19,8 @@ DECLARE_PERSISTENT(WED_TruckDestination)
 
 public:
 
-	void	SetTruckTypes(const set<int>& truckTypes);
-	void	GetTruckTypes(set<int>& truckTypes) const;
+	void	SetTruckTypes(const std::set<int>& truckTypes);
+	void	GetTruckTypes(std::set<int>& truckTypes) const;
 
 	void	Import(const AptTruckDestination_t& x, void (* print_func)(void *, const char *, ...), void * ref);
 	void	Export(		 AptTruckDestination_t& x) const;

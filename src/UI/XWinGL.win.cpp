@@ -43,7 +43,7 @@ XWinGL::XWinGL(int default_dnd, XWinGL * inShare) :
 		throw "no pixel format";
 
 	if (!SetPixelFormat (mDC, pixelFormat, &pfd))
-		throw "can't set pixel format";
+		throw "can't std::set pixel format";
 
 	mContext = wglCreateContext(mDC);
 	if (!mContext)
@@ -54,7 +54,7 @@ XWinGL::XWinGL(int default_dnd, XWinGL * inShare) :
 		   throw "Can't share lists";
 
 	if (!wglMakeCurrent(mDC, mContext))
-		throw "can't set context";
+		throw "can't std::set context";
 
 	glPixelStorei	(GL_UNPACK_ALIGNMENT,1				);
 	glPixelStorei	(GL_PACK_ALIGNMENT  ,1				);
@@ -93,7 +93,7 @@ XWinGL::XWinGL(int default_dnd, const char * inTitle, int inAttributes, int inX,
 		throw "no pixel format";
 
 	if (!SetPixelFormat (mDC, pixelFormat, &pfd))
-		throw "can't set pixel format";
+		throw "can't std::set pixel format";
 
 	mContext = wglCreateContext(mDC);
 	if (!mContext)
@@ -104,7 +104,7 @@ XWinGL::XWinGL(int default_dnd, const char * inTitle, int inAttributes, int inX,
 			throw "Can't share lists";
 
 	if (!wglMakeCurrent(mDC, mContext))
-			throw "can't set context";
+			throw "can't std::set context";
 
 	glPixelStorei	(GL_UNPACK_ALIGNMENT,1				);
 	glPixelStorei	(GL_PACK_ALIGNMENT  ,1				);

@@ -215,7 +215,7 @@ void tessProjectPolygon( TESStesselator *tess )
 	i = LongAxis( norm );
 
 #if defined(FOR_TRITE_TEST_PROGRAM) || defined(TRUE_PROJECT)
-	/* Choose the initial sUnit vector to be approximately perpendicular
+	/* Choose the initial sUnit std::vector to be approximately perpendicular
 	* to the normal.
 	*/
 	Normalize( norm );
@@ -481,7 +481,7 @@ TESStesselator* tessNewTess( TESSalloc* alloc )
 		return 0;          /* out of memory */
 	}
 	tess->alloc = *alloc;
-	/* Check and set defaults. */
+	/* Check and std::set defaults. */
 	if (tess->alloc.meshEdgeBucketSize == 0)
 		tess->alloc.meshEdgeBucketSize = 512;
 	if (tess->alloc.meshVertexBucketSize == 0)

@@ -124,44 +124,44 @@ int xpt_pclose(FILE *stream)
 
 #endif
 
-using std::string;
-using std::vector;
+#include <string>
+#include <vector>
 
 struct conversion_info {
-	string					cmd_string;
-	string					input_extension;
-	string					output_extension;
-	string					tool_name;
+	std::string					cmd_string;
+	std::string					input_extension;
+	std::string					output_extension;
+	std::string					tool_name;
 };
 
 struct flag_item_info {
-	string					item_name;			// text of menu item
-	string					token;				// token to substitute
-	string					flag;				// empty for dividers
+	std::string					item_name;			// text of menu item
+	std::string					token;				// token to substitute
+	std::string					flag;				// empty for dividers
 	int						enabled;			// 1 if enabled, 0 if not.
 	int						radio;				// enforce mutually exclusive behavoir
 };
 
 struct flag_menu_info {
 	xmenu					menu;
-	string					title;
-	vector<flag_item_info>	items;
+	std::string					title;
+	std::vector<flag_item_info>	items;
 };
 
-static vector<flag_menu_info>			flag_menus;
-static vector<conversion_info*>			conversions;
+static std::vector<flag_menu_info>			flag_menus;
+static std::vector<conversion_info*>			conversions;
 static xmenu							conversion_menu;
-static map<string,conversion_info *>	selected_conversions;
+static std::map<std::string,conversion_info *>	selected_conversions;
 
-static string g_me;
+static std::string g_me;
 
 static bool file_cb(const char * fileName, bool isDir, unsigned long long modTime, void * ref);
 static void	sync_menu_checks();
-static void sub_str(string& io_str, const string& key, const string& rep);
+static void sub_str(std::string& io_str, const std::string& key, const std::string& rep);
 
-static void sub_str(string& io_str, const string& key, const string& rep)
+static void sub_str(std::string& io_str, const std::string& key, const std::string& rep)
 {
-	string::size_type p = 0;
+	std::string::size_type p = 0;
 	while ((p = io_str.find(key,p)) != io_str.npos)
 	{
 		io_str.replace(p,key.size(),rep);
@@ -175,7 +175,7 @@ static void	sync_menu_checks()
 	if (conversions[n] != NULL)
 		XWin::CheckMenuItem(conversion_menu, n, selected_conversions[conversions[n]->input_extension]==conversions[n]);
 
-	for (vector<flag_menu_info>::iterator m = flag_menus.begin(); m != flag_menus.end(); ++m)
+	for (std::vector<flag_menu_info>::iterator m = flag_menus.begin(); m != flag_menus.end(); ++m)
 	for (int i = 0; i < m->items.size(); ++i)
 	if (!m->items[i].item_name.empty())
 		XWin::CheckMenuItem(m->menu, i, m->items[i].enabled);
@@ -287,12 +287,12 @@ static void spool_job(const char * cmd_line)
 	if(log == NULL) log = stdout;
 	fprintf(log,"%s\n",cmd_line);
 	XGrinder_ShowMessage("%s",cmd_line);
-	string quoted(cmd_line);
+	std::string quoted(cmd_line);
 #if IBM
 // not applicable with xpt_popen()
 //	quoted = "\"" + quoted + "\"";
 #endif
-	string log_txt;
+	std::string log_txt;
 
 	FILE * pipe = popen(quoted.c_str(), "r");
 	while(!feof(pipe))
@@ -322,9 +322,9 @@ static void spool_job(const char * cmd_line)
 
 
 
-void	XGrindFiles(const vector<string>& files)
+void	XGrindFiles(const std::vector<std::string>& files)
 {
-	for (vector<string>::const_iterator i = files.begin(); i != files.end(); ++i)
+	for (std::vector<std::string>::const_iterator i = files.begin(); i != files.end(); ++i)
 	{
 		grind_file(i->c_str());
 	}
@@ -332,24 +332,24 @@ void	XGrindFiles(const vector<string>& files)
 
 void	grind_file(const char * inFileName)
 {
-	string fname(inFileName);
-	string::size_type p = fname.rfind('.');
+	std::string fname(inFileName);
+	std::string::size_type p = fname.rfind('.');
 	if (p != fname.npos)
 	{
-		string suffix(fname.substr(p));
+		std::string suffix(fname.substr(p));
 		for(int i = 0; i < suffix.size(); ++i)
 			suffix[i] = tolower(suffix[i]);
-		string root(fname.substr(0,p));
+		std::string root(fname.substr(0,p));
 
 		if (selected_conversions.find(suffix) == selected_conversions.end())
 			XGrinder_ShowMessage("Unable to convert file '%s' - no converter for %s files.",inFileName, suffix.c_str());
 		else {
 			conversion_info * c = selected_conversions[suffix];
-			string newname = root + c->output_extension;
+			std::string newname = root + c->output_extension;
 //			XGrinder_ShowMessage("Will use: %s with %s and %s", c->cmd_string.c_str(), fname.c_str(), newname.c_str());
-			map<string,string>	sub_flags;
-			for(vector<flag_menu_info>::iterator m = flag_menus.begin(); m != flag_menus.end(); ++m)
-			for(vector<flag_item_info>::iterator i = m->items.begin(); i != m->items.end(); ++i)
+			std::map<std::string,std::string>	sub_flags;
+			for(std::vector<flag_menu_info>::iterator m = flag_menus.begin(); m != flag_menus.end(); ++m)
+			for(std::vector<flag_item_info>::iterator i = m->items.begin(); i != m->items.end(); ++i)
 			if(!i->item_name.empty())
 			{
 				if(i->enabled)
@@ -361,10 +361,10 @@ void	grind_file(const char * inFileName)
 					sub_flags[i->token] = "";
 				}
 			}
-			string cmd_line = c->cmd_string;
+			std::string cmd_line = c->cmd_string;
 			sub_str(cmd_line,"INFILE", fname);
 			sub_str(cmd_line,"OUTFILE", newname);
-			for(map<string,string>::iterator p = sub_flags.begin(); p != sub_flags.end(); ++p)
+			for(std::map<std::string,std::string>::iterator p = sub_flags.begin(); p != sub_flags.end(); ++p)
 				sub_str(cmd_line,p->first,p->second);
 
 			spool_job(cmd_line.c_str());
@@ -384,7 +384,7 @@ int	XGrinderMenuPick(xmenu menu, int item)
 			return 1;
 		}
 	} else
-	for (vector<flag_menu_info>::iterator m = flag_menus.begin(); m != flag_menus.end(); ++m)
+	for (std::vector<flag_menu_info>::iterator m = flag_menus.begin(); m != flag_menus.end(); ++m)
 	if (m->menu == menu)
 	{
 		if (m->items[item].radio)
@@ -409,7 +409,7 @@ int	XGrinderMenuPick(xmenu menu, int item)
 	return 0;
 }
 
-void	XGrindInit(string& t)
+void	XGrindInit(std::string& t)
 {
 /*	char base[2048];
 	char resp[2048];
@@ -431,7 +431,7 @@ void	XGrindInit(string& t)
 //	file_cb("DDSTool");
 //	file_cb("ObjConverter");
 */
-	string app_path = GetApplicationPath();
+	std::string app_path = GetApplicationPath();
 
 	const char * start = app_path.c_str();
 	const char * last_sep = start;
@@ -442,8 +442,8 @@ void	XGrindInit(string& t)
 		if(*p == '/' || *p == '\\') last_sep = p;
 		++p;
 	}
-	g_me = string(last_sep+1);
-	string base_path(start, last_sep);
+	g_me = std::string(last_sep+1);
+	std::string base_path(start, last_sep);
 
 	/* search binaries under ./tools */
 	#if 0 // (!LIN && DEV) || (DEV && PHONE)
@@ -457,9 +457,9 @@ void	XGrindInit(string& t)
 	// sort conversions
 
 	// insert nulls at ext change
-	for (vector<conversion_info *>::iterator c = conversions.begin(); c != conversions.end(); ++c)
+	for (std::vector<conversion_info *>::iterator c = conversions.begin(); c != conversions.end(); ++c)
 	{
-		vector<conversion_info *>::iterator n = c;
+		std::vector<conversion_info *>::iterator n = c;
 		++n;
 		if (n != conversions.end() && *c != NULL && *n != NULL && (*n)->input_extension != (*c)->input_extension)
 			c = conversions.insert(n, (conversion_info *)NULL);
@@ -490,7 +490,7 @@ void	XGrindInit(string& t)
 	delete [] items;
 
 	// build flags menus
-	for(vector<flag_menu_info>::iterator m = flag_menus.begin(); m != flag_menus.end(); ++m)
+	for(std::vector<flag_menu_info>::iterator m = flag_menus.begin(); m != flag_menus.end(); ++m)
 	{
 		const char ** items = new const char *[m->items.size()+1];
 		items[m->items.size()] = 0;

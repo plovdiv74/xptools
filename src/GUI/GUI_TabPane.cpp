@@ -88,7 +88,7 @@ void			GUI_TabPane::AddPane(GUI_Pane * who, const char * title)
 
 	mTabs->SetMax(mChangeView->CountChildren()-1);
 
-	string desc;
+	std::string desc;
 	mTabs->GetDescriptor(desc);
 	if (!desc.empty()) desc += "\n";
 	desc += title;

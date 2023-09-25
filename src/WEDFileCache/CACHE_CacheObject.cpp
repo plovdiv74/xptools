@@ -34,12 +34,12 @@ void CACHE_CacheObject::reset_cool_down_time()
 	m_cool_down_timestamp = 0;
 }
 
-const string& CACHE_CacheObject::get_disk_location() const 
+const std::string& CACHE_CacheObject::get_disk_location() const 
 {
 	return m_disk_location;
 }
 
-void CACHE_CacheObject::set_disk_location(const string& location)
+void CACHE_CacheObject::set_disk_location(const std::string& location)
 {
 	m_disk_location = location;
 }
@@ -49,7 +49,7 @@ CACHE_domain CACHE_CacheObject::get_domain() const
 	return m_domain;
 }
 
-const string& CACHE_CacheObject::get_last_url() const
+const std::string& CACHE_CacheObject::get_last_url() const
 {
 	return m_last_url;
 }
@@ -74,7 +74,7 @@ void             CACHE_CacheObject::set_last_time_modified(time_t mtime)
 	m_last_time_modified = mtime;
 }
 
-void CACHE_CacheObject::create_RAII_curl_hndl(const string& url, int buf_reserve_size)
+void CACHE_CacheObject::create_RAII_curl_hndl(const std::string& url, int buf_reserve_size)
 {
 	//Close off any previous handles to make way for this new one
 	this->close_RAII_curl_hndl();
@@ -113,7 +113,7 @@ void CACHE_CacheObject::trigger_cool_down()
 	m_cool_down_timestamp = time(NULL);
 
 #if DEV
-	std::cout << "Cooldown triggered: " << asctime(localtime(&m_cool_down_timestamp)) << endl;
+	std::cout << "Cooldown triggered: " << asctime(localtime(&m_cool_down_timestamp)) << std::endl;
 #endif
 }
 

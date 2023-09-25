@@ -43,7 +43,7 @@
 	
 	The XML writer code is now propagating const char * rather than strings wherever possible, 
 	so most of those strings are gone.
-	The overhead of formatted printing ( fprintf() vs fputs() ) was removed and only string values are
+	The overhead of formatted printing ( fprintf() vs fputs() ) was removed and only std::string values are
 	subjected to XML escape sequences conversion ( numbers will NEVER have non-ASCII content ), reducing
 	XML write time for large files by 35%.
 	
@@ -53,8 +53,8 @@
 	
 	Half the putc() and all of the sprintf() are gone now, down to 60sec for the 5.5GB XML file now.
 	The STL memory allocation for STL strings aren't much of an issue - as all but long text parameters 
-	all fit into the intrinsic space inside the string objects itself. Together with reserve(7) for the
-	attributes, which are now a vector - that means a single malloc for most WED_XMLElements.
+	all fit into the intrinsic space inside the std::string objects itself. Together with reserve(7) for the
+	attributes, which are now a std::vector - that means a single malloc for most WED_XMLElements.
 
 	2022 update:
 
@@ -100,9 +100,9 @@ static void fput_indented_name(int n, FILE* fi, const char *name, bool add_slash
 #endif
 }
 
-static string str_escape(const string& str)
+static std::string str_escape(const std::string& str)
 {
-	string result;
+	std::string result;
 	result.reserve(str.size());
 
 	UTF8 * b = (UTF8 *) str.c_str();
@@ -237,7 +237,7 @@ long_string:
 			fputs(">\n", file);
 	}
 done:
-	for(vector<WED_XMLElement *>::iterator c = children.begin(); c != children.end(); ++c)
+	for(std::vector<WED_XMLElement *>::iterator c = children.begin(); c != children.end(); ++c)
 		delete *c;
 
 	if(!children.empty() || flushed)
@@ -272,7 +272,7 @@ void WED_XMLElement::flush_from(WED_XMLElement * who)
 
 	DebugAssert(who == children.back() || who == NULL);
 
-	for(vector<WED_XMLElement *>::iterator c = children.begin(); c != children.end(); ++c)
+	for(std::vector<WED_XMLElement *>::iterator c = children.begin(); c != children.end(); ++c)
 	if(*c != who)
 		delete *c;
 
@@ -291,10 +291,10 @@ void					WED_XMLElement::add_attr_int(const char * name, int value)
 	DebugAssert(name && *name);	
 #endif
 	DebugAssert(!flushed);
-//	attrs[name] = to_string(value); // using a map or to_string() is friggin slow - wanna spend 10% of the _whole_ time to save in his _one_ line ???
+//	attrs[name] = std::to_string(value); // using a map or std::to_string() is friggin slow - wanna spend 10% of the _whole_ time to save in his _one_ line ???
 #if FAST_PRINTF_REPLACEMENTS
 	if(value == 0)
-		attrs.push_back(make_pair(name, string("0")));
+		attrs.push_back(std::make_pair(name, std::string("0")));
 	else
 	{
 		char c[32];             // suffcient digits to hold even -2^31
@@ -311,10 +311,10 @@ void					WED_XMLElement::add_attr_int(const char * name, int value)
 			value = remainder;
 		}
 		if(negative) *--p = '-';
-		attrs.push_back(make_pair(name, string(p, c+sizeof(c)-p)));
+		attrs.push_back(std::make_pair(name, std::string(p, c+sizeof(c)-p)));
 	}
 #else
-	attrs.push_back(make_pair(name, to_string(value)));
+	attrs.push_back(std::make_pair(name, std::to_string(value)));
 #endif
 }
 
@@ -327,7 +327,7 @@ void					WED_XMLElement::add_attr_double(const char * name, double value, int de
 #endif
 	DebugAssert(!flushed);
 	if(value == 0.0)
-		attrs.push_back(make_pair(name, string("0.0")));
+		attrs.push_back(std::make_pair(name, std::string("0.0")));
 	else
 	{
 		char c[32];
@@ -377,10 +377,10 @@ void					WED_XMLElement::add_attr_double(const char * name, double value, int de
 			*++dp = '0' + this_digit;
 		}
 
-		attrs.push_back(make_pair(name, string(p, c+sizeof(c)-p)));
+		attrs.push_back(std::make_pair(name, std::string(p, c+sizeof(c)-p)));
 #else
 		snprintf(c, 31, "%.*lf",dec, value);
-		attrs.push_back(make_pair(name, string(c)));
+		attrs.push_back(std::make_pair(name, std::string(c)));
 #endif
 	}
 }
@@ -394,10 +394,10 @@ void					WED_XMLElement::add_attr_c_str(const char * name, const char * str)
 	DebugAssert(name && *name && str && *str);
 #endif
 	DebugAssert(!flushed);
-	attrs.push_back(make_pair(name, str_escape(str)));
+	attrs.push_back(std::make_pair(name, str_escape(str)));
 }
 
-void					WED_XMLElement::add_attr_stl_str(const char * name, const string& str)
+void					WED_XMLElement::add_attr_stl_str(const char * name, const std::string& str)
 {
 #if FIX_EMPTY
 	if(name == 0 || *name == 0)	name = "tbd";
@@ -405,7 +405,7 @@ void					WED_XMLElement::add_attr_stl_str(const char * name, const string& str)
 	DebugAssert(name && *name);	
 #endif
 	DebugAssert(!flushed);
-	attrs.push_back(make_pair(name, str_escape(str)));
+	attrs.push_back(std::make_pair(name, str_escape(str)));
 }
 
 WED_XMLElement *		WED_XMLElement::add_sub_element(const char * name)
@@ -431,7 +431,7 @@ WED_XMLElement *		WED_XMLElement::add_or_find_sub_element(const char * name)
 #endif
 
 	DebugAssert(!flushed);
-	string n(name);
+	std::string n(name);
 	for(int i = 0; i < children.size(); ++i)
 	if(n == children[i]->name)
 		return children[i];

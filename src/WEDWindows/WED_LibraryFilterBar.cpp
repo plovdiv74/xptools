@@ -103,18 +103,18 @@ void	WED_LibraryFilterBar::GetEnumDictionary(
 	/*An important note!
 	* To make something the default enum choice make sure you update the inilized mCurEnumVal this AND in the LibraryAdapter
 	*/
-	out_dictionary.insert(GUI_EnumDictionary::value_type(i+pack_Default,make_pair("Laminar Library",true))); //Aka the default library aka pack_Default
-	out_dictionary.insert(GUI_EnumDictionary::value_type(i+pack_Library,make_pair("All Libraries",true)));
-	out_dictionary.insert(GUI_EnumDictionary::value_type(i+pack_New,make_pair("Newly Released Items",true)));
+	out_dictionary.insert(GUI_EnumDictionary::value_type(i+pack_Default,std::make_pair("Laminar Library",true))); //Aka the default library aka pack_Default
+	out_dictionary.insert(GUI_EnumDictionary::value_type(i+pack_Library,std::make_pair("All Libraries",true)));
+	out_dictionary.insert(GUI_EnumDictionary::value_type(i+pack_New,std::make_pair("Newly Released Items",true)));
 
 	while(i < gPackageMgr->CountPackages())
 	{
-		string temp = "";
+		std::string temp = "";
 		gPackageMgr->GetNthPackageName(i,temp);
 
 		if(gPackageMgr->HasPublicItems(i))
 		{
-			out_dictionary.insert(GUI_EnumDictionary::value_type(i,make_pair(temp,true)));
+			out_dictionary.insert(GUI_EnumDictionary::value_type(i,std::make_pair(temp,true)));
 		}
 		i++;
 	}

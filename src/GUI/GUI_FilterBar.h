@@ -37,13 +37,13 @@ public:
 		GUI_Commander * cmdr,
 		intptr_t in_msg,
 		intptr_t in_param,
-		const string & in_label,
-		const string & in_def,
+		const std::string & in_label,
+		const std::string & in_def,
 		bool in_have_enum_dict,
 		int default_enum_val=0);
 
-			string		GetText(void) { return mText; }
-			string		GetEnumText(void)  { DebugAssert(mHaveEnumDict == true); return mCurEnumTxt; }
+			std::string		GetText(void) { return mText; }
+			std::string		GetEnumText(void)  { DebugAssert(mHaveEnumDict == true); return mCurEnumTxt; }
 			int			GetEnumValue(void) { DebugAssert(mHaveEnumDict == true); return mCurEnumVal; }
 	// GUI_SimpleTableGeometry
 	virtual	int			GetColCount(void);
@@ -151,24 +151,24 @@ public:
 	
 	void							ClearFilter();
 protected:
-	string		GetEnumText()     const { return mCurEnumTxt; }
+	std::string		GetEnumText()     const { return mCurEnumTxt; }
 	int			GetEnumValue()    const { return mCurEnumVal; }
 	bool		GetHaveEnumDict() const { return mHaveEnumDict; }
 
 private: 
 	//current pack one that is selected (used for GetCellContents)
 	//Data from AcceptEdit
-	string				mCurEnumTxt;
+	std::string				mCurEnumTxt;
 	int					mCurEnumVal;
 
 	//Decides if it should have enum dictionary
 	bool				mHaveEnumDict;
 
 	//Label for the search bar
-	string				mLabel;
+	std::string				mLabel;
 
 	//Text inside the search bar
-	string				mText;
+	std::string				mText;
 
 	intptr_t			mMsg;
 	intptr_t			mParam;

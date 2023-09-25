@@ -418,9 +418,9 @@ void	WED_TCEVertexTool::SyncRecurse(IGISEntity * who, ISelection * sel) const
 void		WED_TCEVertexTool::SyncCache(void) const
 {
 	mCache.clear();
-	vector<IGISEntity *> who;
+	std::vector<IGISEntity *> who;
 	ISelection * sel = WED_GetSelect(GetResolver());
 	sel->IterateSelectionOr(Iterate_CollectEntitiesUV,&who);
-	for(vector<IGISEntity *>::iterator w = who.begin(); w != who.end(); ++w)
+	for(std::vector<IGISEntity *>::iterator w = who.begin(); w != who.end(); ++w)
 		SyncRecurse(*w, sel);
 }

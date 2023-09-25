@@ -24,7 +24,7 @@
 #include "GUI_Timer.h"
 
 #if IBM
-typedef map<UINT_PTR,GUI_Timer *>	TimerMap;
+typedef std::map<UINT_PTR,GUI_Timer *>	TimerMap;
 static TimerMap						sTimerMap;
 #endif
 

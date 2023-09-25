@@ -85,11 +85,11 @@ public:
 protected:
 
 	virtual	void		AcceptPath(
-							const vector<Point2>&	pts,
-							const vector<Point2>&	dirs_lo,
-							const vector<Point2>&	dirs_hi,
-							const vector<int>		has_dirs,
-							const vector<int>		has_split,
+							const std::vector<Point2>&	pts,
+							const std::vector<Point2>&	dirs_lo,
+							const std::vector<Point2>&	dirs_hi,
+							const std::vector<int>		has_dirs,
+							const std::vector<int>		has_split,
 							int						closed)=0;
 	virtual	bool		CanCreateNow(void)=0;
 
@@ -112,11 +112,11 @@ private:
 
 	WED_Archive *		mArchive;
 
-	vector<Point2>		mPts;
-	vector<Point2>		mControlLo;
-	vector<Point2>		mControlHi;
-	vector<int>			mHasDirs;
-	vector<int>			mIsSplit;
+	std::vector<Point2>		mPts;
+	std::vector<Point2>		mControlLo;
+	std::vector<Point2>		mControlHi;
+	std::vector<int>			mHasDirs;
+	std::vector<int>			mIsSplit;
 
 	float	mLastTime;
 	Point2	mLastPt;

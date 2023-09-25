@@ -29,7 +29,7 @@ void WED_RoadNode::Rescale(GISLayer_t l,const Bbox2& old_bounds, const Bbox2& ne
 
 	if(l == gis_Geo)
 	{
-		set<WED_Thing *> viewers;
+		std::set<WED_Thing *> viewers;
 		this->GetAllViewers(viewers);
 
 		//check for bez in edges that are viewers ,
@@ -69,10 +69,10 @@ void WED_RoadNode::Rotate(GISLayer_t l,const Point2& ctr, double a)
 	if(l == gis_Geo)
 	{
 		Bezier2 b;
-		vector<pair<WED_GISEdge*, Vector2> > new_lo_s;
-		vector<pair<WED_GISEdge*, Vector2> > new_hi_s;
+		std::vector<std::pair<WED_GISEdge*, Vector2> > new_lo_s;
+		std::vector<std::pair<WED_GISEdge*, Vector2> > new_hi_s;
 
-		set<WED_Thing *> viewers;
+		std::set<WED_Thing *> viewers;
 		this->GetAllViewers(viewers);
 
 		//check for bez in edges that are viewers ,
@@ -96,7 +96,7 @@ void WED_RoadNode::Rotate(GISLayer_t l,const Point2& ctr, double a)
 						v_new_lo.normalize();
 						v_new_lo *= old_len_lo;
 						v_new_lo = VectorMetersToLL(ctr,v_new_lo);
-						new_lo_s.push_back(make_pair(edge,v_new_lo));
+						new_lo_s.push_back(std::make_pair(edge,v_new_lo));
 					}
 					if( this == gp2 && b.p2 != b.c2 )
 					{
@@ -108,7 +108,7 @@ void WED_RoadNode::Rotate(GISLayer_t l,const Point2& ctr, double a)
 						v_new_hi.normalize();
 						v_new_hi *= old_len_hi;
 						v_new_hi = VectorMetersToLL(ctr,v_new_hi);
-						new_hi_s.push_back(make_pair(edge,v_new_hi));
+						new_hi_s.push_back(std::make_pair(edge,v_new_hi));
 					}
 				}
 			}

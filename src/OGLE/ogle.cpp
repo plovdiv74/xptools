@@ -61,9 +61,9 @@ struct OGLE_Rec {
 	OGLE_Callbacks 			callbacks;
 	void *					ref;
 
-	// This vector has the char pos of the first char of each line.  Lines are numbered 0 so
+	// This std::vector has the char pos of the first char of each line.  Lines are numbered 0 so
 	// line_starts 0 is always 0.  This also tells us the number of lines.
-	vector<int>				line_starts;
+	std::vector<int>				line_starts;
 
 	// This is the character range of the selection (first char, one after the last char).
 	// 0 <= sel_start <= sel_end always <= number of chars
@@ -107,7 +107,7 @@ inline int			OGLE_LineEnd(OGLE_Handle h, int l, int total)
 // line starts.  For speeed we use an STL binary search.
 static int OGLE_CharPosToLine(OGLE_Handle h, int charpos)
 {
-	vector<int>::iterator line_iter = lower_bound(h->line_starts.begin(), h->line_starts.end(), charpos);
+	std::vector<int>::iterator line_iter = lower_bound(h->line_starts.begin(), h->line_starts.end(), charpos);
 	int n = line_iter - h->line_starts.begin();
 	// Off the end - last line by definition.
 	if (n == h->line_starts.size()) return n-1;
@@ -239,7 +239,7 @@ static void			OGLE_RepaginateInternal(
 	start_p = base_p + handle->line_starts[start_line];
 
 	// We're going to go through each line and find the next start and put it on
-	// the vector.
+	// the std::vector.
 	do {
 		start_p += OGLE_LineLengthInternal(
 								handle,
@@ -280,7 +280,7 @@ static void OGLE_NormalizeSelectionInternal(OGLE_Handle handle)
 {
 	if (handle->sel_end < handle->sel_start)
 	{
-		swap(handle->sel_end, handle->sel_start);
+		std::swap(handle->sel_end, handle->sel_start);
 		handle->active_side = 1 - handle->active_side;
 	}
 

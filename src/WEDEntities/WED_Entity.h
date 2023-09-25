@@ -87,7 +87,7 @@
 	One might note that at the time of redo, the object's parent ID is invalid, thus the cache invalidate on redo might not
 	travel up the chain.  However this is a non-issue:
 
-	- If an object X was deleted as part of an operation, we know that all of X's children were modified (to set their parent
+	- If an object X was deleted as part of an operation, we know that all of X's children were modified (to std::set their parent
 	  ptr to something else) and X's parent was modified (to remove X from its children).
 
 	- Therefore logically, any objects X' above X that might not get invalidated (because X's child was invalidated BEFORE X was

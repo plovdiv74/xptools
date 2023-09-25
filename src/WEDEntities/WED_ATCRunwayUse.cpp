@@ -108,7 +108,7 @@ void	WED_ATCRunwayUse::GetNthPropertyDict(int n, PropertyDict_t& dict) const
 		{
 			PropertyDict_t full;
 			WED_Thing::GetNthPropertyDict(n,full);			
-			set<int> legal;
+			std::set<int> legal;
 			WED_GetAllRunwaysOneway(airport, legal);
 			legal.insert(rwy.value);
 

@@ -121,7 +121,7 @@ void MT_StartCreate(const char * xes_path, const DEMGeo& in_dem, MT_Error_f err_
 	sDem[dem_Elevation].mSouth= round(sDem[dem_Elevation].mSouth);
 	
 	// Err check: DEM bounds don't match our XES tile?  That's a fatal error...almost certainly
-	// indicates a wrong set of resources put together, or a very, very borked GeoTiff!
+	// indicates a wrong std::set of resources put together, or a very, very borked GeoTiff!
 	
 	if(sDem[dem_Elevation].mWest != sDem[dem_Temperature].mWest)	{ die_err("Error: west edge of DEM and XES data do not match.  DEM is: %lf, XES is: %lf\n",sDem[dem_Elevation].mWest,sDem[dem_Temperature].mWest); return; }
 	if(sDem[dem_Elevation].mEast != sDem[dem_Temperature].mEast)	{ die_err("Error: east edge of DEM and XES data do not match.  DEM is: %lf, XES is: %lf\n",sDem[dem_Elevation].mEast,sDem[dem_Temperature].mEast); return; }

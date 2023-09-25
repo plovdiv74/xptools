@@ -99,7 +99,7 @@ struct OGLE_Callbacks {
 
 	/* Requests scrolling to a position - again OGLE will re-request bounds to see
 	 * what really happened.  Coodrinates are the off logcal->physical lower left
-	 * corner vector, so the values are always positive. */
+	 * corner std::vector, so the values are always positive. */
 	void			(* ScrollTo_f)(
 							OGLE_Handle		handle,
 							float			where[2]);

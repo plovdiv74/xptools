@@ -35,20 +35,20 @@ public:
 	~WED_PackageMgr();
 
 	bool		HasSystemFolder(void) const;
-	bool		GetXPlaneFolder(string& root) const;
-	bool		SetXPlaneFolder(const string& root);
+	bool		GetXPlaneFolder(std::string& root) const;
+	bool		SetXPlaneFolder(const std::string& root);
 
-	void		GetRecentName(string& name) const;
-	void		SetRecentName(const string& name);
+	void		GetRecentName(std::string& name) const;
+	void		SetRecentName(const std::string& name);
 
 	int			CountCustomPackages(void) const;
-	pair<int, int>	GlobalPackages(void) const;
+	std::pair<int, int>	GlobalPackages(void) const;
 
 	int			CountPackages(void) const;
-	void		GetNthPackageName(int n, string& package) const;
+	void		GetNthPackageName(int n, std::string& package) const;
 	/*Get the a package's path by passing in a number and the name of said package,
-	changes the string passed in into the real physical filepath.*/
-	void		GetNthPackagePath(int n, string& package) const;
+	changes the std::string passed in into the real physical filepath.*/
+	void		GetNthPackagePath(int n, std::string& package) const;
 	
 	bool		IsPackageDefault(int n) const;		  // library is a LR default Library, i.e. not Global or Custom Scenery
 	bool		HasPublicItems(int n) const;          // library has at least one public item declared in it
@@ -59,31 +59,31 @@ public:
 	bool		IsDisabled(int n) const;              // marked as disabled in the scenerypacks.ini
 	bool		HasLibrary(int n) const;          	  // includes library.txt
 	void		AddPublicItems(int n);
-	void		RenameCustomPackage(int n, const string& new_name);
+	void		RenameCustomPackage(int n, const std::string& new_name);
 	int			CreateNewCustomPackage(void);
 	
 	void		Rescan(bool alwaysBroadcast = false);
 
-	string		ComputePath(const string& package, const string& rel_file) const;
-	string		ReducePath(const string& package, const string& full_file) const;
+	std::string		ComputePath(const std::string& package, const std::string& rel_file) const;
+	std::string		ReducePath(const std::string& package, const std::string& full_file) const;
 
 	const char * GetXPversion() const;                           // report apparent XP installation version by looking at Log.txt
-	bool		IsSameXPVersion( const string& version) const;
+	bool		IsSameXPVersion( const std::string& version) const;
 
 private:
 	
 	static	bool	AccumAnyDir(const char * fileName, bool isDir, void * ref);
 	static	bool	AccumLibDir(const char * fileName, bool isDir, void * ref);
 
-	string			system_path;
+	std::string			system_path;
 	bool			system_exists;
 
-	vector<WED_PackageInfo> custom_packages;
-	vector<WED_PackageInfo> global_packages;
-	vector<WED_PackageInfo> default_packages;
+	std::vector<WED_PackageInfo> custom_packages;
+	std::vector<WED_PackageInfo> global_packages;
+	std::vector<WED_PackageInfo> default_packages;
 
-	string			XPversion;     // apparent version of XP install, from examining Log.txt
-	string			RecentPkgName;
+	std::string			XPversion;     // apparent version of XP install, from examining Log.txt
+	std::string			RecentPkgName;
 };
 
 extern WED_PackageMgr *		gPackageMgr;

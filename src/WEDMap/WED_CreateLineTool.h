@@ -65,11 +65,11 @@ protected:
 		WED_PropBoolText			sea_buoys;
 
 	virtual	void		AcceptPath(
-							const vector<Point2>&	pts,
-							const vector<Point2>&	dirs_lo,
-							const vector<Point2>&	dirs_hi,
-							const vector<int>		has_dirs,
-							const vector<int>		has_split,
+							const std::vector<Point2>&	pts,
+							const std::vector<Point2>&	dirs_lo,
+							const std::vector<Point2>&	dirs_hi,
+							const std::vector<int>		has_dirs,
+							const std::vector<int>		has_split,
 							int						closed);
 	virtual	bool		CanCreateNow(void);
 

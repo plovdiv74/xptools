@@ -63,10 +63,10 @@ public:
 	virtual	void			GetNthProperty(int n, PropertyVal_t& val) const;
 	virtual	void			SetNthProperty(int n, const PropertyVal_t& val);
 	virtual	void			GetNthPropertyDict(int n, PropertyDict_t& dict) const;
-	virtual	void			GetNthPropertyDictItem(int n, int e, string& item) const;
+	virtual	void			GetNthPropertyDictItem(int n, int e, std::string& item) const;
 	virtual	void			GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
 #if ROAD_EDITING
-	void			        SetResource(const string& r);
+	void			        SetResource(const std::string& r);
 #endif
 
 private:
@@ -88,11 +88,11 @@ private:
 	WED_PropStringText		mResource;
 #endif
 	virtual	void		AcceptPath(
-							const vector<Point2>&	pts,
-							const vector<Point2>&	dirs_lo,
-							const vector<Point2>&	dirs_hi,
-							const vector<int>		has_dirs,
-							const vector<int>		has_split,
+							const std::vector<Point2>&	pts,
+							const std::vector<Point2>&	dirs_lo,
+							const std::vector<Point2>&	dirs_hi,
+							const std::vector<int>		has_dirs,
+							const std::vector<int>		has_split,
 							int						closed);
 	virtual	bool		CanCreateNow(void);
 

@@ -408,7 +408,7 @@ void	OptimizeNetwork(Net_JunctionInfoSet& ioJunctions, Net_ChainInfoSet& outChai
 
 }
 
-typedef pair<Net_JunctionInfo_t *,Net_JunctionInfo_t *>	JuncPair;
+typedef std::pair<Net_JunctionInfo_t *,Net_JunctionInfo_t *>	JuncPair;
 
 struct sort_by_sqr_dist {
 	bool operator()(const JuncPair& lhs, const JuncPair& rhs) const
@@ -475,7 +475,7 @@ void	MergeNearJunctions(Net_JunctionInfoSet& juncs, Net_ChainInfoSet& chains, do
 			if(within_box(jp->first->location,jp->second->location,dist))
 			{
 //				printf("Killing: 0x%08x, 0x%08x\n", jp->first, jp->second);			
-				list<Net_ChainInfo_t *>	dead;
+				std::list<Net_ChainInfo_t *>	dead;
 				for(Net_ChainInfoSet::iterator c = jp->first->chains.begin(); c != jp->first->chains.end(); ++c)
 				if((*c)->other_junc(jp->first) == jp->second)
 					dead.push_back(*c);
@@ -650,7 +650,7 @@ void	BuildNetworkTopology(Pmwx& inMap, CDT& /*inMesh*/, Net_JunctionInfoSet& out
 	// highways don't work that way!
 }
 
-// This routine purges the memory used for a network set.
+// This routine purges the memory used for a network std::set.
 void	CleanupNetworkTopology(Net_JunctionInfoSet& outJunctions, Net_ChainInfoSet& outChains)
 {
 	for (Net_JunctionInfoSet::iterator i = outJunctions.begin(); i != outJunctions.end(); ++i)
@@ -1493,7 +1493,7 @@ void generate_bezier(
 				const Point2&	c,
 				double			min_deflection_deg_mtr,
 				double			crease_angle_cos,
-				list<Point2c>&	pts)
+				std::list<Point2c>&	pts)
 {
 	//printf("Bezier for: %lf,%lf %lf,%lf %lf,%lf\n", a.x(),a.y(),b.x(),b.y(),c.x(),c.y());
 	DebugAssert(a != b);

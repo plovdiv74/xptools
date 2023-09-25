@@ -50,7 +50,7 @@ void	quilt_images(
 	const unsigned long * s2 = (const unsigned long *) rhs.data;
 	unsigned long * d  = (unsigned long *) res.data;
 
-	vector<int> l, b, r, t;
+	std::vector<int> l, b, r, t;
 
 	calc_four_cuts<unsigned long, unsigned long>(
 						s1, 1, lhs.width + lhs.pad / 4,
@@ -110,7 +110,7 @@ void	splat_for_spot(
 		--trials;
 	}
 
-	vector<int> cl, cb, cr, ct;
+	std::vector<int> cl, cb, cr, ct;
 
 	calc_four_cuts<unsigned long, unsigned long>(
 						image_dst, ddx,ddy,

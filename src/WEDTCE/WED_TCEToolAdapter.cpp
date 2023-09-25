@@ -103,7 +103,7 @@ void		WED_TCEToolAdapter::GetNthPropertyDict(int n, PropertyDict_t& dict) const
 	brains->GetNthPropertyDict(n,dict);
 }
 
-void		WED_TCEToolAdapter::GetNthPropertyDictItem(int n, int e, string& item) const
+void		WED_TCEToolAdapter::GetNthPropertyDictItem(int n, int e, std::string& item) const
 {
 	brains->GetNthPropertyDictItem(n,e,item);
 }

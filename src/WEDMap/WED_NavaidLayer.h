@@ -31,11 +31,11 @@ struct navaid_t {
 	int		type;
 	Point2 	lonlat;
 	float	heading;
-	string	name;
-	string	icao;
+	std::string	name;
+	std::string	icao;
 	int     freq;     // ATC tower freq for airports, in kHz
-	string	rwy;      // Or some other informative text
-	vector<Polygon2> shape; // airspaces only
+	std::string	rwy;      // Or some other informative text
+	std::vector<Polygon2> shape; // airspaces only
 };
 
 class WED_NavaidLayer : public WED_MapLayer {
@@ -50,7 +50,7 @@ public:
 private:
 
 	void				LoadNavaids();
-	vector<navaid_t>	mNavaids;
+	std::vector<navaid_t>	mNavaids;
 };
 
 #endif /* WED_NavaidLayer_H */

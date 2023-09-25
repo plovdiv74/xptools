@@ -309,8 +309,8 @@ WED_DocumentWindow::WED_DocumentWindow(
 	int wedTHISversion[4] = { WED_VERSION_BIN };
 	if(wedTHISversion[0] * 100 + wedTHISversion[1] < wedXMLversion)
 	{
-		string msg("Warning: This earth.wed.xml was written by a WED version newer than this, some content may get corrupted or may make this version crash.\nUse WED ");
-		msg += to_string(wedXMLversion / 100) + "." + to_string(wedXMLversion % 100) + " or newer to read or edit this file.";
+		std::string msg("Warning: This earth.wed.xml was written by a WED version newer than this, some content may get corrupted or may make this version crash.\nUse WED ");
+		msg += std::to_string(wedXMLversion / 100) + "." + std::to_string(wedXMLversion % 100) + " or newer to read or edit this file.";
 		DoUserAlert(msg.c_str());
 	}
 
@@ -518,7 +518,7 @@ int	WED_DocumentWindow::HandleCommand(int command)
 	return 0;
 }
 
-int	WED_DocumentWindow::CanHandleCommand(int command, string& ioName, int& ioCheck)
+int	WED_DocumentWindow::CanHandleCommand(int command, std::string& ioName, int& ioCheck)
 {
 	WED_UndoMgr * um = mDocument->GetUndoMgr();
 

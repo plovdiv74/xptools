@@ -82,7 +82,7 @@ protected:
 	virtual	EntityHandling_t	TraverseEntity(IGISEntity * ent, int pt_sel)  { return ent_Skip; }
 
 			void				SetCanSelect(int can_select);							// Normally all tool-base tools can select - but sub-classes can turn this off.
-			void				SetDrawAlways(int can_draw_always);						// Normally no drawing when the tool is not selected...but we can set this to draw
+			void				SetDrawAlways(int can_draw_always);						// Normally no drawing when the tool is not selected...but we can std::set this to draw
 			void				SetControlProvider(IControlHandles * provider);			//		links no matter what.  Used in the TCE because I am lazy.
 
 private:
@@ -90,7 +90,7 @@ private:
 			void ProcessSelection(
 								IGISEntity *		entity,
 								Bbox2&				bounds,
-								set<IGISEntity *>&	result);
+								std::set<IGISEntity *>&	result);
 									
 			void ProcessSelectionRecursive(
 								IGISEntity *		entity,
@@ -98,7 +98,7 @@ private:
 								int					pt_sel,
 								double				icon_dist_h,
 								double				icon_dist_v,
-								set<IGISEntity *>&	result);
+								std::set<IGISEntity *>&	result);
 
 			void				GetSelTotalBounds(Bbox2 &bounds);
 
@@ -118,7 +118,7 @@ private:
 		int						mCanSelect;
 		int						mDrawAlways;
 
-		vector<ISelectable *>	mSelSave;
+		std::vector<ISelectable *>	mSelSave;
 		int						mSelToggle;
 
 		// Variables for drag tracking
@@ -132,10 +132,10 @@ private:
 		int						mHandleIndex;
 		Point2					mTrackPoint;        // geo coordinates where the drag started
 
-		vector<IGISEntity *>	mSelManip;
+		std::vector<IGISEntity *>	mSelManip;
 
-		vector<short> rotateHeadXY;
-		vector<float> rotateHeadDirXY;
+		std::vector<short> rotateHeadXY;
+		std::vector<float> rotateHeadDirXY;
 };
 
 #endif /* WED_HANDLETOOLBASE_H */

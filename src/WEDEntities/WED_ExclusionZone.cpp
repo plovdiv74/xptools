@@ -35,12 +35,12 @@ WED_ExclusionZone::~WED_ExclusionZone()
 {
 }
 
-void	WED_ExclusionZone::SetExclusions(const set<int>& in_exclusions)
+void	WED_ExclusionZone::SetExclusions(const std::set<int>& in_exclusions)
 {
 	exclusions = in_exclusions;
 }
 
-void		WED_ExclusionZone::GetExclusions(set<int>& out_exclusions) const
+void		WED_ExclusionZone::GetExclusions(std::set<int>& out_exclusions) const
 {
 	out_exclusions = exclusions.value;
 }

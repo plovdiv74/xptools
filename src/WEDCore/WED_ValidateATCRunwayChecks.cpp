@@ -25,17 +25,17 @@
 
 #include <sstream>
 
-typedef vector<WED_ATCRunwayUse*>  ATCRunwayUseVec_t;
+typedef std::vector<WED_ATCRunwayUse*>  ATCRunwayUseVec_t;
 
 //We're just using WED_GISPoint because old WED and airports
-typedef vector<WED_GISPoint*>      TaxiRouteNodeVec_t;
-typedef vector<RunwayInfo>         RunwayInfoVec_t;
-typedef vector<TaxiRouteInfo>      TaxiRouteInfoVec_t;
+typedef std::vector<WED_GISPoint*>      TaxiRouteNodeVec_t;
+typedef std::vector<RunwayInfo>         RunwayInfoVec_t;
+typedef std::vector<TaxiRouteInfo>      TaxiRouteInfoVec_t;
 
 //Collects 'potentially active' runways.
 // - any runway that is referenced in at least one flow AND there is at least one runway segement taxi route on it
 // - if no flows are defined, all runways are considered active
-// - if no taxiway vector is passed, being mentioned in a flow is sufficient to consider it active
+// - if no taxiway std::vector is passed, being mentioned in a flow is sufficient to consider it active
 static RunwayInfoVec_t CollectPotentiallyActiveRunways( const TaxiRouteInfoVec_t& all_taxiroutes,
 														const RunwayInfoVec_t& all_runways_info,
 														const FlowVec_t& flows,
@@ -68,8 +68,8 @@ static RunwayInfoVec_t CollectPotentiallyActiveRunways( const TaxiRouteInfoVec_t
 				(*use_itr)->Export(runway_rule);
 
 				//Compare the name of the runway mentioned by the taxiway to the runway
-				string runway_name_p1 = runway_itr.name.substr(0,runway_itr.name.find_first_of('/'));
-				string runway_name_p2 = runway_itr.name.substr(runway_itr.name.find_first_of('/')+1);
+				std::string runway_name_p1 = runway_itr.name.substr(0,runway_itr.name.find_first_of('/'));
+				std::string runway_name_p2 = runway_itr.name.substr(runway_itr.name.find_first_of('/')+1);
 
 				if( runway_rule.runway == runway_name_p1 ||
 					runway_rule.runway == runway_name_p2)
@@ -84,7 +84,7 @@ static RunwayInfoVec_t CollectPotentiallyActiveRunways( const TaxiRouteInfoVec_t
 						// check that there is at least one taxi route associated with it
 						for(const auto& taxiroute : all_taxiroutes)
 						{
-							string taxiroute_name = ENUM_Desc(taxiroute.ptr->GetRunway());
+							std::string taxiroute_name = ENUM_Desc(taxiroute.ptr->GetRunway());
 
 							if(runway_itr.name == taxiroute_name || ( taxiroute_name[0] = '0' && runway_itr.name == taxiroute_name.substr(1) ))
 							{
@@ -101,7 +101,7 @@ static RunwayInfoVec_t CollectPotentiallyActiveRunways( const TaxiRouteInfoVec_t
 	return runway_info_vec;
 }
 
-//Returns a vector of TaxiRouteInfos whose name matches the given runway
+//Returns a std::vector of TaxiRouteInfos whose name matches the given runway
 static TaxiRouteInfoVec_t FilterMatchingRunways( const RunwayInfo& runway_info,
 												 const TaxiRouteInfoVec_t& all_taxiroutes)
 {
@@ -110,7 +110,7 @@ static TaxiRouteInfoVec_t FilterMatchingRunways( const RunwayInfo& runway_info,
 	{
 		if(taxiroute_itr.ptr->IsRunway())
 		{
-			string taxiroute_name = ENUM_Desc(taxiroute_itr.ptr->GetRunway());
+			std::string taxiroute_name = ENUM_Desc(taxiroute_itr.ptr->GetRunway());
 			if(runway_info.name == taxiroute_name)
 			{
 				matching_taxiroutes.push_back(taxiroute_itr);
@@ -170,16 +170,16 @@ static bool AllTaxiRouteNodesInRunway( const RunwayInfo& runway_info,
 	{
 		if(runway_hit_box.inside(tr.segment_geo.p1) == false)
 		{
-			string node_name;
+			std::string node_name;
 			tr.nodes[0]->GetName(node_name);
-			string msg = "Taxiroute node " + node_name + " is out of runway " + runway_info.name + "'s bounds";
+			std::string msg = "Taxiroute node " + node_name + " is out of runway " + runway_info.name + "'s bounds";
 			msgs.push_back(validation_error_t(msg, err_atcrwy_taxi_route_node_out_of_bounds, tr.nodes[0],apt));
 		}
 		if(runway_hit_box.inside(tr.segment_geo.p2) == false)
 		{
-			string node_name;
+			std::string node_name;
 			tr.nodes[1]->GetName(node_name);
-			string msg = "Taxiroute node " + node_name + " is out of runway " + runway_info.name + "'s bounds";
+			std::string msg = "Taxiroute node " + node_name + " is out of runway " + runway_info.name + "'s bounds";
 			msgs.push_back(validation_error_t(msg, err_atcrwy_taxi_route_node_out_of_bounds, tr.nodes[1],apt));
 		}
 	}
@@ -212,12 +212,12 @@ static bool is_hidden(const WED_Thing* node)
 	return true;
 }
 
-static vector<WED_TaxiRoute *> get_all_visible_viewers(const WED_GISPoint* node)
+static std::vector<WED_TaxiRoute *> get_all_visible_viewers(const WED_GISPoint* node)
 {
-	set<WED_Thing *> viewers;
+	std::set<WED_Thing *> viewers;
 	node->GetAllViewers(viewers);
 
-	vector<WED_TaxiRoute *> taxi_routes;
+	std::vector<WED_TaxiRoute *> taxi_routes;
 	for (auto it : viewers)
 	{
 		auto tr = dynamic_cast<WED_TaxiRoute *>(it);
@@ -242,7 +242,7 @@ static bool TaxiRouteCenterlineCheck( const RunwayInfo& runway_info,
 		if( p1_to_center_dist > METERS_TO_CENTER_THRESHOLD ||
 			p2_to_center_dist > METERS_TO_CENTER_THRESHOLD)
 		{
-			string msg = "Taxi route segment for runway " + tr.name + " is not on the center line";
+			std::string msg = "Taxi route segment for runway " + tr.name + " is not on the center line";
 			msgs.push_back(validation_error_t(msg, err_atcrwy_centerline_taxiroute_segment_off_center, tr.ptr,apt));
 		}
 	}
@@ -250,14 +250,14 @@ static bool TaxiRouteCenterlineCheck( const RunwayInfo& runway_info,
 	return msgs.size() - original_num_errors == 0 ? true : false;
 }
 
-static vector<WED_TaxiRoute *> filter_viewers_by_is_runway(const WED_GISPoint* node, const string& runway_name)
+static std::vector<WED_TaxiRoute *> filter_viewers_by_is_runway(const WED_GISPoint* node, const std::string& runway_name)
 {
-	vector<WED_TaxiRoute *> matching_routes;
-	vector<WED_TaxiRoute *> node_viewers = get_all_visible_viewers(node);
+	std::vector<WED_TaxiRoute *> matching_routes;
+	std::vector<WED_TaxiRoute *> node_viewers = get_all_visible_viewers(node);
 
 	for(auto itr : node_viewers)
 	{
-		string name;
+		std::string name;
 		itr->GetName(name);
 
 		if(itr->IsRunway() && name == runway_name)
@@ -303,10 +303,10 @@ static bool RunwaysTaxiRouteValencesCheck (const RunwayInfo& runway_info,
 		}
 		else if(node_valence >= 3)
 		{
-			string node_name;
+			std::string node_name;
 			(*node_itr)->GetName(node_name);
 
-			msgs.push_back(validation_error_t("Runway " + runway_info.name + "'s taxi route is split " + to_string(node_valence)+ " ways at taxi route node " + node_name, err_atcrwy_connectivity_n_split, *node_itr,apt));
+			msgs.push_back(validation_error_t("Runway " + runway_info.name + "'s taxi route is split " + std::to_string(node_valence)+ " ways at taxi route node " + node_name, err_atcrwy_connectivity_n_split, *node_itr,apt));
 		}
 	}
 
@@ -366,12 +366,12 @@ static WED_TaxiRoute* get_next_taxiroute(const WED_GISPoint* current_node,
 		return current_taxiroute.ptr == viewers[0] ? NULL : viewers[0];
 }
 
-//returns pair<is_target_of_current,is_target_of_next>
-static pair<bool,bool> get_taxiroute_relationship(const WED_GISPoint* current_node,
+//returns std::pair<is_target_of_current,is_target_of_next>
+static std::pair<bool,bool> get_taxiroute_relationship(const WED_GISPoint* current_node,
 												  const TaxiRouteInfo& current_taxiroute,
 												  const TaxiRouteInfo& next_taxiroute)
 {
-	//pair<is_target_of_current,is_target_of_next>
+	//std::pair<is_target_of_current,is_target_of_next>
 	std::pair<bool,bool> taxiroute_relationship;
 
 	//See relationship chart in TaxiRouteSquishedZCheck
@@ -412,7 +412,7 @@ static bool TaxiRouteSquishedZCheck( const RunwayInfo& runway_info,
 
 		TaxiRouteInfo next_taxiroute(next_route,translator);
 
-		pair<bool,bool> relationship = get_taxiroute_relationship(current_node,current_taxiroute,next_taxiroute);
+		std::pair<bool,bool> relationship = get_taxiroute_relationship(current_node,current_taxiroute,next_taxiroute);
 		WED_GISPoint* next_node = get_next_node(current_node,next_taxiroute);
 
 		Vector2 taxiroute_vec_1 = Vector2(current_taxiroute.segment_m.p1, current_taxiroute.segment_m.p2);
@@ -479,8 +479,8 @@ static bool FullyConnectedNetworkCheck( const TaxiRouteVec_t& all_taxiroutes,   
 {
 	int original_num_errors = msgs.size();
 
-	set<WED_Thing *> to_visit, all_routes;
-	vector<set<WED_Thing *> > networks;
+	std::set<WED_Thing *> to_visit, all_routes;
+	std::vector<std::set<WED_Thing *> > networks;
 
 	for(auto tr : all_taxiroutes)
 		all_routes.insert(tr);
@@ -502,7 +502,7 @@ static bool FullyConnectedNetworkCheck( const TaxiRouteVec_t& all_taxiroutes,   
 			for(int s = 0; s < ns; ++s)
 			{
 				WED_Thing * src = i->GetNthSource(s);
-				set<WED_Thing *>	viewers;
+				std::set<WED_Thing *>	viewers;
 				src->GetAllViewers(viewers);
 				for(auto v : viewers)
 					if(all_routes.count(v))	to_visit.insert(v);
@@ -511,7 +511,7 @@ static bool FullyConnectedNetworkCheck( const TaxiRouteVec_t& all_taxiroutes,   
 	}
 
 	int largest_nw(0);
-	set<WED_Thing *> * largest_nw_set(nullptr);
+	std::set<WED_Thing *> * largest_nw_set(nullptr);
 
 	for(auto& nw : networks)
 	{
@@ -526,12 +526,12 @@ static bool FullyConnectedNetworkCheck( const TaxiRouteVec_t& all_taxiroutes,   
 	{
 		if(&nw != largest_nw_set)
 		{
-			string msg;
+			std::string msg;
 			(*nw.begin())->GetName(msg);
 			if(nw.size() == 1)
 				msg = "Taxi Edge " + msg;
 			else
-				msg = "A set of " + to_string(nw.size()) + " Taxi Edges";
+				msg = "A std::set of " + std::to_string(nw.size()) + " Taxi Edges";
 			msg += " is not connected to the remainder of the taxi network.";
 			msgs.push_back(validation_error_t(msg, err_atc_taxi_routes_not_connected, nw ,apt));
 		}
@@ -589,7 +589,7 @@ static bool TaxiRouteParallelCheck( const RunwayInfo& runway_info,
 		double ANGLE_THRESHOLD = 0.995;
 		if(dot_product < ANGLE_THRESHOLD)
 		{
-			string msg = "Taxi route segment " + tr.name + " is not parallel to the runway's " + runway_info.name + "'s center line.";
+			std::string msg = "Taxi route segment " + tr.name + " is not parallel to the runway's " + runway_info.name + "'s center line.";
 			msgs.push_back(validation_error_t(msg, err_atcrwy_centerline_not_parallel_centerline, tr.ptr, apt));
 		}
 	}
@@ -613,7 +613,7 @@ static bool RunwayHasCorrectCoverage( const RunwayInfo& runway_info,
 
 	if (length_accumulator < COVERAGE_THRESHOLD)
 	{
-		string msg = "Taxi route for runway " + runway_info.name + " does not span enough runway";
+		std::string msg = "Taxi route for runway " + runway_info.name + " does not span enough runway";
 		msgs.push_back(validation_error_t(msg, err_atcrwy_taxi_route_does_not_span_enough_rwy,  runway_info.runway_ptr,apt));
 		return false;
 	}
@@ -626,14 +626,14 @@ static bool RunwayHasCorrectCoverage( const RunwayInfo& runway_info,
 
 static bool FindIfMarked( const int runway_number,        //enum from ATCRunwayOneway
 						  const TaxiRouteInfo& taxiroute, //The taxiroute to check if it is marked properly
-						  const set<string>& hot_set,     //The set of hot_listed_runways
-						  const string& op_type,          //String for the description
+						  const std::set<std::string>& hot_set,     //The std::set of hot_listed_runways
+						  const std::string& op_type,          //String for the description
 						  validation_error_vector& msgs,  //WED_Valiation messages
 						  WED_Airport* apt) //Airport to pass into msgs
 {
 
     bool found_marked = false;
-	for(set<string>::const_iterator hot_set_itr = hot_set.begin();
+	for(std::set<std::string>::const_iterator hot_set_itr = hot_set.begin();
 		hot_set_itr != hot_set.end();
 		++hot_set_itr)
 	{
@@ -749,12 +749,12 @@ static Polygon2 MakeHotZoneHitBox( const RunwayInfo& runway_info, // The relevan
 
 static bool DoHotZoneChecks( const RunwayInfo& runway_info,
 							 const TaxiRouteInfoVec_t& all_taxiroutes,
-							const vector<WED_RampPosition*>& ramps,
+							const std::vector<WED_RampPosition*>& ramps,
 							 validation_error_vector& msgs,
 							 WED_Airport* apt)
 {
 	int original_num_errors = msgs.size();
-	set<WED_RampPosition *> ramps_near_rwy;
+	std::set<WED_RampPosition *> ramps_near_rwy;
 
 	for (int runway_side = 0; runway_side < 2; ++runway_side)
 	{
@@ -826,7 +826,7 @@ static bool DoHotZoneChecks( const RunwayInfo& runway_info,
 // flag all ground traffic routes that cross a runways hitbox
 
 static void AnyTruckRouteNearRunway( const RunwayInfo& runway_info,
-							 const TaxiRouteInfoVec_t& all_routes, const vector<WED_RoadEdge*>& roads,
+							 const TaxiRouteInfoVec_t& all_routes, const std::vector<WED_RoadEdge*>& roads,
 							 validation_error_vector& msgs, WED_Airport* apt)
 {
 	Polygon2 runway_hit_box(runway_info.corners_geo);
@@ -838,12 +838,12 @@ static void AnyTruckRouteNearRunway( const RunwayInfo& runway_info,
 	runway_hit_box[2] += len_ext + side_ext;
 	runway_hit_box[3] -= len_ext - side_ext;
 
-	set<WED_TaxiRoute*> close_routes;
+	std::set<WED_TaxiRoute*> close_routes;
 	for(auto& route_itr : all_routes)
 		if(runway_hit_box.intersects(route_itr.segment_geo) || runway_hit_box.inside(route_itr.segment_geo.p1))
 			close_routes.insert(route_itr.ptr);
 
-	set<WED_RoadEdge*> close_roads;
+	std::set<WED_RoadEdge*> close_roads;
 	for(auto road_itr : roads)
 	{
 		Bezier2 b;
@@ -864,7 +864,7 @@ static void AnyTruckRouteNearRunway( const RunwayInfo& runway_info,
     {
 		if(close_routes.size())
 		{
-			string msg = "Ground Vehicle Route too close to runway " + runway_info.name;
+			std::string msg = "Ground Vehicle Route too close to runway " + runway_info.name;
 			msgs.push_back(validation_error_t(msg, err_atcrwy_truck_route_too_close_to_runway, close_routes, apt));
 		}
 		if(close_roads.size())
@@ -883,7 +883,7 @@ static void AnyTruckRouteNearRunway( const RunwayInfo& runway_info,
 }
 
 
-static void	AnyPolgonsOnRunway( const RunwayInfo& runway_info,	 const vector<WED_PolygonPlacement *>& all_polygons,
+static void	AnyPolgonsOnRunway( const RunwayInfo& runway_info,	 const std::vector<WED_PolygonPlacement *>& all_polygons,
 							 validation_error_vector& msgs, WED_Airport* apt, WED_ResourceMgr * rmgr)
 {
 
@@ -904,7 +904,7 @@ static void	AnyPolgonsOnRunway( const RunwayInfo& runway_info,	 const vector<WED
 	{
 		if(pp->Cull(runway_bounds))
 		{
-			string vpath;
+			std::string vpath;
 			const pol_info_t * pol_info;
 
 			int lg = group_TaxiwaysBegin;
@@ -918,7 +918,7 @@ static void	AnyPolgonsOnRunway( const RunwayInfo& runway_info,	 const vector<WED
 
 			if (isOnRunway)
 			{
-				string msg ;
+				std::string msg ;
 				pp->GetName(msg);
 				msg = "The gateway discourages user created runway markings. DrapedPolygon '" + msg + "' intersects with runway " + runway_info.name;
 				msgs.push_back(validation_error_t(msg, warn_atcrwy_marking, pp, apt));
@@ -949,7 +949,7 @@ static void TJunctionCrossingTest(const TaxiRouteInfoVec_t& all_taxiroutes, vali
 	#define SHORT_THRESHOLD_AC_LG	20.0
 	#define STR(s) #s
 	
-	set<WED_TaxiRoute *> crossing_edges, short_edgesAB, short_edgesC, short_edgesDEF, short_edgesT;
+	std::set<WED_TaxiRoute *> crossing_edges, short_edgesAB, short_edgesC, short_edgesDEF, short_edgesT;
 	auto grievance = gExportTarget == wet_gateway ? err_atc_taxi_short : warn_atc_taxi_short;
 
 	for (auto tr_a = all_taxiroutes.cbegin(); tr_a != all_taxiroutes.cend(); ++tr_a)
@@ -1016,12 +1016,12 @@ static void TJunctionCrossingTest(const TaxiRouteInfoVec_t& all_taxiroutes, vali
 
 				if (dist_b_node_to_a_edge < dist_min * dist_min)
 				{
-					set<WED_Thing*> node_viewers;
+					std::set<WED_Thing*> node_viewers;
 					tr_b->nodes[i]->GetAllViewers(node_viewers);
 
 					if (node_viewers.size() == 1)
 					{
-						vector<WED_Thing*> problem_children;
+						std::vector<WED_Thing*> problem_children;
 						problem_children.push_back(tr_a->ptr);
 						problem_children.push_back(tr_b->nodes[i]);
 
@@ -1045,12 +1045,12 @@ static void TJunctionCrossingTest(const TaxiRouteInfoVec_t& all_taxiroutes, vali
 				else              dist_min = TJUNCTION_THRESHOLD_TRUCKS;
 				if (dist_a_node_to_b_edge < dist_min * dist_min)
 				{
-					set<WED_Thing*> node_viewers;
+					std::set<WED_Thing*> node_viewers;
 					tr_a->nodes[i]->GetAllViewers(node_viewers);
 
 					if (node_viewers.size() == 1)
 					{
-						vector<WED_Thing*> problem_children;
+						std::vector<WED_Thing*> problem_children;
 						problem_children.push_back(tr_b->ptr);
 						problem_children.push_back(tr_a->nodes[i]);
 
@@ -1065,20 +1065,20 @@ static void TJunctionCrossingTest(const TaxiRouteInfoVec_t& all_taxiroutes, vali
 		msgs.push_back(validation_error_t("Airport contains crossing ATC routing lines with no node at the crossing point."
 										  " Split the lines and join the nodes.", err_airport_ATC_network, e, apt));
 	for (auto e : short_edgesAB)
-		msgs.push_back(validation_error_t(string("Airport contains short (<") + to_string((int)SHORT_THRESHOLD_AC_SM) + "m) Taxi route segment(s).",
+		msgs.push_back(validation_error_t(std::string("Airport contains short (<") + std::to_string((int)SHORT_THRESHOLD_AC_SM) + "m) Taxi route segment(s).",
 			grievance, e, apt));
 	for (auto e : short_edgesC)
-			msgs.push_back(validation_error_t(string("Airport contains short (<") + to_string((int) SHORT_THRESHOLD_AC) + "m) Taxi route segment(s).",
+			msgs.push_back(validation_error_t(std::string("Airport contains short (<") + std::to_string((int) SHORT_THRESHOLD_AC) + "m) Taxi route segment(s).",
 			grievance, e, apt));
 	for (auto e : short_edgesDEF)
-		msgs.push_back(validation_error_t(string("Airport contains short (<") + to_string((int) SHORT_THRESHOLD_AC_LG) + "m) Taxi route segment(s).",
+		msgs.push_back(validation_error_t(std::string("Airport contains short (<") + std::to_string((int) SHORT_THRESHOLD_AC_LG) + "m) Taxi route segment(s).",
 			grievance, e, apt));
 	for (auto e : short_edgesT)
-		msgs.push_back(validation_error_t(string("Airport contains short (<") + to_string((int) SHORT_THRESHOLD_TRUCKS) + "m) Truck route segment(s).",
+		msgs.push_back(validation_error_t(std::string("Airport contains short (<") + std::to_string((int) SHORT_THRESHOLD_TRUCKS) + "m) Truck route segment(s).",
 			grievance, e, apt));
 }
 
-static void TestInvalidHotZOneTags(const TaxiRouteInfoVec_t& taxi_routes, const set<int>& legal_rwy_oneway, const set<int>& legal_rwy_twoway,
+static void TestInvalidHotZOneTags(const TaxiRouteInfoVec_t& taxi_routes, const std::set<int>& legal_rwy_oneway, const std::set<int>& legal_rwy_twoway,
 										validation_error_vector& msgs, WED_Airport * apt)
 {
 	for(auto& tr : taxi_routes)
@@ -1091,7 +1091,7 @@ static void TestInvalidHotZOneTags(const TaxiRouteInfoVec_t& taxi_routes, const 
 
 		if(tr.ptr->HasInvalidHotZones(legal_rwy_oneway))
 		{
-			msgs.push_back(validation_error_t(string("Taxi route '") + tr.name + "' has hot zones for runways not present at its airport.",
+			msgs.push_back(validation_error_t(std::string("Taxi route '") + tr.name + "' has hot zones for runways not present at its airport.",
 									err_taxi_route_has_hot_zones_not_present, tr.ptr, apt));
 		}
 
@@ -1099,7 +1099,7 @@ static void TestInvalidHotZOneTags(const TaxiRouteInfoVec_t& taxi_routes, const 
 		{
 			if (legal_rwy_twoway.count(tr.ptr->GetRunway()) == 0)
 			{
-				msgs.push_back(validation_error_t(string("Taxi route '") + tr.name + "' is set to a runway not present at the airport.",
+				msgs.push_back(validation_error_t(std::string("Taxi route '") + tr.name + "' is std::set to a runway not present at the airport.",
 					err_taxi_route_set_to_runway_not_present, tr.ptr, apt));
 			}
 		}
@@ -1117,7 +1117,7 @@ static void TestInvalidHotZOneTags(const TaxiRouteInfoVec_t& taxi_routes, const 
 
 static void TwyNameCheck(const TaxiRouteInfoVec_t& all_taxiroutes_info, validation_error_vector& msgs, WED_Airport *apt)
 {
-	unordered_map<string, set<WED_TaxiRoute*> > long_named, odd_named;
+	std::unordered_map<std::string, std::set<WED_TaxiRoute*> > long_named, odd_named;
 	for(auto& tr : all_taxiroutes_info)
 	{
 		if(tr.is_aircraft_route && !tr.ptr->IsRunway())
@@ -1136,20 +1136,20 @@ static void TwyNameCheck(const TaxiRouteInfoVec_t& all_taxiroutes_info, validati
 		}
 	}
 	for(auto t : long_named)
-		msgs.push_back(validation_error_t(string("Taxi route '") + t.first+ "' name is unusually long, should be less than 4 characters.",
+		msgs.push_back(validation_error_t(std::string("Taxi route '") + t.first+ "' name is unusually long, should be less than 4 characters.",
 			warn_taxi_route_name_unusual, t.second, apt));
 
 	for(auto t : odd_named)
-		msgs.push_back(validation_error_t(string("Taxi route '") + t.first + "' name is likely wrong, should be 1-2 letters optionally followed by 1-2 digits or empty.",
+		msgs.push_back(validation_error_t(std::string("Taxi route '") + t.first + "' name is likely wrong, should be 1-2 letters optionally followed by 1-2 digits or empty.",
 			warn_taxi_route_name_unusual, t.second, apt));
 }
 
 //-----------------------------------------------------------------------------
 
 void WED_DoATCRunwayChecks(WED_Airport& apt, validation_error_vector& msgs, const TaxiRouteVec_t& all_taxiroutes_plain,
-							const RunwayVec_t& all_runways, const set<int>& legal_rwy_oneway, const set<int>& legal_rwy_twoway,
-							const FlowVec_t& all_flows, WED_ResourceMgr * res_mgr, const vector<WED_RampPosition*>& ramps,
-							const vector<WED_RoadEdge*>& roads)
+							const RunwayVec_t& all_runways, const std::set<int>& legal_rwy_oneway, const std::set<int>& legal_rwy_twoway,
+							const FlowVec_t& all_flows, WED_ResourceMgr * res_mgr, const std::vector<WED_RampPosition*>& ramps,
+							const std::vector<WED_RoadEdge*>& roads)
 {
 	Bbox2 box;
 	apt.GetBounds(gis_Geo, box);
@@ -1238,7 +1238,7 @@ void WED_DoATCRunwayChecks(WED_Airport& apt, validation_error_vector& msgs, cons
 		}
 	}
 
-	vector<WED_PolygonPlacement *> all_polys;
+	std::vector<WED_PolygonPlacement *> all_polys;
 	if(gExportTarget == wet_gateway)
 		CollectRecursive(&apt,back_inserter(all_polys), WED_PolygonPlacement::sClass);
 

@@ -86,14 +86,14 @@ struct	StCloseAndKill {
 	~StCloseAndKill() { if(f_) { fclose(f_); FILE_delete_file(p_.c_str(), false); } }
 	void release() { f_ = NULL; }
 	FILE * f_;
-	string p_;
+	std::string p_;
 };
 
-static bool	ErasePair(multimap<int, int>& ioMap, int key, int value);
-static bool	ErasePair(multimap<int, int>& ioMap, int key, int value)
+static bool	ErasePair(std::multimap<int, int>& ioMap, int key, int value);
+static bool	ErasePair(std::multimap<int, int>& ioMap, int key, int value)
 {
-	typedef multimap<int,int>::iterator iterator;
-	pair<iterator, iterator> range = ioMap.equal_range(key);
+	typedef std::multimap<int,int>::iterator iterator;
+	std::pair<iterator, iterator> range = ioMap.equal_range(key);
 	for (iterator i = range.first; i != range.second; ++i)
 	{
 		if (i->second == value)
@@ -105,8 +105,8 @@ static bool	ErasePair(multimap<int, int>& ioMap, int key, int value)
 	return false;
 }
 
-static void	WriteStringTable(FILE * fi, const vector<string>& v);
-static void	WriteStringTable(FILE * fi, const vector<string>& v)
+static void	WriteStringTable(FILE * fi, const std::vector<std::string>& v);
+static void	WriteStringTable(FILE * fi, const std::vector<std::string>& v)
 {
 	for (int n = 0; n < v.size(); ++n)
 	{
@@ -177,12 +177,12 @@ public:
 	
 	int					mCurrentFilter;
 
-	vector<string>		terrainDefs;
-	vector<string>		objectDefs;
-	vector<string>		polygonDefs;
-	vector<string>		networkDefs;
-	vector<string>		rasterDefs;
-	vector<string>		properties;
+	std::vector<std::string>		terrainDefs;
+	std::vector<std::string>		objectDefs;
+	std::vector<std::string>		polygonDefs;
+	std::vector<std::string>		networkDefs;
+	std::vector<std::string>		rasterDefs;
+	std::vector<std::string>		properties;
 
 	/********** OBJECT STORAGE **********/
 	DSFContiguousPointPool	objectPool  ;
@@ -199,12 +199,12 @@ public:
 			if (pool < rhs.pool) return true; 		if (pool > rhs.pool) return false;
 			return location < rhs.location; }
 	};
-	typedef vector<ObjectSpec>	ObjectSpecVector;
+	typedef std::vector<ObjectSpec>	ObjectSpecVector;
 	ObjectSpecVector			objects;
 	ObjectSpecVector			objects3d[2];	// MSL, AGL
 
 	/********** POLYGON STORAGE **********/
-	typedef map<int, DSFContiguousPointPool>	DSFContiguousPointPoolMap;
+	typedef std::map<int, DSFContiguousPointPool>	DSFContiguousPointPoolMap;
 	DSFContiguousPointPoolMap					polygonPools;
 
 	struct PolygonSpec {
@@ -214,7 +214,7 @@ public:
 		int					depth;
 		int					hash_depth;
 		int					filter;
-		vector<int>			intervals;	// All but first are inclusive ends of ranges.
+		std::vector<int>			intervals;	// All but first are inclusive ends of ranges.
 		bool	operator<(const PolygonSpec& rhs) const {
 			if (filter < rhs.filter) return true;	if (filter > rhs.filter) return false;
 			if (hash_depth < rhs.hash_depth) return true;		if (hash_depth > rhs.hash_depth) return false;
@@ -223,7 +223,7 @@ public:
 			if (pool < rhs.pool) return true;		if (pool > rhs.pool) return false;
 			return param < rhs.param; }
 	};
-	typedef	vector<PolygonSpec>		PolygonSpecVector;
+	typedef	std::vector<PolygonSpec>		PolygonSpecVector;
 	PolygonSpecVector				polygons;
 
 	PolygonSpec *				accum_poly;
@@ -231,7 +231,7 @@ public:
 //	int							accum_poly_depth;
 
 	/********** TERRAIN STORAGE **********/
-	typedef map<int, DSFSharedPointPool>	DSFSharedPointPoolMap;
+	typedef std::map<int, DSFSharedPointPool>	DSFSharedPointPoolMap;
 	DSFSharedPointPoolMap					terrainPool;
 
 	struct	TriPrimitive {
@@ -241,7 +241,7 @@ public:
 		DSFTupleVector			vertices;
 		DSFPointPoolLocVector	indices;
 	};
-	typedef vector<TriPrimitive>	TriPrimitiveVector;
+	typedef std::vector<TriPrimitive>	TriPrimitiveVector;
 
 	struct PatchSpec {
 		double					nearLOD;
@@ -259,7 +259,7 @@ public:
 			if (flags < rhs.flags) return true;				if (flags > rhs.flags) return false;
 			return primitives.size() < rhs.primitives.size(); }
 	};
-	typedef	vector<PatchSpec>		PatchSpecVector;
+	typedef	std::vector<PatchSpec>		PatchSpecVector;
 	PatchSpecVector					patches;
 
 	PatchSpec *					accum_patch;
@@ -290,8 +290,8 @@ public:
 			return highest_index < rhs.highest_index;
 		}
 	};
-	typedef vector<ChainSpec> 	ChainSpecVector;
-	typedef	multimap<int, int>	ChainSpecIndex;
+	typedef std::vector<ChainSpec> 	ChainSpecVector;
+	typedef	std::multimap<int, int>	ChainSpecIndex;
 	ChainSpecVector				chainSpecs;
 	ChainSpecIndex				chainSpecsIndex;
 	ChainSpec *					accum_chain;
@@ -301,8 +301,8 @@ public:
 			return lhs.path.size() > rhs.path.size(); } };
 
 	/********** Raster Storage **********/
-	vector<DSFRasterHeader_t>	raster_headers;
-	vector<void *>				raster_data;
+	std::vector<DSFRasterHeader_t>	raster_headers;
+	std::vector<void *>				raster_data;
 
 	DSFFileWriterImp(double inWest, double inSouth, double inEast, double inNorth, double inElevMin, double inElevMax, int divisions);
 	void WriteToFile(const char * inPath);
@@ -561,7 +561,7 @@ const char * k_cmd_names[35] = {
 
 static void analyze_cmd_mem_use(XAtomPackedData& cmdsAtom)
 {
-	map<int,int>	mem_use;
+	std::map<int,int>	mem_use;
 	int count, counter, commentLen;
 	
 	while(!cmdsAtom.Done())
@@ -716,7 +716,7 @@ static void analyze_cmd_mem_use(XAtomPackedData& cmdsAtom)
 		mem_use[cmd] += cmd_len;
 	}
 	
-	for(map<int,int>::iterator i = mem_use.begin(); i != mem_use.end(); ++i)
+	for(std::map<int,int>::iterator i = mem_use.begin(); i != mem_use.end(); ++i)
 		printf(" %s: %d\n", k_cmd_names[i->first], i->second);
 }
 
@@ -724,7 +724,7 @@ static void analyze_cmd_mem_use(XAtomPackedData& cmdsAtom)
 void DSFFileWriterImp::WriteToFile(const char * inPath)
 {
 	int n, i, p;
-	pair<int, int> loc;
+	std::pair<int, int> loc;
 
 	objectPool.Trim();
 	objectPool3d.Trim();
@@ -737,9 +737,9 @@ void DSFFileWriterImp::WriteToFile(const char * inPath)
 
 	// For each given plane depth, work up all of our primitives.
 
-	typedef vector<TriPrimitive *>						TPV;
-	typedef map<int, TPV>								TPVM;	//
-	typedef	map<int, int>								TPDOM;	// Terrain pool depth offset map
+	typedef std::vector<TriPrimitive *>						TPV;
+	typedef std::map<int, TPV>								TPVM;	//
+	typedef	std::map<int, int>								TPDOM;	// Terrain pool depth offset map
 
 	PatchSpecVector::iterator			patchSpec;
 	PolygonSpecVector::iterator			polySpec;
@@ -773,7 +773,7 @@ void DSFFileWriterImp::WriteToFile(const char * inPath)
 	printf("Primitives: total = %d, strip = %d, fan = %d.\n", num_prim, num_strip, num_fan);
 #endif
 
-	// Build up a list of all primitives, sorted by depth
+	// Build up a std::list of all primitives, sorted by depth
 	TPVM	all_primitives;
 	for (patchSpec = patches.begin(); patchSpec != patches.end(); ++patchSpec)
 	for (primIter = patchSpec->primitives.begin(); primIter != patchSpec->primitives.end(); ++primIter)
@@ -902,7 +902,7 @@ void DSFFileWriterImp::WriteToFile(const char * inPath)
 
 	// Now try to build up the longest chains possible.
 	//	Build up arrays that contain coordinates & junction IDs in runs.
-	//		work through the length-sorted vector, building up the longest possible type-consistent chains,
+	//		work through the length-sorted std::vector, building up the longest possible type-consistent chains,
 	//		removing them from the index.
 
 /*
@@ -916,7 +916,7 @@ void DSFFileWriterImp::WriteToFile(const char * inPath)
 			// TRY TO MATCH OUR FRONT
 			int	best = -1;
 			int	bestlen = 0;
-			pair<ChainSpecIndex::iterator,ChainSpecIndex::iterator> range = chainSpecsIndex.equal_range(chainSpecs[n].startNode);
+			std::pair<ChainSpecIndex::iterator,ChainSpecIndex::iterator> range = chainSpecsIndex.equal_range(chainSpecs[n].startNode);
 			for (csIndex = range.first; csIndex != range.second; ++csIndex)
 			{
 				if (n != csIndex->second &&
@@ -1156,14 +1156,14 @@ void DSFFileWriterImp::WriteToFile(const char * inPath)
 
 		for (DSFSharedPointPoolMap::iterator sp = terrainPool.begin(); sp != terrainPool.end(); ++sp)
 		{
-			offset_to_terrain_pool_of_depth.insert(map<int,int>::value_type(sp->first, last_pool_offset));
+			offset_to_terrain_pool_of_depth.insert(std::map<int,int>::value_type(sp->first, last_pool_offset));
 			last_pool_offset += sp->second.WritePoolAtoms (fi, def_PointPoolAtom);
 								sp->second.WriteScaleAtoms(fi, def_PointScaleAtom);
 		}
 
 		for (DSFContiguousPointPoolMap::iterator pp = polygonPools.begin(); pp != polygonPools.end(); ++pp)
 		{
-			offset_to_poly_pool_of_depth.insert(map<int,int>::value_type(pp->first, last_pool_offset));
+			offset_to_poly_pool_of_depth.insert(std::map<int,int>::value_type(pp->first, last_pool_offset));
 			last_pool_offset += pp->second.WritePoolAtoms (fi, def_PointPoolAtom);
 							    pp->second.WriteScaleAtoms(fi, def_PointScaleAtom);
 		}
@@ -1304,9 +1304,9 @@ void DSFFileWriterImp::WriteToFile(const char * inPath)
 
 		for (patchSpec = patches.begin(); patchSpec != patches.end(); ++patchSpec)
 		{
-			// Prep step - build up a list of pools referenced and also
+			// Prep step - build up a std::list of pools referenced and also
 			// mark pools as cross-pool or not.
-			set<int>	pools;
+			std::set<int>	pools;
 			for (primIter = patchSpec->primitives.begin(); primIter != patchSpec->primitives.end(); ++primIter)
 			{
 				if (primIter->vertices.empty()) continue;
@@ -1351,7 +1351,7 @@ void DSFFileWriterImp::WriteToFile(const char * inPath)
 			}
 
 			// Now handle all primitives within the pool
-			for (set<int>::iterator apool = pools.begin(); apool != pools.end(); ++apool)
+			for (std::set<int>::iterator apool = pools.begin(); apool != pools.end(); ++apool)
 			for (primIter = patchSpec->primitives.begin(); primIter != patchSpec->primitives.end(); ++primIter)
 			if (!primIter->is_cross_pool &&
 				primIter->indices[0].first == *apool)
@@ -1690,7 +1690,7 @@ void	DSFFileWriterImp::EndPatch(
 	}
 	else
 	{
-		vector<DSFPrimitive>	prims;
+		std::vector<DSFPrimitive>	prims;
 
 		PatchSpec * me = REF(inRef)->accum_patch;
 
@@ -1703,7 +1703,7 @@ void	DSFFileWriterImp::EndPatch(
 
 		me->primitives.clear();
 		DSFOptimizePrimitives(prims);
-		for(vector<DSFPrimitive>::iterator pp = prims.begin(); pp != prims.end(); ++pp)
+		for(std::vector<DSFPrimitive>::iterator pp = prims.begin(); pp != prims.end(); ++pp)
 		{
 			me->primitives.push_back(TriPrimitive());
 			me->primitives.back().type = pp->kind;

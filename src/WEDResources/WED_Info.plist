@@ -3,25 +3,25 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>English</string>
+	<string>English</std::string>
 	<key>CFBundleExecutable</key>
-	<string>WED</string>
+	<string>WED</std::string>
 	<key>CFBundleGetInfoString</key>
-	<string>WED WED_VERSION Copyright 2016, Laminar Research</string>
+	<string>WED WED_VERSION Copyright 2016, Laminar Research</std::string>
 	<key>CFBundleIconFile</key>
-	<string>WED.icns</string>
+	<string>WED.icns</std::string>
 	<key>CFBundleIdentifier</key>
-	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</std::string>
 	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
+	<string>6.0</std::string>
 	<key>CFBundleName</key>
-	<string>WED</string>
+	<string>WED</std::string>
 	<key>CFBundlePackageType</key>
-	<string>APPL</string>
+	<string>APPL</std::string>
 	<key>CFBundleShortVersionString</key>
-	<string>WED_VERSION</string>
+	<string>WED_VERSION</std::string>
 	<key>CFBundleVersion</key>
-	<string>398</string>
+	<string>398</std::string>
 	<key>LSHasLocalizedDisplayName</key>
 	<false/>
 </dict>

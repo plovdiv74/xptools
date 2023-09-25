@@ -51,7 +51,7 @@ public:
 									CreatePoint_t		tool_type);
 	virtual				~WED_CreatePointTool();
 
-			void				SetResource(const string& r);
+			void				SetResource(const std::string& r);
 
 	// WED_MapToolNew
 	virtual	const char *		GetStatusText(void);
@@ -90,11 +90,11 @@ protected:
 		WED_PropIntEnumSet		truck_types;
 
 	virtual	void		AcceptPath(
-							const vector<Point2>&	pts,
-							const vector<Point2>&	dirs_lo,
-							const vector<Point2>&	dirs_hi,
-							const vector<int>		has_dirs,
-							const vector<int>		has_split,
+							const std::vector<Point2>&	pts,
+							const std::vector<Point2>&	dirs_lo,
+							const std::vector<Point2>&	dirs_hi,
+							const std::vector<int>		has_dirs,
+							const std::vector<int>		has_split,
 							int						closed);
 	virtual	bool		CanCreateNow(void);
 

@@ -57,7 +57,7 @@ PCSBSocketUDP::PCSBSocketUDP(unsigned short inPort)
 	}
 
 	unsigned long nSetSocketType = NON_BLOCKING;
-	nResult = ioctlsocket(mWinSocket,FIONBIO,&nSetSocketType);	//set to non-blocking
+	nResult = ioctlsocket(mWinSocket,FIONBIO,&nSetSocketType);	//std::set to non-blocking
 	if(nResult == SOCKET_ERROR)
 	{
 		closesocket(mWinSocket);

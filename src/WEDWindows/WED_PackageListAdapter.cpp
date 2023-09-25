@@ -282,7 +282,7 @@ bool	WED_PackageListAdapter::HasSelection(void)
 	return mSel >= 0 && mSel < gPackageMgr->CountCustomPackages();
 }
 
-int	WED_PackageListAdapter::GetSelection(string * package)
+int	WED_PackageListAdapter::GetSelection(std::string * package)
 {
 	if (package) gPackageMgr->GetNthPackageName(gPackageMgr->CountCustomPackages() - 1 - mSel, *package);
 	return gPackageMgr->CountCustomPackages() - 1 - mSel;
@@ -294,9 +294,9 @@ void	WED_PackageListAdapter::SelectPackage(int n)
 	BroadcastMessage(GUI_TABLE_CONTENT_CHANGED,0);
 }
 
-int		WED_PackageListAdapter::SelectPackage(const string& package)
+int		WED_PackageListAdapter::SelectPackage(const std::string& package)
 {
-	string name;
+	std::string name;
 	int cnt = gPackageMgr->CountCustomPackages();
 	for(unsigned int i = 0 ; i < cnt; ++i)
 	{
@@ -311,12 +311,12 @@ int		WED_PackageListAdapter::SelectPackage(const string& package)
 	return -1;
 }
 
-void	WED_PackageListAdapter::LockPackage(const string& name)
+void	WED_PackageListAdapter::LockPackage(const std::string& name)
 {
 	mLock.insert(name);
 }
 
-void	WED_PackageListAdapter::UnlockPackage(const string& name)
+void	WED_PackageListAdapter::UnlockPackage(const std::string& name)
 {
 	mLock.erase(name);
 }

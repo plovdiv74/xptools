@@ -283,9 +283,9 @@ inline void FindNextNorth(CDT& ioMesh, CDT::Face_handle& ioFace, int& index, boo
 
 	TRANSITION AND LANDUSE MATCHING
 
- 	Each master edge vertex will contain some level of blending for each border that originates there as well as a set of
+ 	Each master edge vertex will contain some level of blending for each border that originates there as well as a std::set of
  	base transitions from each incident triangle.  (Each base layer can be thought of as being represented at 100%.)  When
- 	sorted by priority this forms a total set of 'stuff' intruding from this vertex.
+ 	sorted by priority this forms a total std::set of 'stuff' intruding from this vertex.
 
 	To blend the border, we build overlays on the slave triangles incident to these borders that have the master's mix levels
 	on the incident vertices and 0 levels on the interior.
@@ -296,7 +296,7 @@ inline void FindNextNorth(CDT& ioMesh, CDT::Face_handle& ioFace, int& index, boo
 	the border will not work.  Fundamentally we can't force a border to go left to right against priority!
 
 	So we use a trick called "rebasing".  Basically given a slave tri with a high prio ("HIGH") and a master vertex with a
-	low prio terrain ("LOW") we set the base of the slave tri to "LOW" and add a border of type "HIGH" to the slave with 0%
+	low prio terrain ("LOW") we std::set the base of the slave tri to "LOW" and add a border of type "HIGH" to the slave with 0%
 	blend on the edges and 100% in the interior.  We then also find all tris not touching the border incident to the 100% vertex
 	and blend from 100% back to 0%.
 
@@ -315,7 +315,7 @@ struct	mesh_match_vertex_t {
 // This is one edge from our master
 struct	mesh_match_edge_t {
 	int						base;			// For debugging
-	set<int>				borders;		// For debugging
+	std::set<int>				borders;		// For debugging
 	CDT::Face_handle		buddy;			// Tri in our mesh that corresponds
 };
 
@@ -566,11 +566,11 @@ void	match_border(CDT& ioMesh, mesh_match_t& ioBorder, int side_num)
 	// Step 1.  Fetch the entire border from the mesh.
 	fetch_border(ioMesh, origin, slaves, side_num);
 
-	// Step 2. Until we have exhausted all of the slaves, we are going to try to find the neaerest master-slave pair and link them.
+	// Step 2. Until we have exhausted all of the slaves, we are going to try to find the neaerest master-slave std::pair and link them.
 
 	while (!slaves.empty())
 	{
-		multimap<double, pair<double, mesh_match_vertex_t *> >	nearest;	// This is a slave/master pair - slave is IDed by its offset.
+		multimap<double, std::pair<double, mesh_match_vertex_t *> >	nearest;	// This is a slave/master std::pair - slave is IDed by its offset.
 
 		// Go through each non-assigned vertex.
 		for (vector<mesh_match_vertex_t>::iterator pts = ioBorder.vertices.begin(); pts != ioBorder.vertices.end(); ++pts)
@@ -582,11 +582,11 @@ void	match_border(CDT& ioMesh, mesh_match_t& ioBorder, int side_num)
 				double myDist = (side_num == 0 || side_num == 2) ? (CGAL::to_double(pts->loc.y() - sl->second->point().y())) : (CGAL::to_double(pts->loc.x() - sl->second->point().x()));
 				if (myDist < 0.0) myDist = -myDist;
 				if(myDist < MAX_BORDER_MATCH)
-				nearest.insert(multimap<double, pair<double, mesh_match_vertex_t *> >::value_type(myDist, pair<double, mesh_match_vertex_t *>(sl->first, &*pts)));
+				nearest.insert(multimap<double, std::pair<double, mesh_match_vertex_t *> >::value_type(myDist, std::pair<double, mesh_match_vertex_t *>(sl->first, &*pts)));
 			}
 		}
 
-		// If we have not found a nearest pair, it means that we have assigned all masters to slaves and still have slaves left over!  This happens when we
+		// If we have not found a nearest std::pair, it means that we have assigned all masters to slaves and still have slaves left over!  This happens when we
 		// cannot conform the border due to more water in the slave than master (or at least different water).  The most common case is the US-Canada border,
 		// where the US is the master, Canada is the slave; because the US is not hydro-reconstructed it does not force the Canada border to water match.  We just
 		// accept a discontinuity on the 49th parallel for now. :-(
@@ -594,7 +594,7 @@ void	match_border(CDT& ioMesh, mesh_match_t& ioBorder, int side_num)
 			break;
 
 		// File off the match, and nuke the slave.
-		pair<double, mesh_match_vertex_t *> best_match = nearest.begin()->second;
+		std::pair<double, mesh_match_vertex_t *> best_match = nearest.begin()->second;
 		DebugAssert(slaves.count(best_match.first) > 0);
 		best_match.second->buddy = slaves[best_match.first];
 		//printf("Matched: %lf,%lf to %lf,%lf\n",			CGAL::to_double(best_match.second->buddy->point().x()),
@@ -632,7 +632,7 @@ inline bool has_no_xon(int tex1, int tex2)
 	return rec1.xon_dist == 0.0 || rec2.xon_dist == 0.0;
 }
 
-static void RebaseTriangle(CDT& ioMesh, CDT::Face_handle tri, int new_base, CDT::Vertex_handle v1, CDT::Vertex_handle v2, set<CDT::Vertex_handle>& ioModVertices)
+static void RebaseTriangle(CDT& ioMesh, CDT::Face_handle tri, int new_base, CDT::Vertex_handle v1, CDT::Vertex_handle v2, std::set<CDT::Vertex_handle>& ioModVertices)
 {
 	int old_base = tri->info().terrain;
 
@@ -1146,7 +1146,7 @@ void	AddConstraintPoints(
  */
 void SubdivideConstraints(CDT& io_mesh, const DEMGeo& master, const DEMGeo& ideal_density)
 {
-	list<pair<CDT::Vertex_handle,CDT::Vertex_handle> >		edges;
+	std::list<std::pair<CDT::Vertex_handle,CDT::Vertex_handle> >		edges;
 	for (CDT::Finite_edges_iterator eit = io_mesh.finite_edges_begin(); eit != io_mesh.finite_edges_end(); ++eit)
 	{
 		if (!io_mesh.is_constrained(*eit))
@@ -1161,7 +1161,7 @@ void SubdivideConstraints(CDT& io_mesh, const DEMGeo& master, const DEMGeo& idea
 
 	CDT::Face_handle	locale = CDT::Face_handle();	// For cache coherency
 	
-	for(list<pair<CDT::Vertex_handle,CDT::Vertex_handle> >::iterator e = edges.begin(); e != edges.end(); ++e)
+	for(std::list<std::pair<CDT::Vertex_handle,CDT::Vertex_handle> >::iterator e = edges.begin(); e != edges.end(); ++e)
 	{
 		vector<CDT::Vertex_handle>	pts;
 		pts.push_back(e->first);
@@ -1206,16 +1206,16 @@ void SubdivideConstraints(CDT& io_mesh, const DEMGeo& master, const DEMGeo& idea
 
 
 /* This routine sets the feature type for the mesh tris from the terrain that required burn-in for constraints.
- * This is how we know that our water tris should be wet.  We set every tri on the border of a constraint, then 
+ * This is how we know that our water tris should be wet.  We std::set every tri on the border of a constraint, then 
  * flood-fill.*/
 void	SetTerrainForConstraints(CDT& ioMesh, const DEMGeo& allPts)
 {
-	set<CDT::Face_handle>		wet_faces;
-	set<CDT::Face_handle>		visited;
+	std::set<CDT::Face_handle>		wet_faces;
+	std::set<CDT::Face_handle>		visited;
 
 	vector<CDT::Face_handle>	seed_faces;
 
-	// FIRST: we are going to go throguh and set everybody to either uninited/natural (if we aren't constrained)
+	// FIRST: we are going to go throguh and std::set everybody to either uninited/natural (if we aren't constrained)
 	// or, for any constrain-edged triangle, we're going to figure out who our initial face was and init like that.
 
 	for (CDT::Finite_faces_iterator ffi = ioMesh.finite_faces_begin(); ffi != ioMesh.finite_faces_end(); ++ffi)
@@ -1395,7 +1395,7 @@ void FlattenWater(CDT& ioMesh, const DEMGeo& water_surface)
 	
 
 #if NEW_ALG
-	set<CDT::Vertex_handle, sort_cdt_face_by_lowest_height>		to_do;
+	std::set<CDT::Vertex_handle, sort_cdt_face_by_lowest_height>		to_do;
 	
 	for(CDT::Finite_vertices_iterator v = ioMesh.finite_vertices_begin(); v != ioMesh.finite_vertices_end(); ++v)
 	{
@@ -1411,7 +1411,7 @@ void FlattenWater(CDT& ioMesh, const DEMGeo& water_surface)
 	{	
 		hwm = (*to_do.begin())->info().height;
 		
-		set<CDT::Vertex_handle, sort_cdt_face_by_lowest_height>::iterator i,p;
+		std::set<CDT::Vertex_handle, sort_cdt_face_by_lowest_height>::iterator i,p;
 		p = i = to_do.begin();
 		++i;
 		while(i != to_do.end())
@@ -1461,7 +1461,7 @@ void FlattenWater(CDT& ioMesh, const DEMGeo& water_surface)
 	}
 	
 #else
-	set<CDT::Face_handle, sort_cdt_face_by_lowest_height>	changed;
+	std::set<CDT::Face_handle, sort_cdt_face_by_lowest_height>	changed;
 	for(CDT::Finite_faces_iterator f = ioMesh.finite_faces_begin(); f != ioMesh.finite_faces_end(); ++f)
 	{
 		if (f->info().terrain == terrain_Water)
@@ -1875,7 +1875,7 @@ void	TriangulateMesh(Pmwx& inMap, CDT& outMesh, DEMGeoMap& inDEMs, const char * 
 //	for(DEMGeo::iterator it = bathy.begin(); it != bathy.end(); ++it)
 //	{
 //		*it = max(*it,-50.0f);
-//		pair<int,int> xy = bathy.to_coordinates(it);
+//		std::pair<int,int> xy = bathy.to_coordinates(it);
 //		*it = *it + orig.value_linear(
 //					bathy.x_to_lon(xy.first),
 //					bathy.y_to_lat(xy.second));
@@ -1906,13 +1906,13 @@ void	TriangulateMesh(Pmwx& inMap, CDT& outMesh, DEMGeoMap& inDEMs, const char * 
 		Locator lp {inMap};
 
 #if KILL_SPLIT_CLIFF_EXTRACT
-		const auto split_cliff = [&](const auto& f, int i0, int i1) -> pair<Point_2,boost::optional<double>> {
+		const auto split_cliff = [&](const auto& f, int i0, int i1) -> std::pair<Point_2,boost::optional<double>> {
 			auto point = CGAL::midpoint(f->vertex(i0)->point(),f->vertex(i1)->point());
 			return { point, {  } };
 		};
 		
 #else
-		const auto split_cliff = [&](const auto& f, int i0, int i1) -> pair<Point_2,boost::optional<double>> {
+		const auto split_cliff = [&](const auto& f, int i0, int i1) -> std::pair<Point_2,boost::optional<double>> {
 			auto point = CGAL::midpoint(f->vertex(i0)->point(),f->vertex(i1)->point());
 			boost::optional<double> elevation {};
 			bool use_existing_height = false;
@@ -1976,7 +1976,7 @@ void	TriangulateMesh(Pmwx& inMap, CDT& outMesh, DEMGeoMap& inDEMs, const char * 
 	CGAL::make_conforming_Delaunay_2(outMesh);
 //	CGAL::make_conforming_any_2<CDT,LCP>(outMesh);				// Because the finite iterator is a filtered wrapper around the triangulation, it too is not stable
 																// across inserts.  To get around this, simply note how many vertices we inserted.  Note that we are assuming
-	CDT::Vertex_iterator v1,v2,v;								// vertices to be inserted into the END of the iteration list!
+	CDT::Vertex_iterator v1,v2,v;								// vertices to be inserted into the END of the iteration std::list!
 	v1 = outMesh.vertices_begin();
 	v2 = outMesh.vertices_end();	
 	DebugAssert(outMesh.number_of_vertices() >= n_vert);
@@ -2021,7 +2021,7 @@ void	TriangulateMesh(Pmwx& inMap, CDT& outMesh, DEMGeoMap& inDEMs, const char * 
 
 #if SPLIT_BEACHED_WATER
 
-	set<Point_2> splits_needed;
+	std::set<Point_2> splits_needed;
 	int ctr=0,tot=outMesh.number_of_faces();
 	for (CDT::Finite_faces_iterator f = outMesh.finite_faces_begin(); f != outMesh.finite_faces_end(); ++f,++ctr)
 	{
@@ -2071,8 +2071,8 @@ void	TriangulateMesh(Pmwx& inMap, CDT& outMesh, DEMGeoMap& inDEMs, const char * 
 
 	printf("Need %zd splits for beaches and waterways.\n", splits_needed.size());
 	hint = CDT::Face_handle();
-	set<CDT::Face_handle>	who;
-	for(set<Point_2>::iterator n = splits_needed.begin(); n != splits_needed.end(); ++n)
+	std::set<CDT::Face_handle>	who;
+	for(std::set<Point_2>::iterator n = splits_needed.begin(); n != splits_needed.end(); ++n)
 	{
 		CDT::Vertex_handle v = InsertAnyPoint(orig, outMesh, *n, hint);
 		CDT::Face_circulator circ,stop;
@@ -2084,7 +2084,7 @@ void	TriangulateMesh(Pmwx& inMap, CDT& outMesh, DEMGeoMap& inDEMs, const char * 
 	
 	SetTerrainForConstraints(outMesh, orig);
 
-	for(set<CDT::Face_handle>::iterator w = who.begin(); w != who.end(); ++w)
+	for(std::set<CDT::Face_handle>::iterator w = who.begin(); w != who.end(); ++w)
 	{
 		DebugAssert((*w)->info().terrain == terrain_Water);
 	}
@@ -2466,7 +2466,7 @@ void	AssignLandusesToMesh(	DEMGeoMap& inDEMs,
 			int lu = tri->info().terrain;
 			if(IsAirportTerrain(lu))
 			{
-				set<CDT::Face_handle> tris;
+				std::set<CDT::Face_handle> tris;
 				map<int, double>	area_to_lu;
 				double best_a = -1.0f;
 				int best_lu = NO_VALUE;
@@ -2532,7 +2532,7 @@ void	AssignLandusesToMesh(	DEMGeoMap& inDEMs,
 
 /*
 	int tri_merged = 0;
-	set<CDT::Face_handle>	all_variants;
+	std::set<CDT::Face_handle>	all_variants;
 
 	for (CDT::Finite_faces_iterator f = ioMesh.finite_faces_begin(); f != ioMesh.finite_faces_end(); ++f)
 	if (f->info().terrain != terrain_Water)
@@ -2545,13 +2545,13 @@ void	AssignLandusesToMesh(	DEMGeoMap& inDEMs,
 	{
 		CDT::Face_handle		w = *all_variants.begin();
 		int						base = SpecificVariant(w->info().terrain,0);
-		set<CDT::Face_handle>	tri_set;
+		std::set<CDT::Face_handle>	tri_set;
 		Bbox_2					bounds;
 		FindAllCovariant(ioMesh, w, tri_set, bounds);
 
 		bool devary = (bounds.ymax() - bounds.ymin() < max_rat) && (bounds.xmax() - bounds.xmin()) < max_rat;
 
-		for (set<CDT::Face_handle>::iterator kill = tri_set.begin(); kill != tri_set.end(); ++kill)
+		for (std::set<CDT::Face_handle>::iterator kill = tri_set.begin(); kill != tri_set.end(); ++kill)
 		{
 			if (devary)
 			{
@@ -2580,7 +2580,7 @@ void	AssignLandusesToMesh(	DEMGeoMap& inDEMs,
 	int n;
 #if !NO_BORDER_SHARING
 
-	set<CDT::Vertex_handle>	vertices;
+	std::set<CDT::Vertex_handle>	vertices;
 	// Now we have to "rebase" our edges.  Basically it is possible that we are getting intruded from the left
 	// by a lower priority texture.  If we just use borders, that low prio tex will end up UNDER our base, and we'll
 	// never see it.  So we need to take the tex on our right side and reduce it.
@@ -2593,7 +2593,7 @@ void	AssignLandusesToMesh(	DEMGeoMap& inDEMs,
 			lowest = gMatchBorders[b].edges[n].buddy->info().terrain;
 			if (LowerPriorityNaturalTerrain(gMatchBorders[b].edges[n].base, lowest))
 				lowest = gMatchBorders[b].edges[n].base;
-			for (set<int>::iterator bl = gMatchBorders[b].edges[n].borders.begin(); bl != gMatchBorders[b].edges[n].borders.end(); ++bl)
+			for (std::set<int>::iterator bl = gMatchBorders[b].edges[n].borders.begin(); bl != gMatchBorders[b].edges[n].borders.end(); ++bl)
 			if(!IsCustom(*bl))
 			{
 				if (LowerPriorityNaturalTerrain(*bl, lowest))
@@ -2629,7 +2629,7 @@ void	AssignLandusesToMesh(	DEMGeoMap& inDEMs,
 	}
 
 	// These vertices were given partial borders by rebasing - go in and make sure that all incident triangles match them.
-	for (set<CDT::Vertex_handle>::iterator rebased_vert = vertices.begin(); rebased_vert != vertices.end(); ++rebased_vert)
+	for (std::set<CDT::Vertex_handle>::iterator rebased_vert = vertices.begin(); rebased_vert != vertices.end(); ++rebased_vert)
 	{
 		CDT::Face_circulator circ, stop;
 		circ = stop = ioMesh.incident_faces(*rebased_vert);
@@ -2655,13 +2655,13 @@ void	AssignLandusesToMesh(	DEMGeoMap& inDEMs,
 	/* 	Here's the idea:
 		We are going to go through each triangle, which now has a land use, and figure ouet which
 		ones have borders.  A triangle that has a border will get:
-		(1) the land use of the border triangle in its set of "border landuses", so it
+		(1) the land use of the border triangle in its std::set of "border landuses", so it
 		 	can easily be identified in that mesh, and
 		(2) for each of its vertices, a hash map entry with the alpha level for the border at that
 			point, so we can figure out how  the border fades.
 
 		To do this we say: for each triangle, we do a "spreading" type algorithm, e.g. we collect
-		non-visited neighbors that meet our criteria in a set and go outward.  We only take neighbors
+		non-visited neighbors that meet our criteria in a std::set and go outward.  We only take neighbors
 		that have a lower natural land use and haven't been visited.  We calc our distance to the
 		corners to get the blend, and if we're not all faded out, keep going.
 	*/
@@ -2673,7 +2673,7 @@ void	AssignLandusesToMesh(	DEMGeoMap& inDEMs,
 	if (tri->info().terrain != terrain_Water)
 	{
 		++visited;
-		set<CDT::Face_handle>	to_visit;
+		std::set<CDT::Face_handle>	to_visit;
 		to_visit.insert(tri);
 		bool					spread;
 		int						layer = tri->info().terrain;
@@ -2709,7 +2709,7 @@ void	AssignLandusesToMesh(	DEMGeoMap& inDEMs,
 						double	odist2 = v2->info().border_blend[layer];
 						double	odist3 = v3->info().border_blend[layer];
 
-						// Border propagation - we only want to set the levels of this border if we are are adjacent to ourselves..this way we don't set the far-side distance
+						// Border propagation - we only want to std::set the levels of this border if we are are adjacent to ourselves..this way we don't std::set the far-side distance
 						// unless there will be another border tri to continue with.
 
 						bool has_0 = false, has_1 = false, has_2 = false;
@@ -2797,7 +2797,7 @@ void	AssignLandusesToMesh(	DEMGeoMap& inDEMs,
 		}
 
 		// Handle any overlay layers...
-		for (set<int>::iterator bl = gMatchBorders[b].edges[n].borders.begin(); bl != gMatchBorders[b].edges[n].borders.end(); ++bl)
+		for (std::set<int>::iterator bl = gMatchBorders[b].edges[n].borders.begin(); bl != gMatchBorders[b].edges[n].borders.end(); ++bl)
 		if(!IsCustom(*bl))
 		{
 			if (gMatchBorders[b].edges[n].buddy->info().terrain != *bl)
@@ -2824,7 +2824,7 @@ void	AssignLandusesToMesh(	DEMGeoMap& inDEMs,
 		if (tri->info().terrain != terrain_Water)
 		{
 			bool need_optimize = false;
-			for (set<int>::iterator blayer = tri->info().terrain_border.begin();
+			for (std::set<int>::iterator blayer = tri->info().terrain_border.begin();
 				blayer != tri->info().terrain_border.end(); ++blayer)
 			{
 				if (tri->vertex(0)->info().border_blend[*blayer] == 1.0 &&
@@ -2841,14 +2841,14 @@ void	AssignLandusesToMesh(	DEMGeoMap& inDEMs,
 			}
 			if (need_optimize)
 			{
-				set<int>	nuke;
-				for (set<int>::iterator blayer = tri->info().terrain_border.begin();
+				std::set<int>	nuke;
+				for (std::set<int>::iterator blayer = tri->info().terrain_border.begin();
 					blayer != tri->info().terrain_border.end(); ++blayer)
 				{
 					if (!LowerPriorityNaturalTerrain(tri->info().terrain, *blayer))
 						nuke.insert(*blayer);
 				}
-				for (set<int>::iterator nlayer = nuke.begin(); nlayer != nuke.end(); ++nlayer)
+				for (std::set<int>::iterator nlayer = nuke.begin(); nlayer != nuke.end(); ++nlayer)
 				{
 					tri->info().terrain_border.erase(*nlayer);
 					// DO NOT eliminate these - maybe our neighbor is using them!!
@@ -2942,7 +2942,7 @@ void	AssignLandusesToMesh(	DEMGeoMap& inDEMs,
 
 				fprintf(border, "TERRAIN %s\n", FetchTokenString(f->info().terrain));
 				fprintf(border, "BORDER_C %llu\n", (unsigned long long)f->info().terrain_border.size());
-				for (set<int>::iterator si = f->info().terrain_border.begin(); si != f->info().terrain_border.end(); ++si)
+				for (std::set<int>::iterator si = f->info().terrain_border.begin(); si != f->info().terrain_border.end(); ++si)
 					fprintf(border, "BORDER_T %s\n", FetchTokenString(*si));
 
 			} while (f->vertex(i)->point() != stop);
@@ -3326,7 +3326,7 @@ int	CalcMeshTextures(CDT& inMesh, map<int, int>& out_lus)
 	for(CDT::Face_iterator  f = inMesh.finite_faces_begin(); f != inMesh.finite_faces_end(); ++f)
 	{
 		out_lus[f->info().terrain]++;
-		for(set<int>::iterator b =  f->info().terrain_border.begin();
+		for(std::set<int>::iterator b =  f->info().terrain_border.begin();
 							   b != f->info().terrain_border.end(); ++b)
 			out_lus[*b]++;
 		total += (1 + f->info().terrain_border.size());
@@ -3365,7 +3365,7 @@ Pmwx::Halfedge_handle	mesh_to_pmwx_he(CDT& ioMesh, CDT::Edge& e)
 	// vertices - those are paths going NOT along our edge.  So...circulate, and for all other
 	// constrained edges, walk the constraint until we find a sync point, and save that in
 	// 'stop here' markers.
-	set<Vertex_handle> wrong_ways;
+	std::set<Vertex_handle> wrong_ways;
 	CDT::Vertex_circulator circ, stop;
 	circ = stop = source->incident_vertices();
 	do 

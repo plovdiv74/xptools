@@ -31,16 +31,16 @@
 #include "MemFileUtils.h"
 #include <time.h>
 
-void WED_clean_vpath(string& s)
+void WED_clean_vpath(std::string& s)
 {
-	for(string::size_type p = 0; p < s.size(); ++p)
+	for(std::string::size_type p = 0; p < s.size(); ++p)
 		if(s[p] == '\\' || s[p] == ':')
 			s[p] = '/';
 }
 
-void WED_clean_rpath(string& s)
+void WED_clean_rpath(std::string& s)
 {
-	for(string::size_type p = 0; p < s.size(); ++p)
+	for(std::string::size_type p = 0; p < s.size(); ++p)
 		if(s[p] == '\\' || s[p] == ':' || s[p] == '/')
 			s[p] = DIR_CHAR;
 
@@ -51,10 +51,10 @@ void WED_clean_rpath(string& s)
 // checks if path includes enough '..' to possibly not be a true subdirectory of the current directory
 // i.e. dir/../x  or  d/../x or ./x      are fine
 //      ../x  or  dir/../../x  or ./../x  or  dir/./../../x get flagged
-static bool is_no_true_subdir_path(string& s)
+static bool is_no_true_subdir_path(std::string& s)
 {
 	int subdir_levels = 0;
-	for(string::size_type p = 0; p < s.size(); ++p)
+	for(std::string::size_type p = 0; p < s.size(); ++p)
 		if(s[p] == '\\' || s[p] == ':' || s[p] == '/')
 		{
 			if (p>=1 && s[p-1] != '.')
@@ -73,9 +73,9 @@ static bool is_no_true_subdir_path(string& s)
 	return false;
 }
 
-static void split_path(const string& i, string& p, string& f)
+static void split_path(const std::string& i, std::string& p, std::string& f)
 {
-	string::size_type n=i.rfind('/');
+	std::string::size_type n=i.rfind('/');
 	if(n==i.npos)
 	{
 		f=i;
@@ -86,7 +86,7 @@ static void split_path(const string& i, string& p, string& f)
 	}
 }
 
-static int is_direct_parent(const string& parent, const string& child)
+static int is_direct_parent(const std::string& parent, const std::string& child)
 {
 	if(parent.empty()) return child.find('/',1) == child.npos;
 
@@ -98,7 +98,7 @@ static int is_direct_parent(const string& parent, const string& child)
 }
 
 //Library manager constructor
-WED_LibraryMgr::WED_LibraryMgr(const string& ilocal_package) : local_package(ilocal_package)
+WED_LibraryMgr::WED_LibraryMgr(const std::string& ilocal_package) : local_package(ilocal_package)
 {
 	DebugAssert(gPackageMgr != NULL);
 	gPackageMgr->AddListener(this);
@@ -109,12 +109,12 @@ WED_LibraryMgr::~WED_LibraryMgr()
 {
 }
 
-string WED_LibraryMgr::GetLocalPackage() const
+std::string WED_LibraryMgr::GetLocalPackage() const
 {
 	return local_package;
 }
 
-bool WED_LibraryMgr::GetLineVpath(int lt, string& vpath)
+bool WED_LibraryMgr::GetLineVpath(int lt, std::string& vpath)
 {
 	auto l = default_lines.find(lt);
 	if(l == default_lines.end())
@@ -126,21 +126,21 @@ bool WED_LibraryMgr::GetLineVpath(int lt, string& vpath)
 	}
 }
 
-string		WED_LibraryMgr::GetResourceParent(const string& r)
+std::string		WED_LibraryMgr::GetResourceParent(const std::string& r)
 {
-	string p,f;
+	std::string p,f;
 	split_path(r,p,f);
 	return p;
 }
 
 struct  {
-	bool operator()(const string& lhs, const string& rhs) const {
-		string::size_type pl = lhs.find_last_of('/');
-		string::size_type pr = rhs.find_last_of('/');
+	bool operator()(const std::string& lhs, const std::string& rhs) const {
+		std::string::size_type pl = lhs.find_last_of('/');
+		std::string::size_type pr = rhs.find_last_of('/');
 
 		if (pl == pr && pl < lhs.length() - 2 && pr < rhs.length() - 2)
 		{
-			if (pl == string::npos)
+			if (pl == std::string::npos)
 				pl = 0;
 			else
 			{
@@ -165,7 +165,7 @@ struct  {
 	}
 } special_compare;
 
-void		WED_LibraryMgr::GetResourceChildren(const string& r, int filter_package, vector<string>& children, bool no_dirs)
+void		WED_LibraryMgr::GetResourceChildren(const std::string& r, int filter_package, std::vector<std::string>& children, bool no_dirs)
 {
 	children.clear();
 	res_map_t::iterator me = r.empty() ? res_table.begin() : res_table.find(r);
@@ -202,58 +202,58 @@ void		WED_LibraryMgr::GetResourceChildren(const string& r, int filter_package, v
 	std:sort(children.begin(), children.end(), special_compare);
 }
 
-res_type	WED_LibraryMgr::GetResourceType(const string& r) const
+res_type	WED_LibraryMgr::GetResourceType(const std::string& r) const
 {
 	auto me = res_table.find(r);
 	if (me==res_table.end()) return res_None;
 	return (res_type) me->second.res_type;
 }
 
-string		WED_LibraryMgr::GetResourcePath(const string& r, int variant)
+std::string		WED_LibraryMgr::GetResourcePath(const std::string& r, int variant)
 {
 	auto me = res_table.find(r);
 	if (me==res_table.end() || r != me->first)  // this prevents the case-insensitive compare (needed for desired sort order in libmgr list)
-		return string();                        // to deliver a match if the cases mis-match - which is X-Plane behavior
+		return std::string();                        // to deliver a match if the cases mis-match - which is X-Plane behavior
 	DebugAssert(variant < me->second.real_paths.size());
 	return me->second.real_paths[variant];
 }
 
-bool	WED_LibraryMgr::IsResourceDefault(const string& r) const
+bool	WED_LibraryMgr::IsResourceDefault(const std::string& r) const
 {
 	auto me = res_table.find(r);
 	if (me==res_table.end()) return false;
 	return me->second.is_default;
 }
 
-bool	WED_LibraryMgr::IsResourceLocal(const string& r) const
+bool	WED_LibraryMgr::IsResourceLocal(const std::string& r) const
 {
 	auto me = res_table.find(r);
 	if (me==res_table.end()) return false;
 	return me->second.packages.count(pack_Local) && me->second.packages.size() == 1;
 }
 
-bool	WED_LibraryMgr::IsResourceLibrary(const string& r) const
+bool	WED_LibraryMgr::IsResourceLibrary(const std::string& r) const
 {
 	auto me = res_table.find(r);
 	if (me==res_table.end()) return false;
 	return !me->second.packages.count(pack_Local) || me->second.packages.size() > 1;
 }
 
-bool	WED_LibraryMgr::IsResourceDeprecatedOrPrivate(const string& r) const
+bool	WED_LibraryMgr::IsResourceDeprecatedOrPrivate(const std::string& r) const
 {
 	auto me = res_table.find(r);
 	if (me==res_table.end()) return true;              // library list == never public exported = not public !
 	return me->second.status < status_SemiDeprecated;  // status "Yellow' is still deemed public wrt validation, i.e. allowed on the gateway
 }
 
-bool	WED_LibraryMgr::IsSeasonal(const string& r) const
+bool	WED_LibraryMgr::IsSeasonal(const std::string& r) const
 {
 	auto me = res_table.find(r);
 	if (me == res_table.end() || me->second.res_type == res_Directory) return false;
 	return me->second.has_seasons;
 }
 
-bool	WED_LibraryMgr::IsRegional(const string& r) const
+bool	WED_LibraryMgr::IsRegional(const std::string& r) const
 {
 	auto me = res_table.find(r);
 	if (me == res_table.end() || me->second.res_type == res_Directory) return false;
@@ -280,14 +280,14 @@ bool	WED_LibraryMgr::DoesPackHaveLibraryItems(int package) const
 	return false;
 }
 
-int		WED_LibraryMgr::GetNumVariants(const string& r) const
+int		WED_LibraryMgr::GetNumVariants(const std::string& r) const
 {
 	res_map_t::const_iterator me = res_table.find(r);
 	if (me==res_table.end()) return 1;
 	return me->second.real_paths.size();
 }
 
-string		WED_LibraryMgr::CreateLocalResourcePath(const string& r)
+std::string		WED_LibraryMgr::CreateLocalResourcePath(const std::string& r)
 {
 	return gPackageMgr->ComputePath(local_package, r);
 }
@@ -305,8 +305,8 @@ void	WED_LibraryMgr::ReceiveMessage(
 }
 
 struct local_scan_t {
-	string	partial;
-	string	full;
+	std::string	partial;
+	std::string	full;
 	WED_LibraryMgr * who;
 };
 
@@ -319,7 +319,7 @@ void		WED_LibraryMgr::Rescan()
 	{
 		if(gPackageMgr->IsDisabled(p)) continue;
 		//the physical directory of the scenery pack
-		string pack_base;
+		std::string pack_base;
 		//Get the pack's physical location
 		gPackageMgr->GetNthPackagePath(p,pack_base);
 
@@ -327,7 +327,7 @@ void		WED_LibraryMgr::Rescan()
 
 		bool is_default_pack = gPackageMgr->IsPackageDefault(p);
 		bool in_region = false;
-		string all_region, current_region;
+		std::string all_region, current_region;
 
 		MFMemFile * lib = MemFile_Open(pack_base.c_str());
 
@@ -347,7 +347,7 @@ void		WED_LibraryMgr::Rescan()
 			else
 				while (!MFS_done(&s))
 				{
-					string vpath, rpath;
+					std::string vpath, rpath;
 					bool is_export_backup = false;
 					bool is_season = false;
 
@@ -359,9 +359,9 @@ void		WED_LibraryMgr::Rescan()
 					{
 						if (is_season)
 						{
-							string season;
+							std::string season;
 							MFS_string(&s, &season);
-							if (season.find("sum") == string::npos)
+							if (season.find("sum") == std::string::npos)
 							{
 								MFS_string_eol(&s, NULL);
 								continue;
@@ -436,7 +436,7 @@ void		WED_LibraryMgr::Rescan()
 						}
 						else if (MFS_string_match(&s, "REGION", false))
 						{
-							string r;
+							std::string r;
 							MFS_string(&s, &r);
 							in_region = r != all_region;
 						}
@@ -450,7 +450,7 @@ void		WED_LibraryMgr::Rescan()
 	RescanLines();
 	RescanSurfaces();
 
-	string package_base;
+	std::string package_base;
 	package_base=gPackageMgr->ComputePath(local_package,"");
 	if(!package_base.empty())
 	{
@@ -468,23 +468,23 @@ void		WED_LibraryMgr::Rescan()
 
 void WED_LibraryMgr::RescanLines()
 {
-	vector<int> existing_line_enums;
+	std::vector<int> existing_line_enums;
 	DOMAIN_Members(LinearFeature, existing_line_enums);
 
-	set<int> existing_line_types;
-	for(vector<int>::iterator e = existing_line_enums.begin(); e != existing_line_enums.end(); ++e)
+	std::set<int> existing_line_types;
+	for(std::vector<int>::iterator e = existing_line_enums.begin(); e != existing_line_enums.end(); ++e)
 	{
 		existing_line_types.insert(ENUM_Export(*e));
 	}
 	default_lines.clear();
 
 	res_map_t::iterator m = res_table.begin();
-	while(m != res_table.end() && m->first.find("lib/airport/lines/",0) == string::npos )
+	while(m != res_table.end() && m->first.find("lib/airport/lines/",0) == std::string::npos )
 		++m;
 
-	while(m != res_table.end() && m->first.find("lib/airport/lines/",0) != string::npos )
+	while(m != res_table.end() && m->first.find("lib/airport/lines/",0) != std::string::npos )
 	{
-		string resnam(m->first);
+		std::string resnam(m->first);
 		resnam.erase(0,strlen("lib/airport/lines/"));
 
 		if(resnam[0] >= '0' && resnam[0] <= '9' &&
@@ -553,30 +553,30 @@ void WED_LibraryMgr::RescanLines()
 #else
 					for(int i = 0; i < resnam.length(); ++i) resnam[i] = tolower(resnam[i]); // C11 would make this so much easier ...
 
-					if(resnam.find("_red") != string::npos)
+					if(resnam.find("_red") != std::string::npos)
 					{
-					    if(resnam.find("_dash") != string::npos)    icon = linetype < 50 ? "line_BrokenRed" : "line_BBrokenRed";
+					    if(resnam.find("_dash") != std::string::npos)    icon = linetype < 50 ? "line_BrokenRed" : "line_BBrokenRed";
 					    else                                        icon = linetype < 50 ? "line_SolidRed"   : "line_BSolidRed";
 					}
-					else if(resnam.find("_orange") != string::npos) icon = linetype < 50 ? "line_SolidOrange": "line_BSolidOrange";
-					else if(resnam.find("_green") != string::npos)  icon = linetype < 50 ? "line_SolidGreen" : "line_BSolidGreen";
-					else if(resnam.find("_blue") != string::npos)   icon = linetype < 50 ? "line_SolidBlue"  : "line_BSolidBlue";
-					else if(resnam.find("_yellow") != string::npos || resnam.find("_taxi") != string::npos || resnam.find("_hold") != string::npos)
+					else if(resnam.find("_orange") != std::string::npos) icon = linetype < 50 ? "line_SolidOrange": "line_BSolidOrange";
+					else if(resnam.find("_green") != std::string::npos)  icon = linetype < 50 ? "line_SolidGreen" : "line_BSolidGreen";
+					else if(resnam.find("_blue") != std::string::npos)   icon = linetype < 50 ? "line_SolidBlue"  : "line_BSolidBlue";
+					else if(resnam.find("_yellow") != std::string::npos || resnam.find("_taxi") != std::string::npos || resnam.find("_hold") != std::string::npos)
 					{
-						if(resnam.find("_hold") != string::npos)
+						if(resnam.find("_hold") != std::string::npos)
 						{
-							if(resnam.find("_ils") != string::npos)         icon = linetype < 50 ? "line_ILSHold"   : "line_BILSHold";
-							else if(resnam.find("_double") != string::npos ||
-							        resnam.find("_runway") != string::npos) icon = linetype < 50 ? "line_RunwayHold": "line_BRunwayHold";
-							else if(resnam.find("_taxi") != string::npos)   icon = linetype < 50 ? "line_ILSCriticalCenter" : "line_BILSCriticalCenter";
+							if(resnam.find("_ils") != std::string::npos)         icon = linetype < 50 ? "line_ILSHold"   : "line_BILSHold";
+							else if(resnam.find("_double") != std::string::npos ||
+							        resnam.find("_runway") != std::string::npos) icon = linetype < 50 ? "line_RunwayHold": "line_BRunwayHold";
+							else if(resnam.find("_taxi") != std::string::npos)   icon = linetype < 50 ? "line_ILSCriticalCenter" : "line_BILSCriticalCenter";
                             else                                            icon = linetype < 50 ? "line_OtherHold" : "line_BOtherHold";
 						}
-						else if(resnam.find("_wide") != string::npos) icon = linetype < 50 ? "line_SolidYellowW" : "line_BSolidYellowW";
+						else if(resnam.find("_wide") != std::string::npos) icon = linetype < 50 ? "line_SolidYellowW" : "line_BSolidYellowW";
 						else                                          icon = linetype < 50 ? "line_SolidYellow"  : "line_BSolidYellow";
 					}
-					else if(resnam.find("_white") != string::npos || resnam.find("_road") != string::npos)
+					else if(resnam.find("_white") != std::string::npos || resnam.find("_road") != std::string::npos)
 					{
-					    if(resnam.find("_dash") != string::npos)    icon = "line_BrokenWhite";
+					    if(resnam.find("_dash") != std::string::npos)    icon = "line_BrokenWhite";
 					    else                                        icon = linetype < 50 ? "line_SolidWhite" : "line_BSolidWhite";
 					}
 #endif
@@ -589,12 +589,12 @@ void WED_LibraryMgr::RescanLines()
 	}
 
 	m=res_table.begin();
-	while(m != res_table.end() && m->first.find("lib/airport/lights/slow/",0) == string::npos )
+	while(m != res_table.end() && m->first.find("lib/airport/lights/slow/",0) == std::string::npos )
 		++m;
 
-	while(m != res_table.end() && m->first.find("lib/airport/lights/slow/",0) != string::npos )
+	while(m != res_table.end() && m->first.find("lib/airport/lights/slow/",0) != std::string::npos )
 	{
-		string resnam(m->first);
+		std::string resnam(m->first);
 		resnam.erase(0,strlen("lib/airport/lights/slow/"));
 
 		if(resnam[0] >= '0' && resnam[0] <= '9' &&
@@ -630,8 +630,8 @@ void WED_LibraryMgr::RescanLines()
 				{
 					const char * icon = "line_Unknown";
 					// try to find the right icon, in case the particular number wasn't yet added to the ENUMS.h
-					if(resnam.find("_G_uni") != string::npos)       icon = "line_TaxiCenterUni";
-					else if(resnam.find("_YG_uni") != string::npos) icon = "line_HoldShortCenterUni";
+					if(resnam.find("_G_uni") != std::string::npos)       icon = "line_TaxiCenterUni";
+					else if(resnam.find("_YG_uni") != std::string::npos) icon = "line_HoldShortCenterUni";
 
 					ENUM_Create(LinearFeature, icon, nice_name, lighttype);
 					existing_line_types.insert(lighttype);                      // keep track in case of erroneously supplied duplicate vpath's
@@ -645,7 +645,7 @@ void WED_LibraryMgr::RescanLines()
 
 void WED_LibraryMgr::RescanSurfaces()
 {
-	const map<int, pair<string, string> > xp12_surfaces = {
+	const std::map<int, std::pair<std::string, std::string> > xp12_surfaces = {
 		{ 20, {"asphalt_L/taxiway.pol",			"asphalt_L/strips.pol" }},
 		{ 21, {"asphalt_L/taxiway_patch.pol",	"asphalt_L/patched.pol" }},
 		{ 22, {"asphalt_L/taxiway_plain.pol",	"asphalt_L/plain.pol" }},
@@ -688,16 +688,16 @@ void WED_LibraryMgr::RescanSurfaces()
 
 	for (auto& surf : xp12_surfaces)
 	{
-		string surf_vpath = string(surf_pfx) + surf.second.first;
+		std::string surf_vpath = std::string(surf_pfx) + surf.second.first;
 		auto rt = res_table.find(surf_vpath);
 		if (rt != res_table.end() && rt->second.is_default)
 		{
-			string dpol_vpath = string(dpol_pfx) + surf.second.second;
+			std::string dpol_vpath = std::string(dpol_pfx) + surf.second.second;
 			auto rt_dpol = res_table.find(dpol_vpath);
 			if (rt_dpol != res_table.end() && rt_dpol->second.is_default && rt_dpol->second.status >= status_Public)
-				default_surfaces[ENUM_Import(Surface_Type, surf.first)] = make_pair(dpol_vpath, true);
+				default_surfaces[ENUM_Import(Surface_Type, surf.first)] = std::make_pair(dpol_vpath, true);
 			else
-				default_surfaces[ENUM_Import(Surface_Type, surf.first)] = make_pair(surf_vpath, false);         // no public .pol equivalent
+				default_surfaces[ENUM_Import(Surface_Type, surf.first)] = std::make_pair(surf_vpath, false);         // no public .pol equivalent
 		}
 	}
 
@@ -705,15 +705,15 @@ void WED_LibraryMgr::RescanSurfaces()
 	if(default_surfaces.size() == 0)
 	{
 		if(res_table.count("lib/airport/pavement/asphalt_3D.pol") > 0)
-			default_surfaces[surf_Asphalt] = make_pair("lib/airport/pavement/asphalt_3D.pol", true);
+			default_surfaces[surf_Asphalt] = std::make_pair("lib/airport/pavement/asphalt_3D.pol", true);
 		if (res_table.count("lib/airport/pavement/concrete_1D.pol") > 0)
-			default_surfaces[surf_Concrete] = make_pair("lib/airport/pavement/concrete_1D.pol", true);
+			default_surfaces[surf_Concrete] = std::make_pair("lib/airport/pavement/concrete_1D.pol", true);
 	}
 	else
 		LOG_MSG("I/Lib found %d XP12 style surface types\n", (int) default_surfaces.size());
 }
 
-bool WED_LibraryMgr::GetSurfVpath(int surf, string &res)
+bool WED_LibraryMgr::GetSurfVpath(int surf, std::string &res)
 {
 	auto it = default_surfaces.find(surf);
 	if (it != default_surfaces.end())
@@ -728,7 +728,7 @@ bool WED_LibraryMgr::GetSurfVpath(int surf, string &res)
 	}
 }
 
-int WED_LibraryMgr::GetSurfEnum(const string &res)
+int WED_LibraryMgr::GetSurfEnum(const std::string &res)
 {
 	for(auto& v : default_surfaces)
 	{
@@ -739,14 +739,14 @@ int WED_LibraryMgr::GetSurfEnum(const string &res)
 }
 
 
-void WED_LibraryMgr::AccumResource(const string& path, int package, const string& rpath, bool is_default, 
+void WED_LibraryMgr::AccumResource(const std::string& path, int package, const std::string& rpath, bool is_default, 
 			res_status status, bool is_backup, bool is_seasonal, bool is_regional)
 {
 
     // surprise: This function is called 60,300 time upon loading any scenery. Yep, XP11 has that many items in the libraries.
     // Resultingly the full path was converted to lower case 0.6 million times => 24 million calls to tolower() ... time to optimize
 
-	string suffix;
+	std::string suffix;
 	suffix = FILE_get_file_extension(path);
 
 	res_type	rt;
@@ -767,7 +767,7 @@ void WED_LibraryMgr::AccumResource(const string& path, int package, const string
 
 	if (package >= 0 && status >= status_Public && !is_backup) gPackageMgr->AddPublicItems(package);
 
-	string p(path);
+	std::string p(path);
 	while(!p.empty())
 	{
 		res_map_t::iterator i = res_table.find(p);
@@ -805,7 +805,7 @@ void WED_LibraryMgr::AccumResource(const string& path, int package, const string
 			}
 			else
 				i->second.status = max((int) i->second.status, (int) status);	// upgrade status if we just found a public version!
-			// add only unique paths, but need to preserve first path added as first element, so deliberately not using a set<string> !
+			// add only unique paths, but need to preserve first path added as first element, so deliberately not using a std::set<std::string> !
 			if(rt > res_Directory)                      // speedup/memory saver: no need to store this for directories
 			if(std::find(i->second.real_paths.begin(), i->second.real_paths.end(), rpath) == i->second.real_paths.end())
 				i->second.real_paths.push_back(rpath);
@@ -813,7 +813,7 @@ void WED_LibraryMgr::AccumResource(const string& path, int package, const string
 			i->second.has_regions |= is_regional;
 		}
 
-		string par, f;
+		std::string par, f;
 		split_path(p,par,f);
 		p = par;
 		rt = res_Directory;
@@ -837,8 +837,8 @@ bool WED_LibraryMgr::AccumLocalFile(const char * filename, bool is_dir, void * r
 	}
 	else
 	{
-		string r = info->partial + "/" + filename;
-		string f = info->full + DIR_STR + filename;
+		std::string r = info->partial + "/" + filename;
+		std::string f = info->full + DIR_STR + filename;
 		r.erase(0,1);
 		info->who->AccumResource(r, pack_Local, f,false, status_Public);
 	}

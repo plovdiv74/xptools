@@ -43,13 +43,13 @@ void	WED_XMLReader::PushHandler(WED_XMLHandler * handler)
 	handlers.push_back(handler);
 }
 
-void	WED_XMLReader::FailWithError(const string& e)
+void	WED_XMLReader::FailWithError(const std::string& e)
 {
 	err = e;
 	XML_StopParser(parser, false);		// we're dead!
 }
 
-string	WED_XMLReader::ReadFile(const char * filename, bool * exists)
+std::string	WED_XMLReader::ReadFile(const char * filename, bool * exists)
 {
 	XML_ParserReset(parser, NULL);
 	XML_SetElementHandler(parser, StartElementHandler, EndElementHandler);
@@ -66,7 +66,7 @@ string	WED_XMLReader::ReadFile(const char * filename, bool * exists)
 	//If the file does not exist
 	if(!fi)
 	{
-		return string("Unable to open file:") + string(filename);
+		return std::string("Unable to open file:") + std::string(filename);
 	}
 	char buf[1024];
 

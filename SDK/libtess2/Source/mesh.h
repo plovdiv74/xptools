@@ -57,7 +57,7 @@ typedef struct ActiveRegion ActiveRegion;
 * its origin vertex (Org), the face on its left side (Lface), and the
 * adjacent half-edges in the CCW direction around the origin vertex
 * (Onext) and around the left face (Lnext).  There is also a "next"
-* pointer for the global edge list (see below).
+* pointer for the global edge std::list (see below).
 *
 * The notation used for mesh navigation:
 *  Sym   = the mate of a half-edge (same edge, but opposite direction)
@@ -72,7 +72,7 @@ typedef struct ActiveRegion ActiveRegion;
 * stored as doubly-linked circular lists with a dummy header node.
 * The mesh stores pointers to these dummy headers (vHead, fHead, eHead).
 *
-* The circular edge list is special; since half-edges always occur
+* The circular edge std::list is special; since half-edges always occur
 * in pairs (e and e->Sym), each half-edge stores a pointer in only
 * one direction.  Starting at eHead and following the e->next pointers
 * will visit each *edge* once (ie. e or e->Sym, but not both).
@@ -80,12 +80,12 @@ typedef struct ActiveRegion ActiveRegion;
 * always true that e->Sym->next->Sym->next == e.
 *
 * Each vertex has a pointer to next and previous vertices in the
-* circular list, and a pointer to a half-edge with this vertex as
+* circular std::list, and a pointer to a half-edge with this vertex as
 * the origin (NULL if this is the dummy header).  There is also a
 * field "data" for client data.
 *
 * Each face has a pointer to the next and previous faces in the
-* circular list, and a pointer to a half-edge with this face as
+* circular std::list, and a pointer to a half-edge with this face as
 * the left face (NULL if this is the dummy header).  There is also
 * a field "data" for client data.
 *
@@ -132,7 +132,7 @@ struct TESSface {
 };
 
 struct TESShalfEdge {
-	TESShalfEdge *next;      /* doubly-linked list (prev==Sym->next) */
+	TESShalfEdge *next;      /* doubly-linked std::list (prev==Sym->next) */
 	TESShalfEdge *Sym;       /* same edge, opposite direction */
 	TESShalfEdge *Onext;     /* next edge CCW around origin */
 	TESShalfEdge *Lnext;     /* next edge CCW around left face */
@@ -157,9 +157,9 @@ struct TESShalfEdge {
 
 
 struct TESSmesh {
-	TESSvertex vHead;      /* dummy header for vertex list */
-	TESSface fHead;      /* dummy header for face list */
-	TESShalfEdge eHead;      /* dummy header for edge list */
+	TESSvertex vHead;      /* dummy header for vertex std::list */
+	TESSface fHead;      /* dummy header for face std::list */
+	TESShalfEdge eHead;      /* dummy header for edge std::list */
 	TESShalfEdge eHeadSym;   /* and its symmetric counterpart */
 
 	struct BucketAlloc* edgeBucket;
@@ -174,12 +174,12 @@ struct TESSmesh {
 * and/or efficiency.
 *
 * When a face is split or a vertex is added, they are inserted into the
-* global list *before* the existing vertex or face (ie. e->Org or e->Lface).
+* global std::list *before* the existing vertex or face (ie. e->Org or e->Lface).
 * This makes it easier to process all vertices or faces in the global lists
 * without worrying about processing the same data twice.  As a convenience,
 * when a face is split, the "inside" flag is copied from the old face.
 * Other internal data (v->data, v->activeRegion, f->data, f->marked,
-* f->trail, e->winding) is set to zero.
+* f->trail, e->winding) is std::set to zero.
 *
 * ********************** Basic Edge Operations **************************
 *
@@ -235,7 +235,7 @@ struct TESSmesh {
 * tessMeshDeleteMesh( mesh ) will free all storage for any valid mesh.
 *
 * tessMeshZapFace( fZap ) destroys a face and removes it from the
-* global face list.  All edges of fZap will have a NULL pointer as their
+* global face std::list.  All edges of fZap will have a NULL pointer as their
 * left face.  Any edges which also have a NULL pointer as their right face
 * are deleted entirely (along with any isolated vertices this produces).
 * An entire mesh can be deleted by zapping its faces, one at a time,

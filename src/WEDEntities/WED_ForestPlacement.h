@@ -42,8 +42,8 @@ public:
 			double		GetDensity(void) const;
 			void		SetDensity(double h);
 
-	virtual void		GetResource(	  string& r) const;
-	virtual void		SetResource(const string& r);
+	virtual void		GetResource(	  std::string& r) const;
+	virtual void		SetResource(const std::string& r);
 
 			int			GetFillMode(void) const;
 			void		SetFillMode(int mode);

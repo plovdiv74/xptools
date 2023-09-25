@@ -27,7 +27,7 @@
 #include <shlobj.h>
 #include <stdio.h>
 
-string GetApplicationPath()
+std::string GetApplicationPath()
 {
 	WCHAR utf16_path_buf[MAX_PATH];
 	if (GetModuleFileNameW(NULL, utf16_path_buf, MAX_PATH))
@@ -40,7 +40,7 @@ string GetApplicationPath()
 	}
 }
 
-string GetCacheFolder()
+std::string GetCacheFolder()
 {
 	WCHAR wc_cache_path[MAX_PATH];
 	HRESULT res = SHGetFolderPathW(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, wc_cache_path);
@@ -54,7 +54,7 @@ string GetCacheFolder()
 	}
 }
 
-string GetTempFilesFolder()
+std::string GetTempFilesFolder()
 {
 	WCHAR wc_temp_path[MAX_PATH] = { 0 };
 	int result = GetTempPathW(MAX_PATH, wc_temp_path);
@@ -95,7 +95,7 @@ int		GetFilePathFromUser(
 		ofn.lpstrFile = file_name;
 		if (inType != getFile_Save)
 			outFileName[0] = 0;		// No initialization for open.
-		ofn.nMaxFile = inBufSize;		// Guess string length?
+		ofn.nMaxFile = inBufSize;		// Guess std::string length?
 		ofn.lpstrFileTitle = NULL;	// Don't want file name w/out path
 
 		result = (inType == getFile_Open) ? GetOpenFileNameW(&ofn) : GetSaveFileNameW(&ofn);
@@ -111,7 +111,7 @@ int		GetFilePathFromUser(
 
 		if (inType != getFile_Save)
 			outFileName[0] = 0;		// No initialization for open.
-		ofn.nMaxFile = inBufSize;		// Guess string length?
+		ofn.nMaxFile = inBufSize;		// Guess std::string length?
 		ofn.lpstrFileTitle = NULL;	// Don't want file name w/out path
 
 		result = (inType == getFile_OpenImages) ? GetOpenFileNameW(&ofn) : GetSaveFileNameW(&ofn);
@@ -160,7 +160,7 @@ char *	GetMultiFilePathFromUser(
 	ofn.nFilterIndex = 1;
 	ofn.lpstrFile = buf;
 	buf[0] = 0;		// No initialization for open.
-	ofn.nMaxFile = 1024 * 1024;		// Guess string length?
+	ofn.nMaxFile = 1024 * 1024;		// Guess std::string length?
 	ofn.lpstrFileTitle = NULL;	// Don't want file name w/out path
 	ofn.lpstrTitle = convert_str_to_utf16(inPrompt).c_str();
 	ofn.Flags =  OFN_ALLOWMULTISELECT | OFN_EXPLORER | OFN_FILEMUSTEXIST;
@@ -169,7 +169,7 @@ char *	GetMultiFilePathFromUser(
 
 	if(result)
 	{
-		vector<string>	files;
+		std::vector<std::string>	files;
 		string_utf16 path(buf);
 		WCHAR* fptr = buf+path.size()+1;
 
@@ -219,7 +219,7 @@ void	DoUserAlert(const char * inMsg)
 int		ConfirmMessage(const char * inMsg, const char * proceedBtn, const char * cancelBtn)
 {
 	LOG_MSG("I/Confirm %s\n",inMsg);
-	bool no_or_cancel = string(cancelBtn).find("Cancel") == string::npos;
+	bool no_or_cancel = std::string(cancelBtn).find("Cancel") == std::string::npos;
 
 	HWND thisWin = GetForegroundWindow();
 	int result = MessageBoxW(thisWin,

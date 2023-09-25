@@ -11,7 +11,7 @@ using namespace std;
 
 There are (currently) two outputs for this, for 2 different groups of clients. These are stored in parser_out_info
 
-vector<parser_error_info> errors contains a vector of error_infos which store an error code and human readable form
+std::vector<parser_error_info> errors contains a std::vector of error_infos which store an error code and human readable form
 parser_finished_sign out_sign is a version of of the sign that tags every glyph with its color.
 Ex: in_info: {@Y}CAT{@@}{@L,D,O,G}
 	out_info: out_sign.front = "/YC/YA/YT"
@@ -54,9 +54,9 @@ enum parser_error_t {
 };
 
 struct parser_error_info {
-	string msg;//The human readable version of the error, DOES NOT end with a \n. The client decides if they want one
+	std::string msg;//The human readable version of the error, DOES NOT end with a \n. The client decides if they want one
 	parser_error_t err_code;
-	int position;//The position in the string the error starts at
+	int position;//The position in the std::string the error starts at
 
 	//How many characters the error lasts for. Ex syn_nonsupported_char would be 1
 	//while syn_not_real_multiglyph would be 3
@@ -140,11 +140,11 @@ enum parser_glyph_t {
 	create a glyph table off of the glyph IDs with valid colors, in and out of bracket spellings, etc.
 */
 
-string	parser_name_for_glyph(parser_glyph_t glyph);
-string	short_name_for_glyph(parser_glyph_t glyph); // returns empty string if no short name
+std::string	parser_name_for_glyph(parser_glyph_t glyph);
+std::string	short_name_for_glyph(parser_glyph_t glyph); // returns empty std::string if no short name
 bool		parser_is_color_legal(parser_glyph_t, parser_color_t);
 
-parser_glyph_t	glyph_for_short_name(const string& s);
+parser_glyph_t	glyph_for_short_name(const std::string& s);
 
 //Represents the information about a single or multi glyphs
 struct parser_glyph_info
@@ -160,15 +160,15 @@ struct parser_glyph_info
 };
 
 //Represents a sign that has been fully encoded with glyph information
-//Instead of simply being the input string version
+//Instead of simply being the input std::string version
 struct parser_finished_sign
 {
-	vector<parser_glyph_info> front;
-	vector<parser_glyph_info> back;
+	std::vector<parser_glyph_info> front;
+	std::vector<parser_glyph_info> back;
 
-	string toDebugString(const vector<parser_glyph_info> & side)
+	std::string toDebugString(const std::vector<parser_glyph_info> & side)
 	{
-		string tmp;
+		std::string tmp;
 		for (int i = 0; i < side.size(); i++)
 		{
 			parser_glyph_info curGlyph = side[i];
@@ -182,12 +182,12 @@ struct parser_finished_sign
 struct parser_out_info
 {
 	//Errors collected during the process
-	vector<parser_error_info> errors;
+	std::vector<parser_error_info> errors;
 
-	//A "per-glyph" version of the input sign string with a front and a back
+	//A "per-glyph" version of the input sign std::string with a front and a back
 	parser_finished_sign out_sign;
 
-	void AddError(string message, parser_error_t error_code, int position, int length)
+	void AddError(std::string message, parser_error_t error_code, int position, int length)
 	{
 		parser_error_info e = {message,error_code,position,length};
 		errors.push_back(e);
@@ -197,9 +197,9 @@ struct parser_out_info
 struct parser_in_info
 {
 	//The input for the FSM, with the text from the sign
-	const string & input;
+	const std::string & input;
 	//int position;//TODO - store the current parsing position here?
-	parser_in_info(const string & signText):input(signText)/*,position(0)*/{}
+	parser_in_info(const std::string & signText):input(signText)/*,position(0)*/{}
 	~parser_in_info(){}
 };
 

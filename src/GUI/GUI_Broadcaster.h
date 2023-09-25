@@ -41,7 +41,7 @@ private:
 
 	friend class	GUI_Listener;
 
-	set<GUI_Listener *>		mListeners;
+	std::set<GUI_Listener *>		mListeners;
 
 };
 

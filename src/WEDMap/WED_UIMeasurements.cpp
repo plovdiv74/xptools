@@ -25,7 +25,7 @@
 #include "GUI_Resources.h"
 #include "MemFileUtils.h"
 
-typedef map<string,int>	UI_Measurement_t;
+typedef std::map<std::string,int>	UI_Measurement_t;
 
 static UI_Measurement_t	sMeasurements;
 
@@ -40,7 +40,7 @@ int		WED_UIMeasurement(const char * measurement)
 
 		while (!MFS_done(&s))
 		{
-			string token;
+			std::string token;
 			MFS_string(&s,&token);
 			if (!token.empty() && token[0] != '#')
 			{
@@ -52,5 +52,5 @@ int		WED_UIMeasurement(const char * measurement)
 
 	}
 
-	return sMeasurements[string(measurement)];
+	return sMeasurements[std::string(measurement)];
 }

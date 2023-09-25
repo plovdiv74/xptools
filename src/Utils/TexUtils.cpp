@@ -225,7 +225,7 @@ bool LoadTextureFromImage(ImageInfo& im, int inTexNum, int inFlags, int * outWid
 		unsigned char * p = useIt->data;
 		while (cnt--)
 		{
-			swap(p[0], p[2]);						// Ben says: since we get BGR or BGRA, swap red and blue channesl to make RGB or RGBA.  Some day we could
+			std::swap(p[0], p[2]);					// Ben says: since we get BGR or BGRA, swap red and blue channesl to make RGB or RGBA.  Some day we could
 			p += useIt->channels;					// use our brains and use GL_BGR_EXT and GL_BGRA_EXT; literally all GL cards from Radeon/GeForce on support this.
 			}
 													// Michael says: that day was the last day of 2018. Eight years, 4 months and EXA bytes swapped by CPUs later.
@@ -253,7 +253,7 @@ bool LoadTextureFromImage(ImageInfo& im, int inTexNum, int inFlags, int * outWid
 		DestroyBitmap(&rescaleBits);
 
 	// BAS note: for some reason on my WinXP system with GF-FX, if
-	// I do not set these explicitly to linear, I get no drawing at all.
+	// I do not std::set these explicitly to linear, I get no drawing at all.
 	// Who knows what default state the card is in. :-(
 //	if(inFlags & tex_Nearest)
 //	{
@@ -327,7 +327,7 @@ static void swap_bc7m1_sets(char * a)
 		
 		dst |= (src & 0xFFFu   ) << 12;
 		dst |= (src & 0xFFF000u) >> 12;
-		if(i == 2)                               // one p-bit per set, shared for both endpoints
+		if(i == 2)                               // one p-bit per std::set, shared for both endpoints
 		{
 			dst &= ~0x0300'0000u;
 			dst |= (src & 0x0100'0000u) << 1 | (src & 0x0200'0000u) >> 1;
@@ -405,7 +405,7 @@ static void swap_bc7m4_endpts(char * a, bool swap_col, bool swap_a)
 	uint32_t src, dst;
 	
 	bool mode = *(uint8_t *) a & 0x08;
-	int rot = *(uint8_t *) a >> 5 & 3;   // todo: do these affect which component to swap ?
+	int rot = *(uint8_t *) a >> 5 & 3;   // todo: do these affect which component to std::swap ?
 	
 	if(mode ? swap_a : swap_col) 
 	{
@@ -472,13 +472,13 @@ static void swap_63bit_idx(char * a)
 	bool lsb = src & 1;                  // that bit isn't part of our index table at all, save it for restoration later
 
 	tmp = src & 0x0E;                    // that implicit zero - its omitted and the last 3 LSB of the table are shifted up. Undo that by
-	src &= ~0x0Full;                     // inserting the implicit 0 where it belongs, as this idx will after the swap be a "normal" index
+	src &= ~0x0Full;                     // inserting the implicit 0 where it belongs, as this idx will after the std::swap be a "normal" index
 	src |= tmp >> 1;
 
 	dst = (src & 0xFFFFull) << 48 | (src & 0xFFFF'0000ull) << 16 | (src & 0xFFFF'0000'0000ull) >> 16 | (src & 0xFFFF'0000'0000'0000ull) >> 48;
 
 	bool need_swap = dst & 0x08;         // Now another idx got into the first position and that idx may have a non-zreo MSB. To fix that,
-										 // reverse/invert all IDX and swap endpoints to get the effectively same thing.
+										 // reverse/invert all IDX and std::swap endpoints to get the effectively same thing.
 	if(need_swap) dst = ~dst;
 
 	tmp = dst & 0x07;                    // shift things up to propperly omit the implicit zero again
@@ -499,7 +499,7 @@ static void swap_31b31b_idx(char * a)
 	uint32_t dst_c, dst_a, tmp;
 	
 	tmp = src_c & 0x03;                // that implicit zero - its omitted and the LSB of the first idx in the table is shifted up. Undo that by
-	src_c &= ~0x03u;                   // inserting the implicit 0 where it belongs, as this idx will after the swap be a "normal" index
+	src_c &= ~0x03u;                   // inserting the implicit 0 where it belongs, as this idx will after the std::swap be a "normal" index
 	src_c |= tmp >> 1;
 
 	tmp = src_a & 0x03;
@@ -510,7 +510,7 @@ static void swap_31b31b_idx(char * a)
 	dst_a = (src_a & 0xFFu) << 24 | (src_a & 0xFF00u) << 8 | (src_a & 0xFF0000u) >> 8 | (src_a & 0xFF000000u) >> 24;
 
 	bool swap_col = dst_c & 0x02;     // Now another idx got into the first position and that idx may have a non-zreo MSB. To fix that,
-	if(swap_col) dst_c = ~dst_c;	   // reverse/invert all IDX and swap endpoints to get the effectively same thing.
+	if(swap_col) dst_c = ~dst_c;	   // reverse/invert all IDX and std::swap endpoints to get the effectively same thing.
 	bool swap_a = dst_a & 0x02;
 	if(swap_a) dst_a = ~dst_a;
 
@@ -540,7 +540,7 @@ static void swap_31b47b_idx(char * a)
 	uint64_t dst_a = src_a & 0xFFFF'0000'0000'0000ull;
 	
 	tmp = src_c & 0x03;                // that implicit zero - its omitted and the LSB of the first idx in the table is shifted up. Undo that by
-	src_c &= ~0x03u;                   // inserting the implicit 0 where it belongs, as this idx will after the swap be a "normal" index
+	src_c &= ~0x03u;                   // inserting the implicit 0 where it belongs, as this idx will after the std::swap be a "normal" index
 	src_c |= tmp >> 1;
 
 	tmp = src_a & 0x07;
@@ -551,7 +551,7 @@ static void swap_31b47b_idx(char * a)
 	dst_a |= (src_a & 0xFFFull) << 36 | (src_a & 0xFFF000ull) << 12 | (src_a & 0xFFF00'0000ull) >> 12 | (src_a & 0xFFF0'0000'0000ull) >> 36;
 
 	bool swap_col = dst_c & 0x02;     // Now another idx got into the first position and that idx may have a non-zreo MSB. To fix that,
-	if(swap_col) dst_c = ~dst_c;	   // reverse/invert all IDX and swap endpoints to get the effectively same thing.
+	if(swap_col) dst_c = ~dst_c;	   // reverse/invert all IDX and std::swap endpoints to get the effectively same thing.
 	bool swap_a = dst_a & 0x04;
 	if(swap_a) dst_a ^= 0xFFFF'FFFF'FFFFull;
 	
@@ -686,7 +686,7 @@ static void swap_bc7m1_idx(char * a, int part)
 	}
 	dst = (src & 0xFFFull) << 36 | (src & 0xFFF000ull) << 12 | (src & 0xFFF000000ull) >> 12 | (src & 0xFFF000000000ull) >> 36;
 
-	// determine need to swap endpoints + invert all relevant indices because the relevant index has MSB = 1
+	// determine need to std::swap endpoints + invert all relevant indices because the relevant index has MSB = 1
 	bool swap_seg1 = dst & 0x04;
 	bool swap_seg2 = dst & 0x04ull << (3 * bc7_anchor_idx[part]);
 
@@ -781,43 +781,43 @@ static void swap_blocks(char *a, char *b, GLint type)
 	{
 		DXT5Block * x = (DXT5Block *) a;
 		DXT5Block * y = (DXT5Block *) b;
-		swap(*x,*y);
+		std::swap(*x,*y);
 		swap_12bit_idx(x->alphas.idx);
 		swap_12bit_idx(y->alphas.idx);
-		swap(x->colors.rows[0], x->colors.rows[3]);
-		swap(x->colors.rows[1], x->colors.rows[2]);
-		swap(y->colors.rows[0], y->colors.rows[3]);
-		swap(y->colors.rows[1], y->colors.rows[2]);
+		std::swap(x->colors.rows[0], x->colors.rows[3]);
+		std::swap(x->colors.rows[1], x->colors.rows[2]);
+		std::swap(y->colors.rows[0], y->colors.rows[3]);
+		std::swap(y->colors.rows[1], y->colors.rows[2]);
 	}
 	else if (type == GL_COMPRESSED_RGBA_S3TC_DXT3_EXT)
 	{
 		DXT3Block * x = (DXT3Block *) a;
 		DXT3Block * y = (DXT3Block *) b;
-		swap(*x,*y);
-		swap(x->alphas.rows[0], x->alphas.rows[3]);
-		swap(x->alphas.rows[1], x->alphas.rows[2]);
-		swap(y->alphas.rows[0], y->alphas.rows[3]);
-		swap(y->alphas.rows[1], y->alphas.rows[2]);
-		swap(x->colors.rows[0], x->colors.rows[3]);
-		swap(x->colors.rows[1], x->colors.rows[2]);
-		swap(y->colors.rows[0], y->colors.rows[3]);
-		swap(y->colors.rows[1], y->colors.rows[2]);
+		std::swap(*x,*y);
+		std::swap(x->alphas.rows[0], x->alphas.rows[3]);
+		std::swap(x->alphas.rows[1], x->alphas.rows[2]);
+		std::swap(y->alphas.rows[0], y->alphas.rows[3]);
+		std::swap(y->alphas.rows[1], y->alphas.rows[2]);
+		std::swap(x->colors.rows[0], x->colors.rows[3]);
+		std::swap(x->colors.rows[1], x->colors.rows[2]);
+		std::swap(y->colors.rows[0], y->colors.rows[3]);
+		std::swap(y->colors.rows[1], y->colors.rows[2]);
 	}
 	else if (type == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT)
 	{
 		DXT1Block * x = (DXT1Block *) a;
 		DXT1Block * y = (DXT1Block *) b;
-		swap(*x,*y);
-		swap(x->rows[0], x->rows[3]);
-		swap(x->rows[1], x->rows[2]);
-		swap(y->rows[0], y->rows[3]);
-		swap(y->rows[1], y->rows[2]);
+		std::swap(*x,*y);
+		std::swap(x->rows[0], x->rows[3]);
+		std::swap(x->rows[1], x->rows[2]);
+		std::swap(y->rows[0], y->rows[3]);
+		std::swap(y->rows[1], y->rows[2]);
 	}
 	else if (type == GL_COMPRESSED_RGBA_BPTC_UNORM_EXT) // BC7
 	{
 		DXT3Block * x = (DXT3Block *) a;
 		DXT3Block * y = (DXT3Block *) b;
-		swap(*x,*y);
+		std::swap(*x,*y);
 		swap_bc7_idx(a);
 		swap_bc7_idx(b);
 	}
@@ -825,13 +825,13 @@ static void swap_blocks(char *a, char *b, GLint type)
 	{
 		DXT5AlphaBlock * x = (DXT5AlphaBlock  *)a;
 		DXT5AlphaBlock * y = (DXT5AlphaBlock  *)b;
-		swap(*x, *y);
+		std::swap(*x, *y);
 		swap_12bit_idx(x->idx);
 		swap_12bit_idx(y->idx);
 		if (type == GL_COMPRESSED_RG_RGTC2)
 		{
 			++x; ++y;
-			swap(*x, *y);
+			std::swap(*x, *y);
 			swap_12bit_idx(x->idx);
 			swap_12bit_idx(y->idx);
 		}
@@ -844,22 +844,22 @@ static void swap_blocks(char *a, GLint type)
 	{
 		DXT5Block * x = (DXT5Block *)a;
 		swap_12bit_idx(x->alphas.idx);
-		swap(x->colors.rows[0], x->colors.rows[3]);
-		swap(x->colors.rows[1], x->colors.rows[2]);
+		std::swap(x->colors.rows[0], x->colors.rows[3]);
+		std::swap(x->colors.rows[1], x->colors.rows[2]);
 	}
 	else if (type == GL_COMPRESSED_RGBA_S3TC_DXT3_EXT)
 	{
 		DXT3Block * x = (DXT3Block *)a;
-		swap(x->alphas.rows[0], x->alphas.rows[3]);
-		swap(x->alphas.rows[1], x->alphas.rows[2]);
-		swap(x->colors.rows[0], x->colors.rows[3]);
-		swap(x->colors.rows[1], x->colors.rows[2]);
+		std::swap(x->alphas.rows[0], x->alphas.rows[3]);
+		std::swap(x->alphas.rows[1], x->alphas.rows[2]);
+		std::swap(x->colors.rows[0], x->colors.rows[3]);
+		std::swap(x->colors.rows[1], x->colors.rows[2]);
 	}
 	else if (type == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT)
 	{
 		DXT1Block * x = (DXT1Block *)a;
-		swap(x->rows[0], x->rows[3]);
-		swap(x->rows[1], x->rows[2]);
+		std::swap(x->rows[0], x->rows[3]);
+		std::swap(x->rows[1], x->rows[2]);
 	}
 	else if (type == GL_COMPRESSED_RGBA_BPTC_UNORM_EXT) // BC7
 	{

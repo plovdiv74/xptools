@@ -32,8 +32,8 @@ GUI_FilterBar::GUI_FilterBar(
 			GUI_Commander *	cmdr,
 			intptr_t		in_msg, 
 			intptr_t		in_param, 
-			const string&	in_label,
-			const string&	in_def,
+			const std::string&	in_label,
+			const std::string&	in_def,
 			bool			in_have_enum_dict,
 			int				in_default_enum_val) :
 	GUI_Table(1),

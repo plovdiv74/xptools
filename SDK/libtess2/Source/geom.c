@@ -49,7 +49,7 @@ TESSreal tesedgeEval( TESSvertex *u, TESSvertex *v, TESSvertex *w )
 	* If uw is vertical (and thus passes thru v), the result is zero.
 	*
 	* The calculation is extremely accurate and stable, even when v
-	* is very close to u or w.  In particular if we set v->t = 0 and
+	* is very close to u or w.  In particular if we std::set v->t = 0 and
 	* let r be the negated result (this evaluates (uw)(v->s)), then
 	* r is guaranteed to satisfy MIN(u->t,w->t) <= r <= MAX(u->t,w->t).
 	*/
@@ -104,7 +104,7 @@ TESSreal testransEval( TESSvertex *u, TESSvertex *v, TESSvertex *w )
 	* If uw is vertical (and thus passes thru v), the result is zero.
 	*
 	* The calculation is extremely accurate and stable, even when v
-	* is very close to u or w.  In particular if we set v->s = 0 and
+	* is very close to u or w.  In particular if we std::set v->s = 0 and
 	* let r be the negated result (this evaluates (uw)(v->t)), then
 	* r is guaranteed to satisfy MIN(u->s,w->s) <= r <= MAX(u->s,w->s).
 	*/

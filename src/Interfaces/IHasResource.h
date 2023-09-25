@@ -27,8 +27,8 @@
 class IHasResource
 {
 public:
-	virtual void GetResource(string& r) const = 0;
-	virtual void SetResource(const string& r) = 0;
+	virtual void GetResource(std::string& r) const = 0;
+	virtual void SetResource(const std::string& r) = 0;
 };
 
 
@@ -38,7 +38,7 @@ public:
 class IHasAttr
 {
 public:
-	virtual void GetResource(string& r) const = 0;
+	virtual void GetResource(std::string& r) const = 0;
 };
 
 

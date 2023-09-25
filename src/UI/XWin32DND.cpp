@@ -320,7 +320,7 @@ void CDropTarget::DisplayFileNames(HWND hwndOwner, HGLOBAL hgFiles)
 
 	WCHAR	path[MAX_PATH+1];
 
-	vector<string>	fileList;
+	std::vector<std::string>	fileList;
 
 	for(i = 0; i < nFiles; i++)
 	{

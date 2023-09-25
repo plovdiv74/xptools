@@ -110,7 +110,7 @@ static int get_apt_export_version()
 }
 
 inline Point2	recip(const Point2& pt, const Point2& ctrl) { return pt + Vector2(ctrl,pt); }
-inline	void	accum(AptPolygon_t& poly, int code, const Point2& pt, const Point2& ctrl, const set<int>& attrs)
+inline	void	accum(AptPolygon_t& poly, int code, const Point2& pt, const Point2& ctrl, const std::set<int>& attrs)
 {
 	poly.push_back(AptLinearSegment_t());
 	poly.back().code = code;
@@ -128,7 +128,7 @@ static void ExportLinearPath(WED_AirportChain * chain, AptPolygon_t& poly)
 	poly.reserve(poly.size() + n);     // may need more (bezier handles), but its a good start
 	int l = n-1;
 	bool closed = chain->IsClosed();
-	set<int>	no_attrs;
+	std::set<int>	no_attrs;
 
 	Point2	pt, hi, lo;
 	for (int i = 0; i < n; ++i)
@@ -149,10 +149,10 @@ static void ExportLinearPath(WED_AirportChain * chain, AptPolygon_t& poly)
 			}
 			else
 			{
-				set<int>	attrs, no_attrs;
-				set<int>	enums;
+				std::set<int>	attrs, no_attrs;
+				std::set<int>	enums;
 				node->GetAttributes(enums);
-				for (set<int>::iterator e = enums.begin(); e != enums.end(); ++e)
+				for (std::set<int>::iterator e = enums.begin(); e != enums.end(); ++e)
 					attrs.insert(ENUM_Export(*e));
 
 				if (first && !closed) is_split = false;	// optimization - even if user split the first point, who cares - hi control is all that used, so we do not
@@ -183,11 +183,11 @@ static void ExportLinearPath(WED_AirportChain * chain, AptPolygon_t& poly)
  * Recursively walks the root tree to collect all elements of the specified type.
  * 
  * limited to a specific subset of nodes.  WHY not just copy keepers to elements?
- * The resulting vector is IN HIERARCHY ORDER but only contains keepers.
+ * The resulting std::vector is IN HIERARCHY ORDER but only contains keepers.
  */
 
 template<class T>
-static void CollectAllElementsOfTypeInSet(WED_Thing * root, vector<T *> & elements, const set<T *>& keepers)
+static void CollectAllElementsOfTypeInSet(WED_Thing * root, std::vector<T *> & elements, const std::set<T *>& keepers)
 {
 	T * r = dynamic_cast<T*>(root);
 	if(r)
@@ -206,7 +206,7 @@ static void CollectAllElementsOfTypeInSet(WED_Thing * root, vector<T *> & elemen
 /**
  * "Exports" the list of nodes into the airport network
  */
-static void MakeNodeRouting(const vector<IGISPoint *>& nodes, AptNetwork_t& net)
+static void MakeNodeRouting(const std::vector<IGISPoint *>& nodes, AptNetwork_t& net)
 {
 	for(auto n = nodes.begin(); n != nodes.end(); ++n)
 	{
@@ -226,7 +226,7 @@ static void MakeNodeRouting(const vector<IGISPoint *>& nodes, AptNetwork_t& net)
  * "Exports" the list of edges into the airport network
  * @param nodes The list of all taxi route nodes in the airport (required to get accurate IDs for the nodes)
  */
-static void MakeEdgeRouting(const vector<WED_TaxiRoute *>& edges, AptNetwork_t& net, const vector<IGISPoint *>& nodes)
+static void MakeEdgeRouting(const std::vector<WED_TaxiRoute *>& edges, AptNetwork_t& net, const std::vector<IGISPoint *>& nodes)
 {
 	for(auto e : edges)
 	{
@@ -247,8 +247,8 @@ static void MakeEdgeRouting(const vector<WED_TaxiRoute *>& edges, AptNetwork_t& 
 		Bezier2 b;
 		if(e->GetSide(gis_Geo, 0, b))
 		{
-			base->shape.push_back(make_pair(b.c1,true));
-			base->shape.push_back(make_pair(b.c2,true));
+			base->shape.push_back(std::make_pair(b.c1,true));
+			base->shape.push_back(std::make_pair(b.c2,true));
 		}
 		
 		if(is_truxiroute)
@@ -258,7 +258,7 @@ static void MakeEdgeRouting(const vector<WED_TaxiRoute *>& edges, AptNetwork_t& 
 	}
 }
 
-void	AptExportRecursive(WED_Thing * what, AptVector& apts, vector<WED_TaxiRoute *>& edges, bool Dockingjetways)
+void	AptExportRecursive(WED_Thing * what, AptVector& apts, std::vector<WED_TaxiRoute *>& edges, bool Dockingjetways)
 {
 	int holes, h;
 
@@ -437,8 +437,8 @@ void	AptExportRecursive(WED_Thing * what, AptVector& apts, vector<WED_TaxiRoute 
 	{
 		if (edges.size())
 		{
-			vector<IGISPoint *>		nodes;			// these are in hierarchy order for stability!
-			set<IGISPoint *>		wanted_nodes;
+			std::vector<IGISPoint *>		nodes;			// these are in hierarchy order for stability!
+			std::set<IGISPoint *>		wanted_nodes;
 			for (auto e : edges)
 			{
 				IGISPoint* point_0 = e->GetNthPoint(0);
@@ -463,7 +463,7 @@ void	AptExportRecursive(WED_Thing * what, AptVector& apts, vector<WED_TaxiRoute 
 void	WED_AptExport(WED_Thing * container, const char * file_path, bool DockingJetways)
 {
 	AptVector	apts;
-	vector<WED_TaxiRoute *> edges;
+	std::vector<WED_TaxiRoute *> edges;
 	AptExportRecursive(container, apts, edges, DockingJetways);
 	WriteAptFile(file_path,apts, get_apt_export_version());
 }
@@ -474,7 +474,7 @@ void	WED_AptExport(
 				void *			ref)
 {
 	AptVector	apts;
-	vector<WED_TaxiRoute *> edges;
+	std::vector<WED_TaxiRoute *> edges;
 	AptExportRecursive(container, apts, edges, true);
 	WriteAptFileProcs(print_func, ref, apts, get_apt_export_version());
 }
@@ -500,7 +500,7 @@ void	WED_DoExportApt(WED_Document * resolver, WED_MapPane * pane)
 	}
 }
 
-static WED_AirportChain * ImportLinearPath(const AptPolygon_t& path, WED_Archive * archive, WED_Thing * parent, vector<WED_AirportChain *> * chains, void (* print_func)(void *, const char *, ...), void * ref)
+static WED_AirportChain * ImportLinearPath(const AptPolygon_t& path, WED_Archive * archive, WED_Thing * parent, std::vector<WED_AirportChain *> * chains, void (* print_func)(void *, const char *, ...), void * ref)
 {
 	WED_AirportChain * chain = NULL;
 	WED_AirportChain * ret = NULL;
@@ -557,8 +557,8 @@ static WED_AirportChain * ImportLinearPath(const AptPolygon_t& path, WED_Archive
 		if (has_hi) hi_pt = cur->ctrl;
 
 		// Convert attributes
-		set<int>	attrs;
-		for (set<int>::const_iterator e = cur->attributes.begin(); e != cur->attributes.end(); ++e)
+		std::set<int>	attrs;
+		for (std::set<int>::const_iterator e = cur->attributes.begin(); e != cur->attributes.end(); ++e)
 		{
 			int i = ENUM_Import(LinearFeature, *e);
 			if (i != -1)
@@ -597,10 +597,10 @@ void LazyPrintf(void * ref, const char * fmt, ...)
 	va_end(arg);
 }
 
-//A set of values describing the desired hierarchy order
-// pair<Parent Group Name, Child Group Name>
+//A std::set of values describing the desired hierarchy order
+// std::pair<Parent Group Name, Child Group Name>
 // "" can be used if the group is intended to be under the world root
-typedef set<string> hierarchy_order_set;
+typedef std::set<std::string> hierarchy_order_set;
 
 static hierarchy_order_set build_order_set()
 {
@@ -628,9 +628,9 @@ static hierarchy_order_set build_order_set()
 }
 
 static const hierarchy_order_set prefered_hierarchy_order = build_order_set();
-struct compare_bucket_order : public less<string>
+struct compare_bucket_order : public std::less<std::string>
 {
-	bool operator()(const string& lhs, const string& rhs)
+	bool operator()(const std::string& lhs, const std::string& rhs)
 	{
 		hierarchy_order_set::iterator lhs_pos = prefered_hierarchy_order.end();
 		hierarchy_order_set::iterator rhs_pos = prefered_hierarchy_order.end();
@@ -652,10 +652,10 @@ struct compare_bucket_order : public less<string>
 	}
 };
 
-typedef  map<string, WED_Thing *> hierarchy_bucket_map;
+typedef  std::map<std::string, WED_Thing *> hierarchy_bucket_map;
 
 //
-static hierarchy_bucket_map::iterator create_buckets(WED_Thing* apt, const string& name, hierarchy_bucket_map& io_buckets, WED_Thing* parent_group = NULL)
+static hierarchy_bucket_map::iterator create_buckets(WED_Thing* apt, const std::string& name, hierarchy_bucket_map& io_buckets, WED_Thing* parent_group = NULL)
 {
 	WED_Thing * new_bucket = WED_Group::CreateTyped(apt->GetArchive());
 	new_bucket->SetName(name);
@@ -668,22 +668,22 @@ static hierarchy_bucket_map::iterator create_buckets(WED_Thing* apt, const strin
 	{
 		new_bucket->SetParent(apt, apt->CountChildren());
 	}
-	return io_buckets.insert(make_pair(name, new_bucket)).first;
+	return io_buckets.insert(std::make_pair(name, new_bucket)).first;
 }
 
-static void add_to_bucket(WED_Thing * child, WED_Thing * apt, const string& name, hierarchy_bucket_map& io_buckets)
+static void add_to_bucket(WED_Thing * child, WED_Thing * apt, const std::string& name, hierarchy_bucket_map& io_buckets)
 {
 	DebugAssert(io_buckets.find(name) != io_buckets.end());
 	hierarchy_bucket_map::iterator b = io_buckets.find(name);
-		//set<string> group_names;
+		//std::set<std::string> group_names;
 		//tokenize_string(name.begin(), name.end(), back_inserter(group_names), '/');
-		//for (set<string>::iterator itr = group_names.begin(); itr != group_names.end(); ++itr)
+		//for (std::set<std::string>::iterator itr = group_names.begin(); itr != group_names.end(); ++itr)
 		//{
 		//	WED_Thing * new_bucket = WED_Group::CreateTyped(apt->GetArchive());
 		//	new_bucket->SetName(*itr);
 		//	new_bucket->SetParent(last_parent, last_parent->CountChildren());
 		//	last_parent = new_bucket;
-		//	io_buckets.insert(make_pair(name, new_bucket)).first;
+		//	io_buckets.insert(std::make_pair(name, new_bucket)).first;
 		//}
 
 	child->SetParent(b->second, b->second->CountChildren());
@@ -692,9 +692,9 @@ static void add_to_bucket(WED_Thing * child, WED_Thing * apt, const string& name
 void	WED_AptImport(
 				WED_Archive *			archive,
 				WED_Thing *				container,
-				const string&			file_path,
+				const std::string&			file_path,
 				AptVector&				apts,
-				vector<WED_Airport *> *	out_airports)
+				std::vector<WED_Airport *> *	out_airports)
 {
 	bool import_ok = true;
 	for (AptVector::iterator apt = apts.begin(); apt != apts.end(); ++apt)
@@ -787,7 +787,7 @@ void	WED_AptImport(
 
 		for (AptMarkingVector::iterator lin = apt->lines.begin(); lin != apt->lines.end(); ++lin)
 		{
-			vector<WED_AirportChain *> new_lin;
+			std::vector<WED_AirportChain *> new_lin;
 			WED_Thing * markings = buckets["Markings"];
 			if(markings == NULL)
 			{
@@ -798,7 +798,7 @@ void	WED_AptImport(
 			}
 			
 			ImportLinearPath(lin->area, archive, markings, &new_lin, LazyPrintf, &log);
-			for (vector<WED_AirportChain *>::iterator li = new_lin.begin(); li != new_lin.end(); ++li)
+			for (std::vector<WED_AirportChain *>::iterator li = new_lin.begin(); li != new_lin.end(); ++li)
 				(*li)->Import(*lin, LazyPrintf, &log);
 		}
 
@@ -907,8 +907,8 @@ void	WED_AptImport(
 			}
 			else
 			{
-				map<int,WED_TaxiRouteNode *>	nodes;
-				for(vector<AptRouteNode_t>::iterator n = apt->taxi_route.nodes.begin(); n != apt->taxi_route.nodes.end(); ++n)
+				std::map<int,WED_TaxiRouteNode *>	nodes;
+				for(std::vector<AptRouteNode_t>::iterator n = apt->taxi_route.nodes.begin(); n != apt->taxi_route.nodes.end(); ++n)
 				{
 					WED_TaxiRouteNode * new_n = WED_TaxiRouteNode::CreateTyped(archive);
 					add_to_bucket(new_n,new_apt,"Taxi Routes",buckets);
@@ -918,16 +918,16 @@ void	WED_AptImport(
 				}
 				
 				// COPY PASTA WARNING PART 1
-				for(vector<AptRouteEdge_t>::iterator e = apt->taxi_route.edges.begin(); e != apt->taxi_route.edges.end(); ++e)
+				for(std::vector<AptRouteEdge_t>::iterator e = apt->taxi_route.edges.begin(); e != apt->taxi_route.edges.end(); ++e)
 				{
-					vector<pair<Point2, bool> >		shape(e->shape);
+					std::vector<std::pair<Point2, bool> >		shape(e->shape);
 					Point2 start_geo, end_geo;
 					nodes[e->src]->GetLocation(gis_Geo, start_geo);
 					nodes[e->dst]->GetLocation(gis_Geo, end_geo);
-					shape.insert(shape.begin(),make_pair(start_geo, false));
-					shape.insert(shape.end(),make_pair(end_geo, false));
+					shape.insert(shape.begin(),std::make_pair(start_geo, false));
+					shape.insert(shape.end(),std::make_pair(end_geo, false));
 				
-					vector<pair<Point2, bool> >::iterator p1, p2, stop;
+					std::vector<std::pair<Point2, bool> >::iterator p1, p2, stop;
 					p1 = p2 = shape.begin();
 					stop = shape.end();
 					--stop;
@@ -995,16 +995,16 @@ void	WED_AptImport(
 				}
 				
 				// COPY PASTA WARNING PART 2
-				for(vector<AptServiceRoadEdge_t>::iterator e = apt->taxi_route.service_roads.begin(); e != apt->taxi_route.service_roads.end(); ++e)
+				for(std::vector<AptServiceRoadEdge_t>::iterator e = apt->taxi_route.service_roads.begin(); e != apt->taxi_route.service_roads.end(); ++e)
 				{
-					vector<pair<Point2, bool> >		shape(e->shape);
+					std::vector<std::pair<Point2, bool> >		shape(e->shape);
 					Point2 start_geo, end_geo;
 					nodes[e->src]->GetLocation(gis_Geo, start_geo);
 					nodes[e->dst]->GetLocation(gis_Geo, end_geo);
-					shape.insert(shape.begin(),make_pair(start_geo, false));
-					shape.insert(shape.end(),make_pair(end_geo, false));
+					shape.insert(shape.begin(),std::make_pair(start_geo, false));
+					shape.insert(shape.end(),std::make_pair(end_geo, false));
 				
-					vector<pair<Point2, bool> >::iterator p1, p2, stop;
+					std::vector<std::pair<Point2, bool> >::iterator p1, p2, stop;
 					p1 = p2 = shape.begin();
 					stop = shape.end();
 					--stop;
@@ -1100,7 +1100,7 @@ int		WED_CanImportApt(IResolver * resolver)
 
 void	WED_DoImportApt(WED_Document * resolver, WED_Archive * archive, WED_MapPane * pane)
 {
-	vector<string>	fnames;
+	std::vector<std::string>	fnames;
 		
 	char * path = GetMultiFilePathFromUser("Import apt.dat...", "Import", FILE_DIALOG_IMPORT_APTDAT);
 	if(!path)
@@ -1121,14 +1121,14 @@ void	WED_DoImportApt(WED_Document * resolver, WED_Archive * archive, WED_MapPane
 		
 	AptVector	apts, one_apt;
 	
-	for(vector<string>::iterator f = fnames.begin(); f != fnames.end(); ++f)
+	for(std::vector<std::string>::iterator f = fnames.begin(); f != fnames.end(); ++f)
 	{
 
-		string parent_dir = FILE_get_dir_name(*f);
+		std::string parent_dir = FILE_get_dir_name(*f);
 		parent_dir = parent_dir + ".." + DIR_STR;
 		
-		if( parent_dir.find("default apt dat") != string::npos ||            // XP11 Resources
-			parent_dir.find("Global Airports") != string::npos ||            // XP11 or XP12
+		if( parent_dir.find("default apt dat") != std::string::npos ||            // XP11 Resources
+			parent_dir.find("Global Airports") != std::string::npos ||            // XP11 or XP12
 			(FILE_exists((parent_dir + "COPYING").c_str()) &&                // packs downloaded from gateway
 				(FILE_exists((parent_dir + "README.txt").c_str()) || FILE_exists((parent_dir + "README").c_str()))) )
 			if(!ConfirmMessage("Warning !\nImporting from an X-Plane Global Airports or Gateway Scenery Pack apt.dat is unsuitable for scenery design.\n\n"
@@ -1136,10 +1136,10 @@ void	WED_DoImportApt(WED_Document * resolver, WED_Archive * archive, WED_MapPane
 				return;
 		
 		LOG_MSG("I/Apt Importing apt.dat from %s\n",f->c_str());
-		string result = ReadAptFile(f->c_str(), one_apt);
+		std::string result = ReadAptFile(f->c_str(), one_apt);
 		if (!result.empty())
 		{
-			string msg = string("The apt.dat file '") + *f + string("' could not be imported:\n") + result;
+			std::string msg = std::string("The apt.dat file '") + *f + std::string("' could not be imported:\n") + result;
 			DoUserAlert(msg.c_str());
 			return;
 		}
@@ -1151,16 +1151,16 @@ void	WED_DoImportApt(WED_Document * resolver, WED_Archive * archive, WED_MapPane
 }
 
 void	WED_ImportOneAptFile(
-				const string&			in_path,
+				const std::string&			in_path,
 				WED_Thing *				in_parent,
-				vector<WED_Airport *> *	out_apts)
+				std::vector<WED_Airport *> *	out_apts)
 {
 	AptVector		apts;
 	LOG_MSG("I/Apt Importing apt.dat from %s\n",in_path.c_str());
-	string result = ReadAptFile(in_path.c_str(), apts);
+	std::string result = ReadAptFile(in_path.c_str(), apts);
 	if(!result.empty())
 	{
-		string msg = string("Unable to read apt.dat file '") + in_path + string("': ") + result;
+		std::string msg = std::string("Unable to read apt.dat file '") + in_path + std::string("': ") + result;
 		DoUserAlert(msg.c_str());
 		return;
 	}

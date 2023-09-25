@@ -28,11 +28,11 @@ public:
 
 private:
 
-	vector<Segment2>	mServices;   // potential GT vehicle locations - for GT paths
-	vector<Segment2>	mGTEdges;
+	std::vector<Segment2>	mServices;   // potential GT vehicle locations - for GT paths
+	std::vector<Segment2>	mGTEdges;
 
-	vector<Segment2>	mStarts;     // ramp start locations - for A/C taxi paths
-	vector<Segment2>	mATCEdges;
+	std::vector<Segment2>	mStarts;     // ramp start locations - for A/C taxi paths
+	std::vector<Segment2>	mATCEdges;
 };
 
 void WED_ATCLayer_DrawAircraft(WED_RampPosition * pos, GUI_GraphState * g, WED_MapZoomerNew * z);

@@ -204,26 +204,26 @@ bool FILE_exists(const char * path)
 //	return (S_ISDIR(ss.st_mode))? 1 : 0;
 }
 
-string FILE_get_file_extension(const string& path)
+std::string FILE_get_file_extension(const std::string& path)
 {
-	string name;
+	std::string name;
 
 	// cutting off the pathname prevents confusion in cases of suffix-less file names, e.g. /dir/dir.fake/filename
 	name = FILE_get_file_name(path);
 	
 	size_t dot_start = name.find_last_of('.');
-	if(dot_start == string::npos)
+	if(dot_start == std::string::npos)
 		return "";
 	else
 	{
 		name = name.substr(dot_start+1);
-		for (string::iterator i = name.begin(); i != name.end(); ++i)
+		for (std::string::iterator i = name.begin(); i != name.end(); ++i)
 		    (*i) = tolower(*i);
 		return name;
 	}
 }
 
-int FILE_get_file_meta_data(const string& path, struct stat& meta_data)
+int FILE_get_file_meta_data(const std::string& path, struct stat& meta_data)
 {
 #if IBM
 	struct _stat my_stat = { 0 };
@@ -246,25 +246,25 @@ int FILE_get_file_meta_data(const string& path, struct stat& meta_data)
 
 }
 
-string FILE_get_file_name(const string& path)
+std::string FILE_get_file_name(const std::string& path)
 {
 	size_t last_sep = path.find_last_of("\\:/");
 	if(last_sep == path.npos)
-		return path;                        // path was either empty string or just a filename, without directory separators
+		return path;                        // path was either empty std::string or just a filename, without directory separators
 	else
 		return path.substr(last_sep + 1);
 }
 
-string FILE_get_dir_name(const string& path)
+std::string FILE_get_dir_name(const std::string& path)
 {
 	size_t last_sep = path.find_last_of("\\:/");
 	if(last_sep == path.npos)
-		return "";                          // path was either empty string or just a filename, without directory separators
+		return "";                          // path was either empty std::string or just a filename, without directory separators
 	else
 		return path.substr(0,last_sep + 1);
 }
 
-string FILE_get_file_name_wo_extensions(const string& path)
+std::string FILE_get_file_name_wo_extensions(const std::string& path)
 {
 	size_t dot_pos = path.find_last_of('.');
 	if(dot_pos == path.npos || dot_pos == 0)
@@ -297,7 +297,7 @@ int FILE_delete_file(const char * nuke_path, bool is_dir)
 	return 0;
 }
 
-int FILE_read_file_to_string(FILE* file, string& content)
+int FILE_read_file_to_string(FILE* file, std::string& content)
 {
 	content = "";
 	if(file != NULL)
@@ -319,7 +319,7 @@ int FILE_read_file_to_string(FILE* file, string& content)
 #endif
 }
 
-int FILE_read_file_to_string(const string& path, string& content)
+int FILE_read_file_to_string(const std::string& path, std::string& content)
 {
 	int res = -1;
 
@@ -345,7 +345,7 @@ int FILE_rename_file(const char * old_name, const char * new_name)
 	return 0;
 }
 
-int FILE_get_directory(const string& path, vector<string> * out_files, vector<string> * out_dirs)
+int FILE_get_directory(const std::string& path, std::vector<std::string> * out_files, std::vector<std::string> * out_dirs)
 {
 #if IBM
 	string_utf16		searchPath = convert_str_to_utf16(path) + L"\\*.*";
@@ -397,7 +397,7 @@ int FILE_get_directory(const string& path, vector<string> * out_files, vector<st
 		        ( strcmp ( ent->d_name, ".." ) ==0 ) )
 			continue;
 
-		string	fullPath ( path );
+		std::string	fullPath ( path );
 		fullPath += DIR_CHAR;
 		fullPath += ent->d_name;
 
@@ -425,7 +425,7 @@ int FILE_get_directory(const string& path, vector<string> * out_files, vector<st
 #endif
 }
 
-int FILE_get_directory_recursive(const string& path, vector<string>& out_files, vector<string>& out_dirs)
+int FILE_get_directory_recursive(const std::string& path, std::vector<std::string>& out_files, std::vector<std::string>& out_dirs)
 {
 	//Save the previous last positions before we potentially add more to files and dirs
 	int files_start_index = out_files.size();
@@ -448,7 +448,7 @@ int FILE_get_directory_recursive(const string& path, vector<string>& out_files, 
 	int end_index = out_dirs.size();
 	for (int i = start_index; i < end_index; ++i)
 	{
-		string path_copy(out_dirs[i]);  // Don't pass the _same_ vector TWICE by reference. If it grows, its data array may get re-allocated and 
+		std::string path_copy(out_dirs[i]);  // Don't pass the _same_ std::vector TWICE by reference. If it grows, its data array may get re-allocated and 
 		                                // location. The called function assumes no such interaction between two unrelated parameters ...
 		num_files += FILE_get_directory_recursive(path_copy, out_files, out_dirs);
 	}
@@ -476,7 +476,7 @@ int FILE_make_dir_exist(const char * in_dir)
 		while(dc > in_dir && *dc != DIR_CHAR) --dc;
 		if(dc > in_dir)
 		{
-			string parent(in_dir, dc);
+			std::string parent(in_dir, dc);
 			result = FILE_make_dir_exist(parent.c_str());
 		}
 		if (result == 0)	result = FILE_make_dir(in_dir);
@@ -551,27 +551,27 @@ date_cmpr_result_t FILE_date_cmpr(const char * first, const char * second)
 #endif
 }
 
-int FILE_delete_dir_recursive(const string& path)
+int FILE_delete_dir_recursive(const std::string& path)
 {
-	vector<string>	files, dirs;
+	std::vector<std::string>	files, dirs;
 
 	int r = FILE_get_directory(path, &files, &dirs);
 	
 	if(r < 0)
 		return r;
 		
-	for(vector<string>::iterator f = files.begin(); f != files.end(); ++f)
+	for(std::vector<std::string>::iterator f = files.begin(); f != files.end(); ++f)
 	{
-		string fp(path);
+		std::string fp(path);
 		fp += *f;
 		r = FILE_delete_file(fp.c_str(), false);
 		if(r != 0)
 			return r;
 	}
 	
-	for(vector<string>::iterator d = dirs.begin(); d != dirs.end(); ++d)
+	for(std::vector<std::string>::iterator d = dirs.begin(); d != dirs.end(); ++d)
 	{
-		string dp(path);
+		std::string dp(path);
 		dp += *d;
 		dp += DIR_STR;
 		int r = FILE_delete_dir_recursive(dp);
@@ -584,7 +584,7 @@ int FILE_delete_dir_recursive(const string& path)
 }
 
 #if WED	
-static int compress_one_file(zipFile archive, const string& src, const string& dst)
+static int compress_one_file(zipFile archive, const std::string& src, const std::string& dst)
 {
 	FILE * srcf = fopen(src.c_str(),"rb");
 	if(!srcf)
@@ -646,25 +646,25 @@ static int compress_one_file(zipFile archive, const string& src, const string& d
 	return r;
 }
 				
-static int compress_recursive(zipFile archive, const string& dir, const string& prefix)
+static int compress_recursive(zipFile archive, const std::string& dir, const std::string& prefix)
 {	
-	vector<string> files ,dirs;
+	std::vector<std::string> files ,dirs;
 	int r = FILE_get_directory(dir, &files,&dirs);
 	if(r < 0) return r;
 	
-	for(vector<string>::iterator f = files.begin(); f != files.end(); ++f)
+	for(std::vector<std::string>::iterator f = files.begin(); f != files.end(); ++f)
 	{
-		string sf = dir + *f;
-		string df = prefix + *f;
+		std::string sf = dir + *f;
+		std::string df = prefix + *f;
 		r = compress_one_file(archive, sf, df);
 		if (r != 0)
 			return r;
 	}
 	
-	for(vector<string>::iterator d = dirs.begin(); d != dirs.end(); ++d)
+	for(std::vector<std::string>::iterator d = dirs.begin(); d != dirs.end(); ++d)
 	{
-		string sd = dir + *d + DIR_STR;
-		string dd = prefix + *d + "/";			// FORCE unix / or Mac loses its mind on decompress.
+		std::string sd = dir + *d + DIR_STR;
+		std::string dd = prefix + *d + "/";			// FORCE unix / or Mac loses its mind on decompress.
 		r = compress_recursive(archive, sd, dd);
 		if (r != 0)
 			return r;
@@ -672,7 +672,7 @@ static int compress_recursive(zipFile archive, const string& dir, const string& 
 	return 0;
 }
 
-int FILE_compress_dir(const string& src_path, const string& dst_path, const string& prefix)
+int FILE_compress_dir(const std::string& src_path, const std::string& dst_path, const std::string& prefix)
 {
 	zipFile archive = zipOpen(dst_path.c_str(), 0);
 	if(archive == NULL)

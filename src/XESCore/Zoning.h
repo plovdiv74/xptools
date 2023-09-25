@@ -87,8 +87,8 @@ struct ZoningRule_t {
 	float		min_side_minor;
 	float		max_side_minor;
 
-	set<int>	require_features;						// One of these features MUST be present or we can't use the rule.
-	set<int>	consume_features;						// These features get consumed by the act of zoning.
+	std::set<int>	require_features;						// One of these features MUST be present or we can't use the rule.
+	std::set<int>	consume_features;						// These features get consumed by the act of zoning.
 	int			crud_ok;								// We can live with "stuff" in our zone that we haven't consumed.
 	int			hole_ok;								// Is there a hole in the block?
 	int			want_prim;
@@ -97,7 +97,7 @@ struct ZoningRule_t {
 };
 
 struct LandFillRule_t {
-	set<int>	required_zoning;
+	std::set<int>	required_zoning;
 	int			color;
 	int			terrain;
 };

@@ -87,7 +87,7 @@ void	WED_RampPosition::SetType(int	rt)
 	ramp_type = rt;
 }
 
-void	WED_RampPosition::SetEquipment(const set<int>&	et)
+void	WED_RampPosition::SetEquipment(const std::set<int>&	et)
 {
 	equip_type = et;
 }
@@ -113,14 +113,14 @@ static bool two_adjacent_spaces(char lhs, char rhs)
 	return (lhs == rhs) && (lhs == ' ');
 }
 
-string	WED_RampPosition::CorrectAirlinesString(const string &a)
+std::string	WED_RampPosition::CorrectAirlinesString(const std::string &a)
 {
-	string cleaned_airlines_str;
+	std::string cleaned_airlines_str;
 	std::transform(a.begin(), a.end(), back_inserter(cleaned_airlines_str), [](unsigned char c) {return tolower(c);} );
 	
 	//Thanks Plamen for this concise trim http://stackoverflow.com/a/22711818
 	//Ben says: except - the stack overflow answer is WRONG - missing a check for
-	//the empty string case.
+	//the empty std::string case.
 	while(!cleaned_airlines_str.empty() && isspace(*cleaned_airlines_str.begin()))
 	{
 		cleaned_airlines_str.erase(cleaned_airlines_str.begin());
@@ -136,12 +136,12 @@ string	WED_RampPosition::CorrectAirlinesString(const string &a)
 	return cleaned_airlines_str;
 }
 
-void	WED_RampPosition::SetAirlines(const string &a)
+void	WED_RampPosition::SetAirlines(const std::string &a)
 {
 	airlines = a;
 }
 
-string  WED_RampPosition::GetAirlines() const
+std::string  WED_RampPosition::GetAirlines() const
 {
 	return airlines.value;
 }
@@ -188,7 +188,7 @@ int		WED_RampPosition::GetType() const
 	return ramp_type.value;
 }
 
-void		WED_RampPosition::GetEquipment(set<int>& out_eq) const
+void		WED_RampPosition::GetEquipment(std::set<int>& out_eq) const
 {
 	out_eq = equip_type.value;
 }

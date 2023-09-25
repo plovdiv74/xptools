@@ -86,13 +86,13 @@ static bool ReadLandClassRule(const vector<string>& tokens, void * ref)
 static bool ReadEdgeRule(const vector<string>& tokens, void * ref)
 {
 	EdgeRule_t e;
-	set<int>	zoning_list;
-	set<int>	road_list;
+	std::set<int>	zoning_list;
+	std::set<int>	road_list;
 	string res_id;
 	if(TokenizeLine(tokens," SiffSsf",&zoning_list, &e.variant, &e.height_min, &e.height_max, &road_list, &res_id, &e.width) != 8) return false;
 	e.resource_id = RegisterAGResource(res_id);
-	for(set<int>::iterator z = zoning_list.begin(); z != zoning_list.end(); ++z)
-	for(set<int>::iterator r = road_list.begin(); r != road_list.end(); ++r)
+	for(std::set<int>::iterator z = zoning_list.begin(); z != zoning_list.end(); ++z)
+	for(std::set<int>::iterator r = road_list.begin(); r != road_list.end(); ++r)
 	{
 		e.road_type = *r;
 		e.zoning = *z;
@@ -234,7 +234,7 @@ static bool ReadZoningInfo(const vector<string>& tokens, void * ref)
 	int				zoning;
 	if(TokenizeLine(tokens," efiiiiiiie", &zoning,&info.max_slope,&info.need_lu,&info.fill_edge,&info.fill_area,&info.fill_points, &info.fill_veg,&info.allow_country_roads,&info.fill_rail, &info.terrain_type) != 11)
 		return false;
-	// optimization: if slope will never filter out AND we don't need LU, set slope to 0 to turn the mesh check off entirely!
+	// optimization: if slope will never filter out AND we don't need LU, std::set slope to 0 to turn the mesh check off entirely!
 	if(info.max_slope == 90.0 && info.need_lu == 0)
 		info.max_slope = 0.0;
 	if(gZoningInfo.count(zoning) != 0)
@@ -343,9 +343,9 @@ inline bool	check_rule(T minv, T maxv, T actv)
 	return ((minv == maxv && minv == 0) || (actv >= minv && actv <= maxv));
 }
 
-inline bool any_match(const set<int>& lhs, const set<int>& rhs)
+inline bool any_match(const std::set<int>& lhs, const std::set<int>& rhs)
 {
-	set<int>::const_iterator l = lhs.begin(), r = rhs.begin();
+	std::set<int>::const_iterator l = lhs.begin(), r = rhs.begin();
 
 	while(l != lhs.end() && r != rhs.end())	// While we're not off the end of either
 	{
@@ -359,11 +359,11 @@ inline bool any_match(const set<int>& lhs, const set<int>& rhs)
 	return false;							// if one is EOF we're not going to get a match.
 }
 
-inline bool all_match(const set<int>& lhs, const set<int>& rhs)
+inline bool all_match(const std::set<int>& lhs, const std::set<int>& rhs)
 {
 	if(lhs.size() != rhs.size()) return false;
 
-	set<int>::const_iterator l = lhs.begin(), r = rhs.begin();
+	std::set<int>::const_iterator l = lhs.begin(), r = rhs.begin();
 
 	while(l != lhs.end() && r != rhs.end())
 	{
@@ -374,9 +374,9 @@ inline bool all_match(const set<int>& lhs, const set<int>& rhs)
 	return l == lhs.end() && r == rhs.end();// We match if we ran out of BOTH at the same time.
 }
 
-inline void remove_these(set<int>& stuff, const set<int>& nuke_these)
+inline void remove_these(std::set<int>& stuff, const std::set<int>& nuke_these)
 {
-	for(set<int>::const_iterator i = nuke_these.begin(); i != nuke_these.end(); ++i)
+	for(std::set<int>::const_iterator i = nuke_these.begin(); i != nuke_these.end(); ++i)
 		stuff.erase(*i);
 }
 
@@ -406,7 +406,7 @@ static int		PickZoningRule(
 						float		long_side,			// Length  in meters of the longest side.
 						float		major_length,		// Length along the "long" axis of the block
 						float		minor_length,		// Length along the "short" axis of the block.
-						set<int>&	features)
+						std::set<int>&	features)
 {
 	for(ZoningRuleTable::const_iterator r = gZoningRules.begin(); r != gZoningRules.end(); ++r)
 	{
@@ -445,10 +445,10 @@ static int		PickZoningRule(
 //----------------------------------------------------------------------------------------------------------------------------------------
 
 struct zone_borders_t {
-	set<double>		lock_pts[4];
+	std::set<double>		lock_pts[4];
 };
 
-int mark_is_locked(Vertex_handle v, NT coord, const set<double>& locked_pts)
+int mark_is_locked(Vertex_handle v, NT coord, const std::set<double>& locked_pts)
 {
 	if(locked_pts.empty())
 	{
@@ -459,7 +459,7 @@ int mark_is_locked(Vertex_handle v, NT coord, const set<double>& locked_pts)
 
 	double coordf = CGAL::to_double(coord);
 
-	set<double>::const_iterator k = locked_pts.lower_bound(coordf);
+	std::set<double>::const_iterator k = locked_pts.lower_bound(coordf);
 	double k1, k2;
 	if(locked_pts.size() == 1)
 		k1 = k2 = *k;
@@ -544,7 +544,7 @@ struct is_same_terrain_p {
 
 
 
-void	ColorFaces(set<Face_handle>&	io_faces);
+void	ColorFaces(std::set<Face_handle>&	io_faces);
 
 void kill_antennas(Pmwx& io_map, Pmwx::Face_handle f, float max_len)
 {
@@ -604,7 +604,7 @@ static void ZoneOneFace(
 
 	double mfam = GetMapFaceAreaMeters(face);
 	double	max_height = 0.0;
-	set<int>	my_pt_features;
+	std::set<int>	my_pt_features;
 
 	if (mfam < MAX_OBJ_SPREAD)
 	for (GISPointFeatureVector::iterator feat = face->data().mPointFeatures.begin(); feat != face->data().mPointFeatures.end(); ++feat)
@@ -901,7 +901,7 @@ static void ZoneOneFace(
 
 		}
 
-		vector<pair<Pmwx::Halfedge_handle, Pmwx::Halfedge_handle> >				sides;
+		vector<std::pair<Pmwx::Halfedge_handle, Pmwx::Halfedge_handle> >				sides;
 		Polygon2																mbounds;
 
 		if(!has_holes)
@@ -1153,13 +1153,13 @@ void	ZoneManMadeAreas(
 	if (!face->data().IsWater())
 	{
 		PROGRESS_CHECK(inProg, 1, 3, "Checking approach paths...", ctr, total, check)
-//		set<Face_handle>	neighbors;
+//		std::set<Face_handle>	neighbors;
 //		//FindAdjacentFaces(face, neighbors);
 //		{
 //			neighbors.clear();
-//			set<Halfedge_handle> e;
+//			std::set<Halfedge_handle> e;
 //			FindEdgesForFace(face, e);
-//			for (set<Halfedge_handle>::iterator he = e.begin(); he != e.end(); ++he)
+//			for (std::set<Halfedge_handle>::iterator he = e.begin(); he != e.end(); ++he)
 //				if ((*he)->twin()->face() != face)
 //					neighbors.insert((*he)->twin()->face());
 //		}
@@ -1182,7 +1182,7 @@ void	ZoneManMadeAreas(
 		double	lowest_restrict = 9.9e9;
 		bool	got_restrict = false;
 
-//		for (set<Face_handle>::iterator niter = neighbors.begin(); niter != neighbors.end(); ++niter)
+//		for (std::set<Face_handle>::iterator niter = neighbors.begin(); niter != neighbors.end(); ++niter)
 //		{
 //			max_agl = max(max_agl, (*niter)->data().mParams[af_HeightObjs] * 0.5);
 //		}
@@ -1241,7 +1241,7 @@ void	ZoneManMadeAreas(
 	// HEIGHT SPREAD
 	//--------------------------------------------------------------------------------------------------------------------------------
 
-		set<Pmwx::Face_handle>	to_visit, visited;
+		std::set<Pmwx::Face_handle>	to_visit, visited;
 
 	for(Pmwx::Face_handle f = ioMap.faces_begin(); f != ioMap.faces_end(); ++f)
 	if(!f->is_unbounded())
@@ -1263,9 +1263,9 @@ void	ZoneManMadeAreas(
 		float h = me->data().mParams[af_HeightObjs] * HEIGHT_SPREAD_FACTOR;
 		if(h > MIN_HEIGHT_TO_SPREAD)
 		{
-			set<Pmwx::Face_handle>	neighbors;
+			std::set<Pmwx::Face_handle>	neighbors;
 			FindAdjacentFaces<Pmwx>(me, neighbors);
-			for(set<Pmwx::Face_handle>::iterator n = neighbors.begin(); n != neighbors.end(); ++n)
+			for(std::set<Pmwx::Face_handle>::iterator n = neighbors.begin(); n != neighbors.end(); ++n)
 			if(!(*n)->is_unbounded())
 			if(!(*n)->data().IsWater())
 			if((*n)->data().GetParam(af_AreaMeters,0) < MAX_OBJ_SPREAD)
@@ -1363,7 +1363,7 @@ void	ZoneManMadeAreas(
 	if(!face->data().IsWater())
 	if(!face->data().HasParam(af_Variant))
 	{
-		set<Face_handle>	the_blob;
+		std::set<Face_handle>	the_blob;
 		CollectionVisitor<Pmwx,Face_handle,is_same_terrain_p>	col(&the_blob, is_same_terrain_p(face->data().mTerrainType));
 		VisitContiguousFaces<Pmwx,CollectionVisitor<Pmwx,Face_handle,is_same_terrain_p> >(face, col);
 		ColorFaces(the_blob);
@@ -1375,7 +1375,7 @@ void	ZoneManMadeAreas(
 	FILE * bf = fopen(zbpath,"w");
 	if(bf)
 	{
-		set<double>	edge_l, edge_r, edge_b, edge_t;
+		std::set<double>	edge_l, edge_r, edge_b, edge_t;
 
 		Pmwx::Ccb_halfedge_circulator circ, stop;
 		DebugAssert(ioMap.unbounded_face()->number_of_holes() == 1);
@@ -1402,7 +1402,7 @@ void	ZoneManMadeAreas(
 			}
 		} while(++circ != stop);
 
-		set<double>::iterator i;
+		std::set<double>::iterator i;
 		for(i = edge_l.begin(); i != edge_l.end(); ++i)
 			fprintf(bf,"LOCK_WEST %.12lf\n",*i);
 		for(i = edge_b.begin(); i != edge_b.end(); ++i)
@@ -1470,11 +1470,11 @@ struct	FaceNode_t {
 	FaceNode_t *			prev;
 	FaceNode_t *			next;
 
-	list<Face_handle>		real_faces;
-	list<EdgeNode_t *>		edges;
+	std::list<Face_handle>		real_faces;
+	std::list<EdgeNode_t *>		edges;
 	float					area;
 	Bbox2					bounds;
-	set<int>				zoning;
+	std::set<int>				zoning;
 	int						color;
 
 };
@@ -1516,7 +1516,7 @@ struct FaceGraph_t {
 	void			delete_face(FaceNode_t * f);
 	void			delete_edge(EdgeNode_t * e);
 	bool			connected(FaceNode_t * f1, FaceNode_t * f2);
-	void			merge(FaceNode_t * f1, FaceNode_t * f2, list<EdgeNode_t *>& merged_neighbors);
+	void			merge(FaceNode_t * f1, FaceNode_t * f2, std::list<EdgeNode_t *>& merged_neighbors);
 
 	void			enqueue(EdgeNode_t * en,float (* cost_func)(EdgeNode_t * en));
 	EdgeNode_t *	pop(void);
@@ -1571,14 +1571,14 @@ bool			FaceGraph_t::connected(FaceNode_t * f1, FaceNode_t * f2)
 {
 	if(f1->edges.size() > f2->edges.size())
 		swap(f1,f2);
-	for(list<EdgeNode_t *>::iterator e = f1->edges.begin(); e != f1->edges.end(); ++e)
+	for(std::list<EdgeNode_t *>::iterator e = f1->edges.begin(); e != f1->edges.end(); ++e)
 	if(((*e)->f1 == f1 && (*e)->f2 == f2) ||
 	   ((*e)->f1 == f2 && (*e)->f2 == f1))
 		return true;
 	return false;
 }
 
-void			FaceGraph_t::merge(FaceNode_t * f1, FaceNode_t * f2, list<EdgeNode_t *>& out_neighbors)
+void			FaceGraph_t::merge(FaceNode_t * f1, FaceNode_t * f2, std::list<EdgeNode_t *>& out_neighbors)
 {
 	f1->area += f2->area;
 	f1->real_faces.splice(f1->real_faces.end(),f2->real_faces);
@@ -1588,14 +1588,14 @@ void			FaceGraph_t::merge(FaceNode_t * f1, FaceNode_t * f2, list<EdgeNode_t *>& 
 
 	map<FaceNode_t *, EdgeNode_t *>						neighbors;
 	map<FaceNode_t *, EdgeNode_t *>::iterator			ni;
-	list<EdgeNode_t *>::iterator ei;
+	std::list<EdgeNode_t *>::iterator ei;
 	EdgeNode_t * en;
 	FaceNode_t * fn;
 
 
-	// First: grab up all edges that we may keep.  This is our neighbor set.
+	// First: grab up all edges that we may keep.  This is our neighbor std::set.
 	// We have one edge to f2 which we will cope with later.
-	for(list<EdgeNode_t *>::iterator ei = f1->edges.begin(); ei != f1->edges.end(); ++ei)
+	for(std::list<EdgeNode_t *>::iterator ei = f1->edges.begin(); ei != f1->edges.end(); ++ei)
 	{
 		en = * ei;
 		fn = en->other(f1);
@@ -1607,7 +1607,7 @@ void			FaceGraph_t::merge(FaceNode_t * f1, FaceNode_t * f2, list<EdgeNode_t *>& 
 	}
 
 	// Now we can "merge in" F2's edges.
-	for(list<EdgeNode_t *>::iterator ei = f2->edges.begin(); ei != f2->edges.end(); ++ei)
+	for(std::list<EdgeNode_t *>::iterator ei = f2->edges.begin(); ei != f2->edges.end(); ++ei)
 	{
 		en = *ei;
 		fn = en->other(f2);
@@ -1704,7 +1704,7 @@ void		FaceGraph_t::clear(void)
 	}
 }
 
-bool fill_for_zoning(const set<int>& z)
+bool fill_for_zoning(const std::set<int>& z)
 {
 	if(z.empty()) return false;
 	
@@ -1729,7 +1729,7 @@ float	edge_cost_func(EdgeNode_t * en)
 		if(en->f1->zoning.empty() || en->f2->zoning.empty())
 			return -1.0f;
 
-		set<int> zc;
+		std::set<int> zc;
 		set_union(
 			en->f1->zoning.begin(),en->f1->zoning.end(),
 			en->f2->zoning.begin(),en->f2->zoning.end(),
@@ -1775,17 +1775,17 @@ float	edge_cost_func(EdgeNode_t * en)
 }
 
 struct UnlinkedFace_p {
-	set<Face_handle> *						universe_;
-	UnlinkedFace_p(set<Face_handle> * universe) : universe_(universe) { }
+	std::set<Face_handle> *						universe_;
+	UnlinkedFace_p(std::set<Face_handle> * universe) : universe_(universe) { }
 	bool operator()(Face_handle who) const {
 		return universe_->count(who) > 0;
 	}
 };
 
-void	ColorFaces(set<Face_handle>&	io_faces)
+void	ColorFaces(std::set<Face_handle>&	io_faces)
 {
 		FaceGraph_t								graph;
-		set<Face_handle>::iterator				f, ff;
+		std::set<Face_handle>::iterator				f, ff;
 		FaceNode_t *							fn;
 		EdgeNode_t *							en;
 		map<Face_handle, FaceNode_t *>			face_mapping;
@@ -1805,7 +1805,7 @@ void	ColorFaces(set<Face_handle>&	io_faces)
 
 	for(f = io_faces.begin(); f != io_faces.end(); ++f)
 	{
-		set<Face_handle>	friends;
+		std::set<Face_handle>	friends;
 		CollectionVisitor<Pmwx,Face_handle,UnlinkedFace_p> face_collector(&friends, UnlinkedFace_p(&io_faces));
 		VisitAdjacentFaces<Pmwx, CollectionVisitor<Pmwx,Face_handle,UnlinkedFace_p> >(*f, face_collector);
 		for(ff = friends.begin(); ff != friends.end(); ++ff)
@@ -1827,9 +1827,9 @@ void	ColorFaces(set<Face_handle>&	io_faces)
 				en->must_merge = false;
 				en->must_lock = false;
 				en->road_type = NO_VALUE;
-				set<Halfedge_handle>	edges;
+				std::set<Halfedge_handle>	edges;
 				FindEdgesForFace<Pmwx>(*f, edges);
-				for(set<Halfedge_handle>::iterator i = edges.begin(); i != edges.end(); ++i)
+				for(std::set<Halfedge_handle>::iterator i = edges.begin(); i != edges.end(); ++i)
 				if((*i)->twin()->face() == *ff)
 				{
 					en->length += GetMapEdgeLengthMeters(*i);
@@ -1867,7 +1867,7 @@ void	ColorFaces(set<Face_handle>&	io_faces)
 				if(en->must_merge && en->must_lock)
 					en->must_merge = false;
 
-//				for(set<Halfedge_handle>::iterator i = edges.begin(); i != edges.end(); ++i)
+//				for(std::set<Halfedge_handle>::iterator i = edges.begin(); i != edges.end(); ++i)
 //				if((*i)->twin()->face() == *ff)
 //				if(en->must_merge)
 //					debug_mesh_line(cgal2ben((*i)->source()->point()),cgal2ben((*i)->target()->point()),1,1,0,1,1,0);
@@ -1884,9 +1884,9 @@ void	ColorFaces(set<Face_handle>&	io_faces)
 	/* Third: run the PQ until we have done our "merges". */
 	while((en = graph.pop()) != NULL)
 	{
-		list<EdgeNode_t *>	neighbors;
+		std::list<EdgeNode_t *>	neighbors;
 		graph.merge(en->f1, en->f2, neighbors);
-		for(list<EdgeNode_t *>::iterator n = neighbors.begin(); n != neighbors.end(); ++n)
+		for(std::list<EdgeNode_t *>::iterator n = neighbors.begin(); n != neighbors.end(); ++n)
 			graph.enqueue(*n, edge_cost_func);
 	}
 
@@ -1903,11 +1903,11 @@ void	ColorFaces(set<Face_handle>&	io_faces)
 	for(fn = graph.faces; fn; fn = fn->next)
 	{
 
-//		set<Face_handle>		faces;
-//		set<Halfedge_handle>	edges;
+//		std::set<Face_handle>		faces;
+//		std::set<Halfedge_handle>	edges;
 //		faces.insert(fn->real_faces.begin(),fn->real_faces.end());
 //		FindEdgesForFaceSet<Pmwx>(faces,edges);
-//		for(set<Halfedge_handle>::iterator e = edges.begin(); e != edges.end(); ++e)
+//		for(std::set<Halfedge_handle>::iterator e = edges.begin(); e != edges.end(); ++e)
 //			debug_mesh_line(cgal2ben((*e)->source()->point()),cgal2ben((*e)->target()->point()),1,0,0,0,1,0);
 
 		nodes_by_degree.insert(multimap<int, FaceNode_t *, greater<int> >::value_type(fn->edges.size(),fn));
@@ -1916,9 +1916,9 @@ void	ColorFaces(set<Face_handle>&	io_faces)
 
 	for(multimap<int, FaceNode_t *, greater<int> >::iterator i = nodes_by_degree.begin(); i != nodes_by_degree.end(); ++i)
 	{
-		set<int> used;
+		std::set<int> used;
 		i->second->color = 0;
-		for(list<EdgeNode_t *>::iterator ei = i->second->edges.begin(); ei != i->second->edges.end(); ++ei)
+		for(std::list<EdgeNode_t *>::iterator ei = i->second->edges.begin(); ei != i->second->edges.end(); ++ei)
 		{
 			en = *ei;
 			fn = en->other(i->second);
@@ -1947,15 +1947,15 @@ void	ColorFaces(set<Face_handle>&	io_faces)
 			i->second->color = i->second->color % 4;
 		}
 
-		set<int> zoning_we_have;
+		std::set<int> zoning_we_have;
 
-		for(list<Face_handle>::iterator fh = i->second->real_faces.begin(); fh != i->second->real_faces.end(); ++fh)
+		for(std::list<Face_handle>::iterator fh = i->second->real_faces.begin(); fh != i->second->real_faces.end(); ++fh)
 		{
 			(*fh)->data().mParams[af_Variant] = i->second->color;
 			zoning_we_have.insert((*fh)->data().GetZoning());
 		}
 
-		set<int>	my_possible_terrains;
+		std::set<int>	my_possible_terrains;
 		for(LandFillRuleTable::iterator r = gLandFillRules.begin(); r != gLandFillRules.end(); ++r)
 		if(is_subset(zoning_we_have,r->required_zoning))
 			my_possible_terrains.insert(r->terrain);
@@ -1963,7 +1963,7 @@ void	ColorFaces(set<Face_handle>&	io_faces)
 		for(LandFillRuleTable::iterator r = gLandFillRules.begin(); r != gLandFillRules.end(); ++r)
 		if(is_subset(zoning_we_have,r->required_zoning) && r->color == i->second->color)
 		{
-			for(list<Face_handle>::iterator fh = i->second->real_faces.begin(); fh != i->second->real_faces.end(); ++fh)
+			for(std::list<Face_handle>::iterator fh = i->second->real_faces.begin(); fh != i->second->real_faces.end(); ++fh)
 			if((*fh)->data().mTerrainType == NO_VALUE || my_possible_terrains.count((*fh)->data().mTerrainType))
 				(*fh)->data().mTerrainType = r->terrain;
 			break;

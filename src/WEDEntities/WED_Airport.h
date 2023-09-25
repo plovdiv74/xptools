@@ -35,36 +35,36 @@ DECLARE_PERSISTENT(WED_Airport)
 
 public:
 
-	void		GetICAO(string& icao) const;
+	void		GetICAO(std::string& icao) const;
 	int			GetAirportType(void) const;
 	int			GetSceneryID(void) const;
 	
 	void		SetSceneryID(int new_id);
 	void		SetAirportType(int airport_type);
-	void		SetICAO(const string& icao);
+	void		SetICAO(const std::string& icao);
 
-	typedef std::pair<string,string> meta_data_entry;
+	typedef std::pair<std::string,std::string> meta_data_entry;
 
 	//--Meta Data API-------------------------------
 	//Adds a Meta Data Key. Collision is a replace value
-	void		AddMetaDataKey(const string& key, const string& value);
+	void		AddMetaDataKey(const std::string& key, const std::string& value);
 	
 	//Edits a given Meta Data key's value. Non-existant keys are ignored
-	void		EditMetaDataKey(const string& key, const string& value);
+	void		EditMetaDataKey(const std::string& key, const std::string& value);
 	
-	//Removes a key/value pair
-	//void		RemoveMetaDataKey(const string& key);
+	//Removes a key/value std::pair
+	//void		RemoveMetaDataKey(const std::string& key);
 	
 	//Returns true if meta_data_vec_map contains the key
-	bool		ContainsMetaDataKey(const string& key) const;
+	bool		ContainsMetaDataKey(const std::string& key) const;
 	bool		ContainsMetaDataKey(int meta_data_enum) const;
 
 	//Gets the size of the Meta Data Vector
 	int			CountMetaDataKeys();
 
-	//Returns the key's value, key MUST be in the metadata vector already
-	string		GetMetaDataValue(const string& key) const;
-	string		GetMetaDataValue(int meta_data_enum) const;
+	//Returns the key's value, key MUST be in the metadata std::vector already
+	std::string		GetMetaDataValue(const std::string& key) const;
+	std::string		GetMetaDataValue(int meta_data_enum) const;
 	//----------------------------------------------
 
 	void		Import(const AptInfo_t& info, void (* print_func)(void *, const char *, ...), void * ref);
@@ -76,7 +76,7 @@ public:
 	void		GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
 
 	void		GetNthPropertyDict(int n, PropertyDict_t& dict) const;
-	void		GetNthPropertyDictItem(int n, int e, string& item) const;
+	void		GetNthPropertyDictItem(int n, int e, std::string& item) const;
 	
 	void		GetNthProperty(int n, PropertyVal_t& val) const;
 	void		SetNthProperty(int n, const PropertyVal_t& val);
@@ -109,9 +109,9 @@ private:
 	WED_PropBoolText			drive_on_left;
 	WED_PropIntText				scenery_id;
 	
-	//A vector of meta data key,value entrys, all synthetic properties
+	//A std::vector of meta data key,value entrys, all synthetic properties
 	//Due to the way it is stored in XML, keys are not allowed to contain commas
-	vector<meta_data_entry>	meta_data_vec_map;
+	std::vector<meta_data_entry>	meta_data_vec_map;
 };
 
 #endif /* WED_AIRPORT_H */

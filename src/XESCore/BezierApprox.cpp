@@ -163,7 +163,7 @@ void visualize_bezier_seq(__Iter first, __Iter last, int r, int g, int b)
 
 #if INDEXED
 
-typedef	pair<list<vector<Point2> >, bool>		PolyLineIndex;
+typedef	std::pair<std::list<vector<Point2> >, bool>		PolyLineIndex;
 
 bool is_reverse_x(const Point2& p1, const Point2& p2, const Point2& p3)
 {
@@ -216,7 +216,7 @@ void make_index_seq(__Seq seq, PolyLineIndex& out_index)
 			if (span_stop == all.size()) break;
 			span_start = span_stop-1;
 		}
-		for(list<vector<Point2> >::iterator ps = out_index.first.begin(); ps != out_index.first.end(); ++ps)
+		for(std::list<vector<Point2> >::iterator ps = out_index.first.begin(); ps != out_index.first.end(); ++ps)
 		{
 			bool is_rev = false;
 			for(int n = 1; n < ps->size(); ++n)
@@ -247,7 +247,7 @@ void make_index_seq(__Seq seq, PolyLineIndex& out_index)
 			if (span_stop == all.size()) break;
 			span_start = span_stop-1;
 		}
-		for(list<vector<Point2> >::iterator ps = out_index.first.begin(); ps != out_index.first.end(); ++ps)
+		for(std::list<vector<Point2> >::iterator ps = out_index.first.begin(); ps != out_index.first.end(); ++ps)
 		{
 			bool is_rev = false;
 			for(int n = 1; n < ps->size(); ++n)
@@ -266,7 +266,7 @@ void make_index_seq(__Seq seq, PolyLineIndex& out_index)
 double squared_distance_pt_seq(PolyLineIndex& iseq, const Point2& p, double max_err)
 {
 	double worst = max_err * 10.0;
-	for(list<vector<Point2> >::iterator ps = iseq.first.begin(); ps != iseq.first.end(); ++ps)
+	for(std::list<vector<Point2> >::iterator ps = iseq.first.begin(); ps != iseq.first.end(); ++ps)
 	{
 		if(iseq.second)
 		{
@@ -488,7 +488,7 @@ struct seq_concat {
 	seq_concat& operator++(void) { if(s1()) ++s2; else ++s1; return *this; } 
 };
 
-typedef list<Point2c>	bez_list;
+typedef std::list<Point2c>	bez_list;
 
 #if INDEXED
 template <typename T>
@@ -522,8 +522,8 @@ double error_for_approx(T1 s1_begin, T1 s1_end, T2 s2_begin, T2 s2_end)
 #endif
 
 double best_bezier_approx(
-					list<Point2c>::iterator orig_first,
-					list<Point2c>::iterator orig_last,
+					std::list<Point2c>::iterator orig_first,
+					std::list<Point2c>::iterator orig_last,
 					Point2c			approx[4],
 					double&			 t1_best,
 					double&			 t2_best,
@@ -533,21 +533,21 @@ double best_bezier_approx(
 					double			max_err)
 {
 	DebugAssert(orig_last != orig_first);
-	list<Point2c>::iterator orig_c1(orig_first); ++orig_c1;
+	std::list<Point2c>::iterator orig_c1(orig_first); ++orig_c1;
 	DebugAssert(orig_c1 != orig_last);
-	list<Point2c>::iterator orig_c2(orig_last); --orig_c2;
+	std::list<Point2c>::iterator orig_c2(orig_last); --orig_c2;
 	DebugAssert(orig_c2 != orig_first);
 	DebugAssert(!orig_first->c);
 	DebugAssert(!orig_last->c);
 	DebugAssert(orig_c1->c);
 	DebugAssert(orig_c2->c);
-	list<Point2c>::iterator orig_end(orig_last);
+	std::list<Point2c>::iterator orig_end(orig_last);
 	++orig_end;
 	
 	#if INDEXED
 	PolyLineIndex	orig_index;
 
-	typedef seq_for_container<list<Point2c>::iterator>	orig_seq_type;
+	typedef seq_for_container<std::list<Point2c>::iterator>	orig_seq_type;
 	typedef bezier_approx_seq<orig_seq_type>			approx_seq_type;
 		
 	make_index_seq<approx_seq_type>(approx_seq_type(orig_seq_type(orig_first,orig_end),true),orig_index);
@@ -559,7 +559,7 @@ double best_bezier_approx(
 		gMeshLines.clear();
 		gMeshPoints.clear();
 		gMeshBeziers.clear();
-		for (list<vector<Point2> >::iterator ps = orig_index.first.begin(); ps != orig_index.first.end(); ++ps)
+		for (std::list<vector<Point2> >::iterator ps = orig_index.first.begin(); ps != orig_index.first.end(); ++ps)
 		{
 			for(int n = 1; n < ps->size(); ++n)
 			{
@@ -609,7 +609,7 @@ double best_bezier_approx(
 		#if INDEXED
 		double my_err = fabs(error_for_approx<Point2c*>(orig_index, this_approx,this_approx+4, max_err));
 		#else
-		double my_err = fabs(error_for_approx<list<Point2c>::iterator,Point2c*>(orig_first, orig_end, this_approx,this_approx+4));
+		double my_err = fabs(error_for_approx<std::list<Point2c>::iterator,Point2c*>(orig_first, orig_end, this_approx,this_approx+4));
 		#endif
 
 		#if DEBUG_CURVE_FIT_TRIALS
@@ -770,9 +770,9 @@ approx_t * merge_approx(possible_approx_t * who, possible_approx_q * q, double e
 }
 
 void bezier_multi_simplify(
-					list<Point2c>::iterator	first,
-					list<Point2c>::iterator	last,
-					list<Point2c>&			simplified,
+					std::list<Point2c>::iterator	first,
+					std::list<Point2c>::iterator	last,
+					std::list<Point2c>&			simplified,
 					double					max_err,
 					double					lim_err)
 {
@@ -784,8 +784,8 @@ void bezier_multi_simplify(
 	#endif
 	approx_t *				orig = NULL;
 	possible_approx_q 		q;
-	list<Point2c>::iterator	start, stop;
-	/* STEP 1 - build an approx list for each bezier curve in the original sequence. */
+	std::list<Point2c>::iterator	start, stop;
+	/* STEP 1 - build an approx std::list for each bezier curve in the original sequence. */
 
 	start = first;
 	approx_t * prev = NULL;
@@ -877,11 +877,11 @@ void bezier_multi_simplify(
 }
 
 void bezier_multi_simplify_straight_ok(
-					list<Point2c>&		seq,
+					std::list<Point2c>&		seq,
 					double				max_err,
 					double				lim_err)
 {
-	list<Point2c>::iterator start(seq.begin()), stop, last(seq.end());
+	std::list<Point2c>::iterator start(seq.begin()), stop, last(seq.end());
 	--last;
 
 	DebugAssert(!last->c);
@@ -907,7 +907,7 @@ void bezier_multi_simplify_straight_ok(
 			
 			if(curves > 1)
 			{
-				list<Point2c>	better;
+				std::list<Point2c>	better;
 				bezier_multi_simplify(start,stop,better,max_err, lim_err);
 				
 				if(ctr >= better.size())				// old has to be SMALLER since it isn't counting its end node!

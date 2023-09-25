@@ -108,8 +108,8 @@ public:
 
 private:
 
-		vector<GUI_ScrollerPane*>	mSlaveH;
-		vector<GUI_ScrollerPane*>	mSlaveV;
+		std::vector<GUI_ScrollerPane*>	mSlaveH;
+		std::vector<GUI_ScrollerPane*>	mSlaveV;
 
 			void	CalibrateSBs(void);
 
@@ -117,7 +117,7 @@ private:
 	GUI_ScrollBar *					mScrollV;
 	GUI_ScrollerPaneContent *		mContent;
 	bool							mCalibrating;
-	string							mImage;
+	std::string							mImage;
 	bool							mCalibrateDirty;
 
 };

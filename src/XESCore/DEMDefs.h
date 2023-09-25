@@ -67,7 +67,7 @@
 		dimension; the advantage of addresses is that they provide single-word access
 		but aren't tied to a specific DEM - given two DEMs of the same dimensions,
 		overlapped pixels have the same address.
-	-	Coordinates - 2-d pair of ints - the STL-pair form is rarely used in the API but
+	-	Coordinates - 2-d std::pair of ints - the STL-std::pair form is rarely used in the API but
 		is useful for internal calculations.
 	-	Neighbor iterators.  A neighbor iterator iterates over zero to four/eight
 		orthogonally connected pixels from a given address; the neighbor iterates
@@ -159,7 +159,7 @@ struct	DEMGeo {
 	typedef float *			iterator;
 	typedef	const float *	const_iterator;
 	typedef int				address;
-	typedef	pair<int,int>	coordinates;
+	typedef	std::pair<int,int>	coordinates;
 
 	template<int __dim>
 	struct					neighbor_iterator;
@@ -217,7 +217,7 @@ struct	DEMGeo {
 	DEMGeo& operator*=(const DEMGeo&);
 
 	void	resize(int width, int height);					// Resize, reset to 0
-	void	set_rez(double x_res, double y_res);			// Given target res and geo already set, recalc dims and resize.
+	void	set_rez(double x_res, double y_res);			// Given target res and geo already std::set, recalc dims and resize.
 	void	resize_save(int width, int height, float fill);	// REsize, save lower left data,  fill with param
 	void	copy_geo_from(const DEMGeo& rhs);				// geo-Coordinates from other
 	void	clear_from(const DEMGeo&, float v);				// Copy/clear: size and coordinates and post from other, but filled with 'v'
@@ -238,7 +238,7 @@ struct	DEMGeo {
 
 	// Access to the data points by discrete address
 	inline float	get(int x, int y) const;									// Get value at x,y, DEM_NO_DATA if out of bonds
-	inline void		set(int x, int y, float v);									// Safe set - no-op if off
+	inline void		set(int x, int y, float v);									// Safe std::set - no-op if off
 	inline float	get_clamp(int x, int y) const;								// Get value at x,y, clamped to within the DEM
 	inline float	get_dir(int x, int y, int dx, int dy, 						// Get first value in a given direction and dist that doesn't
 						int max_radius, float blank, float& outDist) const;		// Match 'blank'
@@ -343,7 +343,7 @@ struct	DEMGeo {
  * DEM MASK
  *************************************************************************************/
 
-// Same idea, except we use a bit-mask.  Use STL vector to get the bit mask.  32x memory savings compared to a DEM.
+// Same idea, except we use a bit-mask.  Use STL std::vector to get the bit mask.  32x memory savings compared to a DEM.
 struct	DEMMask {
 
 	DEMMask();
@@ -360,7 +360,7 @@ struct	DEMMask {
 
 	inline bool		operator()(int, int) const;
 	inline bool		get(int x, int y) const;									// Get value at x,y, false
-	inline void		set(int x, int y, bool v);									// Safe set - no-op if off
+	inline void		set(int x, int y, bool v);									// Safe std::set - no-op if off
 
 	double	mWest;
 	double	mSouth;
@@ -371,7 +371,7 @@ struct	DEMMask {
 	int		mHeight;
 	int		mPost;
 
-	vector<bool>	mData;
+	std::vector<bool>	mData;
 };
 
 /*************************************************************************************
@@ -400,25 +400,25 @@ void	DEMGeo_ReduceMinMaxN(
 				  int N);
 
 
-// Given a DEM, produce a pair of vectors of DEMs of progressively smaller size that
+// Given a DEM, produce a std::pair of vectors of DEMs of progressively smaller size that
 // summarize our min and max values.  (This is like a mipmap.)
 void	DEMGeo_BuildMinMax(
 			const DEMGeo& 		inDEM,
-			vector<DEMGeo>&		outMin,
-			vector<DEMGeo>&		outMax,
+			std::vector<DEMGeo>&		outMin,
+			std::vector<DEMGeo>&		outMax,
 			int					inGenerations);
 
 // For a given "cache square" in the minmax'd DEM, find the actual lowest or highest
 float	DEMGeo_LocalMinOfCacheSquare(
 			const DEMGeo&			inDEM,
-			const vector<DEMGeo>&	inMin,
+			const std::vector<DEMGeo>&	inMin,
 			int level,
 			int x, int y,
 			int& minx, int& miny, float& minh);
 
 float	DEMGeo_LocalMaxOfCacheSquare(
 			const DEMGeo&			inDEM,
-			const vector<DEMGeo>&	inMax,
+			const std::vector<DEMGeo>&	inMax,
 			int level,
 			int x, int y,
 			int& maxx, int& maxy, float& maxh);
@@ -429,8 +429,8 @@ float	DEMGeo_LocalMaxOfCacheSquare(
 // min max, it is treated as if no local min max was found.
 float	DEMGeo_LocalMinMaxWithCache(
 			const DEMGeo&			inDEM,
-			const vector<DEMGeo>&	inMin,
-			const vector<DEMGeo>&	inMax,
+			const std::vector<DEMGeo>&	inMin,
+			const std::vector<DEMGeo>&	inMax,
 			int x1, int y1, int x2, int y2,
 			int& minx, int& miny, float& minh,
 			int& maxx, int& maxy, float& maxh,
@@ -440,8 +440,8 @@ float	DEMGeo_LocalMinMaxWithCache(
 // within the DEM.  Edges are always included.
 float	DEMGeo_LocalMinMaxWithCache(
 			const DEMGeo&			inDEM,
-			const vector<DEMGeo>&	inMin,
-			const vector<DEMGeo>&	inMax,
+			const std::vector<DEMGeo>&	inMin,
+			const std::vector<DEMGeo>&	inMax,
 			int x1, int y1, int x2, int y2,
 			float& 					minh,
 			float& 					maxh);
@@ -451,17 +451,17 @@ float	DEMGeo_LocalMinMaxWithCache(
  * DEMGeoMap - MULTIPLE RASTER LAYERS BY CODE
  *************************************************************************************/
 
-class DEMGeoMap : public hash_map<int, DEMGeo> {
+class DEMGeoMap : public std::hash_map<int, DEMGeo> {
 public:
 	// Write ourselves a hokey const-safe [] because I am impatient!!
 	DEMGeo& operator[](int i) {
-		return hash_map<int, DEMGeo>::operator[](i);
+		return std::hash_map<int, DEMGeo>::operator[](i);
 	}
 
 
 	const DEMGeo& operator[](int i) const {
 		static DEMGeo dummy;
-		hash_map<int, DEMGeo>::const_iterator f = this->find(i);
+		std::hash_map<int, DEMGeo>::const_iterator f = this->find(i);
 		if (f == this->end()) return dummy;
 		return f->second;
 	}
@@ -472,7 +472,7 @@ public:
  *************************************************************************************/
 
 // Some raster algorithms use a FIFO of pixels to process - this is about the simplest
-// FIFO we can build - a fixed capacity ring buffer built around a vector.
+// FIFO we can build - a fixed capacity ring buffer built around a std::vector.
  
 struct address_fifo {
 public:
@@ -485,7 +485,7 @@ public:
 	void push(address n) { DebugAssert(size_ < data_.size()); data_[inp_] = n; inp_ = (inp_+1) % data_.size(); ++size_; }
 	address pop(void) { DebugAssert(size_ > 0); address r = data_[outp_]; outp_ = (outp_+1) % data_.size(); --size_; return r; }
 
-	vector<address> data_;
+	std::vector<address> data_;
 	size_t size_;
 	size_t inp_;
 	size_t outp_;	
@@ -594,7 +594,7 @@ inline float	DEMGeo::get_lowest_heuristic(int x, int y, int r) const
 			y1 = y-r,
 			y2 = y+r;
 
-	vector<float>	es;
+	std::vector<float>	es;
 	float real = get(x,y);
 	es.reserve((r+1)*(r+1));
 	for (yo = y1; yo <= y2; ++yo)
@@ -965,7 +965,7 @@ inline float	DEMGeo::get_median(double lon, double lat, double xstep, double yst
 
 	int rx, ry;
 
-	vector<float>	es;
+	std::vector<float>	es;
 	//printf("--------------------- lon:%f,lat:%f,xstep:%f,ystep:%f\n",lon,lat,xstep,ystep);
 	es.reserve(((r*2)+1)*((r*2)+1));
 	for (ry = 0; ry < ((r*2)+1); ry++)
@@ -1301,7 +1301,7 @@ inline DEMGeo::coordinates DEMGeo::to_coordinates(const_iterator i) const
 
 inline DEMGeo::coordinates DEMGeo::to_coordinates(address a) const
 {
-	return pair<int,int>(a % mWidth, a / mWidth);
+	return std::pair<int,int>(a % mWidth, a / mWidth);
 }
 
 inline DEMGeo::const_iterator DEMGeo::to_iterator(const coordinates& c) const

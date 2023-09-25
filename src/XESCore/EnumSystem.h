@@ -46,9 +46,9 @@ enum {
 /* A token map goes from the int to the string - use a vector because
  * all enums should be packed. */
 
-typedef	vector<string>			TokenMap;
-typedef hash_map<string, int>	TokenReverseMap;
-typedef	vector<int>				TokenConversionMap;
+typedef	std::vector<std::string>			TokenMap;
+typedef std::hash_map<std::string, int>	TokenReverseMap;
+typedef	std::vector<int>				TokenConversionMap;
 
 extern	TokenMap		gTokens;
 

@@ -44,12 +44,12 @@ WED_DrapedOrthophoto::~WED_DrapedOrthophoto()
 {
 }
 
-void		WED_DrapedOrthophoto::GetResource(	  string& r) const
+void		WED_DrapedOrthophoto::GetResource(	  std::string& r) const
 {
 	r = resource.value;
 }
 
-void		WED_DrapedOrthophoto::SetResource(const string& r)
+void		WED_DrapedOrthophoto::SetResource(const std::string& r)
 {
 	resource = r;
 }
@@ -69,9 +69,9 @@ void WED_DrapedOrthophoto::SetHeading(double h)
 // Its important, as orthophoto's are allowed to directly refer to the image. In such cases,
 // the .POL, along with a .DDS version of the image, is created when writing the .DSF
 
-bool WED_DrapedOrthophoto::IsNew(string * out_suffix) 
+bool WED_DrapedOrthophoto::IsNew(std::string * out_suffix) 
 {
-	string ext = FILE_get_file_extension(resource.value);
+	std::string ext = FILE_get_file_extension(resource.value);
 	
 	if(ext != "pol")
 	{
@@ -111,7 +111,7 @@ void  WED_DrapedOrthophoto::SetSubTexture(const Bbox2& b)
 void WED_DrapedOrthophoto::Redrape(bool updProp)
 { 
 	// need to do some sanity checking:
-	// During DSF import, properties are being set, even before any nodes have been read, i.e. any OuterRing is set
+	// During DSF import, properties are being std::set, even before any nodes have been read, i.e. any OuterRing is std::set
 	if (GetNthChild(0) && HasLayer(gis_UV))
 	{
 		Bbox2  ll_box;           // the lon/lat bounding box of the poly - this is what the texture needs to cover
@@ -121,7 +121,7 @@ void WED_DrapedOrthophoto::Redrape(bool updProp)
 		GetSubTexture(uv_box);
 		if (uv_box.is_empty())
 			return;              // allows turning off the auto-update by setting the UV coordinates of the polygon to all zero.
-			                     // usefull if UV mapping is set by hand for each node, like it was mandatory in WED 1.5.
+			                     // usefull if UV mapping is std::set by hand for each node, like it was mandatory in WED 1.5.
 
 		// We want to allow for rotated textures. Thus we have to rotate the coordinates before UV calculation
 		// really doesn't matter around what point we rotate, as long it is somewehre nearby
@@ -135,7 +135,7 @@ void WED_DrapedOrthophoto::Redrape(bool updProp)
 		{
 			IGISPointSequence *ring = h ? GetNthHole(h-1) : GetOuterRing();
 			int np = ring->GetNumPoints();
-			vector <BezierPoint2> pt_bak;                    // backup of the coordinates we're going to rotate
+			std::vector <BezierPoint2> pt_bak;                    // backup of the coordinates we're going to rotate
 			for(int n = 0; n < np; ++n)
 			{
 				IGISPoint_Bezier *s = dynamic_cast<IGISPoint_Bezier *> (ring->GetNthPoint(n));

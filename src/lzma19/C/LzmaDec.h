@@ -127,7 +127,7 @@ typedef enum
 /* There are two variants to allocate state for Dictionary Interface:
      1) LzmaDec_Allocate / LzmaDec_Free
      2) LzmaDec_AllocateProbs / LzmaDec_FreeProbs
-   You can use variant 2, if you set dictionary buffer manually.
+   You can use variant 2, if you std::set dictionary buffer manually.
    For Buffer Interface you must always use variant 1.
 
 LzmaDec_Allocate* can return:

@@ -14,7 +14,7 @@
 	#endif
 #endif
 
-bool	fill_in_airport_metadata_defaults(WED_Airport & airport, const string& file_path)
+bool	fill_in_airport_metadata_defaults(WED_Airport & airport, const std::string& file_path)
 {
 #if DEV && FROM_DISK
 	std::ifstream t(CSV_ON_DISK);
@@ -45,7 +45,7 @@ bool fill_in_airport_metadata_defaults(WED_Airport & airport, const CSVParser::C
 	CSVParser::CSVTable::CSVRow default_values;
 
 	//Find the airport in the table match
-	string icao;
+	std::string icao;
 	if(airport.ContainsMetaDataKey(wed_AddMetaDataICAO))
 		icao = airport.GetMetaDataValue(wed_AddMetaDataICAO);
 	if (icao.empty() && airport.ContainsMetaDataKey(wed_AddMetaDataFAA))
@@ -75,8 +75,8 @@ bool fill_in_airport_metadata_defaults(WED_Airport & airport, const CSVParser::C
 		CSVParser::CSVTable::CSVHeader column_headers = table.GetHeader();
 		for (i = 1; i < default_values.size(); i++)
 		{
-			string key = column_headers[i];
-			string default_value = default_values[i];
+			std::string key = column_headers[i];
+			std::string default_value = default_values[i];
 
 			const KeyEnum key_enum = META_KeyEnumFromName(key);
 			if(key_enum > wed_AddMetaDataBegin && key_enum < wed_AddMetaDataEnd) // We *only* want to insert keys we recognize
@@ -98,11 +98,11 @@ bool fill_in_airport_metadata_defaults(WED_Airport & airport, const CSVParser::C
 	return found_data;
 }
 
-// these are NOT exact country names, but rather partial string suitable to differentiate them
+// these are NOT exact country names, but rather partial std::string suitable to differentiate them
 // some have trailing spaces to facilitate end-of-word matching
-// the string they are compared to also needs to have this trailng space
+// the std::string they are compared to also needs to have this trailng space
 
-extern vector<vector<const char*> > iso3166_codes = {
+extern std::vector<std::vector<const char*> > iso3166_codes = {
 
 {"ABW",  "ARUBA",},			{"AFG",  "AFGHANISTAN",},	{"AGO",  "ANGOLA",},		{"AIA",  "ANGUILLA",},
 {"ALA",  "\303\205LAND", "ALAND ISLAND"},	{"ALB",  "ALBANIA",},		{"AND",  "ANDORRA",},		{"ARE",  "EMIRATES",},
@@ -177,7 +177,7 @@ extern vector<vector<const char*> > iso3166_codes = {
 bool add_iso3166_country_metadata(WED_Airport & apt, bool inProgress)
 {
 	//-- upgrade Country Metadata -------------
-	string country;
+	std::string country;
 	bool has_iso = false;
 
 	if (apt.ContainsMetaDataKey(wed_AddMetaDataCountry))
@@ -210,16 +210,16 @@ bool add_iso3166_country_metadata(WED_Airport & apt, bool inProgress)
 		else if (country == "RK") country = "South Korea";
 
 		int matches = 0;
-		string code3;
+		std::string code3;
 		if (country.size())
 		{
-			string country_l(country);
+			std::string country_l(country);
 			std::transform(country_l.begin(), country_l.end(), country_l.begin(), [](unsigned char c) { return std::toupper(c); });
 			country_l += " ";
 
 			for (const auto& list : iso3166_codes)
 				for (auto cty = list.begin() + 1; cty < list.end(); cty++)
-					if (country_l.find(*cty) != string::npos)
+					if (country_l.find(*cty) != std::string::npos)
 					{
 						code3 = list.front();
 						code3 += " ";
@@ -229,17 +229,17 @@ bool add_iso3166_country_metadata(WED_Airport & apt, bool inProgress)
 		}
 		if (matches == 0)
 		{
-			string ICAO_code;
+			std::string ICAO_code;
 			if (apt.ContainsMetaDataKey(wed_AddMetaDataICAO))
 				ICAO_code = apt.GetMetaDataValue(wed_AddMetaDataICAO);
 			else                          // trust LR assigned airport ID's to have meaninful region prefix
 			{
-				string s;
+				std::string s;
 				apt.GetName(s);
 				if (s[0] == 'X' && s.size() > 4)
 					ICAO_code = s.substr(1);
 			}
-			if (ICAO_code.size())         // trust explicit set and plausibility checked ICAO meta adata
+			if (ICAO_code.size())         // trust explicit std::set and plausibility checked ICAO meta adata
 			{
 				ICAO_code = ICAO_code.substr(0, 2);
 				if (ICAO_code[0] == 'K')			code3 = "USA ";

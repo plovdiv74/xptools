@@ -52,7 +52,7 @@ extern void DebugEvent( TESStesselator *tess );
 
 /*
 * Invariants for the Edge Dictionary.
-* - each pair of adjacent edges e2=Succ(e1) satisfies EdgeLeq(e1,e2)
+* - each std::pair of adjacent edges e2=Succ(e1) satisfies EdgeLeq(e1,e2)
 *   at any valid location of the sweep event
 * - if EdgeLeq(e2,e1) as well (at any valid sweep event), then e1 and e2
 *   share a common endpoint

@@ -49,12 +49,12 @@ void WED_LinePlacement::SetClosed(int h)
 	closed = h;
 }
 
-void		WED_LinePlacement::GetResource(	  string& r) const
+void		WED_LinePlacement::GetResource(	  std::string& r) const
 {
 	r = resource.value;
 }
 
-void		WED_LinePlacement::SetResource(const string& r)
+void		WED_LinePlacement::SetResource(const std::string& r)
 {
 	resource = r;
 }
@@ -68,7 +68,7 @@ int			WED_LinePlacement::CountProperties(void) const
 
 int			WED_LinePlacement::FindProperty(const char * in_prop) const
 {
-	if(string(in_prop) ==  "= Airport Line")
+	if(std::string(in_prop) ==  "= Airport Line")
 		return CountProperties();
 	else
 		return WED_GISChain::FindProperty(in_prop);
@@ -94,21 +94,21 @@ void		WED_LinePlacement::GetNthPropertyDict(int n, PropertyDict_t& dict) const
 {
 	if (n >= WED_GISChain::CountProperties())
 	{
-		map<int, string>		dm;
+		std::map<int, std::string>		dm;
 
 		DOMAIN_Members(LinearFeature,dm);
 
-		for(map<int, string>::iterator i = dm.begin(); i != dm.end(); ++i)
+		for(std::map<int, std::string>::iterator i = dm.begin(); i != dm.end(); ++i)
 		{
 			if(ENUM_Export(i->first) < 100)                                                // filter out the light styles
-				dict.insert(PropertyDict_t::value_type(i->first, make_pair(i->second,true)));
+				dict.insert(PropertyDict_t::value_type(i->first, std::make_pair(i->second,true)));
 		}
 	}
 	else
 		WED_GISChain::GetNthPropertyDict(n, dict);
 }
 
-void		WED_LinePlacement::GetNthPropertyDictItem(int n, int e, string& item) const
+void		WED_LinePlacement::GetNthPropertyDictItem(int n, int e, std::string& item) const
 {
 	if (n >= WED_GISChain::CountProperties())
 	{
@@ -154,7 +154,7 @@ void		WED_LinePlacement::SetNthProperty(int n, const PropertyVal_t& val)
 		IResolver * resolver = GetArchive()->GetResolver();
 		if (resolver)
 		{
-			string vpath;
+			std::string vpath;
 			if(WED_GetLibraryMgr(resolver)->GetLineVpath(linetype, vpath))
 				resource = vpath;
 		}

@@ -31,7 +31,7 @@
 class GUI_GraphState;
 
 struct road_entry {
-	string	name;
+	std::string	name;
 	bool	checked;
 	int		enu;
 	road_entry(const char * c = "") : name(c), checked(false), enu(-1) {}
@@ -43,9 +43,9 @@ struct road_choices {
 		int enu;
 		sfx_t(int i, int e) : idx(i), enu(e) {};
 		};
-	string prefix;
-	vector<sfx_t> combis;
-	road_choices(string s) : prefix(s) {};
+	std::string prefix;
+	std::vector<sfx_t> combis;
+	road_choices(std::string s) : prefix(s) {};
 };
 
 class WED_Road_Selector : public GUI_EditorInsert {
@@ -71,8 +71,8 @@ protected:
 
 private:
 
-	vector<road_choices> mRd_prefix;   // prefix plus pairs of valid suffixes and emums
-	vector<string>	mRd_suffix;
+	std::vector<road_choices> mRd_prefix;   // prefix plus pairs of valid suffixes and emums
+	std::vector<std::string>	mRd_suffix;
 	int				mPfx;              // current selections
 	int				mSfx;
 	int				mChoice;           // original choice when tarted, used in case of abort

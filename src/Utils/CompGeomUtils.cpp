@@ -99,7 +99,7 @@ void	InsetPolygon2(
 		outChain.clear();
 
 	int n = 0;
-	vector<Segment2>	segments, orig_segments;
+	std::vector<Segment2>	segments, orig_segments;
 
 	// First we calculate the inset edges of each side of the polygon.
 
@@ -128,7 +128,7 @@ void	InsetPolygon2(
 		if (incoming_n < 0)	incoming_n = last_vertex;
 
 		/* We are going through vertex by vertex and determining the point(s) added
-		 * by each pair of sides.  incoming is the first side and outgoing is the second
+		 * by each std::pair of sides.  incoming is the first side and outgoing is the second
 		 * in a CCW rotation.  There are 5 special cases:
 		 *
 		 * (1) The first point in a non-ring is determined only by the second side.
@@ -229,7 +229,7 @@ void	InsetPolygon3(
 		outChain.clear();
 
 	int n = 0;
-	vector<Segment3>	segments, orig_segments;
+	std::vector<Segment3>	segments, orig_segments;
 
 	// First we calculate the inset edges of each side of the polygon.
 
@@ -353,7 +353,7 @@ void ExtendBoundingSphereToSphere(const Sphere3& newSphere, Sphere3& ioSphere)
 	smaller.radius_squared *= smaller.radius_squared;
 	if (smaller.contains(newSphere.c)) return;
 
-	// Find a vector from the old to the new scale, and normalize it for direction.
+	// Find a std::vector from the old to the new scale, and normalize it for direction.
 	Vector3	to_new = Vector3(ioSphere.c, newSphere.c);
 	to_new.normalize();
 	// Build vectors in the same and opposite direction of radius length -
@@ -375,10 +375,10 @@ void ExtendBoundingSphereToSphere(const Sphere3& newSphere, Sphere3& ioSphere)
 // sphere routine below.
 void ExtendBoundingSphereToPt1(const Point3& p, Sphere3& ioSphere)
 {
-	// Start with a vector from the sphere to the new point.
+	// Start with a std::vector from the sphere to the new point.
 	Vector3	to_pt = Vector3(ioSphere.c, p);
-	// Normalize it to a unit vector in the direction of our sphere.  This is also
-	// a vector toward a pt on the sphere that is closest to the new pt.
+	// Normalize it to a unit std::vector in the direction of our sphere.  This is also
+	// a std::vector toward a pt on the sphere that is closest to the new pt.
 	to_pt.normalize();
 	// Now rescale it to go the other way and to the edge of the sphere.  This is the
 	// now pointing at the pt farthest from the new pt on the sphere.
@@ -397,14 +397,14 @@ void ExtendBoundingSphereToPt(const Point3& p, Sphere3& ioSphere)
 }
 
 void	FastBoundingSphere(
-				const vector<Point3>&		inPoints,
+				const std::vector<Point3>&		inPoints,
 				Sphere3&					outSphere)
 {
 	if (inPoints.empty())	return;
 
 	// sort the points first so we can take the widest span
 	// to build the sphere.
-	vector<Point3>	pts(inPoints);
+	std::vector<Point3>	pts(inPoints);
 	sort(pts.begin(), pts.end(), lesser_y_then_x_then_z());
 
 	// Make an initial sphere from the two ends...this will hopefully
@@ -462,7 +462,7 @@ bool	PointInPolygon3(
 	AN EXPLANATION OF THE PINCHING PROBLEM
 
 	Normally rendering a road path is a two-step process:
-	1. The set of segments and control points are converted into a set of simple segments with many
+	1. The std::set of segments and control points are converted into a std::set of simple segments with many
 	   small segments forming the curve, using this function, BezierCurve.
 	2. Those points and a series of width and up vectors are fed into ChainToQuadStrip to form a
 	   3-d quad strip that can then be rendered (or covered with pavement.
@@ -505,7 +505,7 @@ void	BezierCurve(
 				int							inNumSegments,
 				double						inProtectStart,
 				double						inProtectEnd,
-				vector<Point3>&				outPoints)
+				std::vector<Point3>&				outPoints)
 {
 	if (inNumSegments < 1) inNumSegments = 1;
 	if (!inHasStartCurve && !inHasEndCurve) inNumSegments = 1;
@@ -556,10 +556,10 @@ void	BezierCurve(
 #define NEAR_COLINEAR 0.9995
 
 void	ChainToQuadStrip(
-				const vector<Point3>&		inChain,
-				const vector<Vector3>&		inUp,
-				const vector<double>&		inWidth,
-				vector<Point3>&				outQuadStrip)
+				const std::vector<Point3>&		inChain,
+				const std::vector<Vector3>&		inUp,
+				const std::vector<double>&		inWidth,
+				std::vector<Point3>&				outQuadStrip)
 {
 	Vector3	centerline, right;
 
@@ -603,7 +603,7 @@ void	ChainToQuadStrip(
 			// that means that we have a segment that really isn't turning
 			// at all.  Using an intersection to calculate the edges is a BAD
 			// idea - intersect is imprecise for nearly parallel lines.  So
-			// just punt and use one set of points.
+			// just punt and use one std::set of points.
 			if (normal1.dot(normal2) > NEAR_COLINEAR)
 			{
 				outQuadStrip.push_back(inChain[n] - normal1);
@@ -629,7 +629,7 @@ void	ChainToQuadStrip(
 			Plane3	rightWall2 = Plane3(right2, normal2);
 
 			// Next we intersect them.  This forms two lines that
-			// represent the valid set of possible end points for
+			// represent the valid std::set of possible end points for
 			// the planes where the widths of the planes are consistent.
 
 			// If we don't have an intersection, that means that the
@@ -668,7 +668,7 @@ void	ChainToQuadStrip(
 }
 
 void	ReverseQuadStrip(
-				vector<Point3>&				ioQuadStrip)
+				std::vector<Point3>&				ioQuadStrip)
 {
 	int	p = ioQuadStrip.size();
 	int h = p/2;
@@ -681,9 +681,9 @@ void	ReverseQuadStrip(
 
 
 void	RemoveFromQuadStripFront(
-				vector<Point3>&				ioChain,
+				std::vector<Point3>&				ioChain,
 				double						inRemoveFromStart,
-				vector<Point3>&				outFront,
+				std::vector<Point3>&				outFront,
 				bool						inTrimOffAngle)
 {
 	outFront.clear();
@@ -769,9 +769,9 @@ void	RemoveFromQuadStripFront(
 }
 
 void	RemoveFromQuadStripBack(
-				vector<Point3>&				ioChain,
+				std::vector<Point3>&				ioChain,
 				double						inRemoveFromEnd,
-				vector<Point3>&				outBack,
+				std::vector<Point3>&				outBack,
 				bool						inTrimOffAngle)
 {
 	ReverseQuadStrip(ioChain);
@@ -780,7 +780,7 @@ void	RemoveFromQuadStripBack(
 }
 
 double	LongerSideOfQuad(
-				const vector<Point3>&		inChain)
+				const std::vector<Point3>&		inChain)
 {
 	Vector3	left_v(inChain[3], inChain[1]);
 	Vector3	right_v(inChain[2], inChain[0]);
@@ -890,7 +890,7 @@ bool	Is_CCW_Between(const Vector2& v1, const Vector2& v2, const Vector2& v3)
 	if (angle1 == angle2 || angle3 == angle2)
 	{
 #if DEV
-		printf("WARNING: trying to place a vector that overlaps one of the edges.\n");
+		printf("WARNING: trying to place a std::vector that overlaps one of the edges.\n");
 		printf("Vec1: %lf,%lf\n", v1.dx, v1.dy);
 		printf("Vec2: %lf,%lf\n", v2.dx, v2.dy);
 		printf("Vec3: %lf,%lf\n", v3.dx, v3.dy);
@@ -1032,11 +1032,11 @@ inline double	calc_error(Polygon2& ioPolygon, int p, int d_prev, int d_next, boo
 void	SimplifyPolygonMaxMove(Polygon2& ioPolygon, double max_err, bool allow_in, bool allow_out)
 {
 	DebugAssert(allow_in || allow_out);
-	typedef multimap<double, int>	q_type;								// Our priority qeueu type, from error -> point index
+	typedef std::multimap<double, int>	q_type;								// Our priority qeueu type, from error -> point index
 	q_type						q;										// Our queue
-	vector<int>					prev_delta(ioPolygon.size(), -1);		// Relative index ptr to the prev pt still in the poly, or 0 if removed.
-	vector<int>					next_delta(ioPolygon.size(), 1);		// Relative index ptr to the next pt still in the poly, or 0 if removed.
-	vector<q_type::iterator>	q_backlinks(ioPolygon.size());			// Per pt iterator into the queue (back-links)
+	std::vector<int>					prev_delta(ioPolygon.size(), -1);		// Relative index ptr to the prev pt still in the poly, or 0 if removed.
+	std::vector<int>					next_delta(ioPolygon.size(), 1);		// Relative index ptr to the next pt still in the poly, or 0 if removed.
+	std::vector<q_type::iterator>	q_backlinks(ioPolygon.size());			// Per pt std::iterator into the queue (back-links)
 	int sz = ioPolygon.size();
 	double						err;
 	int							pts_total = ioPolygon.size();
@@ -1177,7 +1177,7 @@ void	SmoothPolygon(Polygon2& ioPolygon, double smooth_radius, double max_turn_de
 }
 
 // Given our point now and the best pt we've found so far, can we do better?
-// First we do a dot product of the right-side normal to the best vector - if the newer
+// First we do a dot product of the right-side normal to the best std::vector - if the newer
 // is to the right (positive dot product) it's better, to the left it's worse
 // Then we have the colinear case.  First deal with equal points.  Then if the newer point
 // makes opposite dor product vectors to the anchor and best, the newer is in the middle
@@ -1277,7 +1277,7 @@ inline bool NoHalfedgeInDir(GISVertex * v, const Vector2& vec, bool reverse)
 }
 
 // Convert a polygon to a one-face pmwx.  Polygon must have no antennas and be simple.
-static GISFace* PolyToPmwx(const Polygon2& inPoly, Pmwx& outMap, vector<Vertex_handle> * outVertices)
+static GISFace* PolyToPmwx(const Polygon2& inPoly, Pmwx& outMap, std::vector<Vertex_handle> * outVertices)
 {
 //	DebugAssert(outMap.empty());
 	Face_handle face = outMap.insert_ring(outMap.unbounded_face(), inPoly);
@@ -1374,10 +1374,10 @@ static void Polygon2cleaner(Polygon2& poly) // this needs to be ideally done in 
 	}
 }
 
-vector<Polygon2> PolygonIntersect(const vector<Polygon2>& mpolyA, const vector<Polygon2>& mpolyB)
+std::vector<Polygon2> PolygonIntersect(const std::vector<Polygon2>& mpolyA, const std::vector<Polygon2>& mpolyB)
 {
 //printf("intersect A %d B %d\n", mpolyA.size()	,mpolyB.size());
-	vector<Polygon2> mpoly;
+	std::vector<Polygon2> mpoly;
 	TESStesselator * tess = tessNewTess(NULL);
 
 	for(auto& poly : mpolyA)
@@ -1408,9 +1408,9 @@ vector<Polygon2> PolygonIntersect(const vector<Polygon2>& mpolyA, const vector<P
 }
 
 
-vector<Polygon2> PolygonUnion(const vector<Polygon2>& mpolyA, const vector<Polygon2>& mpolyB)
+std::vector<Polygon2> PolygonUnion(const std::vector<Polygon2>& mpolyA, const std::vector<Polygon2>& mpolyB)
 {
-	vector<Polygon2> mpoly;
+	std::vector<Polygon2> mpoly;
 	TESStesselator * tess = tessNewTess(NULL);
 	
 	for(auto& poly : mpolyA)
@@ -1439,9 +1439,9 @@ vector<Polygon2> PolygonUnion(const vector<Polygon2>& mpolyA, const vector<Polyg
 	return mpoly;
 }
 
-vector<Polygon2> PolygonCut(const vector<Polygon2>& mpolyA, const vector<Polygon2>& mpolyB)
+std::vector<Polygon2> PolygonCut(const std::vector<Polygon2>& mpolyA, const std::vector<Polygon2>& mpolyB)
 {
-	vector<Polygon2> mpoly;
+	std::vector<Polygon2> mpoly;
 	TESStesselator * tess = tessNewTess(NULL);
 //printf("cut A %d B %d\n", mpolyA.size()	,mpolyB.size());
 	for(auto& poly : mpolyA)
@@ -1449,7 +1449,7 @@ vector<Polygon2> PolygonCut(const vector<Polygon2>& mpolyA, const vector<Polygon
 
 	for(auto& poly : mpolyB)
 	{
-		vector<Point2>inv_pts;
+		std::vector<Point2>inv_pts;
 		inv_pts.reserve(poly.size());
 //if(poly.is_ccw()) printf("B CCW %d\n",poly.size()); else printf("B CW %d\n",poly.size());
 		for(auto p = poly.rbegin(); p != poly.rend(); p++)

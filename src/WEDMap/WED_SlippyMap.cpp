@@ -77,14 +77,14 @@ struct attrib_t {
 	float bounds[4];
 };
 
-vector<pair<string, vector<attrib_t> > > slippyAttrib;
+std::vector<std::pair<std::string, std::vector<attrib_t> > > slippyAttrib;
 
-static string ESRI_attributions(float lon, float lat, int z)
+static std::string ESRI_attributions(float lon, float lat, int z)
 {
 	// get_JSON_string (once per session)
 	// get all relevant data (zl 17-13) Vector<attribution,Vector<{zl_min, zl_max, score, BBox2}> >
 
-	string attrib;
+	std::string attrib;
 	int score = 0;
 	for(auto& s : slippyAttrib)
 	{
@@ -246,7 +246,7 @@ void	WED_SlippyMap::DrawVisualization(bool inCurrent, GUI_GraphState * g)
 			}
 #endif
 			int yTransformed;
-			string quadkey;
+			std::string quadkey;
 			switch(y_coordinate_math)
 			{
 				case yYahoo: yTransformed = (1 << (z-1)) - 1 - y; break;
@@ -276,13 +276,13 @@ void	WED_SlippyMap::DrawVisualization(bool inCurrent, GUI_GraphState * g)
 			else
 			{
 				snprintf(url, 200, url_printf_fmt.c_str(), x, yTransformed, z);
-				snprintf(dir, 200, dir_printf_fmt.c_str(), x, yTransformed, z);  // make sure ALL args are referenced in the format string
+				snprintf(dir, 200, dir_printf_fmt.c_str(), x, yTransformed, z);  // make sure ALL args are referenced in the format std::string
 			}
 #endif
-			string folder_prefix(dir); folder_prefix.erase(folder_prefix.find_last_of(DIR_STR));
+			std::string folder_prefix(dir); folder_prefix.erase(folder_prefix.find_last_of(DIR_STR));
 
 			//The potential place the tile could appear on disk, were it to be downloaded or have been downloaded
-			string potential_path = gFileCache.url_to_cache_path(WED_file_cache_request(cache_domain_osm_tile, folder_prefix , url, dir));
+			std::string potential_path = gFileCache.url_to_cache_path(WED_file_cache_request(cache_domain_osm_tile, folder_prefix , url, dir));
 
 			if (m_cache.count(potential_path))
 			{
@@ -357,11 +357,11 @@ void	WED_SlippyMap::GetCaps(bool& draw_ent_v, bool& draw_ent_s, bool& cares_abou
 	draw_ent_v = draw_ent_s = cares_about_sel = wants_clicks = 0;
 }
 
-static bool is_ESRI_blank(const string& path, const ImageInfo& info)
+static bool is_ESRI_blank(const std::string& path, const ImageInfo& info)
 {
 	bool same_grey = false;           // ESRI sends a mostly solid grey image with embedded error text if image isn't available
 
-	if(path.find("arcgisonline.com") != string::npos)
+	if(path.find("arcgisonline.com") != std::string::npos)
 		if (info.channels == 3 && info.width > 6 && info.height > 6)
 		{
 			int line_stride = info.channels * (info.width + info.pad);
@@ -460,10 +460,10 @@ void	WED_SlippyMap::TimerFired()
 	GetHost()->Refresh();
 }
 
-static bool replace_token(string& str, const string& from, const string& to)
+static bool replace_token(std::string& str, const std::string& from, const std::string& to)
 {
     size_t start_pos = str.find(from);
-    if(start_pos == string::npos)
+    if(start_pos == std::string::npos)
         return false;
     str = str.substr(0,start_pos) + to + str.substr(start_pos+from.length());
     return true;
@@ -514,7 +514,7 @@ void	WED_SlippyMap::SetMode(int mode)
 	{
 		mMapMode = 0;
 		SetVisible(0);
-		LOG_MSG("E/Sli Illegal URL string %s for SlippyMap\n", url_printf_fmt.c_str());
+		LOG_MSG("E/Sli Illegal URL std::string %s for SlippyMap\n", url_printf_fmt.c_str());
 	}
 }
 

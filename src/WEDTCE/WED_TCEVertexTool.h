@@ -53,7 +53,7 @@ private:
 				void	SyncRecurse(IGISEntity * g, ISelection * sel) const;
 				void	SyncCache(void) const;
 
-	mutable	vector<IGISEntity *>		mCache;
+	mutable	std::vector<IGISEntity *>		mCache;
 
 };
 

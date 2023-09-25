@@ -32,7 +32,7 @@
 void	GUI_LaunchURL(const char * url)
 {
 	#if APL
-		string cmd = "open \"";
+		std::string cmd = "open \"";
 		cmd += url;
 		cmd += "\"";
 		system(cmd.c_str());

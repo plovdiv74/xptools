@@ -67,7 +67,7 @@
 // This is how much outside the DSF bounds we can legally go.
 // Between you, me, and the wall, X-Plane 10.21 actually allows
 // a full 0.5 degrees of 'extra'.  But...that's a LOT more than we
-// should ever need.  So: set our safe bounds WELL inside X-Plane's.
+// should ever need.  So: std::set our safe bounds WELL inside X-Plane's.
 // If we lose a bit or 2 in the DSF encoder, we won't have written
 // something on the ragged edge.
 #define DSF_EXTRA_1021 0.25
@@ -77,7 +77,7 @@
 struct DSF_export_info_t
 {
 	ImageInfo	orthoImg;      // in case an orthoimage is to be converted/exported, store its info, so it does not need to be loaded it repeatedly
-	string		orthoFile;     // path to last orthoImage - so we know if there is a 2nd one to deal with - in which case we drop the first
+	std::string		orthoFile;     // path to last orthoImage - so we know if there is a 2nd one to deal with - in which case we drop the first
 
 	bool		DockingJetways;
 
@@ -133,7 +133,7 @@ __Iterator find_contiguous_beziers(__Iterator b, __Iterator e)
 	return n;
 }
 
-static bool one_winding(const vector<Segment2>& v)
+static bool one_winding(const std::vector<Segment2>& v)
 {
 	for(int n = 1; n < v.size(); ++n)
 		if(v[n-1].p2 != v[n].p1)
@@ -141,7 +141,7 @@ static bool one_winding(const vector<Segment2>& v)
 	return true;
 }
 
-static bool one_winding(const vector<Bezier2>& v)
+static bool one_winding(const std::vector<Bezier2>& v)
 {
 	for(int n = 1; n < v.size(); ++n)
 		if(v[n-1].p2 != v[n].p1)
@@ -173,19 +173,19 @@ bool bad_match(const T& s1, const T& s2)
 
 static bool is_dir_sep(char c) { return c == '/' || c == ':' || c == '\\'; }
 
-static bool is_backout_path(const string& p)
+static bool is_backout_path(const std::string& p)
 {
-	vector<string> comps;
+	std::vector<std::string> comps;
 	tokenize_string_func(p.begin(), p.end(), back_inserter(comps), is_dir_sep);
 
-	comps.erase(remove(comps.begin(),comps.end(),string(".")),comps.end());
+	comps.erase(remove(comps.begin(),comps.end(),std::string(".")),comps.end());
 
 	bool did_work = false;
 	do {
 		did_work = false;
 		for(int i = 1; i < comps.size(); ++i)
-		if(comps[i] == string(".."))
-		if(comps[i-1] != string(".."))
+		if(comps[i] == std::string(".."))
+		if(comps[i-1] != std::string(".."))
 		{
 			comps.erase(comps.begin()+i-1,comps.begin()+i+1);
 			did_work = true;
@@ -195,7 +195,7 @@ static bool is_backout_path(const string& p)
 
 	for(int i = 0; i < comps.size(); ++i)
 	{
-		if(comps[i] == string(".."))
+		if(comps[i] == std::string(".."))
 			return true;
 	}
 	return false;
@@ -209,7 +209,7 @@ struct kill_zero_length_segment {
 
 // We normally reject zero length segments, but for the sake of grandfathered global airports, we'll instead simply remove them on export.
 template<class Segment>
-void remove_all_zero_length_segments(vector<Segment> &in_out_chain)
+void remove_all_zero_length_segments(std::vector<Segment> &in_out_chain)
 {
 	in_out_chain.erase(remove_if(in_out_chain.begin(), in_out_chain.end(), kill_zero_length_segment()), in_out_chain.end());
 }
@@ -240,7 +240,7 @@ class dsf_road_grid_helper {
 public:
 
 	struct node {
-		vector<int>	edges;
+		std::vector<int>	edges;
 		int			id;
 	};
 	struct edge {
@@ -249,7 +249,7 @@ public:
 		int start_level;
 		int end_level;
 		int subtype;
-		vector<Bezier2>	path;
+		std::vector<Bezier2>	path;
 
 		bool level_is_uniform() { return start_level == end_level; }
 		int level_for_node(int n)
@@ -260,11 +260,11 @@ public:
 		}
 	};
 
-	typedef map<IGISPoint *, int>	node_index;
+	typedef std::map<IGISPoint *, int>	node_index;
 
 	node_index				m_node_index;
-	vector<node>			m_nodes;
-	vector<edge>			m_edges;
+	std::vector<node>			m_nodes;
+	std::vector<edge>			m_edges;
 
 	void add_segment(WED_RoadEdge * e, const Bbox2& cull_bounds);
 
@@ -288,7 +288,7 @@ void dsf_road_grid_helper::add_segment(WED_RoadEdge * e, const Bbox2& cull_bound
 	gp_end->GetLocation(gis_Geo,ep);
 
 	Bezier2 b ;
-	vector<Bezier2> segm;
+	std::vector<Bezier2> segm;
 	for(int s = 0; s < n ;++s)
 	{
 		if(e->GetSide(gis_Geo, s , b)) // We are a real bezier:  make always qubic
@@ -328,7 +328,7 @@ void dsf_road_grid_helper::add_segment(WED_RoadEdge * e, const Bbox2& cull_bound
 				if(si == m_node_index.end())
 				{
 					new_edge.start_node = m_nodes.size();
-					si = m_node_index.insert(make_pair(gp_start, (int) m_nodes.size())).first;
+					si = m_node_index.insert(std::make_pair(gp_start, (int) m_nodes.size())).first;
 					m_nodes.push_back(node());
 				}
 				else
@@ -352,7 +352,7 @@ void dsf_road_grid_helper::add_segment(WED_RoadEdge * e, const Bbox2& cull_bound
 				if(ei == m_node_index.end())
 				{
 					new_edge.end_node = m_nodes.size();
-					ei = m_node_index.insert(make_pair(gp_end, (int) m_nodes.size())).first;
+					ei = m_node_index.insert(std::make_pair(gp_end, (int) m_nodes.size())).first;
 					m_nodes.push_back(node());
 				}
 				else
@@ -419,7 +419,7 @@ void dsf_road_grid_helper::remove_dupes()
 
 						// Find the final destination of e2, and mark it as having e1 coming in.
 						node * dest = &m_nodes[ee2->end_node];
-						vector<int>::iterator i = find(dest->edges.begin(), dest->edges.end(), e2);
+						std::vector<int>::iterator i = find(dest->edges.begin(), dest->edges.end(), e2);
 						DebugAssert(i != dest->edges.end());
 						if(i != dest->edges.end())
 						{
@@ -449,7 +449,7 @@ void dsf_road_grid_helper::remove_dupes()
 
 void dsf_road_grid_helper::assign_ids(int& idx)
 {
-	for(vector<node>::iterator n = m_nodes.begin(); n != m_nodes.end(); ++n)
+	for(std::vector<node>::iterator n = m_nodes.begin(); n != m_nodes.end(); ++n)
 	{
 		if(n->edges.empty())
 			n->id = 0;
@@ -469,10 +469,10 @@ void dsf_road_grid_helper::export_to_dsf(
 
 	double coords[4];
 
-	for(vector<edge>::iterator e = m_edges.begin(); e != m_edges.end(); ++e)
+	for(std::vector<edge>::iterator e = m_edges.begin(); e != m_edges.end(); ++e)
 	if(!e->path.empty())
 	{
-		for(vector<Bezier2>::iterator b = e->path.begin(); b != e->path.end(); ++b)
+		for(std::vector<Bezier2>::iterator b = e->path.begin(); b != e->path.end(); ++b)
 		{
 			coords[0] = b->p1.x();
 			coords[1] = b->p1.y();
@@ -528,21 +528,21 @@ static bool g_dropped_pts = false;
 
 struct	DSF_ResourceTable {
 	DSF_ResourceTable() { for(int i = 0; i < 7; ++i) show_level_obj[i] = show_level_pol[i] = -1; cur_filter = -1;}
-	vector<string>				obj_defs;
-	map<pair<string,int>, int>	obj_defs_idx;
+	std::vector<std::string>				obj_defs;
+	std::map<std::pair<std::string,int>, int>	obj_defs_idx;
 
-	vector<string>				pol_defs;
-	map<pair<string, int>, int>	pol_defs_idx;
+	std::vector<std::string>				pol_defs;
+	std::map<std::pair<std::string, int>, int>	pol_defs_idx;
 
 #if ROAD_EDITING
-	vector<string>				net_defs;
-	map<pair<string, int>, pair<int, dsf_road_grid_helper> > net_defs_idx;
+	std::vector<std::string>				net_defs;
+	std::map<std::pair<std::string, int>, std::pair<int, dsf_road_grid_helper> > net_defs_idx;
 #endif
 
-	vector<string>				filters;
-	map<string, int>			filter_idx;
+	std::vector<std::string>				filters;
+	std::map<std::string, int>			filter_idx;
 
-	map<int, vector<pair<string, string> > > exclusions;
+	std::map<int, std::vector<std::pair<std::string, std::string> > > exclusions;
 
 	int							cur_filter;
 
@@ -551,37 +551,37 @@ struct	DSF_ResourceTable {
 
 	void set_filter(int x) { cur_filter = x; }
 
-	void accum_exclusion(const string& key, const string& value)
+	void accum_exclusion(const std::string& key, const std::string& value)
 	{
-		exclusions[cur_filter].push_back(make_pair(key,value));
+		exclusions[cur_filter].push_back(std::make_pair(key,value));
 	}
 
-	int accum_obj(const string& f, int show_level)
+	int accum_obj(const std::string& f, int show_level)
 	{
-		map<pair<string,int>,int>::iterator i = obj_defs_idx.find(pair<string,int>(f,show_level));
+		std::map<std::pair<std::string,int>,int>::iterator i = obj_defs_idx.find(std::pair<std::string,int>(f,show_level));
 		if (i != obj_defs_idx.end()) return i->second;
-		obj_defs_idx[pair<string,int>(f,show_level)] = obj_defs.size();
+		obj_defs_idx[std::pair<std::string,int>(f,show_level)] = obj_defs.size();
 		if(show_level_obj[show_level] == -1)	show_level_obj[show_level] = obj_defs.size();
 		DebugAssert(show_level_obj[show_level] <= obj_defs.size());
 		obj_defs.push_back(f);
 		return			  obj_defs.size()-1;
 	}
 
-	int accum_pol(const string& f, int show_level)
+	int accum_pol(const std::string& f, int show_level)
 	{
-		map<pair<string,int>,int>::iterator i = pol_defs_idx.find(pair<string,int>(f,show_level));
+		std::map<std::pair<std::string,int>,int>::iterator i = pol_defs_idx.find(std::pair<std::string,int>(f,show_level));
 		if (i != pol_defs_idx.end()) return i->second;
-		pol_defs_idx[pair<string,int>(f,show_level)] = pol_defs.size();
+		pol_defs_idx[std::pair<std::string,int>(f,show_level)] = pol_defs.size();
 		if(show_level_pol[show_level] == -1)	show_level_pol[show_level] = pol_defs.size();
 		DebugAssert(show_level_pol[show_level] <= pol_defs.size());
 		pol_defs.push_back(f);
 		return				  pol_defs.size()-1;
 	}
 #if ROAD_EDITING
-	dsf_road_grid_helper * accum_net(const string& f, int idx)
+	dsf_road_grid_helper * accum_net(const std::string& f, int idx)
 	{
 		int ret = 0;
-		auto i = net_defs_idx.find(make_pair(f, idx));
+		auto i = net_defs_idx.find(std::make_pair(f, idx));
 		if(i != net_defs_idx.end())
 			return &i->second.second;
 		else
@@ -594,23 +594,23 @@ struct	DSF_ResourceTable {
 			}
 			if(i == net_defs_idx.end())
 			{
-				net_defs_idx[make_pair(f, idx)] = make_pair((int) net_defs.size(), dsf_road_grid_helper());
+				net_defs_idx[std::make_pair(f, idx)] = std::make_pair((int) net_defs.size(), dsf_road_grid_helper());
 				net_defs.push_back(f);
 			}
 			else
 			{
-				net_defs_idx[make_pair(f, idx)] = make_pair(i->second.first, dsf_road_grid_helper());
+				net_defs_idx[std::make_pair(f, idx)] = std::make_pair(i->second.first, dsf_road_grid_helper());
 			}
-			return &net_defs_idx[make_pair(f, idx)].second;
+			return &net_defs_idx[std::make_pair(f, idx)].second;
 		}
 	}
 #endif
-	int accum_filter(const string& icao_filter)
+	int accum_filter(const std::string& icao_filter)
 	{
-		string icao_filter_uc(icao_filter);      // X-Plane auto-capitalizes apt.dat entries upon reading and compares filters case-sensitive ...
+		std::string icao_filter_uc(icao_filter);      // X-Plane auto-capitalizes apt.dat entries upon reading and compares filters case-sensitive ...
 		for_each(icao_filter_uc.begin(), icao_filter_uc.end(), [](char & c) { c = toupper(c); });
 
-		map<string, int>::iterator i = filter_idx.find(icao_filter_uc);
+		std::map<std::string, int>::iterator i = filter_idx.find(icao_filter_uc);
 		if (i != filter_idx.end()) return i->second;
 		filter_idx[icao_filter_uc] = filters.size();
 		filters.push_back(icao_filter_uc);
@@ -619,13 +619,13 @@ struct	DSF_ResourceTable {
 
 	void write_tables(DSFCallbacks_t& cbs, void * writer)
 	{
-		for(vector<string>::iterator s = obj_defs.begin(); s != obj_defs.end(); ++s)
+		for(std::vector<std::string>::iterator s = obj_defs.begin(); s != obj_defs.end(); ++s)
 			cbs.AcceptObjectDef_f(s->c_str(), writer);
 
-		for(vector<string>::iterator s = pol_defs.begin(); s != pol_defs.end(); ++s)
+		for(std::vector<std::string>::iterator s = pol_defs.begin(); s != pol_defs.end(); ++s)
 			cbs.AcceptPolygonDef_f(s->c_str(), writer);
 
-		for(vector<pair<string,string> >::iterator e = exclusions[-1].begin(); e != exclusions[-1].end(); ++e)
+		for(std::vector<std::pair<std::string,std::string> >::iterator e = exclusions[-1].begin(); e != exclusions[-1].end(); ++e)
 			cbs.AcceptProperty_f(e->first.c_str(), e->second.c_str(), writer);
 #if ROAD_EDITING
 		for(auto s : net_defs)
@@ -641,11 +641,11 @@ struct	DSF_ResourceTable {
 		}
 #endif
 		int idx = 0;
-		for(vector<string>::iterator s = filters.begin(); s != filters.end(); ++s, ++idx)
+		for(std::vector<std::string>::iterator s = filters.begin(); s != filters.end(); ++s, ++idx)
 		{
 			cbs.AcceptProperty_f("sim/filter/aptid",s->c_str(),writer);
 
-			for(vector<pair<string,string> >::iterator e = exclusions[idx].begin(); e != exclusions[idx].end(); ++e)
+			for(std::vector<std::pair<std::string,std::string> >::iterator e = exclusions[idx].begin(); e != exclusions[idx].end(); ++e)
 				cbs.AcceptProperty_f(e->first.c_str(), e->second.c_str(), writer);
 		}
 		for(int i = 1; i <= 6; ++i)
@@ -736,8 +736,8 @@ void assemble_dsf_pt_uv(double c[8], const Point2& pt, const Point2& uv, const P
 
 
 static void	DSF_AccumChainBezier(
-						vector<Bezier2>::const_iterator	start,
-						vector<Bezier2>::const_iterator	end,
+						std::vector<Bezier2>::const_iterator	start,
+						std::vector<Bezier2>::const_iterator	end,
 						const Bbox2&							bounds,
 						const DSFCallbacks_t *					cbs,
 						void *									writer,
@@ -745,18 +745,18 @@ static void	DSF_AccumChainBezier(
 						int										param,
 						int										auto_closed)
 {
-	vector<Bezier2>::const_iterator n = start;
+	std::vector<Bezier2>::const_iterator n = start;
 
 	while(n != end)
 	{
-		vector<Bezier2>::const_iterator e = find_contiguous_beziers(n,end);
+		std::vector<Bezier2>::const_iterator e = find_contiguous_beziers(n,end);
 		if(n != end)
 		{
 			cbs->BeginPolygon_f(idx, param, 4, writer);
 			cbs->BeginPolygonWinding_f(writer);
 
 			double c[4];
-			vector<BezierPoint2>	pts,pts_triple;
+			std::vector<BezierPoint2>	pts,pts_triple;
 			BezierToBezierPointSeq(n,e,back_inserter(pts));
 			BezierPointSeqToTriple(pts.begin(),pts.end(),back_inserter(pts_triple));
 
@@ -778,8 +778,8 @@ static void	DSF_AccumChainBezier(
 }
 
 static void	DSF_AccumChainBezier(
-						vector<Bezier2p>::const_iterator		start,
-						vector<Bezier2p>::const_iterator		end,
+						std::vector<Bezier2p>::const_iterator		start,
+						std::vector<Bezier2p>::const_iterator		end,
 						const Bbox2&							bounds,
 						const DSFCallbacks_t *					cbs,
 						void *									writer,
@@ -788,18 +788,18 @@ static void	DSF_AccumChainBezier(
 						int										auto_closed,
 						double									lastPt_param)
 {
-	vector<Bezier2p>::const_iterator n = start;
+	std::vector<Bezier2p>::const_iterator n = start;
 
 	while(n != end)
 	{
-		vector<Bezier2p>::const_iterator e = find_contiguous_beziers(n,end);
+		std::vector<Bezier2p>::const_iterator e = find_contiguous_beziers(n,end);
 		if(n != end)
 		{
 			cbs->BeginPolygon_f(idx, param, 5, writer);
 			cbs->BeginPolygonWinding_f(writer);
 
 			double c[5];
-			vector<BezierPoint2p>	pts,pts_triple;
+			std::vector<BezierPoint2p>	pts,pts_triple;
 			BezierToBezierPointSeq(n,e,back_inserter(pts));
 			BezierPointSeqToTriple(pts.begin(),pts.end(),back_inserter(pts_triple));
 
@@ -830,8 +830,8 @@ static void	DSF_AccumChainBezier(
 
 
 static void	DSF_AccumChain(
-						vector<Segment2>::const_iterator	start,		// This is a list of segments that may or may not
-						vector<Segment2>::const_iterator	end,		// be end-to-end.
+						std::vector<Segment2>::const_iterator	start,		// This is a list of segments that may or may not
+						std::vector<Segment2>::const_iterator	end,		// be end-to-end.
 						const Bbox2&						bounds,
 						const DSFCallbacks_t *				cbs,
 						void *								writer,
@@ -839,8 +839,8 @@ static void	DSF_AccumChain(
 						int									param,
 						int									auto_closed)		// If true, the entity we are writing is implicitly 'closed' in the DSF - no need to repush the first point as the last
 {
-	vector<Segment2>::const_iterator next;
-	for(vector<Segment2>::const_iterator i = start; i != end; ++i)
+	std::vector<Segment2>::const_iterator next;
+	for(std::vector<Segment2>::const_iterator i = start; i != end; ++i)
 	{
 		next = i;
 		++next;
@@ -881,8 +881,8 @@ static void	DSF_AccumChain(
 }
 
 static void	DSF_AccumChain(
-						vector<Segment2p>::const_iterator	start,
-						vector<Segment2p>::const_iterator	end,
+						std::vector<Segment2p>::const_iterator	start,
+						std::vector<Segment2p>::const_iterator	end,
 						const Bbox2&						bounds,
 						const DSFCallbacks_t *				cbs,
 						void *								writer,
@@ -891,8 +891,8 @@ static void	DSF_AccumChain(
 						int									auto_closed,
 						double								lastPt_param)
 {
-	vector<Segment2p>::const_iterator next;
-	for(vector<Segment2p>::const_iterator i = start; i != end; ++i)
+	std::vector<Segment2p>::const_iterator next;
+	for(std::vector<Segment2p>::const_iterator i = start; i != end; ++i)
 	{
 		next = i;
 		++next;
@@ -934,8 +934,8 @@ static void	DSF_AccumChain(
 }
 
 
-void DSF_AccumPts(		vector<Point2>::const_iterator		begin,
-						vector<Point2>::const_iterator		end,
+void DSF_AccumPts(		std::vector<Point2>::const_iterator		begin,
+						std::vector<Point2>::const_iterator		end,
 						const Bbox2&						bounds,
 						const DSFCallbacks_t *				cbs,
 						void *								writer,
@@ -945,7 +945,7 @@ void DSF_AccumPts(		vector<Point2>::const_iterator		begin,
 	cbs->BeginPolygon_f(idx, param, 2, writer);
 	cbs->BeginPolygonWinding_f(writer);
 	double c[2];
-	for(vector<Point2>::const_iterator i = begin; i != end; ++i)
+	for(std::vector<Point2>::const_iterator i = begin; i != end; ++i)
 	{
 		assemble_dsf_pt(c, *i, NULL, bounds);
 		cbs->AddPolygonPoint_f(c,writer);
@@ -965,7 +965,7 @@ void DSF_AccumPolygonBezier(
 						const DSFCallbacks_t *				cbs,
 						void *								writer)
 {
-	vector<BezierPoint2>	pts, pts3;
+	std::vector<BezierPoint2>	pts, pts3;
 
 	BezierToBezierPointSeq(poly.begin(),poly.end(),back_inserter(pts));
 	BezierPointSeqToTriple(pts.begin(),pts.end(),back_inserter(pts3));
@@ -988,7 +988,7 @@ void DSF_AccumPolygonBezier(
 						const DSFCallbacks_t *				cbs,
 						void *								writer)
 {
-	vector<BezierPoint2p>	pts, pts3;
+	std::vector<BezierPoint2p>	pts, pts3;
 
 	BezierToBezierPointSeq(poly.begin(),poly.end(),back_inserter(pts));
 	BezierPointSeqToTriple(pts.begin(),pts.end(),back_inserter(pts3));
@@ -1010,7 +1010,7 @@ void DSF_AccumPolygonBezier(
 						const DSFCallbacks_t *				cbs,
 						void *								writer)
 {
-	vector<BezierPoint2uv>	pts, pts3;
+	std::vector<BezierPoint2uv>	pts, pts3;
 
 	BezierToBezierPointSeq(poly.begin(),poly.end(),back_inserter(pts));
 	BezierPointSeqToTriple(pts.begin(),pts.end(),back_inserter(pts3));
@@ -1041,12 +1041,12 @@ void DSF_AccumPolygon(
 }
 
 void DSF_AccumPolygon(
-						const vector<Segment2p>&			poly,
+						const std::vector<Segment2p>&			poly,
 						const Bbox2&						bounds,
 						const DSFCallbacks_t *				cbs,
 						void *								writer)
 {
-	for(vector<Segment2p>::const_iterator s = poly.begin(); s != poly.end(); ++s)
+	for(std::vector<Segment2p>::const_iterator s = poly.begin(); s != poly.end(); ++s)
 	{
 		double c[4];
 		assemble_dsf_pt_param(c, s->source(), s->param, NULL, bounds);
@@ -1055,12 +1055,12 @@ void DSF_AccumPolygon(
 }
 
 void DSF_AccumPolygon(
-						const vector<Segment2uv>&			poly,
+						const std::vector<Segment2uv>&			poly,
 						const Bbox2&						bounds,
 						const DSFCallbacks_t *				cbs,
 						void *								writer)
 {
-	for(vector<Segment2uv>::const_iterator s = poly.begin(); s != poly.end(); ++s)
+	for(std::vector<Segment2uv>::const_iterator s = poly.begin(); s != poly.end(); ++s)
 	{
 		double c[4];
 		assemble_dsf_pt_uv(c, s->p1, s->uv.p1, NULL, NULL, bounds);
@@ -1070,12 +1070,12 @@ void DSF_AccumPolygon(
 
 
 void DSF_AccumPolygonWithHolesBezier(
-						vector<BezierPolygon2>&				poly,
+						std::vector<BezierPolygon2>&				poly,
 						const Bbox2&						bounds,
 						const DSFCallbacks_t *				cbs,
 						void *								writer)
 {
-	for(vector<BezierPolygon2>::iterator w = poly.begin(); w != poly.end(); ++w)
+	for(std::vector<BezierPolygon2>::iterator w = poly.begin(); w != poly.end(); ++w)
 	{
 		cbs->BeginPolygonWinding_f(writer);
 		DSF_AccumPolygonBezier(*w, bounds, cbs, writer);
@@ -1084,7 +1084,7 @@ void DSF_AccumPolygonWithHolesBezier(
 }
 
 void DSF_AccumPolygonWithHolesBezier(
-						vector<BezierPolygon2p>&			poly,
+						std::vector<BezierPolygon2p>&			poly,
 						const Bbox2&						bounds,
 						const DSFCallbacks_t *				cbs,
 						void *								writer)
@@ -1098,7 +1098,7 @@ void DSF_AccumPolygonWithHolesBezier(
 }
 
 void DSF_AccumPolygonWithHolesBezier(
-						vector<BezierPolygon2uv>&			poly,
+						std::vector<BezierPolygon2uv>&			poly,
 						const Bbox2&						bounds,
 						const DSFCallbacks_t *				cbs,
 						void *								writer)
@@ -1113,12 +1113,12 @@ void DSF_AccumPolygonWithHolesBezier(
 
 
 void DSF_AccumPolygonWithHoles(
-						vector<Polygon2>&					poly,
+						std::vector<Polygon2>&					poly,
 						const Bbox2&						bounds,
 						const DSFCallbacks_t *				cbs,
 						void *								writer)
 {
-	for(vector<Polygon2>::iterator h = poly.begin(); h != poly.end(); ++h)
+	for(std::vector<Polygon2>::iterator h = poly.begin(); h != poly.end(); ++h)
 	{
 		cbs->BeginPolygonWinding_f(writer);
 		DSF_AccumPolygon(*h, bounds, cbs, writer);
@@ -1128,7 +1128,7 @@ void DSF_AccumPolygonWithHoles(
 }
 
 void DSF_AccumPolygonWithHoles(
-						vector<Polygon2p>&					poly,
+						std::vector<Polygon2p>&					poly,
 						const Bbox2&						bounds,
 						const DSFCallbacks_t *				cbs,
 						void *								writer)
@@ -1142,7 +1142,7 @@ void DSF_AccumPolygonWithHoles(
 }
 
 void DSF_AccumPolygonWithHoles(
-						vector<Polygon2uv>&					poly,
+						std::vector<Polygon2uv>&					poly,
 						const Bbox2&						bounds,
 						const DSFCallbacks_t *				cbs,
 						void *								writer)
@@ -1222,13 +1222,13 @@ static int	DSF_HeightRangeRecursive(WED_Thing * what, double& out_msl_min, doubl
 static int	DSF_ExportTileRecursive(
 						WED_Thing *					what,
 						IResolver *					resolver,
-						const string&				pkg,
+						const std::string&				pkg,
 						const Bbox2&				cull_bounds,		// This is the area for which we are TRYING to get scenery.
 						const Bbox2&				safe_bounds,		// This is the 'safe' area into which we CAN write scenery without exploding.
 						DSF_ResourceTable&			io_table,
 						const DSFCallbacks_t *		cbs,
 						void *						writer,
-						set<WED_Thing *>&			problem_children,
+						std::set<WED_Thing *>&			problem_children,
 						int							show_level,
 						DSF_export_info_t *			export_info )
 {
@@ -1249,7 +1249,7 @@ static int	DSF_ExportTileRecursive(
 
 	int real_thingies = 0;
 	int idx;
-	string r;
+	std::string r;
 	WED_Airport * apt;
 	sClass_t c = what->GetClass();
 
@@ -1305,8 +1305,8 @@ static int	DSF_ExportTileRecursive(
 			{
 				if(bez)
 				{
-					vector<BezierPolygon2p>				fac_area;
-					vector<vector<BezierPolygon2p> >	fac_cut;
+					std::vector<BezierPolygon2p>				fac_area;
+					std::vector<std::vector<BezierPolygon2p> >	fac_cut;
 					WED_BezierPolygonWithHolesForPolygon(fac, fac_area);
 
 					if(gExportTarget < wet_xplane_1021)
@@ -1320,7 +1320,7 @@ static int	DSF_ExportTileRecursive(
 					else if(!centroid_ob)
 						fac_cut.push_back(fac_area);
 
-					for(vector<vector<BezierPolygon2p> >::iterator i = fac_cut.begin(); i != fac_cut.end(); ++i)
+					for(std::vector<std::vector<BezierPolygon2p> >::iterator i = fac_cut.begin(); i != fac_cut.end(); ++i)
 					{
 						++real_thingies;
 						cbs->BeginPolygon_f(idx,fac->GetHeight(),5,writer);
@@ -1330,8 +1330,8 @@ static int	DSF_ExportTileRecursive(
 				}
 				else
 				{
-					vector<Polygon2p>			fac_area;
-					vector<vector<Polygon2p> >	fac_cut;
+					std::vector<Polygon2p>			fac_area;
+					std::vector<std::vector<Polygon2p> >	fac_cut;
 					Assert(WED_PolygonWithHolesForPolygon(fac,fac_area));
 
 					if(gExportTarget < wet_xplane_1021)
@@ -1344,7 +1344,7 @@ static int	DSF_ExportTileRecursive(
 					} else if(!centroid_ob)
 						fac_cut.push_back(fac_area);
 
-					for(vector<vector<Polygon2p> >::iterator i = fac_cut.begin(); i != fac_cut.end(); ++i)
+					for(std::vector<std::vector<Polygon2p> >::iterator i = fac_cut.begin(); i != fac_cut.end(); ++i)
 					{
 						++real_thingies;
 						cbs->BeginPolygon_f(idx,fac->GetHeight(),3,writer);
@@ -1357,8 +1357,8 @@ static int	DSF_ExportTileRecursive(
 			{
 				if(bez)
 				{
-					vector<BezierPolygon2> fac_area;
-					vector<vector<BezierPolygon2> > fac_cut;
+					std::vector<BezierPolygon2> fac_area;
+					std::vector<std::vector<BezierPolygon2> > fac_cut;
 					WED_BezierPolygonWithHolesForPolygon(fac, fac_area);
 
 					if(gExportTarget < wet_xplane_1021)
@@ -1372,7 +1372,7 @@ static int	DSF_ExportTileRecursive(
 					else if(!centroid_ob)
 						fac_cut.push_back(fac_area);
 
-					for(vector<vector<BezierPolygon2> >::iterator i = fac_cut.begin(); i != fac_cut.end(); ++i)
+					for(std::vector<std::vector<BezierPolygon2> >::iterator i = fac_cut.begin(); i != fac_cut.end(); ++i)
 					{
 						++real_thingies;
 						cbs->BeginPolygon_f(idx,fac->GetHeight(),4,writer);
@@ -1382,8 +1382,8 @@ static int	DSF_ExportTileRecursive(
 				}
 				else
 				{
-					vector<Polygon2>			fac_area;
-					vector<vector<Polygon2> >	fac_cut;
+					std::vector<Polygon2>			fac_area;
+					std::vector<std::vector<Polygon2> >	fac_cut;
 					Assert(WED_PolygonWithHolesForPolygon(fac,fac_area));
 
 					if(gExportTarget < wet_xplane_1021)
@@ -1396,7 +1396,7 @@ static int	DSF_ExportTileRecursive(
 					} else if(!centroid_ob)
 						fac_cut.push_back(fac_area);
 
-					for(vector<vector<Polygon2> >::iterator i = fac_cut.begin(); i != fac_cut.end(); ++i)
+					for(std::vector<std::vector<Polygon2> >::iterator i = fac_cut.begin(); i != fac_cut.end(); ++i)
 					{
 						++real_thingies;
 						cbs->BeginPolygon_f(idx,fac->GetHeight(),2,writer);
@@ -1414,7 +1414,7 @@ static int	DSF_ExportTileRecursive(
 
 					if(bez)
 					{
-						vector<Bezier2p>	chain;
+						std::vector<Bezier2p>	chain;
 
 						WED_BezierVectorForPointSequence(seq,chain);
 						if(gExportTarget < wet_xplane_1021)
@@ -1443,7 +1443,7 @@ static int	DSF_ExportTileRecursive(
 					}
 					else
 					{
-						vector<Segment2p>	chain;
+						std::vector<Segment2p>	chain;
 
 						WED_VectorForPointSequence(seq,chain);
 						// We normally reject zero length segments, but for grandfathered global airports, we'll try to clean this.
@@ -1482,7 +1482,7 @@ static int	DSF_ExportTileRecursive(
 
 					if(bez)
 					{
-						vector<Bezier2>	chain;
+						std::vector<Bezier2>	chain;
 
 						WED_BezierVectorForPointSequence(seq,chain);
 						if(gExportTarget < wet_xplane_1021)
@@ -1501,7 +1501,7 @@ static int	DSF_ExportTileRecursive(
 					}
 					else
 					{
-						vector<Segment2>	chain;
+						std::vector<Segment2>	chain;
 
 						WED_VectorForPointSequence(seq,chain);
 						// We normally reject zero length segments, but for grandfathered global airports, we'll try to clean this.
@@ -1534,7 +1534,7 @@ static int	DSF_ExportTileRecursive(
 		if(c == WED_ExclusionZone::sClass)
 		{
 			auto xcl = static_cast<WED_ExclusionZone *>(what);
-			set<int> xtypes;
+			std::set<int> xtypes;
 			xcl->GetExclusions(xtypes);
 			Point2 minp, maxp;
 			xcl->GetMin()->GetLocation(gis_Geo,minp);
@@ -1543,7 +1543,7 @@ static int	DSF_ExportTileRecursive(
 			if(minp.x_ > maxp.x_)	swap(minp.x_, maxp.x_);
 			if(minp.y_ > maxp.y_)	swap(minp.y_, maxp.y_);
 
-			for(set<int>::iterator xt = xtypes.begin(); xt != xtypes.end(); ++xt)
+			for(std::set<int>::iterator xt = xtypes.begin(); xt != xtypes.end(); ++xt)
 			{
 				const char * pname = NULL;
 				switch(*xt) {
@@ -1583,21 +1583,21 @@ static int	DSF_ExportTileRecursive(
 			switch(fst->GetFillMode()) {
 			case dsf_fill_area:
 				{
-					vector<Polygon2>	fst_area;
+					std::vector<Polygon2>	fst_area;
 					Assert(WED_PolygonWithHolesForPolygon(fst,fst_area));
 
 					// We normally reject zero length segments, but for grandfathered global airports, we'll try to clean this.
-					for(vector<Polygon2>::iterator f = fst_area.begin(); f != fst_area.end(); ++f)
+					for(std::vector<Polygon2>::iterator f = fst_area.begin(); f != fst_area.end(); ++f)
 						f->erase(unique(f->begin(),f->end()),f->end());
 
-					vector<vector<Polygon2> >	fst_clipped;
+					std::vector<std::vector<Polygon2> >	fst_clipped;
 					if (!clip_polygon(fst_area, fst_clipped,cull_bounds))
 					{
 						fst_clipped.clear();
 						problem_children.insert(what);
 					}
 
-					for(vector<vector<Polygon2> >::iterator i = fst_clipped.begin(); i != fst_clipped.end(); ++i)
+					for(std::vector<std::vector<Polygon2> >::iterator i = fst_clipped.begin(); i != fst_clipped.end(); ++i)
 					{
 						++real_thingies;
 						cbs->BeginPolygon_f(idx,param,2,writer);
@@ -1611,7 +1611,7 @@ static int	DSF_ExportTileRecursive(
 					for(int h = -1; h < fst->GetNumHoles(); ++h)
 					{
 						IGISPointSequence * seq = (h == -1) ? fst->GetOuterRing() : fst->GetNthHole(h);
-						vector<Segment2>	chain;
+						std::vector<Segment2>	chain;
 
 						WED_VectorForPointSequence(seq,chain);
 						// We normally reject zero length segments, but for grandfathered global airports, we'll try to clean this.
@@ -1630,7 +1630,7 @@ static int	DSF_ExportTileRecursive(
 				for(int h = -1; h < fst->GetNumHoles(); ++h)
 				{
 					IGISPointSequence * seq = (h == -1) ? fst->GetOuterRing() : fst->GetNthHole(h);
-					vector<Point2>	pts;
+					std::vector<Point2>	pts;
 
 					for(int p = 0; p < seq->GetNumPoints(); ++p)
 					{
@@ -1665,7 +1665,7 @@ static int	DSF_ExportTileRecursive(
 
 			if(bez)
 			{
-				vector<Bezier2>	chain;
+				std::vector<Bezier2>	chain;
 
 				WED_BezierVectorForPointSequence(str,chain);
 				clip_segments(chain, cull_bounds);
@@ -1677,7 +1677,7 @@ static int	DSF_ExportTileRecursive(
 			}
 			else
 			{
-				vector<Segment2>	chain;
+				std::vector<Segment2>	chain;
 
 				WED_VectorForPointSequence(str,chain);
 				// We normally reject zero length segments, but for grandfathered global airports, we'll try to clean this.
@@ -1711,10 +1711,10 @@ static int	DSF_ExportTileRecursive(
 			// then take last point again, keep going until spwning flips etc
 			// add do spawn/nonspawn as needed
 
-			vector<Polygon2p>			pol_area_raw;
+			std::vector<Polygon2p>			pol_area_raw;
 			Assert(WED_PolygonWithHolesForPolygon(ags,pol_area_raw));
 
-			vector<vector<Polygon2p> >	pol_cuts;
+			std::vector<std::vector<Polygon2p> >	pol_cuts;
 			if(!clip_polygon(pol_area_raw, pol_cuts, cull_bounds))
 			{
 				problem_children.insert(what);
@@ -1724,8 +1724,8 @@ static int	DSF_ExportTileRecursive(
 			for(const auto& cuts : pol_cuts)
 			{
 				bool last_pt_spawn = true;
-				vector<Polygon2> 	pol_area;
-				vector<Polygon2>	pol_nonspawning;
+				std::vector<Polygon2> 	pol_area;
+				std::vector<Polygon2>	pol_nonspawning;
 				pol_area.push_back(Polygon2());
 
 				for(auto p2p : cuts.front())
@@ -1804,7 +1804,7 @@ static int	DSF_ExportTileRecursive(
 
 			if(bez)
 			{
-				vector<Bezier2>	chain;
+				std::vector<Bezier2>	chain;
 
 				WED_BezierVectorForPointSequence(lin,chain);
 
@@ -1839,7 +1839,7 @@ static int	DSF_ExportTileRecursive(
 			}
 			else
 			{
-				vector<Segment2>	chain;
+				std::vector<Segment2>	chain;
 
 				WED_VectorForPointSequence(lin,chain);
 				// We normally reject zero length segments, but for grandfathered global airports, we'll try to clean this.
@@ -1888,8 +1888,8 @@ static int	DSF_ExportTileRecursive(
 
 			if(bez)
 			{
-				vector<BezierPolygon2>			pol_area;
-				vector<vector<BezierPolygon2> >	pol_cuts;
+				std::vector<BezierPolygon2>			pol_area;
+				std::vector<std::vector<BezierPolygon2> >	pol_cuts;
 
 				WED_BezierPolygonWithHolesForPolygon(pol, pol_area);
 
@@ -1899,7 +1899,7 @@ static int	DSF_ExportTileRecursive(
 					pol_cuts.clear();
 				}
 
-				for(vector<vector<BezierPolygon2> >::iterator i = pol_cuts.begin(); i != pol_cuts.end(); ++i)
+				for(std::vector<std::vector<BezierPolygon2> >::iterator i = pol_cuts.begin(); i != pol_cuts.end(); ++i)
 				{
 					++real_thingies;
 					cbs->BeginPolygon_f(idx, encode_heading(pol->GetHeading()),bez ? 4 : 2,writer);
@@ -1909,8 +1909,8 @@ static int	DSF_ExportTileRecursive(
 			}
 			else
 			{
-				vector<Polygon2> 	pol_area;
-				vector<vector<Polygon2> >	pol_cuts;
+				std::vector<Polygon2> 	pol_area;
+				std::vector<std::vector<Polygon2> >	pol_cuts;
 
 				Assert(WED_PolygonWithHolesForPolygon(pol,pol_area));
 
@@ -1920,7 +1920,7 @@ static int	DSF_ExportTileRecursive(
 					pol_cuts.clear();
 
 				}
-				for(vector<vector<Polygon2> >::iterator i = pol_cuts.begin(); i != pol_cuts.end(); ++i)
+				for(std::vector<std::vector<Polygon2> >::iterator i = pol_cuts.begin(); i != pol_cuts.end(); ++i)
 				{
 					++real_thingies;
 					cbs->BeginPolygon_f(idx, encode_heading(pol->GetHeading()),bez ? 4 : 2,writer);
@@ -1942,18 +1942,18 @@ static int	DSF_ExportTileRecursive(
 #if WED
 			if(orth->IsNew())
 			{
-				string msg;
+				std::string msg;
 				what->GetName(msg);
 
 				// can't use the image name any more to determine the .pol/.dds names, as the same image could be used for multiple Orthos.
 				// So we assume the 'Name" contains the image name plus some suffix to make it unique
 
-				string relativePath(FILE_get_dir_name(r) + FILE_get_file_name_wo_extensions(msg));
+				std::string relativePath(FILE_get_dir_name(r) + FILE_get_file_name_wo_extensions(msg));
 
-				string relativePathDDS = relativePath + ( gOrthoExport ? ".dds" : ".png");
-				string relativePathPOL = relativePath + ".pol";
+				std::string relativePathDDS = relativePath + ( gOrthoExport ? ".dds" : ".png");
+				std::string relativePathPOL = relativePath + ".pol";
 
-				msg = string("The polygon '") + msg + "' cannot be converted to an orthophoto: ";
+				msg = std::string("The polygon '") + msg + "' cannot be converted to an orthophoto: ";
 
 				if(is_backout_path(relativePath) || is_dir_sep(relativePath[0]) || relativePath[1] == ':')
 				{
@@ -1961,9 +1961,9 @@ static int	DSF_ExportTileRecursive(
 					return -1;
 				}
 
-				string absPathIMG = pkg + r;
-				string absPathDDS = pkg + relativePathDDS;
-				string absPathPOL = pkg + relativePathPOL;
+				std::string absPathIMG = pkg + r;
+				std::string absPathDDS = pkg + relativePathDDS;
+				std::string absPathPOL = pkg + relativePathPOL;
 
 				if(absPathDDS == absPathIMG)
 				{
@@ -2011,7 +2011,7 @@ static int	DSF_ExportTileRecursive(
 
 							// force reload of texture from disk - for visual confirmation that WED realized the image had changed
 							ITexMgr * tman = WED_GetTexMgr(resolver);
-							string relImgPath;
+							std::string relImgPath;
 							orth->GetResource(relImgPath);
 							tman->DropTexture(relImgPath.c_str());
 						}
@@ -2138,7 +2138,7 @@ static int	DSF_ExportTileRecursive(
 				}
 				else if(date_cmpr_res == dcr_error)
 				{
-					string msg = string("The file '") + absPathIMG + string("' is missing, aborting DSF Export.");
+					std::string msg = std::string("The file '") + absPathIMG + std::string("' is missing, aborting DSF Export.");
 					DoUserAlert(msg.c_str());
 					return -1;
 				}
@@ -2175,8 +2175,8 @@ static int	DSF_ExportTileRecursive(
 
 			if(bez)
 			{
-				vector<BezierPolygon2uv>			orth_area;
-				vector<vector<BezierPolygon2uv> >	orth_cuts;
+				std::vector<BezierPolygon2uv>			orth_area;
+				std::vector<std::vector<BezierPolygon2uv> >	orth_cuts;
 
 				WED_BezierPolygonWithHolesForPolygon(orth, orth_area);
 
@@ -2186,7 +2186,7 @@ static int	DSF_ExportTileRecursive(
 					orth_cuts.clear();
 				}
 
-				for(vector<vector<BezierPolygon2uv> >::iterator i = orth_cuts.begin(); i != orth_cuts.end(); ++i)
+				for(std::vector<std::vector<BezierPolygon2uv> >::iterator i = orth_cuts.begin(); i != orth_cuts.end(); ++i)
 				{
 					++real_thingies;
 					cbs->BeginPolygon_f(idx,65535,8,writer);
@@ -2196,8 +2196,8 @@ static int	DSF_ExportTileRecursive(
 			}
 			else
 			{
-				vector<Polygon2uv>			orth_area;
-				vector<vector<Polygon2uv> >	orth_cuts;
+				std::vector<Polygon2uv>			orth_area;
+				std::vector<std::vector<Polygon2uv> >	orth_cuts;
 				Assert(WED_PolygonWithHolesForPolygon(orth,orth_area));
 
 				if(!clip_polygon(orth_area,orth_cuts,cull_bounds))
@@ -2206,7 +2206,7 @@ static int	DSF_ExportTileRecursive(
 					orth_cuts.clear();
 				}
 
-				for(vector<vector<Polygon2uv> >::iterator i = orth_cuts.begin(); i != orth_cuts.end(); ++i)
+				for(std::vector<std::vector<Polygon2uv> >::iterator i = orth_cuts.begin(); i != orth_cuts.end(); ++i)
 				{
 					++real_thingies;
 					cbs->BeginPolygon_f(idx,65535,4,writer);
@@ -2229,7 +2229,7 @@ static int	DSF_ExportTileRecursive(
 		if (c == WED_RoadEdge::sClass)
 		{
 			auto roa = static_cast<WED_RoadEdge*>(what);
-			string asset;
+			std::string asset;
 			roa->GetResource(asset);
 			dsf_road_grid_helper * grid = io_table.accum_net(asset, io_table.cur_filter);
 			grid->add_segment(roa,cull_bounds);
@@ -2280,7 +2280,7 @@ static int	DSF_ExportTileRecursive(
 	return real_thingies;
 }
 
-int DSF_ExportTile(WED_Thing * base, IResolver * resolver, const string& pkg, int x, int y, set <WED_Thing *>& problem_children, DSF_export_info_t * export_info)
+int DSF_ExportTile(WED_Thing * base, IResolver * resolver, const std::string& pkg, int x, int y, std::set <WED_Thing *>& problem_children, DSF_export_info_t * export_info)
 {
 	void *			writer;
 	DSFCallbacks_t	cbs;
@@ -2361,7 +2361,7 @@ int DSF_ExportTile(WED_Thing * base, IResolver * resolver, const string& pkg, in
 	return entities;
 }
 
-int DSF_Export(WED_Thing * base, IResolver * resolver, const string& package, set<WED_Thing *>& problem_children)
+int DSF_Export(WED_Thing * base, IResolver * resolver, const std::string& package, std::set<WED_Thing *>& problem_children)
 {
 #if DEV
 	StElapsedTime	etime("Export time");
@@ -2415,13 +2415,13 @@ int DSF_Export(WED_Thing * base, IResolver * resolver, const string& package, se
 	return 0;
 }
 
-int DSF_ExportAirportOverlay(IResolver * resolver, WED_Airport  * apt, const string& package, set<WED_Thing *>& problem_children)
+int DSF_ExportAirportOverlay(IResolver * resolver, WED_Airport  * apt, const std::string& package, std::set<WED_Thing *>& problem_children)
 {
 	if(apt->GetHidden())
 		return 1;
-	string icao;
+	std::string icao;
 	apt->GetICAO(icao);
-	string dsf_path = package + icao + ".txt";
+	std::string dsf_path = package + icao + ".txt";
 
 	FILE * dsf = fopen(dsf_path.c_str(),"w");
 	if(dsf)

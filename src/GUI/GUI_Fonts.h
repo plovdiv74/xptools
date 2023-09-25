@@ -82,7 +82,7 @@ float	GUI_GetFontSize(int inFontID);
 void 	GUI_SetFontSizes(float sizePix);
 
 void	GUI_TruncateText(
-				string&							ioText,
+				std::string&							ioText,
 				int								inFontID,
 				float							inSpace);
 

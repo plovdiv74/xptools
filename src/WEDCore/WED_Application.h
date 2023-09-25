@@ -42,18 +42,18 @@ public:
 	WED_Application(int & argc, char* argv[]);
 #elif APL
 	WED_Application(int argc, char const * const * argv);
-#else // Windows groups all of its cmdline args into a single string
+#else // Windows groups all of its cmdline args into a single std::string
 	WED_Application(const char * arg);
 #endif
 	virtual			~WED_Application();
 
-	virtual	void	OpenFiles(const vector<string>& inFiles);
+	virtual	void	OpenFiles(const std::vector<std::string>& inFiles);
 	virtual	void	AboutBox(void);
 	virtual	void	Preferences(void);
 	virtual	bool	CanQuit(void);
 
 	virtual	int		HandleCommand(int command);
-	virtual	int		CanHandleCommand(int command, string& ioName, int& ioCheck);
+	virtual	int		CanHandleCommand(int command, std::string& ioName, int& ioCheck);
 
 private:
 

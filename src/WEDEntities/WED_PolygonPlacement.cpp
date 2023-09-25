@@ -49,12 +49,12 @@ void WED_PolygonPlacement::SetHeading(double h)
 	heading = h;
 }
 
-void		WED_PolygonPlacement::GetResource(	  string& r) const
+void		WED_PolygonPlacement::GetResource(	  std::string& r) const
 {
 	r = resource.value;
 }
 
-void		WED_PolygonPlacement::SetResource(const string& r)
+void		WED_PolygonPlacement::SetResource(const std::string& r)
 {
 	resource = r;
 }
@@ -68,7 +68,7 @@ int			WED_PolygonPlacement::CountProperties(void) const
 
 int			WED_PolygonPlacement::FindProperty(const char * in_prop) const
 {
-	if(string(in_prop) ==  "= Taxi Surface")
+	if(std::string(in_prop) ==  "= Taxi Surface")
 		return CountProperties();
 	else
 		return WED_GISPolygon::FindProperty(in_prop);
@@ -94,22 +94,22 @@ void		WED_PolygonPlacement::GetNthPropertyDict(int n, PropertyDict_t& dict) cons
 {
 	if (n >= WED_GISPolygon::CountProperties())
 	{
-		map<int, string>		dm;
+		std::map<int, std::string>		dm;
 
 		DOMAIN_Members(Surface_Type,dm);
 
-		string dummy;
-		for(map<int, string>::iterator i = dm.begin(); i != dm.end(); ++i)
+		std::string dummy;
+		for(std::map<int, std::string>::iterator i = dm.begin(); i != dm.end(); ++i)
 		{
 			bool surfAvail = WED_GetLibraryMgr(GetArchive()->GetResolver())->GetSurfVpath(i->first, dummy);
-			dict.insert(PropertyDict_t::value_type(i->first, make_pair(i->second, surfAvail)));
+			dict.insert(PropertyDict_t::value_type(i->first, std::make_pair(i->second, surfAvail)));
 		}
 	}
 	else
 		WED_GISPolygon::GetNthPropertyDict(n, dict);
 }
 
-void		WED_PolygonPlacement::GetNthPropertyDictItem(int n, int e, string& item) const
+void		WED_PolygonPlacement::GetNthPropertyDictItem(int n, int e, std::string& item) const
 {
 	if (n >= WED_GISPolygon::CountProperties())
 	{
@@ -140,7 +140,7 @@ void		WED_PolygonPlacement::SetNthProperty(int n, const PropertyVal_t& val)
 //		int surftype = ENUM_Export(*(val.int_val));
 //		printf("SET int_val %d set_val.begin %d (%ld) linetype %d\n",val.int_val, *(val.set_val.cbegin()), val.set_val.size(), linetype);
 #if WED
-		string vpath;
+		std::string vpath;
 		if(WED_GetLibraryMgr(GetArchive()->GetResolver())->GetSurfVpath(val.int_val, vpath))
 			resource = vpath;
 #endif

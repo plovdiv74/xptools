@@ -69,7 +69,7 @@ void CollectRecursiveNoNesting(WED_Thing * thing, OutputIterator oi, sClass_t sC
 }
 
 //Preforms a depth first traversal of the WED Hierarchy, checking if it visible, the right type AND THEN other Take critera
-//A maximum level of tree levels to recurse into can be set
+//A maximum level of tree levels to recurse into can be std::set
 
 template<typename OutputIterator, typename VisibilityPred, typename TakePred>
 void CollectRecursive(WED_Thing * thing, OutputIterator oi, VisibilityPred visibility_pred, TakePred take_pred, sClass_t sClass ="", int max_tree_levels = INT_MAX)

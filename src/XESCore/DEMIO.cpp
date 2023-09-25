@@ -1357,7 +1357,7 @@ bail:
 bool	ReadARCASCII(DEMGeo& inMap, const char * inFileName)
 {
 	// ARC ASCII FORMAT: http://geotools.codehaus.org/ArcInfo+ASCII+Grid+format
-	// basically it's a few header fields and then a giant list of int heights.
+	// basically it's a few header fields and then a giant std::list of int heights.
 	// Notes:
 	// -	All fields are required except no data, -9999 is typical implied no data value.
 	// -	projection is fubar.  The posts are always grid-aligned.  (vertex is pixel).  But...

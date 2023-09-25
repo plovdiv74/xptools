@@ -29,8 +29,8 @@
 class	ILibrarian : public virtual IBase {
 public:
 
-	virtual void	LookupPath(string& io_path)=0;		// Input: a relative or library path
-	virtual void	ReducePath(string& io_path)=0;		// Output: actual disk location
+	virtual void	LookupPath(std::string& io_path)=0;		// Input: a relative or library path
+	virtual void	ReducePath(std::string& io_path)=0;		// Output: actual disk location
 
 };
 

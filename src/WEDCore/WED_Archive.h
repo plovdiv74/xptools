@@ -82,7 +82,7 @@ public:
 #endif
 	// Undo convenience API.
 	void			SetUndoManager(WED_UndoMgr * mgr);
-	void			__StartCommand(const string& inName, const char * file, int line);		// pass-throughs
+	void			__StartCommand(const std::string& inName, const char * file, int line);		// pass-throughs
 	void			CommitCommand(void);
 	void			AbortCommand(void);
 
@@ -111,7 +111,7 @@ private:
 
 	friend class	WED_Persistent;
 	friend	class	WED_UndoMgr;
-	typedef hash_map<int, WED_Persistent *>	ObjectMap;
+	typedef std::hash_map<int, WED_Persistent *>	ObjectMap;
 
 	ObjectMap		mObjects;		// Our objects!
 	bool			mDying;			// Flag to self - WE are killing ourselves - ignore objects.

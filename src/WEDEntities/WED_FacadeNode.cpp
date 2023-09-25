@@ -49,7 +49,7 @@ void	WED_FacadeNode::GetNthPropertyDict(int n, PropertyDict_t& dict) const
 		WED_ResourceMgr * mgr;
 		WED_Thing * parent, * grand_parent;
 		WED_FacadePlacement * fac;
-		string		res;
+		std::string		res;
 		const fac_info_t * info;
 		if((parent = this->GetParent()) != NULL)
 		if((grand_parent = parent->GetParent()) != NULL)
@@ -63,12 +63,12 @@ void	WED_FacadeNode::GetNthPropertyDict(int n, PropertyDict_t& dict) const
 			{
 				if (info->tunnels.size() && parent->CountChildren() - 1 == GetMyPosition())
 				{
-					dict[facade_Wall0] = make_pair("Auto Docking", true);
-					dict[facade_Wall39] = make_pair("Disable Docking", true);
+					dict[facade_Wall0] = std::make_pair("Auto Docking", true);
+					dict[facade_Wall39] = std::make_pair("Disable Docking", true);
 				}
 				else
 					for (int n = 0; n < info->wallName.size(); ++n)
-						dict[n + facade_Wall0] = make_pair(info->wallName[n],true);
+						dict[n + facade_Wall0] = std::make_pair(info->wallName[n],true);
 				return;
 			}
 		}
@@ -77,7 +77,7 @@ void	WED_FacadeNode::GetNthPropertyDict(int n, PropertyDict_t& dict) const
 	WED_Thing::GetNthPropertyDict(n,dict);			
 }
 
-void		WED_FacadeNode::GetNthPropertyDictItem(int n, int e, string& item) const
+void		WED_FacadeNode::GetNthPropertyDictItem(int n, int e, std::string& item) const
 {
 #if WED
 	if(n == PropertyItemNumber(&wall_type))
@@ -87,7 +87,7 @@ void		WED_FacadeNode::GetNthPropertyDictItem(int n, int e, string& item) const
 		WED_ResourceMgr * mgr;
 		WED_Thing * parent, * grand_parent;
 		WED_FacadePlacement * fac;
-		string		res;
+		std::string		res;
 		const fac_info_t * info;
 		if((parent = this->GetParent()) != NULL)
 		if((grand_parent = parent->GetParent()) != NULL)

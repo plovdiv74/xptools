@@ -74,7 +74,7 @@ public:
 	// GUI_Commander
 	virtual	int			HandleKeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFlags);
 	virtual	int			HandleCommand(int command);
-	virtual	int			CanHandleCommand(int command, string& ioName, int& ioCheck);
+	virtual	int			CanHandleCommand(int command, std::string& ioName, int& ioCheck);
 	virtual	int			AcceptTakeFocus(void);
 	virtual int			AcceptLoseFocus(int inForce);
 	virtual	int			AcceptFocusChain(void);
@@ -145,7 +145,7 @@ private:
 		char				mPasswordChar;
 		float				mLogicalBounds[4];
 		GUI_GraphState * 	mState;
-		string				mText;
+		std::string				mText;
 		bool				mAllowed[256];
 		bool				mAllowedVK[256];
 		float				mMargins[4];

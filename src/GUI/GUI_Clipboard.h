@@ -32,7 +32,7 @@ using std::vector;
 // TYPE MANAGEMENT
 //---------------------------------------------------------------------------------------------------------
 //
-// Your application defines private clip types by registering them by string.  Text and any other already
+// Your application defines private clip types by registering them by std::string.  Text and any other already
 // known non-private clip types don't need to be registered - functions return their enum type.
 
 
@@ -45,11 +45,11 @@ GUI_ClipType	GUI_GetTextClipType(void);
 //---------------------------------------------------------------------------------------------------------
 //
 // These routines do low-level clipboard I/O.  Warning: getting the size and data of the clipboard can be
-// expensive because the providing app may be doing lazy conversions.  Getting the set of types or checking
+// expensive because the providing app may be doing lazy conversions.  Getting the std::set of types or checking
 // for types should be quick.
 
 bool			GUI_Clipboard_HasClipType(GUI_ClipType inType);
-void			GUI_Clipboard_GetTypes(vector<GUI_ClipType>& outTypes);
+void			GUI_Clipboard_GetTypes(std::vector<GUI_ClipType>& outTypes);
 int				GUI_Clipboard_GetSize(GUI_ClipType inType);
 bool			GUI_Clipboard_GetData(GUI_ClipType inType, int size, void * ptr);
 
@@ -61,8 +61,8 @@ bool			GUI_Clipboard_SetData(int type_count, GUI_ClipType inTypes[], int sizes[]
 //
 // These routines provide an easy way to move plain-old-text around.
 
-bool			GUI_GetTextFromClipboard(string& outText);
-bool			GUI_SetTextToClipboard(const string& inText);
+bool			GUI_GetTextFromClipboard(std::string& outText);
+bool			GUI_SetTextToClipboard(const std::string& inText);
 
 //---------------------------------------------------------------------------------------------------------
 // DRAG & DROP - CROSS-PLATFORM
@@ -173,7 +173,7 @@ private:
 	GUI_GetData_f				mFetchFunc;
 	void *						mFetchRef;
 
-	map<GUI_ClipType, vector<char> >		mData;		// A map of buffers for our types.
+	std::map<GUI_ClipType, std::vector<char> >		mData;		// A map of buffers for our types.
 	ULONG									mRefCount;
 };
 
@@ -230,10 +230,10 @@ void * GUI_LoadOneSimpleDrag(
 							const void *			ptrs[],
 							const int				bounds[4]);
 
-// A utility bridge for drag and drop - this returns a vector of the UTI strings of all
+// A utility bridge for drag and drop - this returns a std::vector of the UTI strings of all
 // registered drag types within the app.  GUI_Window uses this just-in-time to make sure
 // we can receive the right kinds of drags.
-void GUI_GetMacNativeDragTypeList(vector<string>& out_types);
+void GUI_GetMacNativeDragTypeList(std::vector<std::string>& out_types);
 
 #endif /* APL */
 

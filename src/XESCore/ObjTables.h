@@ -74,12 +74,12 @@ struct	RepInfo_t {
 	float	height_min;
 	float	height_max;
 };
-typedef	vector<RepInfo_t>							RepTable;
-typedef hash_map<int, pair<int, int> >				RepTableTerrainIndex;
+typedef	std::vector<RepInfo_t>							RepTable;
+typedef std::hash_map<int, std::pair<int, int> >				RepTableTerrainIndex;
 
-typedef hash_map<int, int>							RepFeatureIndex;
-typedef multimap<float, int, greater<float> >		RepAreaIndex;
-typedef hash_map<int, int>							RepUsageTable;
+typedef std::hash_map<int, int>							RepFeatureIndex;
+typedef std::multimap<float, int, std::greater<float> >		RepAreaIndex;
+typedef std::hash_map<int, int>							RepUsageTable;
 extern	RepTable		gRepTable;			// This is the actual master table
 extern	RepFeatureIndex	gRepFeatureIndex;	// This indexes based on feature type (the object enum.)
 
@@ -92,7 +92,7 @@ struct	FeatureInfo {
 	float		property_value;
 	int			terrain_type;
 };
-typedef hash_map<int, FeatureInfo>		FeatureInfoTable;
+typedef std::hash_map<int, FeatureInfo>		FeatureInfoTable;
 extern	FeatureInfoTable				gFeatures;
 
 void	LoadObjTables(void);
@@ -149,11 +149,11 @@ void IncrementRepUsage(int inRep);
 void ResetUsages(void);
 bool IsWellKnownFeature(int inFeat);
 bool IsFeatureObject(int inName);
-void GetObjTerrainTypes(set<int>& outTypes);
+void GetObjTerrainTypes(std::set<int>& outTypes);
 
 void CheckObjTable(void);
 
-extern	string	gObjPlacementFile;
-extern string	gObjLibPrefix;
+extern	std::string	gObjPlacementFile;
+extern std::string	gObjLibPrefix;
 
 #endif /* OBJTABLES_H */

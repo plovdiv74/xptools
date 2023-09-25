@@ -39,9 +39,9 @@ void	make_texture(
 				int trials);
 				
 
-inline void 	offset_cuts(vector<int>& cuts, int d)
+inline void 	offset_cuts(std::vector<int>& cuts, int d)
 {
-	for(vector<int>::iterator i = cuts.begin(); i != cuts.end(); ++i)
+	for(std::vector<int>::iterator i = cuts.begin(); i != cuts.end(); ++i)
 		*i += d;
 }
 
@@ -118,7 +118,7 @@ void rotate_inplace(
 					int width, int height,
 					int dx, int dy)
 {
-	vector<Pixel>	storage;
+	std::vector<Pixel>	storage;
 	storage.insert(storage.end(), s, s + (width * height));
 	copy_rotate(&*storage.begin(), 1, width, s, dx1, dy1, width, height, dx, dy);
 }
@@ -129,7 +129,7 @@ void copy_cut_vertical(
 					const Pixel * s2,int	dx2,int dy2,
 					Pixel * d3,int	dx3,int dy3,
 					int width, int height,
-					const vector<int>& path)
+					const std::vector<int>& path)
 {
 	#define PIXEL1(x,y)		(s1+dx1*(x)+dy1*(y))
 	#define PIXEL2(x,y)		(s2+dx2*(x)+dy2*(y))
@@ -154,7 +154,7 @@ void copy_cut_horizontal(
 					const Pixel * s2,int	dx2,int dy2,
 					Pixel * d3,int	dx3,int dy3,
 					int width, int height,
-					const vector<int>& path)
+					const std::vector<int>& path)
 {
 	return copy_cut_vertical(
 			s1,dy1,dx1,
@@ -169,10 +169,10 @@ void copy_cut_edges(
 					const Pixel * s2, int dx2, int dy2,
 						  Pixel * d3, int dx3, int dy3,
 					int width, int height,
-					const vector<int>& cut_l,
-					const vector<int>& cut_b,
-					const vector<int>& cut_r,
-					const vector<int>& cut_t)
+					const std::vector<int>& cut_l,
+					const std::vector<int>& cut_b,
+					const std::vector<int>& cut_r,
+					const std::vector<int>& cut_t)
 {
 	#define PIXEL1(x,y)		(s1+dx1*(x)+dy1*(y))
 	#define PIXEL2(x,y)		(s2+dx2*(x)+dy2*(y))
@@ -283,7 +283,7 @@ void calc_quilt_vertical(
 					int		dy2,
 					int		width,				// Total size in pixels of the region.
 					int		height,
-					vector<int>& out_path)		// "Best" path.  This is in whole pixels, e.g. 0 means the left-most pixel is the 'transition' pixel to blend.
+					std::vector<int>& out_path)		// "Best" path.  This is in whole pixels, e.g. 0 means the left-most pixel is the 'transition' pixel to blend.
 {
 	// Here's the key idea: we want to find a path of steps to the left or right that minimizes the "conflict" at our border.
 	// Rather than evaluate EVERY possible path, we do this: the error at each pixel will include its own error PLUS the error it took
@@ -291,7 +291,7 @@ void calc_quilt_vertical(
 	// pixels contains the FULL cost, and the cheapest top pixel is the best case IN TOTAL.
 	
 	out_path.resize(height);
-	vector<ErrorMetric>	err_matrix(width*height);
+	std::vector<ErrorMetric>	err_matrix(width*height);
 	
 	#define PIXEL1(x,y)		(p1+dx1*(x)+dy1*(y))
 	#define PIXEL2(x,y)		(p2+dx2*(x)+dy2*(y))
@@ -346,7 +346,7 @@ void calc_quilt_horizontal(
 					int		dy2,
 					int		width,				// Total size in pixels of the region.
 					int		height,
-					vector<int>& out_path)		// "Best" path.  This is in whole pixels, e.g. 0 means the left-most pixel is the 'transition' pixel to blend.
+					std::vector<int>& out_path)		// "Best" path.  This is in whole pixels, e.g. 0 means the left-most pixel is the 'transition' pixel to blend.
 {
 	calc_quilt_vertical<Pixel,ErrorMetric>(p1,dy1,dx1,p2,dy2,dx2,height,width, out_path);
 }
@@ -358,10 +358,10 @@ void calc_four_cuts(
 					const Pixel * s2, int dx2, int dy2,
 					int width, int height,
 					int l, int b, int r, int t,
-					vector<int>& cut_l,
-					vector<int>& cut_b,
-					vector<int>& cut_r,
-					vector<int>& cut_t)
+					std::vector<int>& cut_l,
+					std::vector<int>& cut_b,
+					std::vector<int>& cut_r,
+					std::vector<int>& cut_t)
 {
 	cut_l.clear();
 	cut_b.clear();

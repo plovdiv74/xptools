@@ -98,7 +98,7 @@ static	bool	TransformTiffCorner(GTIF * gtif, GTIFDefn * defn, double x, double y
 }
 #endif
 
-bool	FetchTIFFCorners(const char * inFileName, double corners[8], int& post_pos, vector<Point2> * gcp)
+bool	FetchTIFFCorners(const char * inFileName, double corners[8], int& post_pos, std::vector<Point2> * gcp)
 {
 	bool retVal = false;
 #if USE_TIF
@@ -125,7 +125,7 @@ static int GTIFPrintFunc(char * txt, void *a)
 	return 0;
 }
 
-bool	FetchTIFFCornersWithTIFF(TIFF * tiffFile, double corners[8], int& post_pos, vector<Point2> * gcp)
+bool	FetchTIFFCornersWithTIFF(TIFF * tiffFile, double corners[8], int& post_pos, std::vector<Point2> * gcp)
 {
 	bool retVal = false;
 #if USE_TIF
@@ -207,7 +207,7 @@ bool	FetchTIFFCornersWithTIFF(TIFF * tiffFile, double corners[8], int& post_pos,
 }
 
 #if USE_TIF
-hash_map<int, projPJ>	sUTMProj;
+std::hash_map<int, projPJ>	sUTMProj;
 struct CTABLE *		sNADGrid = NULL;
 
 static	void	SetupUTMMap(int inZone)
@@ -225,7 +225,7 @@ static	void	SetupUTMMap(int inZone)
 	proj = pj_init(CSLCount(args), args);
 	CSLDestroy(args);
 	if (proj != NULL)
-		sUTMProj.insert(hash_map<int, projPJ>::value_type(inZone, proj));
+		sUTMProj.insert(std::hash_map<int, projPJ>::value_type(inZone, proj));
 
 //	sNADGrid = nad_init("conus.bin");
 }

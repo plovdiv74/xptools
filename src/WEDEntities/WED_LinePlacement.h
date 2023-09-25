@@ -36,8 +36,8 @@ public:
 	virtual	bool			IsClosed	(void	) const	;
 			void			SetClosed(int closure);
 
-	virtual void			GetResource(	  string& r) const;
-	virtual void			SetResource(const string& r);
+	virtual void			GetResource(	  std::string& r) const;
+	virtual void			SetResource(const std::string& r);
 
 	virtual const char *	HumanReadableType(void) const { return "Line"; }
 
@@ -47,7 +47,7 @@ public:
 	void		GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
 
 	void		GetNthPropertyDict(int n, PropertyDict_t& dict) const;
-	void		GetNthPropertyDictItem(int n, int e, string& item) const;
+	void		GetNthPropertyDictItem(int n, int e, std::string& item) const;
 
 	void		GetNthProperty(int n, PropertyVal_t& val) const;
 	void		SetNthProperty(int n, const PropertyVal_t& val);

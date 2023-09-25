@@ -94,7 +94,7 @@ void		WED_TCE::Draw(GUI_GraphState * state)
 	ISelection * sel = GetSel();
 //	IGISEntity * base = GetGISBase();
 
-	vector<IGISEntity *> possibles;
+	std::vector<IGISEntity *> possibles;
 	sel->IterateSelectionOr(Iterate_CollectEntities, &possibles);
 
 //		ILibrarian * lmgr = WED_GetLibrarian(mResolver);
@@ -131,7 +131,7 @@ void		WED_TCE::Draw(GUI_GraphState * state)
 		}
 	}
 
-	vector<WED_TCELayer *>::iterator l;
+	std::vector<WED_TCELayer *>::iterator l;
 
 	// Ben says: big hack for now.  Tools have NO idea if we have a background.  But...no background means the user is working blind.
 	// If we haven't dug out a texture, just don't let the tools and layers run.
@@ -140,7 +140,7 @@ void		WED_TCE::Draw(GUI_GraphState * state)
 	{
 		(*l)->GetCaps(draw_ent_v, draw_ent_s);
 		if(draw_ent_v)
-		for(vector<IGISEntity *>::iterator e = possibles.begin(); e != possibles.end(); ++e)
+		for(std::vector<IGISEntity *>::iterator e = possibles.begin(); e != possibles.end(); ++e)
 			(*l)->DrawEntityVisualization(cur == *l, *e, state);
 		(*l)->DrawVisualization(cur == *l, state);
 	}
@@ -150,7 +150,7 @@ void		WED_TCE::Draw(GUI_GraphState * state)
 	{
 		(*l)->GetCaps(draw_ent_v, draw_ent_s);
 		if(draw_ent_s)
-		for(vector<IGISEntity *>::iterator e = possibles.begin(); e != possibles.end(); ++e)
+		for(std::vector<IGISEntity *>::iterator e = possibles.begin(); e != possibles.end(); ++e)
 			(*l)->DrawEntityVisualization(cur == *l, *e, state);
 		(*l)->DrawStructure(cur == *l, state);
 	}
@@ -286,7 +286,7 @@ void WED_TCE::CalcBgknd(void)
 	TexRef old = mTex;
 	ISelection * sel = WED_GetSelect(mResolver);
 	mTex = NULL;
-	vector<IGISEntity *> possibles;
+	std::vector<IGISEntity *> possibles;
 	sel->IterateSelectionOr(Iterate_CollectEntities, &possibles);
 
 		ITexMgr *	tman = WED_GetTexMgr(mResolver);
@@ -294,12 +294,12 @@ void WED_TCE::CalcBgknd(void)
 
 	Bbox2		needed_area;
 
-	for(vector<IGISEntity*>::iterator e = possibles.begin(); e != possibles.end(); ++e)
+	for(std::vector<IGISEntity*>::iterator e = possibles.begin(); e != possibles.end(); ++e)
 	{
 		WED_DrapedOrthophoto * ortho;
 		if ((ortho = dynamic_cast<WED_DrapedOrthophoto*>(*e)) != NULL)
 		{
-			string vpath;
+			std::string vpath;
 			const pol_info_t * pol_info;
 			ortho->GetResource(vpath);
 			if(rmgr->GetPol(vpath,pol_info))

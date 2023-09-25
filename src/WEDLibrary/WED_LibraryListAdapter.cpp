@@ -63,7 +63,7 @@ void	WED_LibraryListAdapter::SetMap(WED_MapPane * amap, WED_LibraryPreviewPane *
 	mPreview->AddListener(this);
 }
 
-void	WED_LibraryListAdapter::SetFilter(const string& f, int int_val)
+void	WED_LibraryListAdapter::SetFilter(const std::string& f, int int_val)
 {
 	mFilter.clear();
 	mFilterChanged = true;
@@ -226,7 +226,7 @@ void	WED_LibraryListAdapter::SelectRange(
 			int							is_toggle)
 {
 	RebuildCache();
-	string noPrefix = GetNthCacheIndex(start_y,true);
+	std::string noPrefix = GetNthCacheIndex(start_y,true);
 
 	if(is_toggle && mCache[start_y].vpath == mSel)
 		SetSel("",noPrefix);
@@ -323,7 +323,7 @@ void	WED_LibraryListAdapter::ReceiveMessage(
 	}
 	else if(inSrc == mPreview && inMsg == WED_PRIVATE_MSG_BASE)
 	{
-		string tmp((char *) inParam);
+		std::string tmp((char *) inParam);
 		LOG_MSG("42: %s\n", tmp.c_str()); LOG_FLUSH();
 
 		SelectDisclose(1, 0);
@@ -392,7 +392,7 @@ void	WED_LibraryListAdapter::RebuildCache()
 	mCacheValid = true;
 }
 
-void	WED_LibraryListAdapter::RebuildCacheRecursive(const string& vpath, int packType, const string& prefix)
+void	WED_LibraryListAdapter::RebuildCacheRecursive(const std::string& vpath, int packType, const std::string& prefix)
 {
 	newCache.push_back(prefix + vpath);
 
@@ -413,9 +413,9 @@ void	WED_LibraryListAdapter::RebuildCacheRecursive(const string& vpath, int pack
 
 		if (newCache.back().isOpen || !mFilter.empty())
 		{
-			vector<string> kids;
+			std::vector<std::string> kids;
 			mLibrary->GetResourceChildren(vpath, packType, kids);
-			for (vector<string>::iterator k = kids.begin(); k != kids.end(); ++k)
+			for (std::vector<std::string>::iterator k = kids.begin(); k != kids.end(); ++k)
 				RebuildCacheRecursive(*k, packType, prefix);
 		}
 	}
@@ -428,7 +428,7 @@ void	WED_LibraryListAdapter::RebuildCacheRecursive(const string& vpath, int pack
 	}
 }
 
-void WED_LibraryListAdapter::SetSel(const string& s,const string& noPrefix)
+void WED_LibraryListAdapter::SetSel(const std::string& s,const std::string& noPrefix)
 {
 	if(s != mSel)
 	{
@@ -449,9 +449,9 @@ void WED_LibraryListAdapter::SetSel(const string& s,const string& noPrefix)
 	}
 }
 
-string WED_LibraryListAdapter::GetNthCacheIndex (int index, bool noPrefix)
+std::string WED_LibraryListAdapter::GetNthCacheIndex (int index, bool noPrefix)
 {
-	string path = mCache[index].vpath;
+	std::string path = mCache[index].vpath;
 
 	/*mCache by this point will look something like
 	* index 0

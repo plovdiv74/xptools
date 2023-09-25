@@ -45,12 +45,12 @@ inline void CallEditCallback(WED_PropertyHelper* P, T& value, const T& v)
 WED_PropIntText&       WED_PropIntText::operator=(int v)    { CallEditCallback<int>(GetParent(), value, v); return *this; }
 WED_PropBoolText&     WED_PropBoolText::operator=(int v)    { CallEditCallback<int>(GetParent(), value, v); return *this; }
 WED_PropDoubleText& WED_PropDoubleText::operator=(double v) { CallEditCallback<double>(GetParent(), value, v); return *this; }
-WED_PropStringText& WED_PropStringText::operator=(const string& v)  { CallEditCallback<string>(GetParent(), value, v); return *this; }
-WED_PropFileText&     WED_PropFileText::operator=(const string& v)  { CallEditCallback<string>(GetParent(), value, v); return *this; }
+WED_PropStringText& WED_PropStringText::operator=(const std::string& v)  { CallEditCallback<std::string>(GetParent(), value, v); return *this; }
+WED_PropFileText&     WED_PropFileText::operator=(const std::string& v)  { CallEditCallback<std::string>(GetParent(), value, v); return *this; }
 
 WED_PropIntEnum&                 WED_PropIntEnum::operator=(int v)             { CallEditCallback<int>(GetParent(), value, v); return *this; }
-WED_PropIntEnumSet&           WED_PropIntEnumSet::operator=(const set<int>& v) { CallEditCallback<set<int> >(GetParent(), value, v); return *this; }
-WED_PropIntEnumBitfield& WED_PropIntEnumBitfield::operator=(const set<int>& v) { CallEditCallback<set<int> >(GetParent(), value, v); return *this; }
+WED_PropIntEnumSet&           WED_PropIntEnumSet::operator=(const std::set<int>& v) { CallEditCallback<std::set<int> >(GetParent(), value, v); return *this; }
+WED_PropIntEnumBitfield& WED_PropIntEnumBitfield::operator=(const std::set<int>& v) { CallEditCallback<std::set<int> >(GetParent(), value, v); return *this; }
 
 
 int		WED_PropertyHelper::FindProperty(const char * in_prop) const
@@ -75,7 +75,7 @@ void		WED_PropertyHelper::GetNthPropertyDict(int n, PropertyDict_t& dict) const
 	mItems[n]->GetPropertyDict(dict);
 }
 
-void		WED_PropertyHelper::GetNthPropertyDictItem(int n, int e, string& item) const
+void		WED_PropertyHelper::GetNthPropertyDictItem(int n, int e, std::string& item) const
 {
 	mItems[n]->GetPropertyDictItem(e, item);
 }
@@ -228,7 +228,7 @@ void		WED_PropIntText::GetPropertyDict(PropertyDict_t& dict)
 	DebugAssert(!"Illegal method.");
 }
 
-void		WED_PropIntText::GetPropertyDictItem(int e, string& item)
+void		WED_PropIntText::GetPropertyDictItem(int e, std::string& item)
 {
 	DebugAssert(!"Illegal method.");
 }
@@ -293,7 +293,7 @@ void		WED_PropBoolText::GetPropertyDict(PropertyDict_t& dict)
 	DebugAssert(!"Illegal method.");
 }
 
-void		WED_PropBoolText::GetPropertyDictItem(int e, string& item)
+void		WED_PropBoolText::GetPropertyDictItem(int e, std::string& item)
 {
 	DebugAssert(!"Illegal method.");
 }
@@ -361,7 +361,7 @@ void		WED_PropDoubleText::GetPropertyDict(PropertyDict_t& dict)
 	DebugAssert(!"Illegal method.");
 }
 
-void		WED_PropDoubleText::GetPropertyDictItem(int e, string& item)
+void		WED_PropDoubleText::GetPropertyDictItem(int e, std::string& item)
 {
 	DebugAssert(!"Illegal method.");
 }
@@ -509,7 +509,7 @@ void		WED_PropStringText::GetPropertyDict(PropertyDict_t& dict)
 	DebugAssert(!"Illegal method.");
 }
 
-void		WED_PropStringText::GetPropertyDictItem(int e, string& item)
+void		WED_PropStringText::GetPropertyDictItem(int e, std::string& item)
 {
 	DebugAssert(!"Illegal method.");
 }
@@ -535,9 +535,9 @@ void 		WED_PropStringText::ReadFrom(IOReader * reader)
 {
 	int sz;
 	reader->ReadInt(sz);
-	vector<char> buf(sz);
+	std::vector<char> buf(sz);
 	reader->ReadBulk(&*buf.begin(),sz,false);
-	value = string(buf.begin(),buf.end());
+	value = std::string(buf.begin(),buf.end());
 }
 
 void 		WED_PropStringText::WriteTo(IOWriter * writer)
@@ -579,7 +579,7 @@ void		WED_PropFileText::GetPropertyDict(PropertyDict_t& dict)
 	DebugAssert(!"Illegal method.");
 }
 
-void		WED_PropFileText::GetPropertyDictItem(int e, string& item)
+void		WED_PropFileText::GetPropertyDictItem(int e, std::string& item)
 {
 	DebugAssert(!"Illegal method.");
 }
@@ -605,9 +605,9 @@ void 		WED_PropFileText::ReadFrom(IOReader * reader)
 {
 	int sz;
 	reader->ReadInt(sz);
-	vector<char> buf(sz);
+	std::vector<char> buf(sz);
 	reader->ReadBulk(&*buf.begin(),sz,false);
-	value = string(buf.begin(),buf.end());
+	value = std::string(buf.begin(),buf.end());
 }
 
 void 		WED_PropFileText::WriteTo(IOWriter * writer)
@@ -647,15 +647,15 @@ void		WED_PropIntEnum::GetPropertyInfo(PropertyInfo_t& info)
 
 void		WED_PropIntEnum::GetPropertyDict(PropertyDict_t& dict)
 {
-	map<int, string>		dm;
+	std::map<int, std::string>		dm;
 
 	DOMAIN_Members(domain,dm);
 
-	for(map<int, string>::iterator i = dm.begin(); i != dm.end(); ++i)
-	dict.insert(PropertyDict_t::value_type(i->first, make_pair(i->second,true)));
+	for(std::map<int, std::string>::iterator i = dm.begin(); i != dm.end(); ++i)
+	dict.insert(PropertyDict_t::value_type(i->first, std::make_pair(i->second,true)));
 }
 
-void		WED_PropIntEnum::GetPropertyDictItem(int e, string& item)
+void		WED_PropIntEnum::GetPropertyDictItem(int e, std::string& item)
 {
 	item = ENUM_Desc(e);
 }
@@ -722,15 +722,15 @@ void		WED_PropIntEnumSet::GetPropertyInfo(PropertyInfo_t& info)
 
 void		WED_PropIntEnumSet::GetPropertyDict(PropertyDict_t& dict)
 {
-	map<int, string>		dm;
+	std::map<int, std::string>		dm;
 
 	DOMAIN_Members(domain,dm);
 
-	for(map<int, string>::iterator i = dm.begin(); i != dm.end(); ++i)
-	dict.insert(PropertyDict_t::value_type(i->first, make_pair(i->second,true)));
+	for(std::map<int, std::string>::iterator i = dm.begin(); i != dm.end(); ++i)
+	dict.insert(PropertyDict_t::value_type(i->first, std::make_pair(i->second,true)));
 }
 
-void		WED_PropIntEnumSet::GetPropertyDictItem(int e, string& item)
+void		WED_PropIntEnumSet::GetPropertyDictItem(int e, std::string& item)
 {
 	item = ENUM_Desc(e);
 }
@@ -746,7 +746,7 @@ void		WED_PropIntEnumSet::SetProperty(const PropertyVal_t& val, WED_PropertyHelp
 	DebugAssert(val.prop_kind == prop_EnumSet);
 	if (value != val.set_val)
 	{
-		for (set<int>::const_iterator e = val.set_val.begin(); e != val.set_val.end(); ++e)
+		for (std::set<int>::const_iterator e = val.set_val.begin(); e != val.set_val.end(); ++e)
 		if (ENUM_Domain(*e) != domain)
 			return;
 		parent->PropEditCallback(1);
@@ -770,7 +770,7 @@ void 		WED_PropIntEnumSet::ReadFrom(IOReader * reader)
 void 		WED_PropIntEnumSet::WriteTo(IOWriter * writer)
 {
 	writer->WriteInt(value.size());
-	for (set<int>::iterator i = value.begin(); i != value.end(); ++i)
+	for (std::set<int>::iterator i = value.begin(); i != value.end(); ++i)
 	{
 		writer->WriteInt(*i);
 	}
@@ -780,7 +780,7 @@ void		WED_PropIntEnumSet::ToXML(WED_XMLElement * parent)
 {
 	WED_XMLElement * xml = parent->add_or_find_sub_element(GetXmlName());
 	auto p = GetXmlAttrName();
-	for(set<int>::iterator i = value.begin(); i != value.end(); ++i)
+	for(std::set<int>::iterator i = value.begin(); i != value.end(); ++i)
 	{
 		WED_XMLElement * ele = xml->add_sub_element(p);
 		ele->add_attr_c_str("value",ENUM_Desc(*i));
@@ -815,8 +815,8 @@ void		WED_PropIntEnumSet::StartElement(
 		else
 		{
 			int i = ENUM_LookupDesc(domain,v);
-			// If asked to add enum of unknown name to set, just ignore it silently.
-			// If we were to add "-1" to the set instead, the set would become un-modifyable and 'save file' would bomb.
+			// If asked to add enum of unknown name to std::set, just ignore it silently.
+			// If we were to add "-1" to the std::set instead, the std::set would become un-modifyable and 'save file' would bomb.
 			if (i >= 0)
 				value.insert(i);
 		}
@@ -840,15 +840,15 @@ void		WED_PropIntEnumBitfield::GetPropertyInfo(PropertyInfo_t& info)
 
 void		WED_PropIntEnumBitfield::GetPropertyDict(PropertyDict_t& dict)
 {
-	map<int, string>		dm;
+	std::map<int, std::string>		dm;
 
 	DOMAIN_Members(domain,dm);
 
-	for(map<int, string>::iterator i = dm.begin(); i != dm.end(); ++i)
-	dict.insert(PropertyDict_t::value_type(i->first, make_pair(i->second,true)));
+	for(std::map<int, std::string>::iterator i = dm.begin(); i != dm.end(); ++i)
+	dict.insert(PropertyDict_t::value_type(i->first, std::make_pair(i->second,true)));
 }
 
-void		WED_PropIntEnumBitfield::GetPropertyDictItem(int e, string& item)
+void		WED_PropIntEnumBitfield::GetPropertyDictItem(int e, std::string& item)
 {
 	item = ENUM_Desc(e);
 }
@@ -864,7 +864,7 @@ void		WED_PropIntEnumBitfield::SetProperty(const PropertyVal_t& val, WED_Propert
 	DebugAssert(val.prop_kind == prop_EnumSet);
 	if (value != val.set_val)
 	{
-		for (set<int>::const_iterator e = val.set_val.begin(); e != val.set_val.end(); ++e)
+		for (std::set<int>::const_iterator e = val.set_val.begin(); e != val.set_val.end(); ++e)
 		if (ENUM_Domain(*e) != domain)
 			return;
 		if(!can_be_none && val.set_val.empty())
@@ -890,7 +890,7 @@ void 		WED_PropIntEnumBitfield::ReadFrom(IOReader * reader)
 void 		WED_PropIntEnumBitfield::WriteTo(IOWriter * writer)
 {
 	writer->WriteInt(value.size());
-	for (set<int>::iterator i = value.begin(); i != value.end(); ++i)
+	for (std::set<int>::iterator i = value.begin(); i != value.end(); ++i)
 	{
 		writer->WriteInt(*i);
 	}
@@ -937,7 +937,7 @@ void		WED_PropIntEnumSetFilter::GetPropertyDict(PropertyDict_t& dict)
 		dict.insert(PropertyDict_t::value_type(i->first,i->second));
 }
 
-void		WED_PropIntEnumSetFilter::GetPropertyDictItem(int e, string& item)
+void		WED_PropIntEnumSetFilter::GetPropertyDictItem(int e, std::string& item)
 {
 	int me = mParent->FindProperty(host);
 	mParent->GetNthPropertyDictItem(me, e,item);
@@ -950,7 +950,7 @@ void		WED_PropIntEnumSetFilter::GetProperty(PropertyVal_t& val) const
 	mParent->GetNthProperty(me,local);
 	val = local;
 	val.set_val.clear();
-	for(set<int>::iterator i = local.set_val.begin(); i != local.set_val.end(); ++i)
+	for(std::set<int>::iterator i = local.set_val.begin(); i != local.set_val.end(); ++i)
 	if (*i >= minv && *i <= maxv)
 		val.set_val.insert(*i);
 
@@ -961,7 +961,7 @@ void		WED_PropIntEnumSetFilter::SetProperty(const PropertyVal_t& val, WED_Proper
 	int me = mParent->FindProperty(host);
 	PropertyVal_t	clone(val), old;
 	clone.set_val.clear();
-	set<int>::const_iterator i;
+	std::set<int>::const_iterator i;
 	mParent->GetNthProperty(me, old);
 	for(i=old.set_val.begin();i!=old.set_val.end();++i)
 	if(*i < minv || *i > maxv)
@@ -1027,7 +1027,7 @@ void		WED_PropIntEnumSetUnion::GetPropertyDict(PropertyDict_t& dict)
 	}
 }
 
-void		WED_PropIntEnumSetUnion::GetPropertyDictItem(int e, string& item)
+void		WED_PropIntEnumSetUnion::GetPropertyDictItem(int e, std::string& item)
 {
 	item = ENUM_Desc(e);
 }
@@ -1061,7 +1061,7 @@ void		WED_PropIntEnumSetUnion::SetProperty(const PropertyVal_t& val, WED_Propert
 	PropertyVal_t	old_val;
 	this->GetProperty(old_val);
 
-	set<int>	added, deleted;
+	std::set<int>	added, deleted;
 	set_difference(val.set_val.begin(),val.set_val.end(),
 					old_val.set_val.begin(),old_val.set_val.end(),
 					set_inserter(added));
@@ -1138,7 +1138,7 @@ void		WED_PropIntEnumSetFilterVal::GetProperty(PropertyVal_t& val) const
 	mParent->GetNthProperty(me,local);
 	val = local;
 	val.set_val.clear();
-	for(set<int>::iterator i = local.set_val.begin(); i != local.set_val.end(); ++i)
+	for(std::set<int>::iterator i = local.set_val.begin(); i != local.set_val.end(); ++i)
 	{
 		int n = ENUM_Export(*i);
 		if (n >= minv && n <= maxv)
@@ -1152,7 +1152,7 @@ void		WED_PropIntEnumSetFilterVal::SetProperty(const PropertyVal_t& val, WED_Pro
 	int me = mParent->FindProperty(host);
 	PropertyVal_t	clone(val), old;
 	clone.set_val.clear();
-	set<int>::const_iterator i;
+	std::set<int>::const_iterator i;
 	mParent->GetNthProperty(me, old);
 	for(i=old.set_val.begin();i!=old.set_val.end();++i)
 	{

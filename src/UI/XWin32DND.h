@@ -31,7 +31,7 @@ class	XWinFileReceiver {
 public:
 
 	virtual	void	ReceiveFilesFromDrag(
-						const vector<string>& inFiles)=0;
+						const std::vector<std::string>& inFiles)=0;
 
 };
 

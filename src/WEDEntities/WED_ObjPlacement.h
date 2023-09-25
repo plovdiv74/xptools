@@ -36,8 +36,8 @@ DECLARE_PERSISTENT(WED_ObjPlacement)
 public:
 
 	virtual	bool		Cull(const Bbox2& b) const;
-	virtual void		GetResource(	  string& r) const;
-	virtual void		SetResource(const string& r);
+	virtual void		GetResource(	  std::string& r) const;
+	virtual void		SetResource(const std::string& r);
 	virtual void		SetHeading(double h);
 	virtual	void		Rotate(GISLayer_t l,const Point2& center, double angle);
 
@@ -49,7 +49,7 @@ public:
 			double		GetTowerViewHgt(void);
 
 	virtual void		GetNthPropertyDict(int n, PropertyDict_t& dict) const;
-	virtual	void		GetNthPropertyDictItem(int n, int e, string& item) const;
+	virtual	void		GetNthPropertyDictItem(int n, int e, std::string& item) const;
 	virtual void		GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
 
 			void		SetShowLevel(int show_level);

@@ -38,7 +38,7 @@
 	There are three encodings we care about:
 
 	UTF8	- unicode chars go in between one and four bytes...higher number unicode chars take more bytes in a row.  This is the default encoding for Linux,
-			  OS X, and X-Plane.  UTF8 is set up so that the ASCII chars (0-127) are simply the one-byte values 0-127 when encoded (that is, ASCII doesn't change) and
+			  OS X, and X-Plane.  UTF8 is std::set up so that the ASCII chars (0-127) are simply the one-byte values 0-127 when encoded (that is, ASCII doesn't change) and
 			  no character that uses multiple bytes contains a valid UTF8 character inside it.  (So for example, one byte of a chinese char won't happen to be the dir char.)
 
 			  The only tricky thing about UTF8 is that when we are editing text, when the user hits delete, we have to anlayze the unicode char to find out how many bytes
@@ -55,19 +55,21 @@
 			  But we will use UTF32 when we have to encode a single unicode character to make things simple.
 */
 
+#include <string>
+
 typedef	unsigned char		UTF8;													// Definitions for chars in each of the 3 encoding formats.
 #if IBM
 typedef wchar_t UTF16;
 #else
-typedef	unsigned short		UTF16;													// We will use our normal string for UTF8.  We do not make a
+typedef	unsigned short		UTF16;													// We will use our normal std::string for UTF8.  We do not make a
 #endif
-typedef unsigned int		UTF32;													// string for UTF32 because it is only used for 1 char at a time.
+typedef unsigned int		UTF32;													// std::string for UTF32 because it is only used for 1 char at a time.
 
-typedef basic_string<UTF16> string_utf16;
+typedef std::basic_string<UTF16> string_utf16;
 
 #if IBM
-string_utf16 convert_str_to_utf16(const string& str);
-string       convert_utf16_to_str(const string_utf16& str_utf16);
+string_utf16 convert_str_to_utf16(const std::string& str);
+std::string       convert_utf16_to_str(const string_utf16& str_utf16);
 #endif
 
 // UTF 8 routines to move through a string one unicode char at a time - could be any number of bytes.
@@ -83,7 +85,7 @@ inline		 UTF8 *		UTF8_next(		 UTF8 * string, UTF8 * stop);
 inline const UTF8 *		UTF8_next(const UTF8 * string, const UTF8 * stop);
 
 inline bool				UTF8_IsValid(const UTF8 * start, const UTF8 * end);					// Is this a valid UTF8 string?  UTF8 has string bit-patterns; often we can tell if we are UTF8 or not!
-inline bool				UTF8_IsValid(const string& utf8_str);								// Just for convenience.
+inline bool				UTF8_IsValid(const std::string& utf8_str);								// Just for convenience.
 inline const UTF8 *		UTF8_ValidRange(const UTF8 * s, const UTF8 * e);					// Return a ptr within [s,e) that is the first inval char.  Thus [s,ret) is the longest valid range starting at S.
 inline const UTF8 *		UTF8_InvalidRange(const UTF8 * s, const UTF8 * e);					// Return a ptr within [s,e) that is the first val char.  Thus [s,ret) is the longest invalid range starting at S.
 
@@ -96,8 +98,8 @@ inline const UTF16 *	UTF16_decode(const UTF16 * chars, UTF32& result);					// UT
 inline int				UTF16_encode(UTF32 inChar, UTF16 outChars[2]);						// UTF 16 encoder.  Fill buffer, return how many UTF16s was filled.
 
 // String-based UTF 16...this is handy for dealing with file paths on Windows.
-void	string_utf_8_to_16(const string& input, string_utf16& output);				// convert between UTF8 and 16 in STL strings.
-void	string_utf_16_to_8(const string_utf16& input, string& output);
+void	string_utf_8_to_16(const std::string& input, string_utf16& output);				// convert between UTF8 and 16 in STL strings.
+void	string_utf_16_to_8(const string_utf16& input, std::string& output);
 
 #if APL
 // Mac-specific: convert a system-script character to UTF32.  The system script might be macRoman or ISO-latin-1 or who-knows-what!
@@ -242,7 +244,7 @@ inline const UTF8 *		UTF8_InvalidRange(const UTF8 * s, const UTF8 * e)
 	return s;
 }
 
-inline bool			UTF8_IsValid(const string& utf8_str)
+inline bool			UTF8_IsValid(const std::string& utf8_str)
 {
 	return UTF8_IsValid((const UTF8 *) utf8_str.c_str(),(const UTF8 *) utf8_str.c_str() + utf8_str.size());
 }
@@ -250,7 +252,7 @@ inline bool			UTF8_IsValid(const string& utf8_str)
 
 inline UTF32	UTF8_decode(const UTF8 * chars)
 {
-	if((*chars & 0x80) == 0) return *chars;								// Fast case - high bit not set, ASCII, return it.
+	if((*chars & 0x80) == 0) return *chars;								// Fast case - high bit not std::set, ASCII, return it.
 
 	int		extra_bytes = 0;											// How many more bytes of payload
 	int		mask = 0;													// How much of lead bytes is char
@@ -297,7 +299,7 @@ inline const UTF16 * UTF16_decode(const UTF16 * chars, UTF32& result)
 
 inline int		  UTF16_encode(UTF32 inChar, UTF16 outChars[2])
 {
-	if(inChar <= 0xFFFF) {										// Non-surrogate pair case ... char is in BMP.  Just return it.
+	if(inChar <= 0xFFFF) {										// Non-surrogate std::pair case ... char is in BMP.  Just return it.
 		outChars[0] = inChar;
 		return 1; }
 

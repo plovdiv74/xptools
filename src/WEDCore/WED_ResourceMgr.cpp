@@ -73,9 +73,9 @@
    found at a path relative to the referencing art assets location. If not - ask the lib Mgr to resolve a path for it.
 */
 
-static void process_texture_path(const string& path_of_obj, string& path_of_tex)
+static void process_texture_path(const std::string& path_of_obj, std::string& path_of_tex)
 {
-	string parent(FILE_get_dir_name(path_of_obj));
+	std::string parent(FILE_get_dir_name(path_of_obj));
 	path_of_tex = FILE_get_file_name_wo_extensions(path_of_tex);
 	WED_clean_rpath(path_of_tex);
 
@@ -124,18 +124,18 @@ void	WED_ResourceMgr::Purge(void)
 	mAGP.clear();
 }
 
-bool	WED_ResourceMgr::GetAllInDir(const string& vdir, vector<pair<string, int> >& vpaths)
+bool	WED_ResourceMgr::GetAllInDir(const std::string& vdir, std::vector<std::pair<std::string, int> >& vpaths)
 {
-	vector<string> names;
+	std::vector<std::string> names;
 	mLibrary->GetResourceChildren(vdir, pack_All, names, true);
 
 	for (auto& n : names)
-		vpaths.push_back(make_pair(n, mLibrary->GetResourceType(n)));
+		vpaths.push_back(std::make_pair(n, mLibrary->GetResourceType(n)));
 
 	return names.size();
 }
 
-XObj8 * WED_ResourceMgr::LoadObj(const string& abspath)
+XObj8 * WED_ResourceMgr::LoadObj(const std::string& abspath)
 {
 	XObj8 * new_obj = new XObj8;
 	if(!XObj8Read(abspath.c_str(),*new_obj))
@@ -173,7 +173,7 @@ XObj8 * WED_ResourceMgr::LoadObj(const string& abspath)
 	return new_obj;
 }
 
-bool	WED_ResourceMgr::GetObjRelative(const string& obj_path, const string& parent_path, XObj8 const *& obj)
+bool	WED_ResourceMgr::GetObjRelative(const std::string& obj_path, const std::string& parent_path, XObj8 const *& obj)
 {
 /* This is ised to resolve objects referenced inside other non-obj assets like .agp, .fac or .str
    These can be either vpaths or paths relative to the art assets location.
@@ -188,7 +188,7 @@ bool	WED_ResourceMgr::GetObjRelative(const string& obj_path, const string& paren
 		}
 	}
 	/* Try if its a valid relative path */
-	string apath = FILE_get_dir_name(mLibrary->GetResourcePath(parent_path)) + obj_path;
+	std::string apath = FILE_get_dir_name(mLibrary->GetResourcePath(parent_path)) + obj_path;
 
 	for (auto& a : apath)
 #if IBM
@@ -214,7 +214,7 @@ bool	WED_ResourceMgr::GetObjRelative(const string& obj_path, const string& paren
 	return true;
 }
 
-bool	WED_ResourceMgr::GetObj(const string& vpath, XObj8 const *& obj, int variant)
+bool	WED_ResourceMgr::GetObj(const std::string& vpath, XObj8 const *& obj, int variant)
 {
 	if(toupper(vpath[vpath.size()-3]) != 'O') return false;   // save time by not trying to load .agp's
 
@@ -237,7 +237,7 @@ bool	WED_ResourceMgr::GetObj(const string& vpath, XObj8 const *& obj, int varian
 //printf("GetObj trying to load '%s' V=%d/%d\n", path.c_str(), variant, n_variants);
 	for (int v = first_needed; v <= variant; ++v)  // load only the variants we need but don't have yet
 	{
-		string p = mLibrary->GetResourcePath(vpath,v);
+		std::string p = mLibrary->GetResourcePath(vpath,v);
 //	if (!p.size()) p = mLibrary->CreateLocalResourcePath(path);
 		{
 			XObj8 * new_obj = LoadObj(p);
@@ -256,7 +256,7 @@ bool	WED_ResourceMgr::GetObj(const string& vpath, XObj8 const *& obj, int varian
 	return true;
 }
 
-bool 	WED_ResourceMgr::SetPolUV(const string& path, Bbox2 box)
+bool 	WED_ResourceMgr::SetPolUV(const std::string& path, Bbox2 box)
 {
 	auto i = mPol.find(path);
 	if(i != mPol.end())
@@ -268,7 +268,7 @@ bool 	WED_ResourceMgr::SetPolUV(const string& path, Bbox2 box)
 		return false;
 }
 
-bool	WED_ResourceMgr::GetLin(const string& path, lin_info_t const *& info)
+bool	WED_ResourceMgr::GetLin(const std::string& path, lin_info_t const *& info)
 {
 	auto i = mLin.find(path);
 	if(i != mLin.end())
@@ -278,7 +278,7 @@ bool	WED_ResourceMgr::GetLin(const string& path, lin_info_t const *& info)
 	}
 
 	info = nullptr;
-	string p = mLibrary->GetResourcePath(path);
+	std::string p = mLibrary->GetResourcePath(path);
 	MFMemFile * lin = MemFile_Open(p.c_str());
 	if(!lin) return false;
 
@@ -401,7 +401,7 @@ bool	WED_ResourceMgr::GetLin(const string& path, lin_info_t const *& info)
 	return true;
 }
 
-bool	WED_ResourceMgr::GetStr(const string& path, str_info_t const *& info)
+bool	WED_ResourceMgr::GetStr(const std::string& path, str_info_t const *& info)
 {
 	auto i = mStr.find(path);
 	if(i != mStr.end())
@@ -411,7 +411,7 @@ bool	WED_ResourceMgr::GetStr(const string& path, str_info_t const *& info)
 	}
 
 	info = nullptr;
-	string p = mLibrary->GetResourcePath(path);
+	std::string p = mLibrary->GetResourcePath(path);
 	MFMemFile * str = MemFile_Open(p.c_str());
 	if(!str) return false;
 
@@ -443,7 +443,7 @@ bool	WED_ResourceMgr::GetStr(const string& path, str_info_t const *& info)
 		{
 			out_info->rotation = MFS_double(&s);    // we dont randomize the headings, but if a rotation is specified, we obey that
 			int ignore = MFS_double(&s);
-			string obj_res;
+			std::string obj_res;
 			MFS_string(&s,&obj_res);
 			WED_clean_vpath(obj_res);
 			out_info->objs.push_back(obj_res);
@@ -459,7 +459,7 @@ bool	WED_ResourceMgr::GetStr(const string& path, str_info_t const *& info)
 }
 
 
-bool	WED_ResourceMgr::GetPol(const string& path, pol_info_t const*& info)
+bool	WED_ResourceMgr::GetPol(const std::string& path, pol_info_t const*& info)
 {
 	auto i = mPol.find(path);
 	if(i != mPol.end())
@@ -469,7 +469,7 @@ bool	WED_ResourceMgr::GetPol(const string& path, pol_info_t const*& info)
 	}
 
 	info = nullptr;
-	string p = mLibrary->GetResourcePath(path);
+	std::string p = mLibrary->GetResourcePath(path);
 	MFMemFile * file = MemFile_Open(p.c_str());
 	if(!file) return false;
 
@@ -543,7 +543,7 @@ bool	WED_ResourceMgr::GetPol(const string& path, pol_info_t const*& info)
 		}
 		else if (MFS_string_match(&s,"SURFACE", false))
 		{
-			string tmp;
+			std::string tmp;
 			MFS_string(&s,&tmp);
 			if(tmp != "asphalt" && tmp != "concrete" && tmp != "grass" && tmp != "gravel" && tmp != "dirt" && tmp != "snow")
 				LOG_MSG("E/Pol illegal SURFACE type in %s\n", p.c_str());
@@ -559,7 +559,7 @@ bool	WED_ResourceMgr::GetPol(const string& path, pol_info_t const*& info)
 	return true;
 }
 
-void WED_ResourceMgr::WritePol(const string& abspath, const pol_info_t& out_info)
+void WED_ResourceMgr::WritePol(const std::string& abspath, const pol_info_t& out_info)
 {
 	FILE * fi = fopen(abspath.c_str(), "w");
 	if(!fi)	return;
@@ -591,7 +591,7 @@ void	WED_ResourceMgr::ReceiveMessage(
 	}
 }
 
-bool	WED_ResourceMgr::GetFac(const string& vpath, fac_info_t const *& info, int variant)
+bool	WED_ResourceMgr::GetFac(const std::string& vpath, fac_info_t const *& info, int variant)
 {
 	auto i = mFac.find(vpath);
 	int first_needed = 0;
@@ -610,7 +610,7 @@ bool	WED_ResourceMgr::GetFac(const string& vpath, fac_info_t const *& info, int 
 
 	for(int v = first_needed; v <=  variant; ++v)
 	{
-		string p = mLibrary->GetResourcePath(vpath, v);
+		std::string p = mLibrary->GetResourcePath(vpath, v);
 
 		MFMemFile * file = MemFile_Open(p.c_str());
 		if(!file) return false;
@@ -659,7 +659,7 @@ bool	WED_ResourceMgr::GetFac(const string& vpath, fac_info_t const *& info, int 
 			}
 			else if (MFS_string_match(&s,"TEXTURE", false))
 			{
-				string tex;
+				std::string tex;
 				MFS_string(&s,&tex);
 
 				if (roof_section)
@@ -681,7 +681,7 @@ bool	WED_ResourceMgr::GetFac(const string& vpath, fac_info_t const *& info, int 
 				REN_facade_scraper_t::tower_t choice;
 				if(fac->scrapers.empty())
 					LOG_MSG("E/Fac FACADE_SCRAPER_MODEL without FACADE_SCRAPER in %s\n", p.c_str());
-				string file;
+				std::string file;
 				MFS_string(&s,&file);
 				WED_clean_vpath(file);
 				choice.base_obj = file;
@@ -702,7 +702,7 @@ bool	WED_ResourceMgr::GetFac(const string& vpath, fac_info_t const *& info, int 
 				if(fac->scrapers.empty())
 					LOG_MSG("E/Fac FACADE_SCRAPER_MODEL_OFFSET without FACADE_SCRAPER in %s\n", p.c_str());
 				REN_facade_scraper_t::tower_t choice;
-				string file;
+				std::string file;
 				choice.base_xzr[0] = MFS_double(&s);
 				choice.base_xzr[1] = MFS_double(&s);
 				choice.base_xzr[2] = MFS_double(&s);
@@ -740,11 +740,11 @@ bool	WED_ResourceMgr::GetFac(const string& vpath, fac_info_t const *& info, int 
 					fac->walls.push_back(FacadeWall_t());
 					MFS_double(&s);
 					MFS_double(&s);
-					string buf;	MFS_string(&s,&buf);
+					std::string buf;	MFS_string(&s,&buf);
 					if(!buf.empty())
 						fac->wallName.push_back(buf);
 					else
-						fac->wallName.push_back(string("#") + to_string(fac->walls.size()));
+						fac->wallName.push_back(std::string("#") + std::to_string(fac->walls.size()));
 				}
 				else
 				{
@@ -756,11 +756,11 @@ bool	WED_ResourceMgr::GetFac(const string& vpath, fac_info_t const *& info, int 
 					fac->floors.back().walls.back().filters.back().max_heading = MFS_double(&s);
 					if(fac->floors.size() == 1)
 					{
-						string buf;	MFS_string(&s,&buf);
+						std::string buf;	MFS_string(&s,&buf);
 						if(!buf.empty())
 							fac->wallName.push_back(buf);
 						else
-							fac->wallName.push_back(string("#") + to_string(fac->floors.back().walls.size()));
+							fac->wallName.push_back(std::string("#") + std::to_string(fac->floors.back().walls.size()));
 					}
 				}
 				char c[64];
@@ -794,7 +794,7 @@ bool	WED_ResourceMgr::GetFac(const string& vpath, fac_info_t const *& info, int 
 					{
 						fac->tex_correct_slope = true;
 					}
-					string buf;	MFS_string(&s,&buf);
+					std::string buf;	MFS_string(&s,&buf);
 
 					if(buf == "SLANT")
 					{
@@ -805,42 +805,42 @@ bool	WED_ResourceMgr::GetFac(const string& vpath, fac_info_t const *& info, int 
 				{
 					float f1 = MFS_double(&s) * scale_t;
 					float f2 = MFS_double(&s) * scale_t;
-					fac->walls.back().t_floors.push_back(pair<float, float>(f1,f2));
+					fac->walls.back().t_floors.push_back(std::pair<float, float>(f1,f2));
 					++fac->walls.back().bottom;
 				}
 				else if (MFS_string_match(&s,"MIDDLE",false))
 				{
 					float f1 = MFS_double(&s) * scale_t;
 					float f2 = MFS_double(&s) * scale_t;
-					fac->walls.back().t_floors.push_back(pair<float, float>(f1,f2));
+					fac->walls.back().t_floors.push_back(std::pair<float, float>(f1,f2));
 					++fac->walls.back().middle;
 				}
 				else if (MFS_string_match(&s,"TOP",false))
 				{
 					float f1 = MFS_double(&s) * scale_t;
 					float f2 = MFS_double(&s) * scale_t;
-					fac->walls.back().t_floors.push_back(pair<float, float>(f1,f2));
+					fac->walls.back().t_floors.push_back(std::pair<float, float>(f1,f2));
 					++fac->walls.back().top;
 				}
 				else if (MFS_string_match(&s,"LEFT",false))
 				{
 					float f1 = MFS_double(&s) * scale_s;
 					float f2 = MFS_double(&s) * scale_s;
-					fac->walls.back().s_panels.push_back(pair<float, float>(f1,f2));
+					fac->walls.back().s_panels.push_back(std::pair<float, float>(f1,f2));
 					++fac->walls.back().left;
 				}
 				else if (MFS_string_match(&s,"CENTER",false))
 				{
 					float f1 = MFS_double(&s) * scale_s;
 					float f2 = MFS_double(&s) * scale_s;
-					fac->walls.back().s_panels.push_back(pair<float, float>(f1,f2));
+					fac->walls.back().s_panels.push_back(std::pair<float, float>(f1,f2));
 					++fac->walls.back().center;
 				}
 				else if (MFS_string_match(&s,"RIGHT",false))
 				{
 					float f1 = MFS_double(&s) * scale_s;
 					float f2 = MFS_double(&s) * scale_s;
-					fac->walls.back().s_panels.push_back(pair<float, float>(f1,f2));
+					fac->walls.back().s_panels.push_back(std::pair<float, float>(f1,f2));
 					++fac->walls.back().right;
 				}
 				else if (MFS_string_match(&s,"ROOF", false))
@@ -894,14 +894,14 @@ bool	WED_ResourceMgr::GetFac(const string& vpath, fac_info_t const *& info, int 
 			{
 				if(MFS_string_match(&s,"OBJ", false))
 				{
-					string file;
+					std::string file;
 					MFS_string(&s,&file);
 					WED_clean_vpath(file);
 					fac->objs.push_back(file);
 				}
 				else if(MFS_string_match(&s,"#obj_wed",false))
 				{
-					string file;
+					std::string file;
 					MFS_string_eol(&s,&file); s.cur -= 3;
 					WED_clean_vpath(file);
 					fac->objs.back() = file;      // use this one instead of the OBJ X-plane would use.
@@ -1045,7 +1045,7 @@ bool	WED_ResourceMgr::GetFac(const string& vpath, fac_info_t const *& info, int 
 
 		if(fac->is_new)
 		{
-			vector<int> heights;
+			std::vector<int> heights;
 			for(auto& f : fac->floors)
 			{
 				for(auto& t : f.templates)
@@ -1140,7 +1140,7 @@ inline void	do_rotate(int n, float& io_x, float& io_y)
 	io_y = v.dy;
 }
 
-bool	WED_ResourceMgr::GetFor(const string& path, for_info_t const *& info)
+bool	WED_ResourceMgr::GetFor(const std::string& path, for_info_t const *& info)
 {
 	auto i = mFor.find(path);
 	if(i != mFor.end())
@@ -1150,7 +1150,7 @@ bool	WED_ResourceMgr::GetFor(const string& path, for_info_t const *& info)
 	}
 
 	info = nullptr;
-	string p = mLibrary->GetResourcePath(path);
+	std::string p = mLibrary->GetResourcePath(path);
 
 	MFMemFile * fi = MemFile_Open(p.c_str());
 	if(!fi) return false;
@@ -1171,24 +1171,24 @@ bool	WED_ResourceMgr::GetFor(const string& path, for_info_t const *& info)
 
 	fst->has_3D = false;
 	float scale_x=256, scale_y=256, space_x=30, space_y=30, rand_x=0, rand_y=0;
-	string tex, tex_3d;
+	std::string tex, tex_3d;
 	bool shader_2d = true;
 	double max_height = 0.0;
 	int layer = 0;
 
 	struct tree_mesh {
-		vector<vector<float> > vert;
-		vector<int> idx;
+		std::vector<std::vector<float> > vert;
+		std::vector<int> idx;
 	};
 	tree_mesh* this_tree_3d = nullptr;
-	map<string, tree_mesh> trees_3d;
+	std::map<std::string, tree_mesh> trees_3d;
 	bool is_tree2 = false;
 
 	while(!MFS_done(&s))
 	{
 		if (this_tree_3d && MFS_string_match(&s, "VERTEX", false))
 		{
-			vector<float> v(8, 0.0);
+			std::vector<float> v(8, 0.0);
 			v[0] = MFS_double(&s);        // x,y,z
 			v[1] = MFS_double(&s);
 			v[2] = MFS_double(&s);
@@ -1263,7 +1263,7 @@ bool	WED_ResourceMgr::GetFor(const string& path, for_info_t const *& info)
 		}
 		else if (MFS_string_match(&s, "MESH", false))
 		{
-			string nam;
+			std::string nam;
 			MFS_string(&s, &nam);
 			this_tree_3d = &trees_3d[nam];
 			MFS_double(&s);							 // near, far LOD
@@ -1299,8 +1299,8 @@ bool	WED_ResourceMgr::GetFor(const string& path, for_info_t const *& info)
 
 	const int TPR = fst->trees.begin()->second.size() < 4 ? 3 : TREES_PER_ROW;
 
-	fst->description += to_string(tot_varieties) + string(" different trees, ");
-	fst->description += string("max h=") + to_string(intround(max_height / (gIsFeet ? 0.3048 : 1.0))) + string(gIsFeet ? "ft" : "m");
+	fst->description += std::to_string(tot_varieties) + std::string(" different trees, ");
+	fst->description += std::string("max h=") + std::to_string(intround(max_height / (gIsFeet ? 0.3048 : 1.0))) + std::string(gIsFeet ? "ft" : "m");
 
 	XObj8 *new_obj = new XObj8, *new_obj_3d = nullptr;
 	XObjCmd8 cmd;
@@ -1453,7 +1453,7 @@ bool	WED_ResourceMgr::GetFor(const string& path, for_info_t const *& info)
 	return true;
 }
 
-void WED_ResourceMgr::setup_tile(agp_t::tile_t * agp, int rotation, const string& path)
+void WED_ResourceMgr::setup_tile(agp_t::tile_t * agp, int rotation, const std::string& path)
 {
 	for(int n = 0; n < agp->tile.size(); n += 4)
 	{
@@ -1561,7 +1561,7 @@ void WED_ResourceMgr::setup_tile(agp_t::tile_t * agp, int rotation, const string
 	}
 }
 
-bool	WED_ResourceMgr::GetAGP(const string& path, agp_t const *& info)
+bool	WED_ResourceMgr::GetAGP(const std::string& path, agp_t const *& info)
 {
 	auto i = mAGP.find(path);
 	if(i != mAGP.end())
@@ -1570,7 +1570,7 @@ bool	WED_ResourceMgr::GetAGP(const string& path, agp_t const *& info)
 		return true;
 	}
 
-	string p = mLibrary->GetResourcePath(path);
+	std::string p = mLibrary->GetResourcePath(path);
 	MFMemFile * file = MemFile_Open(p.c_str());
 	if(!file) return false;
 
@@ -1581,9 +1581,9 @@ bool	WED_ResourceMgr::GetAGP(const string& path, agp_t const *& info)
 	int v;
 
 //	if( (v=MFS_xplane_header(&s,versions,"AG_POINT",NULL)) == 0)
-	string l1; MFS_string_eol(&s, &l1);
+	std::string l1; MFS_string_eol(&s, &l1);
 	v = MFS_int(&s); MFS_string_eol(&s,NULL);
-	string l3; MFS_string_eol(&s, &l3);
+	std::string l3; MFS_string_eol(&s, &l3);
 	if((l1 != "I" && l1 != "A") || v != 1000 || (l3 != "AG_STRING" && l3 != "AG_POINT" && l3 != "AG_BLOCK"))
 	{
 		LOG_MSG("E/RES unsupported version or header in %s\n", p.c_str());
@@ -1601,7 +1601,7 @@ bool	WED_ResourceMgr::GetAGP(const string& path, agp_t const *& info)
 	int	 rotation = 0;
 	int	 last_id = -1;
 	agp->hide_tiles = 0;
-	vector<string>	obj_paths, fac_paths;
+	std::vector<std::string>	obj_paths, fac_paths;
 
 	bool is_mesh_shader = false;
 	agp_t::tile_t * ti = nullptr;
@@ -1610,7 +1610,7 @@ bool	WED_ResourceMgr::GetAGP(const string& path, agp_t const *& info)
 	{
 		if(MFS_string_match(&s,"TEXTURE",false))
 		{
-			string tex;
+			std::string tex;
 			MFS_string(&s,&tex);
 			if(is_mesh_shader)
 			{
@@ -1639,21 +1639,21 @@ bool	WED_ResourceMgr::GetAGP(const string& path, agp_t const *& info)
 		}
 		else if(MFS_string_match(&s,"OBJECT",false))
 		{
-			string p;
+			std::string p;
 			MFS_string(&s,&p);
 			WED_clean_vpath(p);          // cant say here yet if its a relative rpath or a vpath.
 			obj_paths.push_back(p);
 		}
 		else if (MFS_string_match(&s,"FACADE", false))
 		{
-			string p;
+			std::string p;
 			MFS_string(&s, &p);
 			WED_clean_vpath(p);          // cant say here yet if its a relative rpath or a vpath.
 			fac_paths.push_back(p);
 		}
 		else if(MFS_string_match(&s,"#object_wed",false))
 		{
-			string p;
+			std::string p;
 			MFS_string_eol(&s,&p); s.cur -= 3;
 			WED_clean_vpath(p);
 			obj_paths.back() = p;      // use this one instead of the OBJECT X-plane would use.
@@ -1886,7 +1886,7 @@ bool	WED_ResourceMgr::GetAGP(const string& path, agp_t const *& info)
 }
 
 #if ROAD_EDITING
-bool	WED_ResourceMgr::GetRoad(const string& path, const road_info_t *& out_info)
+bool	WED_ResourceMgr::GetRoad(const std::string& path, const road_info_t *& out_info)
 {
 	auto i = mRoad.find(path);
 	if(i != mRoad.end())
@@ -1896,7 +1896,7 @@ bool	WED_ResourceMgr::GetRoad(const string& path, const road_info_t *& out_info)
 	}
 
 	out_info = nullptr;
-	string p = mLibrary->GetResourcePath(path);
+	std::string p = mLibrary->GetResourcePath(path);
 	MFMemFile * mf = MemFile_Open(p.c_str());
 	if(!mf) return false;
 
@@ -1928,7 +1928,7 @@ bool	WED_ResourceMgr::GetRoad(const string& path, const road_info_t *& out_info)
 	double leftmost_lane = 999;
 	double rightmost_lane = -999;
 	int	lane_direction = -1;
-//	string last_name;
+//	std::string last_name;
 
 	while(!MFS_done(&s))
 	{
@@ -1967,7 +1967,7 @@ bool	WED_ResourceMgr::GetRoad(const string& path, const road_info_t *& out_info)
 		else if(MFS_string_match(&s, "TEXTURE", false))
 		{
 			MFS_int(&s);       	 	     // z-index, we dont care
-			string tex_name;
+			std::string tex_name;
 			MFS_string(&s,&tex_name);    // texture name
 			rd->textures.push_back(tex_name);
 		}
@@ -1990,7 +1990,7 @@ bool	WED_ResourceMgr::GetRoad(const string& path, const road_info_t *& out_info)
 		}
 		else if(MFS_string_match(&s, "ROAD_CENTER", false))
 		{
-			last_center  = MFS_double(&s);         // define lateral offset relative to vector, added to everything
+			last_center  = MFS_double(&s);         // define lateral offset relative to std::vector, added to everything
 		}
 		else if(MFS_string_match(&s, "SCALE", false))
 		{
@@ -2052,7 +2052,7 @@ bool	WED_ResourceMgr::GetRoad(const string& path, const road_info_t *& out_info)
 		}
 		else if(MFS_string_match(&s, "OBJECT", false))
 		{
-			string obj_path;   MFS_string(&s, &obj_path);
+			std::string obj_path;   MFS_string(&s, &obj_path);
 			double lat_offs  = (MFS_double(&s) - 0.5) * rd->road_types[last_road].width;
 			double rotation  = MFS_double(&s);
 			                   MFS_int(&s);        // on ground/elevated
@@ -2088,7 +2088,7 @@ bool	WED_ResourceMgr::GetRoad(const string& path, const road_info_t *& out_info)
 		}
 		else if(MFS_string_match(&s, "OBJECT_DRAPED", false))
 		{
-			string type;       MFS_string(&s, &type);
+			std::string type;       MFS_string(&s, &type);
 			if(type == "DIST")                       // there are also BEGIN and END types - placed where vectors dead-end
 			{
 				rd->road_types[last_road].dist_objs.push_back(road_info_t::road_t::obj_t());
@@ -2109,8 +2109,8 @@ bool	WED_ResourceMgr::GetRoad(const string& path, const road_info_t *& out_info)
 		}
 		else if(MFS_string_match(&s, "OBJECT_GRADED", false))
 		{
-			string type;       MFS_string(&s, &type);
-			if(type == "DIST")                      // placed by distance along vector
+			std::string type;       MFS_string(&s, &type);
+			if(type == "DIST")                      // placed by distance along std::vector
 			{
 				rd->road_types[last_road].dist_objs.push_back(road_info_t::road_t::obj_t());
 				auto& o = rd->road_types[last_road].dist_objs.back();
@@ -2148,8 +2148,8 @@ bool	WED_ResourceMgr::GetRoad(const string& path, const road_info_t *& out_info)
 			                   MFS_double(&s);       // first paird efinex a subrange of 0.0 to 1.0, like 0.0 1.0 or 0.3 0.7
 			                   MFS_double(&s);
 
-			                   MFS_double(&s);       // a set of two to four pairs of numbers. First in each pair is usually a power-of-2 or large whole number
-			                   MFS_double(&s);       // second half of each pair is the associated probability (1 > x > 0)
+			                   MFS_double(&s);       // a std::set of two to four pairs of numbers. First in each std::pair is usually a power-of-2 or large whole number
+			                   MFS_double(&s);       // second half of each std::pair is the associated probability (1 > x > 0)
 
 			                   MFS_double(&s);       // subsequent values may be zero, but if nonzero always a dual fraction of previous value
 			                   MFS_double(&s);       // all probabilites always add up to 1.0
@@ -2162,7 +2162,7 @@ bool	WED_ResourceMgr::GetRoad(const string& path, const road_info_t *& out_info)
 		}
 		else if(MFS_string_match(&s, "OBJECT_ALT", false))
 		{
-			string obj_path;   MFS_string(&s, &obj_path);
+			std::string obj_path;   MFS_string(&s, &obj_path);
 		}
 		else if(MFS_string_match(&s, "CAR_DRAPED", false) || MFS_string_match(&s, "CAR_GRADED", false))
 		{
@@ -2194,10 +2194,10 @@ bool	WED_ResourceMgr::GetRoad(const string& path, const road_info_t *& out_info)
 
 #if 0
 	const char * dir = "/home/xplane/XP11/Custom Scenery/lin_roads/";
-	bool euro = path.find("_EU") != string::npos;
+	bool euro = path.find("_EU") != std::string::npos;
 
-	if(euro) FILE_make_dir_exist((string(dir) + "roads_EU").c_str());
-	else     FILE_make_dir_exist((string(dir) + "roads").c_str());
+	if(euro) FILE_make_dir_exist((std::string(dir) + "roads_EU").c_str());
+	else     FILE_make_dir_exist((std::string(dir) + "roads").c_str());
 
 	char buf[256];
 	snprintf(buf,sizeof(buf), "%slibrary.txt", dir);
@@ -2209,7 +2209,7 @@ bool	WED_ResourceMgr::GetRoad(const string& path, const road_info_t *& out_info)
 	{
 		auto& rr = rd->road_types.at(r.second.rd_type);
 
-		string nam(r.second.description);
+		std::string nam(r.second.description);
 		if(nam.substr(0,4) == "rail" || nam.substr(0,5) == "power") continue;
 
 		for(int i = 0; i<nam.size(); i++)
@@ -2219,9 +2219,9 @@ bool	WED_ResourceMgr::GetRoad(const string& path, const road_info_t *& out_info)
 		FILE * fp = fopen(buf, "w"); if(!fp) continue;
 
 		fprintf(fp,"I\n850\nLINE_PAINT\n\n");
-		string tex(rd->textures[rr.tex_idx]);
+		std::string tex(rd->textures[rr.tex_idx]);
 		fprintf(fp,"TEXTURE ../%s\n", tex.c_str());
-		if(tex.find("CoresResidentialDry") != string::npos)
+		if(tex.find("CoresResidentialDry") != std::string::npos)
 		{
 			fprintf(fp,"TEXTURE_NORMAL 1.0 ../%s\n", (tex.substr(0,tex.size() - 4) + "_NML.png").c_str());
 		}
@@ -2245,7 +2245,7 @@ bool	WED_ResourceMgr::GetRoad(const string& path, const road_info_t *& out_info)
 		}
 		fprintf(fp, "MIRROR\n");
 		fprintf(fp, "LAYER_GROUP roads -1\n");
-		if(nam.find("hwy") != string::npos)
+		if(nam.find("hwy") != std::string::npos)
 			fprintf(fp, "DECAL_LIB lib/g10/decals/road_hwy.dcl\n");
 		else
 			fprintf(fp, "DECAL_LIB lib/g10/decals/road%s_dry.dcl\n", euro ? "_EU" : "_res" );
@@ -2276,7 +2276,7 @@ void WED_JWFacades::load(WED_LibraryMgr* lmgr, WED_ResourceMgr* rmgr)
 					for (auto& t : fac->tunnels)
 						mJWFacades[FILE_get_dir_name(r.first) + t.obj] = r.first; // local facades always need to point to local objects
 			}
-			else if (!r.second.is_default && (r.first.find("jetway") != string::npos || r.first.find("Jetway") != string::npos))
+			else if (!r.second.is_default && (r.first.find("jetway") != std::string::npos || r.first.find("Jetway") != std::string::npos))
 			{
 				if (rmgr->GetFac(r.first, fac))
 					for (auto& t : fac->tunnels)
@@ -2286,7 +2286,7 @@ void WED_JWFacades::load(WED_LibraryMgr* lmgr, WED_ResourceMgr* rmgr)
 	}
 }
 
-string WED_JWFacades::find(WED_LibraryMgr* lmgr, WED_ResourceMgr* rmgr, const string& tunnel_vpath)
+std::string WED_JWFacades::find(WED_LibraryMgr* lmgr, WED_ResourceMgr* rmgr, const std::string& tunnel_vpath)
 {
 	if (!mInitialized)
 	{
@@ -2300,7 +2300,7 @@ string WED_JWFacades::find(WED_LibraryMgr* lmgr, WED_ResourceMgr* rmgr, const st
 		return tun->second;
 }
 
-string	WED_ResourceMgr::GetJetwayVpath(const string& tunnel_vpath)
+std::string	WED_ResourceMgr::GetJetwayVpath(const std::string& tunnel_vpath)
 {
 	return mJetways.find(mLibrary, this, tunnel_vpath);
 }

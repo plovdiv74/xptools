@@ -86,7 +86,7 @@ struct	DEMGeo;
  * (Where possible algorithms that work on defined extents like "crop" use swap ops, which are MUCH
  * faster.  While swap algs are still linear to the number of elements "swapped", almost all
  * topological operations - inserting and removing edges fundamentally change topology - have a time
- * complexity greater than constant, so a topological op on a linear set is worse than linear time,
+ * complexity greater than constant, so a topological op on a linear std::set is worse than linear time,
  * often by a lot!)
  *
  */
@@ -264,26 +264,26 @@ int		GetParamHistogram(const Face_handle f, const DEMGeo& dem, map<float, int>& 
 /*
  * ClipDEMToFaceSet
  *
- * Given a set of faces, copy the points in the src DEM to the dest DEM only if we're in the faces.
+ * Given a std::set of faces, copy the points in the src DEM to the dest DEM only if we're in the faces.
  * Return the bounds (inclusive min, exclusive max) of the copied area.  Returns true if any points
  * were copied, otherwise the X and Y params may nto be valid.
  *
  */
-bool	ClipDEMToFaceSet(const set<Face_handle>& inFaces, const DEMGeo& inSrcDEM, DEMGeo& inDstDEM, int& outX1, int& outY1, int& outX2, int& outY2);
+bool	ClipDEMToFaceSet(const std::set<Face_handle>& inFaces, const DEMGeo& inSrcDEM, DEMGeo& inDstDEM, int& outX1, int& outY1, int& outX2, int& outY2);
 
 /*
  * SetupRasterizerForDEM
  *
- * Given a face (or edge set containing a finite area) and a DEM in the same coordinates, set up the polygon
- * rasterizer to rasterize the DEM over the face set.
+ * Given a face (or edge std::set containing a finite area) and a DEM in the same coordinates, std::set up the polygon
+ * rasterizer to rasterize the DEM over the face std::set.
  *
- * This is useful for preparing iterating to iterate over every DEM point contained within a face or edge set.
+ * This is useful for preparing iterating to iterate over every DEM point contained within a face or edge std::set.
  * The lowest Y coordinate in the DEM that is within the rasterized area is returned as a good start value to
  * the rasterize outer loop.
  *
  */
 int		SetupRasterizerForDEM(const Face_handle f, const DEMGeo& dem, PolyRasterizer<double>& rasterizer);
-int		SetupRasterizerForDEM(const set<Halfedge_handle>& inEdges, const DEMGeo& dem, PolyRasterizer<double>& rasterizer);
+int		SetupRasterizerForDEM(const std::set<Halfedge_handle>& inEdges, const DEMGeo& dem, PolyRasterizer<double>& rasterizer);
 
 /*
  * DumpMapStats

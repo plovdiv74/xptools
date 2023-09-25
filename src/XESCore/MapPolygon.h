@@ -19,7 +19,7 @@ void	PolygonFromCCB(Pmwx::Ccb_halfedge_const_circulator circ, Polygon_2& out_pol
 void	PolygonFromFace(Pmwx::Face_const_handle in_face, Polygon_with_holes_2& out_ps, PolyInset_t * out_inset, Inset_f func, Bbox_2 * extent);
 
 void PolygonFromFaceEx(
-			Pmwx::Face_const_handle		in_face,			// A set of faces - we take the area of all of them.
+			Pmwx::Face_const_handle		in_face,			// A std::set of faces - we take the area of all of them.
 			Polygon_with_holes_2&		out_ps,				// Polygon with hole to output
 			PolyInset_t *				out_insets,			// Inset distance per polygon or null
 			Inset_f						func,				// Function that calcs inset distances from edges or null

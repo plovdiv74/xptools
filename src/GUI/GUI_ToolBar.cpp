@@ -36,7 +36,7 @@
 
 GUI_ToolBar::GUI_ToolBar(int h, int v, const char * in_resource) :
 	GUI_Control(),
-	mResource(in_resource ? in_resource : string()),
+	mResource(in_resource ? in_resource : std::string()),
 	mH(h),
 	mV(v)
 {
@@ -47,7 +47,7 @@ GUI_ToolBar::~GUI_ToolBar()
 {
 }
 
-void	GUI_ToolBar::SetToolTips(const vector<string>& in_tips)
+void	GUI_ToolBar::SetToolTips(const std::vector<std::string>& in_tips)
 {
 	mTips = in_tips;
 }
@@ -146,7 +146,7 @@ int			GUI_ToolBar::MouseDown(int x, int y, int button)
 void		GUI_ToolBar::MouseDrag(int x, int y, int button) { 			}
 void		GUI_ToolBar::MouseUp  (int x, int y, int button) { 			}
 
-int		GUI_ToolBar::GetHelpTip(int x, int y, int tip_bounds[4], string& tip)
+int		GUI_ToolBar::GetHelpTip(int x, int y, int tip_bounds[4], std::string& tip)
 {
 	int bounds[6];
 	GetBounds(bounds);

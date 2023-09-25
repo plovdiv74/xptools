@@ -30,7 +30,7 @@ struct	RGBColor_t {
 
 // Prototype for processing functions.  You are returned a tokenized line with
 // the parsing token as the first item.  Return true if successful.
-typedef bool (* ProcessConfigString_f)(const vector<string>& inTokenLine, void * inRef);
+typedef bool (* ProcessConfigString_f)(const std::vector<std::string>& inTokenLine, void * inRef);
 
 // Call this routine to register a line handler.  It returns true if successful, false
 // if not.  The only typical reason for failure is that the token is already in use.
@@ -40,7 +40,7 @@ bool	RegisterLineHandler(
 					void * 					inRef);
 
 // Locate a config file by name.  (Handles CFM weirdness nicely.)
-string	FindConfigFile(const char * inFileName);
+std::string	FindConfigFile(const char * inFileName);
 
 // Call this routine to parse a file.  Returns true if successful; it is halted if
 // (1) an I/O error occurs, (2) one of the line handlers returns false, indicating
@@ -52,15 +52,15 @@ bool	LoadConfigFileFullPath(const char * inFilename);
 // this is called.  This is useful for lazy on-demand loading of prefs files.
 bool	LoadConfigFileOnce(const char * inFilename);
 
-void	DebugPrintTokens(const vector<string>& tokens);
+void	DebugPrintTokens(const std::vector<std::string>& tokens);
 
 // A few useful parsers
-int					TokenizeInt(const string&);
-float				TokenizeFloat(const string&);
-float				TokenizeFloatWithEnum(const string&);
-bool				TokenizeColor(const string&, RGBColor_t&);
-bool				TokenizeEnum(const string& token, int& slot, const char * errMsg);
-bool				TokenizeEnumSet(const string& tokens, set<int>& slots);
+int					TokenizeInt(const std::string&);
+float				TokenizeFloat(const std::string&);
+float				TokenizeFloatWithEnum(const std::string&);
+bool				TokenizeColor(const std::string&, RGBColor_t&);
+bool				TokenizeEnum(const std::string& token, int& slot, const char * errMsg);
+bool				TokenizeEnumSet(const std::string& tokens, std::set<int>& slots);
 
 // Format is:
 // i - int
@@ -70,10 +70,10 @@ bool				TokenizeEnumSet(const string& tokens, set<int>& slots);
 // e - enum
 // s - STL string
 // t = char **
-// S - enum set
+// S - enum std::set
 // P - Point2, splatted
 //   - skip
-int				TokenizeLine(const vector<string>& tokens, const char * fmt, ...);
+int				TokenizeLine(const std::vector<std::string>& tokens, const char * fmt, ...);
 
 #endif
 

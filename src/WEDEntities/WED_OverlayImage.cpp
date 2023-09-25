@@ -40,7 +40,7 @@ WED_OverlayImage::~WED_OverlayImage()
 {
 }
 
-void		WED_OverlayImage::GetImage(string& image_file) const
+void		WED_OverlayImage::GetImage(std::string& image_file) const
 {
 	image_file = mImageFile.value;
 }
@@ -54,7 +54,7 @@ double		WED_OverlayImage::GetAlpha(void) const
 #include "ILibrarian.h"
 #include "WED_Archive.h"
 
-void	WED_OverlayImage::SetImage(const string& image_file)
+void	WED_OverlayImage::SetImage(const std::string& image_file)
 {
 	// evict old img from texMgr
 	mImageFile = image_file;
@@ -66,7 +66,7 @@ const gcp_t * WED_OverlayImage::GetGcpMat(void)
 	if(!mGcp.size())
 	{
 		ILibrarian *   lib = WED_GetLibrarian(GetArchive()->GetResolver());
-		string s(mImageFile.value);
+		std::string s(mImageFile.value);
 		lib->LookupPath(s);
 	
 		double dummy[8];

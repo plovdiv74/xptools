@@ -326,7 +326,7 @@ void	WED_MarqueeTool::ControlsHandlesBy(intptr_t id, int c, const Vector2& delta
 	Vector2	d(delta);
 	
 	if(mCacheBounds.xspan() != 0.0 && mCacheBounds.yspan() != 0.0)			// Don't run if bbox is degenerate - we can't preserve its aspect ratio, which is 0 or infinite.
-	if(delta.dx != 0.0 || delta.dy != 0.0)									// Don't run if no delta, we get a div-by-zero in vector project.
+	if(delta.dx != 0.0 || delta.dy != 0.0)									// Don't run if no delta, we get a div-by-zero in std::vector project.
 	if (mEditMode == mm_Prop_Center || mEditMode == mm_Prop)
 	{
 		if(c == 1 || c == 5)
@@ -436,20 +436,20 @@ void	WED_MarqueeTool::ControlsLinksBy	 (intptr_t id, int c, const Vector2& delta
 }
 
 /*
-void WED_MarqueeTool::GetEntityInternal(vector<IGISEntity *>& e)
+void WED_MarqueeTool::GetEntityInternal(std::vector<IGISEntity *>& e)
 {
 	ISelection * sel = WED_GetSelect(GetResolver());
 	DebugAssert(sel != NULL);
 
-	vector<IBase *>	iu;
-	vector<IGISEntity *> en;
+	std::vector<IBase *>	iu;
+	std::vector<IGISEntity *> en;
 
 	e.clear();
 
 	sel->GetSelectionVector(iu);
 	if (iu.empty()) return;
 	en.reserve(iu.size());
-	for (vector<IBase *>::iterator i = iu.begin(); i != iu.end(); ++i)
+	for (std::vector<IBase *>::iterator i = iu.begin(); i != iu.end(); ++i)
 	{
 		IGISEntity * ent = SAFE_CAST(IGISEntity,*i);
 		if (ent) e.push_back(ent);
@@ -459,7 +459,7 @@ void WED_MarqueeTool::GetEntityInternal(vector<IGISEntity *>& e)
 #if OPTIMIZE
 /*	hrm - ths is a case where bulk fetch would be more efficient by a factor of, um, 8??
 	but - this is a special case.  in most cases the data model can produce answers quickly,
-	and having to COPY the handle set sucks.  So probably its better for the  whole app to
+	and having to COPY the handle std::set sucks.  So probably its better for the  whole app to
 	solve this with caching.  Thought: if the sel had generation change numbers, we could
 	inval the cache when the sel changes.   We could also just respod to an "any changed" msg. */
 #endif
@@ -476,12 +476,12 @@ bool	WED_MarqueeTool::GetTotalBounds(void) const
 	DebugAssert(sel != NULL);
 	mCacheIconic = false;
 
-	vector<ISelectable *>	iu;
+	std::vector<ISelectable *>	iu;
 
 	sel->GetSelectionVector(iu);
 	if (iu.empty()) return false;
 	bool iconic = iu.size() == 1;
-	for (vector<ISelectable *>::iterator i = iu.begin(); i != iu.end(); ++i)
+	for (std::vector<ISelectable *>::iterator i = iu.begin(); i != iu.end(); ++i)
 	{
 		WED_Entity * went = SAFE_CAST(WED_Entity,*i);
 		if (went)
@@ -508,11 +508,11 @@ void	WED_MarqueeTool::ApplyRescale(const Bbox2& old_bounds, const Bbox2& new_bou
 	ISelection * sel = WED_GetSelect(GetResolver());
 	DebugAssert(sel != NULL);
 
-	vector<ISelectable *>	iu;
-	set<IGISEntity *>		ent_set;
+	std::vector<ISelectable *>	iu;
+	std::set<IGISEntity *>		ent_set;
 
 	sel->GetSelectionVector(iu);
-	for (vector<ISelectable *>::iterator i = iu.begin(); i != iu.end(); ++i)
+	for (std::vector<ISelectable *>::iterator i = iu.begin(); i != iu.end(); ++i)
 	{
 		IGISEntity * ent = SAFE_CAST(IGISEntity,*i);
 		WED_Entity * went = SAFE_CAST(WED_Entity,*i);
@@ -528,7 +528,7 @@ void	WED_MarqueeTool::ApplyRescale(const Bbox2& old_bounds, const Bbox2& new_bou
 		// common vertex to move - it will move by 2x the distance.
 		//
 		// So the marquee tool hacks hte hell around this by breaking down all edges into
-		// their sources in a set, which de-dupes the vertices.
+		// their sources in a std::set, which de-dupes the vertices.
 		if (ent)
 		{
 			if(ent->GetGISClass() == gis_Edge)
@@ -553,7 +553,7 @@ void	WED_MarqueeTool::ApplyRescale(const Bbox2& old_bounds, const Bbox2& new_bou
 			dynamic_cast <WED_DrapedOrthophoto *> (went)->Redrape();
 	}
 	
-	for(set<IGISEntity *>::iterator e = ent_set.begin(); e != ent_set.end(); ++e)
+	for(std::set<IGISEntity *>::iterator e = ent_set.begin(); e != ent_set.end(); ++e)
 		(*e)->Rescale(gis_Geo,old_bounds,new_bounds);
 
 }
@@ -563,11 +563,11 @@ void	WED_MarqueeTool::ApplyRotate(const Point2& ctr, double angle)
 	ISelection * sel = WED_GetSelect(GetResolver());
 	DebugAssert(sel != NULL);
 
-	vector<ISelectable *>	iu;
-	set<IGISEntity *>		ent_set;
+	std::vector<ISelectable *>	iu;
+	std::set<IGISEntity *>		ent_set;
 
 	sel->GetSelectionVector(iu);
-	for (vector<ISelectable *>::iterator i = iu.begin(); i != iu.end(); ++i)
+	for (std::vector<ISelectable *>::iterator i = iu.begin(); i != iu.end(); ++i)
 	{
 		IGISEntity * ent = SAFE_CAST(IGISEntity,*i);
 		WED_Entity * went = SAFE_CAST(WED_Entity,*i);
@@ -612,6 +612,6 @@ void	WED_MarqueeTool::ApplyRotate(const Point2& ctr, double angle)
 		}
 	}
 	
-	for(set<IGISEntity *>::iterator e = ent_set.begin(); e != ent_set.end(); ++e)
+	for(std::set<IGISEntity *>::iterator e = ent_set.begin(); e != ent_set.end(); ++e)
 		(*e)->Rotate(gis_Geo,ctr, angle);
 }

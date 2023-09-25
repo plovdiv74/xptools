@@ -83,7 +83,7 @@ void	DeriveDEMs(Pmwx& inMap, DEMGeoMap& ioDEMs, AptVector& ioApts, AptIndex& ioA
 void	CalcWaterSurface(DEMGeoMap& ioDEMs, double west, double south, double east, double north);
 void	CalcWaterBathymetry(DEMGeoMap& ioDEMs);
 
-void	MakeTiles(const DEMGeo& inDEM, list<DEMGeo>& outTiles);
+void	MakeTiles(const DEMGeo& inDEM, std::list<DEMGeo>& outTiles);
 
 
 void	DifferenceDEM(const DEMGeo& bottom, const DEMGeo& top, DEMGeo& diff);

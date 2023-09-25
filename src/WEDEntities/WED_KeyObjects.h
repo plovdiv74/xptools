@@ -58,7 +58,7 @@ public:
 	
 private:
 
-		map<string,int>		choices;
+		std::map<std::string,int>		choices;
 
 };
 

@@ -67,7 +67,7 @@ public:
 	virtual void			Hide(void);
 	virtual void			SetBounds(int x1, int y1, int x2, int y2);
 	virtual void			SetBounds(int inBounds[4]);
-	virtual	void			SetDescriptor(const string& inDesc);
+	virtual	void			SetDescriptor(const std::string& inDesc);
 	virtual bool			IsActiveNow(void) const;
 	virtual bool			IsVisibleNow(void) const;
 	virtual	void			GetMouseLocNow(int * out_x, int * out_y);
@@ -92,7 +92,7 @@ public:
 	virtual	void			DragEnter(int inX, int inY) { }
 	virtual	void			DragOver(int inX, int inY) { }
 	virtual	void			DragLeave(void) { }
-	virtual	void			ReceiveFiles(const vector<string>& inFiles, int inX, int inY) { }
+	virtual	void			ReceiveFiles(const std::vector<std::string>& inFiles, int inX, int inY) { }
 
 
 	virtual	void			GLReshaped(int inWidth, int inHeight);
@@ -118,7 +118,7 @@ private:
 #if APL
 
 	// For OS SX, we get a bunch of call-backs from XWin because we can't run ObjC code directly in GUI_window.cpp.
-	virtual int					CalcHelpTip(int x, int y, int bounds[4], string& msg);
+	virtual int					CalcHelpTip(int x, int y, int bounds[4], std::string& msg);
 	virtual	int					AdvancedDragEntered(void * ns_dragging_info);
 	virtual	int					AdvancedDragUpdated(void * ns_dragging_info);
 	virtual	void				AdvancedDragExited(void * ns_dragging_info);

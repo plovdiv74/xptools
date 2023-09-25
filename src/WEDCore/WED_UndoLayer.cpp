@@ -30,7 +30,7 @@
 #include "WED_FastBuffer.h"
 // NOTE: we could store no turd for created objs
 
-WED_UndoLayer::WED_UndoLayer(WED_Archive * inArchive, const string& inName, const char * inFile, int inLine) :
+WED_UndoLayer::WED_UndoLayer(WED_Archive * inArchive, const std::string& inName, const char * inFile, int inLine) :
 	mArchive(inArchive), mName(inName), mChangeMask(0), mFile(inFile), mLine(inLine)
 {
 	mStorage = new WED_FastBufferGroup;
@@ -140,7 +140,7 @@ void	WED_UndoLayer::ObjectDestroyed(WED_Persistent * inObject)
 
 void	WED_UndoLayer::Execute(void)
 {
-	vector<WED_Persistent *>	needs_post_call;
+	std::vector<WED_Persistent *>	needs_post_call;
 	int d;
 	for (ObjInfoMap::iterator i = mObjects.begin(); i != mObjects.end(); ++i)
 	{
@@ -175,7 +175,7 @@ void	WED_UndoLayer::Execute(void)
 			break;
 		}
 	}
-	for(vector<WED_Persistent *>::iterator o = needs_post_call.begin(); o != needs_post_call.end(); ++o)
+	for(std::vector<WED_Persistent *>::iterator o = needs_post_call.begin(); o != needs_post_call.end(); ++o)
 		(*o)->PostChangeNotify();
 }
 

@@ -39,27 +39,27 @@ enum {
 	prop_Int,
 	prop_Double,
 	prop_String,
-	prop_FilePath,		// Returns as string
-	prop_TaxiSign,		// Returns as string
+	prop_FilePath,		// Returns as std::string
+	prop_TaxiSign,		// Returns as std::string
 	prop_RoadType,		// Returns as int, only assigned in WED_RoadEdge
 	prop_Bool,			// Returns as int
 	prop_Enum,			// Returns as int
 	prop_EnumSet
 };
 
-typedef	map<int,pair<string, bool> >	PropertyDict_t;		// Maps integer enum value to (string name and true if selectable in the UI)
+typedef	std::map<int,std::pair<std::string, bool> >	PropertyDict_t;		// Maps integer enum value to (std::string name and true if selectable in the UI)
 
 struct PropertyInfo_t {
 	bool			can_delete;
 	int				can_edit;
 
 	int				prop_kind;	//See the anonymous enum at the top
-	string			prop_name;	//Having a prop_name of "." will make this make WED not use this property
+	std::string			prop_name;	//Having a prop_name of "." will make this make WED not use this property
 	int				digits;
 	int				decimals;			// Used only for doubles
 	const char *	units;              // unit name to display with property value.
-	int				exclusive;			// The exclusive flag forces an enum set to edit exactly one item at a time (with a fake "none" value shown to the user
-										// if nothing is selected.  In other words, it makes an enum set act like an enum.
+	int				exclusive;			// The exclusive flag forces an enum std::set to edit exactly one item at a time (with a fake "none" value shown to the user
+										// if nothing is selected.  In other words, it makes an enum std::set act like an enum.
 	int				synthetic;			// A synthetic property is one built from other properties or other derived data.  It is not necessary
 										// to copy it to clone the object.  Examples: length of a runwy (specified by end points), airport node line markings
 										// (a sub-filter of all attributes) and taxiway lines (the union of all child line markings).
@@ -69,9 +69,9 @@ struct PropertyInfo_t {
 struct	PropertyVal_t {
 	int			prop_kind;	//See the anonymous enum at the top
 	int			int_val;
-	string		string_val;
+	std::string		string_val;
 	double		double_val;
-	set<int>	set_val;
+	std::set<int>	set_val;
 };
 
 class IPropertyObject : public virtual IBase {
@@ -81,7 +81,7 @@ public:
 	virtual int			CountProperties(void) const=0;
 	virtual void		GetNthPropertyInfo(int n, PropertyInfo_t& info) const=0;
 	virtual	void		GetNthPropertyDict(int n, PropertyDict_t& dict) const=0;	// Ben says: dictionary ops are broken out (and one vs all lookup are split too) for performance.
-	virtual	void		GetNthPropertyDictItem(int n, int e, string& item) const=0;	// It may be slow to get all enums, so give the UI code a way to say if it needs this info.
+	virtual	void		GetNthPropertyDictItem(int n, int e, std::string& item) const=0;	// It may be slow to get all enums, so give the UI code a way to say if it needs this info.
 
 	virtual void		GetNthProperty(int n, PropertyVal_t& val) const=0;
 	virtual void		SetNthProperty(int n, const PropertyVal_t& val)=0;

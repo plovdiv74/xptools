@@ -112,7 +112,7 @@ void		WED_GISLine_Width::GetNthPropertyDict(int n, PropertyDict_t& dict) const
 	WED_GISLine::GetNthPropertyDict(n-rwy_prop_count, dict);
 }
 
-void		WED_GISLine_Width::GetNthPropertyDictItem(int n, int e, string& item) const
+void		WED_GISLine_Width::GetNthPropertyDictItem(int n, int e, std::string& item) const
 {
 	WED_GISLine::GetNthPropertyDictItem(n-rwy_prop_count, e, item);
 }

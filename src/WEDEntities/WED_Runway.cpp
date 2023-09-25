@@ -113,16 +113,16 @@ bool	WED_Runway::Cull(const Bbox2& b) const
 	return b.overlap(me);
 }
 
-pair<int,int>	WED_Runway::GetRunwayEnumsOneway() const
+std::pair<int,int>	WED_Runway::GetRunwayEnumsOneway() const
 {
-	string name;
+	std::string name;
 	GetName(name);
 
-	vector<string> parts;
+	std::vector<std::string> parts;
 	tokenize_string(name.begin(),name.end(),back_inserter(parts), '/');
 
 	if(parts.size() != 1 && parts.size() != 2)
-		return pair<int,int>(atc_Runway_None,atc_Runway_None);
+		return std::pair<int,int>(atc_Runway_None,atc_Runway_None);
 
 	int e1 = ENUM_LookupDesc(ATCRunwayOneway,parts[0].c_str());
 	if(e1 == -1)
@@ -130,7 +130,7 @@ pair<int,int>	WED_Runway::GetRunwayEnumsOneway() const
 		parts[0].insert(0,"0");
 		e1 = ENUM_LookupDesc(ATCRunwayOneway,parts[0].c_str());
 		if(e1 == -1)
-			return pair<int,int>(atc_Runway_None,atc_Runway_None);
+			return std::pair<int,int>(atc_Runway_None,atc_Runway_None);
 	}
 
 	int e2 = atc_Runway_None;
@@ -146,18 +146,18 @@ pair<int,int>	WED_Runway::GetRunwayEnumsOneway() const
 		}
 	}
 
-	return make_pair(e1, e2);
+	return std::make_pair(e1, e2);
 }
 
 int				WED_Runway::GetRunwayEnumsTwoway() const
 {
-	string name;
+	std::string name;
 	GetName(name);
 	int e1 = ENUM_LookupDesc(ATCRunwayTwoway,name.c_str());
 	if(e1 != -1)
 		return e1;
 
-	string namez(name);
+	std::string namez(name);
 	namez.insert(0,"0");
 	e1 = ENUM_LookupDesc(ATCRunwayTwoway,namez.c_str());
 	if(e1 != -1)
@@ -416,7 +416,7 @@ void		WED_Runway::Import(const AptRunway_t& x, void (* print_func)(void *, const
 		edge_lites = edge_MIRL;
 	}
 
-	string	full = x.id[0] + string("/") + x.id[1];
+	std::string	full = x.id[0] + std::string("/") + x.id[1];
 	SetName(full);
 
 	disp1 =									x.disp_mtr		[0] ;
@@ -490,9 +490,9 @@ void		WED_Runway::Export(		 AptRunway_t& x) const
 	x.edge_light_code		 = ENUM_Export(edge_lites.value);
 	x.has_distance_remaining =			   remaining_signs	;
 
-	string	full;
+	std::string	full;
 	GetName(full);
-	string::size_type p = full.find('/');
+	std::string::size_type p = full.find('/');
 	if (p == full.npos)
 	{
 		x.id[0] = full;
@@ -554,14 +554,14 @@ void	WED_Runway::GetNthPropertyDict(int n, PropertyDict_t& dict) const
 void  WED_Runway::PropEditCallback(int before)
 {
 	static int    old_enum;            // we want to catch changes of the name property, only
-	static pair<int,int> old_enum_1wy;
-	static set<int> old_all_rwys;
+	static std::pair<int,int> old_enum_1wy;
+	static std::set<int> old_all_rwys;
 	static WED_Airport * apt;
 
 	if (before)
 	{
 		StateChanged(wed_Change_Properties);
-		string name;
+		std::string name;
 		GetName(name);
 		if(name[0] == 'u')
 			old_enum = atc_rwy_None;
@@ -582,7 +582,7 @@ void  WED_Runway::PropEditCallback(int before)
 			int	res = ConfirmMessage("New runway name is illegal, Smart Runway Rename can not be applied. Really use new name ?",
 						"Yes, use new name", "Keep old name");
 			if(res == 0)
-				SetName(string(ENUM_Desc(old_enum)));
+				SetName(std::string(ENUM_Desc(old_enum)));
 			return;
 		}
 		else if(new_enum != old_enum)
@@ -591,13 +591,13 @@ void  WED_Runway::PropEditCallback(int before)
 			int renamed_flows=0;
 			int renamed_signs=0;
 
-			vector<WED_TaxiRoute *>	taxi_routes;
+			std::vector<WED_TaxiRoute *>	taxi_routes;
 			if(apt) CollectRecursive(apt,back_inserter(taxi_routes), WED_TaxiRoute::sClass);
-			vector<WED_ATCFlow *> flows;
+			std::vector<WED_ATCFlow *> flows;
 			if(apt) CollectRecursive(apt,back_inserter(flows), IgnoreVisiblity, TakeAlways, WED_ATCFlow::sClass);
-			vector<WED_ATCRunwayUse *> uses;
+			std::vector<WED_ATCRunwayUse *> uses;
 			if(apt) CollectRecursive(apt, back_inserter(uses), IgnoreVisiblity, TakeAlways, WED_ATCRunwayUse::sClass);
-			vector<WED_AirportSign *> signs;
+			std::vector<WED_AirportSign *> signs;
 			if(apt) CollectRecursive(apt, back_inserter(signs), WED_AirportSign::sClass);
 
 			if (old_all_rwys.find(new_enum) != old_all_rwys.end())
@@ -612,13 +612,13 @@ void  WED_Runway::PropEditCallback(int before)
 				apt->StartCommand("Smart Runway Rename");
 			}
 
-			pair<int,int> new_enum_1wy = GetRunwayEnumsOneway();
+			std::pair<int,int> new_enum_1wy = GetRunwayEnumsOneway();
 
-			for(vector<WED_TaxiRoute *>::iterator t = taxi_routes.begin(); t != taxi_routes.end(); ++t)
+			for(std::vector<WED_TaxiRoute *>::iterator t = taxi_routes.begin(); t != taxi_routes.end(); ++t)
 			{
 				// move all hotzone tags
 				bool renamed = false;
-				set<int> hotZ;
+				std::set<int> hotZ;
 				hotZ = (*t)->GetHotArrive();
 				if (hotZ.erase(old_enum_1wy.first))
 				{
@@ -665,7 +665,7 @@ void  WED_Runway::PropEditCallback(int before)
 				}
 				if (renamed) renamed_taxi++;
 			}
-			for(vector<WED_ATCFlow *>::iterator f = flows.begin(); f != flows.end(); ++f)
+			for(std::vector<WED_ATCFlow *>::iterator f = flows.begin(); f != flows.end(); ++f)
 			{
 				bool renamed = false;
 				int r = (*f)->GetPatternRunway();
@@ -681,7 +681,7 @@ void  WED_Runway::PropEditCallback(int before)
 				}
 				if (renamed) renamed_flows++;
 			}
-			for(vector<WED_ATCRunwayUse *>::iterator u = uses.begin(); u != uses.end(); ++u)
+			for(std::vector<WED_ATCRunwayUse *>::iterator u = uses.begin(); u != uses.end(); ++u)
 			{
 				int r = (*u)->GetRunway();
 				if(r == old_enum_1wy.first)
@@ -690,7 +690,7 @@ void  WED_Runway::PropEditCallback(int before)
 					(*u)->SetRunway(new_enum_1wy.second);
 			}
 			// create list of strings to replace
-			vector<string> old_rwys, new_rwys;
+			std::vector<std::string> old_rwys, new_rwys;
 			old_rwys.push_back(ENUM_Desc(old_enum_1wy.second));
 			new_rwys.push_back(ENUM_Desc(new_enum_1wy.second));
 			old_rwys.push_back(ENUM_Desc(old_enum_1wy.first));
@@ -701,16 +701,16 @@ void  WED_Runway::PropEditCallback(int before)
 				old_rwys.push_back(old_rwys.back().substr(1));
 				new_rwys.push_back(new_rwys.back().substr(1));
 			}
-			for(vector<WED_AirportSign *>::iterator s = signs.begin(); s != signs.end(); ++s)
+			for(std::vector<WED_AirportSign *>::iterator s = signs.begin(); s != signs.end(); ++s)
 			{
 				bool renamed = false;
-				string label; (*s)->GetName(label);
+				std::string label; (*s)->GetName(label);
 				for (int i = 0; i < old_rwys.size(); ++i)
 				{
-					string old_rwy = old_rwys[i];
-					string new_rwy = new_rwys[i];
+					std::string old_rwy = old_rwys[i];
+					std::string new_rwy = new_rwys[i];
 					size_t pos;
-					if ((pos = label.find(old_rwy)) != string::npos)
+					if ((pos = label.find(old_rwy)) != std::string::npos)
 					{
 						size_t len = label.length();
 						size_t next_pos = pos + old_rwy.length();
@@ -733,7 +733,7 @@ void  WED_Runway::PropEditCallback(int before)
 
 			if (renamed_flows || renamed_signs || renamed_taxi)
 			{
-				stringstream ss;
+				std::stringstream ss;
 				ss << "Smart Runway Rename completed:\n" << renamed_taxi << " taxi route edges\n";
 				ss << renamed_flows << " ATC flows\n" << renamed_signs << " taxi signs\nrefering to this runway were updated." ;
 				DoUserAlert(ss.str().c_str());

@@ -39,7 +39,7 @@
 
 EnumColorTable				gEnumColors;
 ColorBandTable				gColorBands;
-set<int>					gEnumDEMs;
+std::set<int>					gEnumDEMs;
 
 
 RegionalizationVector			gRegionalizations;
@@ -53,7 +53,7 @@ LandUseTransTable				gLandUseTransTable;
 TexProjTable					gTexProj;
 
 
-//static set<int>			sForests;
+//static std::set<int>			sForests;
 
 // Maps airport land class to airport border line class for airport terrain
 static map<int,int>			sAirports;
@@ -242,7 +242,7 @@ bool	ReadNewTerrainInfo(const vector<string>& tokens, void * ref)
 {
 	if(tokens[0] == "TERRAIN_RULE")
 	{
-		set<int>	lu_set;
+		std::set<int>	lu_set;
 		string		lu_set_string;
 		string		zone_string;
 		NaturalTerrainRule_t	rule;
@@ -336,7 +336,7 @@ bool	ReadNewTerrainInfo(const vector<string>& tokens, void * ref)
 			gNaturalTerrainRules.push_back(rule);
 		}
 		else
-		for(set<int>::iterator lu = lu_set.begin(); lu != lu_set.end(); ++lu)
+		for(std::set<int>::iterator lu = lu_set.begin(); lu != lu_set.end(); ++lu)
 		{
 			rule.landuse = *lu;
 			gNaturalTerrainRules.push_back(rule);
@@ -787,7 +787,7 @@ bool	ReadNaturalTerrainInfo(const vector<string>& tokens, void * ref)
 			info.compo_tex = MakeCompo(info.base_tex);
 		}
 		if(auto_vary > 0)
-			info.shader = shader_vary;							// Auto-vary FLAG set when we use auto-vary.
+			info.shader = shader_vary;							// Auto-vary FLAG std::set when we use auto-vary.
 		else
 			info.shader = shader_normal;
 
@@ -806,10 +806,10 @@ bool	ReadNaturalTerrainInfo(const vector<string>& tokens, void * ref)
 	info.compo_tex.clear();
 
 	// BEN SAYS: we used to generate 4 rules for the top-down variant case (vary code = 1 or 2 in the spreadsheet).  This was NOT used by the sim since
-	// auto-vary is used.  But we made the rules anyway so that a .ter file list for v9 would contain the v8 compatibility .ters.
+	// auto-vary is used.  But we made the rules anyway so that a .ter file std::list for v9 would contain the v8 compatibility .ters.
 
 	// Well, we are KILLING that code.  Now we only make the case 3 (scree) variants.  This is because the code must still generate v9 DSFs for MeshTool
-	// but does NOT need to make an art asset list, which will be copied from v9 shipping when we package up next-gen art assets.
+	// but does NOT need to make an art asset std::list, which will be copied from v9 shipping when we package up next-gen art assets.
 
 	// The variant is: 0 = none, 1 = vary by spatial blobs, 2 = vary by spatial blobs (2tex) 3 = vary by slope heading
 	// The resulting codes in the struct are: 0 - no vary, 1-4 = spatial variants (all equal), 5-8 = heading variatns (N,E,S,W)
@@ -867,7 +867,7 @@ static bool HandleTranslate(const vector<string>& inTokenLine, void * inRef)
 /*
 bool	ReadPromoteTerrainInfo(const vector<string>& tokens, void * ref)
 {
-	pair<int, int> key;
+	std::pair<int, int> key;
 	int			   value;
 	if (TokenizeLine(tokens, " eee", &key.first, &key.second, &value) != 4)
 		return false;
@@ -969,7 +969,7 @@ void	LoadDEMTables(void)
 
 	/*
 	printf("---forests---\n");
-	for (set<int>::iterator f = sForests.begin(); f != sForests.end(); ++f)
+	for (std::set<int>::iterator f = sForests.begin(); f != sForests.end(); ++f)
 	{
 		printf("%s\n", FetchTokenString(*f));
 	}*/
@@ -1061,7 +1061,7 @@ int	FindNaturalTerrain(
 #pragma mark -
 
 struct float_between_iterator {
-	typedef set<float>					set_type;
+	typedef std::set<float>					set_type;
 	typedef set_type::const_iterator	iter_type;
 	iter_type		i_;
 	bool			h_;
@@ -1182,8 +1182,8 @@ void	CheckDEMRuleCoverage(ProgressFunc func)
 	cov.OutputGaps();
 */
 
-	set<int>		terrain, landuse, urban_square, near_water;
-	set<float>		/*elev, */slope, temp, temp_rng, rain, slope_head, rel_elev, elev_range, urban_density, urban_radial, urban_trans, lat;
+	std::set<int>		terrain, landuse, urban_square, near_water;
+	std::set<float>		/*elev, */slope, temp, temp_rng, rain, slope_head, rel_elev, elev_range, urban_density, urban_radial, urban_trans, lat;
 
 	terrain.insert(NO_VALUE);
 	landuse.insert(NO_VALUE);
@@ -1262,22 +1262,22 @@ void	CheckDEMRuleCoverage(ProgressFunc func)
 
 	int ctr = 0;
 
-	for (set<int>::iterator lu = landuse.begin(); lu != landuse.end(); ++lu)
-	for (set<int>::iterator ter = terrain.begin(); ter != terrain.end(); ++ter)
+	for (std::set<int>::iterator lu = landuse.begin(); lu != landuse.end(); ++lu)
+	for (std::set<int>::iterator ter = terrain.begin(); ter != terrain.end(); ++ter)
 //	for (float_between_iterator el(elev); el(); ++el)
 	for (float_between_iterator sd(slope); sd(); ++sd)
 	for (float_between_iterator st(slope); st(); ++st)
 	for (float_between_iterator t(temp); t(); ++t)
 	for (float_between_iterator tr(temp_rng); tr(); ++tr)
 	for (float_between_iterator r(rain); r(); ++r)
-	for (set<int>::iterator nw = near_water.begin(); nw != near_water.end(); ++nw)
+	for (std::set<int>::iterator nw = near_water.begin(); nw != near_water.end(); ++nw)
 	for (float_between_iterator sh(slope_head); sh(); ++sh)
 	for (float_between_iterator re(rel_elev); re(); ++re)
 	for (float_between_iterator er(elev_range); er(); ++er)
 	for (float_between_iterator ud(urban_density); ud(); ++ud)
 	for (float_between_iterator ur(urban_radial); ur(); ++ur)
 	for (float_between_iterator ut(urban_trans); ut(); ++ut)
-	for (set<int>::iterator us = urban_square.begin(); us != urban_square.end(); ++us)
+	for (std::set<int>::iterator us = urban_square.begin(); us != urban_square.end(); ++us)
 	for (float_between_iterator l(lat); l(); ++l)
 	{
 		PROGRESS_CHECK(func, 0, 1, "Checking tables", ctr, total, step);
@@ -1335,7 +1335,7 @@ int		GetAirportTerrainBorder(int t)
 }
 
 /*
-void			GetForestTypes(set<int>& forests)
+void			GetForestTypes(std::set<int>& forests)
 {
 	forests = sForests;
 }

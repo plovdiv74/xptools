@@ -40,11 +40,11 @@ public:
 
 	CACHE_domain get_domain() const;
 	
-	const string& get_disk_location() const;
-	void   set_disk_location(const string& location);
+	const std::string& get_disk_location() const;
+	void   set_disk_location(const std::string& location);
 
 	//Gets the last url associated with this CO, regardless of network/cache errors or RAII Handle status
-	const string& get_last_url() const;
+	const std::string& get_last_url() const;
 
 	CACHE_error_type get_last_error_type() const;
 	void             set_last_error_type(CACHE_error_type error_type);
@@ -52,7 +52,7 @@ public:
 	time_t           get_last_time_modified() const;
 	void             set_last_time_modified(time_t mtime);
 
-	void             create_RAII_curl_hndl(const string& url, int buf_reserve_size=0);
+	void             create_RAII_curl_hndl(const std::string& url, int buf_reserve_size=0);
 
 	//Returns the current RAII_CurlHandle object or NULL if there is none
 	RAII_CurlHandle* const get_RAII_curl_hndl();
@@ -81,13 +81,13 @@ private:
 	CACHE_domain m_domain;
 
 	//Real FQPN on disk, "" if non-existant. Given to WED_file_cache_response
-	string m_disk_location;
+	std::string m_disk_location;
 
 	//The last error associated with this CACHE object. NOT given to WED_file_cache_response
 	CACHE_error_type m_last_error_type;
 
 	//The last HTTP url associated with this CACHE object, independent of a successful download. Given by WED_file_cache_request
-	string m_last_url;
+	std::string m_last_url;
 	
 	//The last time the file was modified on disk
 	time_t m_last_time_modified;

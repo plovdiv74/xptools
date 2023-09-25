@@ -41,7 +41,7 @@
 	
 	Sequences - a type follows the sequence pattern if it has a ++ operator, a * operator (like an iteraotr), but also
 	a function operator that returns true if the sequence is non-empty.  The sequence is thus a self-terminating
-	forward iterator.
+	forward std::iterator.
 	
 	Filters - a filter predicate returns true for items in a sequence and can be used to reduce a sequence.
 	
@@ -142,17 +142,17 @@ void bbox_for_any<Bezier2uv>(const Bezier2uv& e, Bbox2& b)
 }
 
 template <typename T>
-void bbox_for_any_vector(const vector<T>& e, Bbox2& b)
+void bbox_for_any_vector(const std::vector<T>& e, Bbox2& b)
 {
-	for(typename vector<T>::const_iterator i = e.begin(); i != e.end(); ++i)
+	for(typename std::vector<T>::const_iterator i = e.begin(); i != e.end(); ++i)
 		bbox_for_any(*i,b);
 }
 
 
 template <typename T>
-void bbox_for_any_vector2(const vector<T>& e, Bbox2& b)
+void bbox_for_any_vector2(const std::vector<T>& e, Bbox2& b)
 {
-	for(typename vector<T>::const_iterator i = e.begin(); i != e.end(); ++i)
+	for(typename std::vector<T>::const_iterator i = e.begin(); i != e.end(); ++i)
 		bbox_for_any_vector(*i,b);
 }
 
@@ -789,68 +789,68 @@ void apply_split(T& container, F filter)
 // 2. Then, throw out everything on the wrong side of the split line.
 // 3. Repeat 1 & 2 for all 4 sides of our AABB.
 
-void	clip_segments(vector<Segment2>& out_segs, const Bbox2& box)
+void	clip_segments(std::vector<Segment2>& out_segs, const Bbox2& box)
 {
 	split_at_line_h			split_bot(box.ymin()), split_top(box.ymax());
 	split_at_line_v			split_lft(box.xmin()), split_rgt(box.xmax());
 	on_side_of_line_h		clip_bot(box.ymin(),1), clip_top(box.ymax(),-1);
 	on_side_of_line_v		clip_lft(box.xmin(),1), clip_rgt(box.xmax(),-1);	
 	
-	apply_split<vector<Segment2>, split_at_line_h,2>(out_segs, split_bot);	
-	apply_split<vector<Segment2>, split_at_line_h,2>(out_segs, split_top);	
-	apply_split<vector<Segment2>, split_at_line_v,2>(out_segs, split_lft);	
-	apply_split<vector<Segment2>, split_at_line_v,2>(out_segs, split_rgt);	
+	apply_split<std::vector<Segment2>, split_at_line_h,2>(out_segs, split_bot);	
+	apply_split<std::vector<Segment2>, split_at_line_h,2>(out_segs, split_top);	
+	apply_split<std::vector<Segment2>, split_at_line_v,2>(out_segs, split_lft);	
+	apply_split<std::vector<Segment2>, split_at_line_v,2>(out_segs, split_rgt);	
 	apply_filter(out_segs, clip_bot);
 	apply_filter(out_segs, clip_top);
 	apply_filter(out_segs, clip_lft);
 	apply_filter(out_segs, clip_rgt);
 }
 
-void	clip_segments(vector<Segment2p>& out_segs, const Bbox2& box)
+void	clip_segments(std::vector<Segment2p>& out_segs, const Bbox2& box)
 {
 	split_at_line_h			split_bot(box.ymin()), split_top(box.ymax());
 	split_at_line_v			split_lft(box.xmin()), split_rgt(box.xmax());
 	on_side_of_line_h		clip_bot(box.ymin(),1), clip_top(box.ymax(),-1);
 	on_side_of_line_v		clip_lft(box.xmin(),1), clip_rgt(box.xmax(),-1);	
 	
-	apply_split<vector<Segment2p>, split_at_line_h,2>(out_segs, split_bot);	
-	apply_split<vector<Segment2p>, split_at_line_h,2>(out_segs, split_top);	
-	apply_split<vector<Segment2p>, split_at_line_v,2>(out_segs, split_lft);	
-	apply_split<vector<Segment2p>, split_at_line_v,2>(out_segs, split_rgt);	
+	apply_split<std::vector<Segment2p>, split_at_line_h,2>(out_segs, split_bot);	
+	apply_split<std::vector<Segment2p>, split_at_line_h,2>(out_segs, split_top);	
+	apply_split<std::vector<Segment2p>, split_at_line_v,2>(out_segs, split_lft);	
+	apply_split<std::vector<Segment2p>, split_at_line_v,2>(out_segs, split_rgt);	
 	apply_filter(out_segs, clip_bot);
 	apply_filter(out_segs, clip_top);
 	apply_filter(out_segs, clip_lft);
 	apply_filter(out_segs, clip_rgt);
 }
 
-void	clip_segments(vector<Bezier2>& out_segs, const Bbox2& box)
+void	clip_segments(std::vector<Bezier2>& out_segs, const Bbox2& box)
 {
 	split_at_line_h			split_bot(box.ymin()), split_top(box.ymax());
 	split_at_line_v			split_lft(box.xmin()), split_rgt(box.xmax());
 	on_side_of_line_h		clip_bot(box.ymin(),1), clip_top(box.ymax(),-1);
 	on_side_of_line_v		clip_lft(box.xmin(),1), clip_rgt(box.xmax(),-1);	
 	
-	apply_split<vector<Bezier2>, split_at_line_h,4>(out_segs, split_bot);	
-	apply_split<vector<Bezier2>, split_at_line_h,4>(out_segs, split_top);	
-	apply_split<vector<Bezier2>, split_at_line_v,4>(out_segs, split_lft);	
-	apply_split<vector<Bezier2>, split_at_line_v,4>(out_segs, split_rgt);	
+	apply_split<std::vector<Bezier2>, split_at_line_h,4>(out_segs, split_bot);	
+	apply_split<std::vector<Bezier2>, split_at_line_h,4>(out_segs, split_top);	
+	apply_split<std::vector<Bezier2>, split_at_line_v,4>(out_segs, split_lft);	
+	apply_split<std::vector<Bezier2>, split_at_line_v,4>(out_segs, split_rgt);	
 	apply_filter(out_segs, clip_bot);
 	apply_filter(out_segs, clip_top);
 	apply_filter(out_segs, clip_lft);
 	apply_filter(out_segs, clip_rgt);
 }
 
-void	clip_segments(vector<Bezier2p>& out_segs, const Bbox2& box)
+void	clip_segments(std::vector<Bezier2p>& out_segs, const Bbox2& box)
 {
 	split_at_line_h			split_bot(box.ymin()), split_top(box.ymax());
 	split_at_line_v			split_lft(box.xmin()), split_rgt(box.xmax());
 	on_side_of_line_h		clip_bot(box.ymin(),1), clip_top(box.ymax(),-1);
 	on_side_of_line_v		clip_lft(box.xmin(),1), clip_rgt(box.xmax(),-1);	
 	
-	apply_split<vector<Bezier2p>, split_at_line_h,4>(out_segs, split_bot);	
-	apply_split<vector<Bezier2p>, split_at_line_h,4>(out_segs, split_top);	
-	apply_split<vector<Bezier2p>, split_at_line_v,4>(out_segs, split_lft);	
-	apply_split<vector<Bezier2p>, split_at_line_v,4>(out_segs, split_rgt);	
+	apply_split<std::vector<Bezier2p>, split_at_line_h,4>(out_segs, split_bot);	
+	apply_split<std::vector<Bezier2p>, split_at_line_h,4>(out_segs, split_top);	
+	apply_split<std::vector<Bezier2p>, split_at_line_v,4>(out_segs, split_lft);	
+	apply_split<std::vector<Bezier2p>, split_at_line_v,4>(out_segs, split_rgt);	
 	apply_filter(out_segs, clip_bot);
 	apply_filter(out_segs, clip_top);
 	apply_filter(out_segs, clip_lft);
@@ -958,7 +958,7 @@ struct construct_segment<C, Bezier2uv> {
 template <typename C, typename F>
 bool	cap_edge_h(const C& in_segs, F make_curve, double y, int dir)
 {
-	typedef multimap<double, pair<int, typename C::const_iterator> >	imap_t;
+	typedef std::multimap<double, std::pair<int, typename C::const_iterator> >	imap_t;
 	
 	imap_t xons;
 	
@@ -966,9 +966,9 @@ bool	cap_edge_h(const C& in_segs, F make_curve, double y, int dir)
 	{
 		DebugAssert(!side_is_degenerate(*i));
 		if(i->p1.y() == y)
-			xons.insert(typename imap_t::value_type(i->p1.x(),make_pair(-1,i)));
+			xons.insert(typename imap_t::value_type(i->p1.x(),std::make_pair(-1,i)));
 		if(i->p2.y() == y)
-			xons.insert(typename imap_t::value_type(i->p2.x(),make_pair(1,i)));
+			xons.insert(typename imap_t::value_type(i->p2.x(),std::make_pair(1,i)));
 	}
 
 	typename imap_t::iterator start = xons.begin(), stop = xons.end(), end;
@@ -1099,7 +1099,7 @@ bool	cap_edge_h(const C& in_segs, F make_curve, double y, int dir)
 template <typename C, typename F>
 bool	cap_edge_v(const C& in_segs, F make_curve, double x, int dir)
 {
-	typedef multimap<double, pair<int, typename C::const_iterator> >	imap_t;
+	typedef std::multimap<double, std::pair<int, typename C::const_iterator> >	imap_t;
 	
 	imap_t xons;
 	
@@ -1107,9 +1107,9 @@ bool	cap_edge_v(const C& in_segs, F make_curve, double x, int dir)
 	{
 		DebugAssert(!side_is_degenerate(*i));
 		if(i->p1.x() == x)
-			xons.insert(typename imap_t::value_type(i->p1.y(),make_pair(-1,i)));
+			xons.insert(typename imap_t::value_type(i->p1.y(),std::make_pair(-1,i)));
 		if(i->p2.x() == x)
-			xons.insert(typename imap_t::value_type(i->p2.y(),make_pair(1,i)));
+			xons.insert(typename imap_t::value_type(i->p2.y(),std::make_pair(1,i)));
 	}
 
 	typename imap_t::iterator start = xons.begin(), stop = xons.end(), end;
@@ -1367,7 +1367,7 @@ bool clip_any(SC& io_segs, const clipping_line& l, bool cap)
 // CCB RECONSTRUCTION
 // ------------------------------------------------------------------------------------------------------------------------
 
-// This set of utils lets us reconstruct a series of close counter-clockwise boundary curves from the mess of cuts we made.
+// This std::set of utils lets us reconstruct a series of close counter-clockwise boundary curves from the mess of cuts we made.
 // This is what puts humpty-dumpty back together after we just clip and cap.
 
 // This functor sorts curves lexicographically - this ensures that the
@@ -1433,10 +1433,10 @@ bool better_next_seg(const C& prev, const C& best_so_far, const C& new_candidate
 // want to always pull the CCBs first and holes second, hence the sort.  This isn't actually
 // necessary - see the treatment of holes in clip_pwh.
 template <typename GP>
-bool reconstruct_ccbs(const GP& outer_boundary, vector<GP>& outer_ccbs)
+bool reconstruct_ccbs(const GP& outer_boundary, std::vector<GP>& outer_ccbs)
 {
 	typedef typename GP::value_type C;
-	typedef multiset<C, sort_segment_x_then_y>	seg_q;
+	typedef std::multiset<C, sort_segment_x_then_y>	seg_q;
 	seg_q	sorted_ccb(outer_boundary.begin(), outer_boundary.end());
 	while(!sorted_ccb.empty())
 	{
@@ -1489,14 +1489,14 @@ bool reconstruct_ccbs(const GP& outer_boundary, vector<GP>& outer_ccbs)
 template <typename C>
 bool validate_polygon_links(const C& segs)
 {
-	map<Point2,int,lesser_y_then_x>		counts;
+	std::map<Point2,int,lesser_y_then_x>		counts;
 	for(typename C::const_iterator c = segs.begin(); c != segs.end(); ++c)
 	{
 		counts[c->p1]++;
 		counts[c->p2]--;
 	}
 	
-	for(map<Point2,int,lesser_y_then_x>::iterator i = counts.begin(); i != counts.end(); ++i)
+	for(std::map<Point2,int,lesser_y_then_x>::iterator i = counts.begin(); i != counts.end(); ++i)
 	if(i->second != 0)
 	{	
 		printf("Validation failed: %d extra count of %lf,%lf\n",i->second, i->first.x(),i->first.y());
@@ -1505,7 +1505,7 @@ bool validate_polygon_links(const C& segs)
 	return true;
 }
 
-// This set of templates tells us the side of a clipping line for all sorts of stuff.
+// This std::set of templates tells us the side of a clipping line for all sorts of stuff.
 // Returns: 1 if all of thingie is ENTIRELY on the left side of "L".
 // Returns: -1 if all of thingie is ENTIRELY on the right side of "L".
 // Returns: 0 if any of thingie crosses L (or is fully on L).
@@ -1650,7 +1650,7 @@ int side_of_clipping_line<Polygon2>(const Polygon2& p, const clipping_line& l)
 // re-stashed as holes into the new polygons, as a whole.
 
 template <typename GP>
-bool clip_pwh(const vector<GP>& pwh, vector<vector<GP> >& out_pwh_list, const clipping_line& l)
+bool clip_pwh(const std::vector<GP>& pwh, std::vector<std::vector<GP> >& out_pwh_list, const clipping_line& l)
 {
 	typedef typename GP::value_type C;
 	
@@ -1658,7 +1658,7 @@ bool clip_pwh(const vector<GP>& pwh, vector<vector<GP> >& out_pwh_list, const cl
 	DebugAssert(pwh[0].size() > 0);
 	out_pwh_list.clear();
 	
-	vector<GP>	keeper_holes;			// All holes that are unclipped and remain in the polygon when done.
+	std::vector<GP>	keeper_holes;			// All holes that are unclipped and remain in the polygon when done.
 	GP			outer_boundary;			// All segments that are or will become outer boundary.
 
 	// Early exit cases: if our outer bounary is entirely clipped or unclipped, bail
@@ -1726,20 +1726,20 @@ bool clip_pwh(const vector<GP>& pwh, vector<vector<GP> >& out_pwh_list, const cl
 	// Go back and recontruct CCW boundaries from our outer CCBs.  This is how we find
 	// out how many polygons we will have.
 	
-	vector<GP>	outer_ccbs;
+	std::vector<GP>	outer_ccbs;
 	if(!reconstruct_ccbs(outer_boundary, outer_ccbs))
 		return false;
 		
 	// C++ fugliness: convert polygon to polygon-with-hole format for output.  This could
 	// be less stupid in the future.
 		
-	for(typename vector<GP>::iterator i = outer_ccbs.begin(); i != outer_ccbs.end(); ++i)
+	for(typename std::vector<GP>::iterator i = outer_ccbs.begin(); i != outer_ccbs.end(); ++i)
 	{
 		DebugAssert(i->size() == 2 || (i->size() > 2 && is_ccw_polygon_seg(i->begin(),i->end())));
 		
 		if(i->size() > 2)
 		{
-			out_pwh_list.push_back(vector<GP>());
+			out_pwh_list.push_back(std::vector<GP>());
 			out_pwh_list.back().push_back(*i);
 		}
 	}
@@ -1750,7 +1750,7 @@ bool clip_pwh(const vector<GP>& pwh, vector<vector<GP> >& out_pwh_list, const cl
 	
 	inside_polygon_curve<typename GP::iterator>		curve_tester;
 
-	for(typename vector<GP>::iterator kh = keeper_holes.begin(); kh != keeper_holes.end(); ++kh)
+	for(typename std::vector<GP>::iterator kh = keeper_holes.begin(); kh != keeper_holes.end(); ++kh)
 	{
 		int ccb;
 		for (ccb = 0; ccb < out_pwh_list.size(); ++ccb)
@@ -1775,13 +1775,13 @@ bool clip_pwh(const vector<GP>& pwh, vector<vector<GP> >& out_pwh_list, const cl
 
 // Polygon-with-hole list clipper - a utility to iterate on the entire list of disjoint polygons with holes.
 template <typename GP>
-bool clip_pwh_list(const vector<vector<GP> >& pwh_list, vector<vector<GP> >& out_pwh_list, const clipping_line& l)
+bool clip_pwh_list(const std::vector<std::vector<GP> >& pwh_list, std::vector<std::vector<GP> >& out_pwh_list, const clipping_line& l)
 {
 	out_pwh_list.clear();
 
 	for(int p = 0; p < pwh_list.size(); ++p)
 	{
-		vector<vector<GP> > post_clip;
+		std::vector<std::vector<GP> > post_clip;
 		if(!clip_pwh(pwh_list[p], post_clip, l))
 			return false;
 		out_pwh_list.insert(out_pwh_list.end(), post_clip.begin(),post_clip.end());		
@@ -1793,7 +1793,7 @@ bool clip_pwh_list(const vector<vector<GP> >& pwh_list, vector<vector<GP> >& out
 // We use clip_pwh_list after the first clip because we may hav severed the polygon in the first clip
 // and then must separately clip each disjoint fragment.
 template <typename GP>
-bool clip_general_polygon(const vector<GP>& in_pwh, vector<vector<GP> >& out_pwh_list, const Bbox2& box)
+bool clip_general_polygon(const std::vector<GP>& in_pwh, std::vector<std::vector<GP> >& out_pwh_list, const Bbox2& box)
 {
 	// This special case is sort of a hack.  We detect the case where we are -entirely- inside the clip box
 	// and return our direct input.  This isn't just a "fast exit" case.  It turns out that the math deep
@@ -1814,7 +1814,7 @@ bool clip_general_polygon(const vector<GP>& in_pwh, vector<vector<GP> >& out_pwh
 		return true;
 	}
 
-	for(typename vector<GP>::const_iterator p = in_pwh.begin(); p != in_pwh.end(); ++p)
+	for(typename std::vector<GP>::const_iterator p = in_pwh.begin(); p != in_pwh.end(); ++p)
 	for(typename GP::const_iterator s = p->begin(); s != p->end(); ++s)
 	{
 		if(side_is_degenerate(*s))
@@ -1832,7 +1832,7 @@ bool clip_general_polygon(const vector<GP>& in_pwh, vector<vector<GP> >& out_pwh
 	clipping_line	bottom(false,box.ymin(), 1);
 	clipping_line	top(false,box.ymax(),-1);
 	
-	vector<vector<GP> >	temp;
+	std::vector<std::vector<GP> >	temp;
 	
 	if(!clip_pwh(in_pwh, out_pwh_list, left))
 		return false;
@@ -1860,13 +1860,13 @@ bool clip_general_polygon(const vector<GP>& in_pwh, vector<vector<GP> >& out_pwh
 // general-polygons.  (In other words, we have to go from point-sequence to segment representation.  It is too ugly
 // trying to template the clipper without having a concrete curve container.)
 
-void	decompose_polygon(const Polygon2& in_poly,vector<Segment2>& out_poly)
+void	decompose_polygon(const Polygon2& in_poly,std::vector<Segment2>& out_poly)
 {
 	out_poly.clear();
 	out_poly.insert(out_poly.end(),in_poly.sides_begin(),in_poly.sides_end());
 }
 
-void	decompose_polygon_with_holes(const vector<Polygon2>& in_poly,vector<vector<Segment2> >& out_poly)
+void	decompose_polygon_with_holes(const std::vector<Polygon2>& in_poly,std::vector<std::vector<Segment2> >& out_poly)
 {
 	out_poly.clear();
 	out_poly.resize(in_poly.size());
@@ -1874,7 +1874,7 @@ void	decompose_polygon_with_holes(const vector<Polygon2>& in_poly,vector<vector<
 		decompose_polygon(in_poly[i],out_poly[i]);
 }
 
-bool recompose_polygon(const vector<Segment2>& in_poly, Polygon2& out_poly)
+bool recompose_polygon(const std::vector<Segment2>& in_poly, Polygon2& out_poly)
 {
 	if(!validate_poly_closed(in_poly.begin(),in_poly.end()))
 	{
@@ -1891,7 +1891,7 @@ bool recompose_polygon(const vector<Segment2>& in_poly, Polygon2& out_poly)
 	return true;
 }
 
-bool recompose_polygon_with_holes(const vector<vector<Segment2> > & in_poly, vector<Polygon2>& out_poly)
+bool recompose_polygon_with_holes(const std::vector<std::vector<Segment2> > & in_poly, std::vector<Polygon2>& out_poly)
 {
 	out_poly.resize(in_poly.size());
 	for(int i = 0; i < in_poly.size(); ++i)
@@ -1903,7 +1903,7 @@ bool recompose_polygon_with_holes(const vector<vector<Segment2> > & in_poly, vec
 // Unlike the other clippers, the polygon2 clipper has to convert from polygon to general-polygon format,
 // clip, then put the world together again.
 
-bool clip_polygon(const vector<Polygon2>& in_pwh, vector<vector<Polygon2> >& out_pwh_list, const Bbox2& box)
+bool clip_polygon(const std::vector<Polygon2>& in_pwh, std::vector<std::vector<Polygon2> >& out_pwh_list, const Bbox2& box)
 {
 	Bbox2	bounds;
 	bbox_for_any_vector2(in_pwh,bounds);
@@ -1913,8 +1913,8 @@ bool clip_polygon(const vector<Polygon2>& in_pwh, vector<vector<Polygon2> >& out
 		return true;
 	}
 
-	vector<vector<Segment2> > pwh;
-	vector<vector<vector<Segment2> > > pwh_list;
+	std::vector<std::vector<Segment2> > pwh;
+	std::vector<std::vector<std::vector<Segment2> > > pwh_list;
 	
 	decompose_polygon_with_holes(in_pwh, pwh);
 		
@@ -1929,27 +1929,27 @@ bool clip_polygon(const vector<Polygon2>& in_pwh, vector<vector<Polygon2> >& out
 	return true;
 }
 
-bool clip_polygon(const vector<Polygon2p>& in_pwh, vector<vector<Polygon2p> >& out_pwh_list, const Bbox2& box)
+bool clip_polygon(const std::vector<Polygon2p>& in_pwh, std::vector<std::vector<Polygon2p> >& out_pwh_list, const Bbox2& box)
 {
 	return clip_general_polygon(in_pwh,out_pwh_list,box);
 }
 
-bool clip_polygon(const vector<Polygon2uv>& in_pwh, vector<vector<Polygon2uv> >& out_pwh_list, const Bbox2& box)
+bool clip_polygon(const std::vector<Polygon2uv>& in_pwh, std::vector<std::vector<Polygon2uv> >& out_pwh_list, const Bbox2& box)
 {
 	return clip_general_polygon(in_pwh,out_pwh_list,box);
 }
 
-bool	clip_polygon(const vector<BezierPolygon2>& in_pwh, vector<vector<BezierPolygon2> >& out_pwh_list, const Bbox2& box)
+bool	clip_polygon(const std::vector<BezierPolygon2>& in_pwh, std::vector<std::vector<BezierPolygon2> >& out_pwh_list, const Bbox2& box)
 {
 	return clip_general_polygon(in_pwh,out_pwh_list,box);
 }
 
-bool	clip_polygon(const vector<BezierPolygon2p>& in_pwh, vector<vector<BezierPolygon2p> >& out_pwh_list, const Bbox2& box)
+bool	clip_polygon(const std::vector<BezierPolygon2p>& in_pwh, std::vector<std::vector<BezierPolygon2p> >& out_pwh_list, const Bbox2& box)
 {
 	return clip_general_polygon(in_pwh,out_pwh_list,box);
 }
 
-bool	clip_polygon(const vector<BezierPolygon2uv>& in_pwh, vector<vector<BezierPolygon2uv> >& out_pwh_list, const Bbox2& box)
+bool	clip_polygon(const std::vector<BezierPolygon2uv>& in_pwh, std::vector<std::vector<BezierPolygon2uv> >& out_pwh_list, const Bbox2& box)
 {
 	return clip_general_polygon(in_pwh,out_pwh_list,box);
 }

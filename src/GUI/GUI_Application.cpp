@@ -42,7 +42,7 @@
 
 GUI_Application *	gApplication = NULL;
 
-static bool IsDisabledString(string& ioString)
+static bool IsDisabledString(std::string& ioString)
 {
 	if(!ioString.empty() && ioString[0] == ';')
 	{
@@ -54,9 +54,9 @@ static bool IsDisabledString(string& ioString)
 
 #if APL
 
-static void	NukeAmpersand(string& ioString)
+static void	NukeAmpersand(std::string& ioString)
 {
-	string::size_type loc;
+	std::string::size_type loc;
 	while ((loc = ioString.find('&')) != ioString.npos)
 	{
 		ioString.erase(loc,1);
@@ -69,7 +69,7 @@ void GUI_Application::MenuUpdateCB(void * ref, int cmd, char * io_name, int * io
 
 	if(cmd == 0) return;
 
-	string name(io_name);
+	std::string name(io_name);
 
 	if (me->DispatchCanHandleCommand(cmd, name, *io_check))
 	{
@@ -179,7 +179,7 @@ static void update_menu_recursive(const Fl_Menu_Item *  menu)
 		GUI_Application * app = (GUI_Application *) mc->data;
 		if(!app) continue;
 		int ioCheck = 0;
-		string ioName;
+		std::string ioName;
 		int enabled = app->DispatchCanHandleCommand(cmd,ioName,ioCheck);
 
 		if(!ioName.empty())
@@ -197,7 +197,7 @@ static void update_menu_recursive(const Fl_Menu_Item *  menu)
 		if(ioCheck)
 		{
 			item->flags |= FL_MENU_TOGGLE;
-			item->set();
+			item->std::set();
 		}
 		else
 		{
@@ -254,7 +254,7 @@ int GUI_Application::event_dispatch_cb(int e, Fl_Window *w)
 
 
 HACCEL			gAccel = NULL;
-vector<ACCEL>	gAccelTable;
+std::vector<ACCEL>	gAccelTable;
 
 void	RegisterAccel(const ACCEL& inAccel)
 {
@@ -394,7 +394,7 @@ GUI_Menu		GUI_Application::GetPopupContainer(void)
 GUI_Menu	GUI_Application::CreateMenu(const char * inTitle, const GUI_MenuItem_t items[], GUI_Menu	parent, int parentItem)
 {
 #if APL
-	string title(inTitle);
+	std::string title(inTitle);
 	NukeAmpersand(title);
 	void * new_menu = create_menu(title.c_str(), parent, parentItem);
 #endif
@@ -496,7 +496,7 @@ void	GUI_Application::RebuildMenu(GUI_Menu new_menu, const GUI_MenuItem_t	items[
 		int n = 0;
 		while (items[n].name)
 		{
-			string	itemname(items[n].name);
+			std::string	itemname(items[n].name);
 			NukeAmpersand(itemname);
 			bool is_disable = IsDisabledString(itemname);
 
@@ -519,7 +519,7 @@ void	GUI_Application::RebuildMenu(GUI_Menu new_menu, const GUI_MenuItem_t	items[
 		int n = 0;
 		while (items[n].name)
 		{
-			string	itemname(items[n].name);
+			std::string	itemname(items[n].name);
 			bool is_disable = IsDisabledString(itemname);
 			if(items[n].key != 0)
 			{
@@ -574,7 +574,7 @@ void	GUI_Application::RebuildMenu(GUI_Menu new_menu, const GUI_MenuItem_t	items[
 			if(menu->size() > POPUP_ARRAY_SIZE-1) return;
 		}
 
-		string	itemname(items[n].name);
+		std::string	itemname(items[n].name);
 		bool is_disable = IsDisabledString(itemname);
 
 		if (!strcmp(items[n].name, "-")) /*addSeparator()*/
@@ -585,10 +585,10 @@ void	GUI_Application::RebuildMenu(GUI_Menu new_menu, const GUI_MenuItem_t	items[
 		}
 		else
 		{
-			string tempname;
+			std::string tempname;
 			tempname.resize(itemname.size(),'-');
 			//mroe:This is to deal with menu names containing slashes . FLTK would creates a submenu after a slash .
-			//To workaround this , we using a placeholder string with same length and rename it after the menu item is added.
+			//To workaround this , we using a placeholder std::string with same length and rename it after the menu item is added.
 
 			if (!items[n].cmd ) /*is single popup or a submenu */
 			{
@@ -599,7 +599,7 @@ void	GUI_Application::RebuildMenu(GUI_Menu new_menu, const GUI_MenuItem_t	items[
 				if(menu == mPopup) /*we have popup already */
 				{
 					if(items[n].checked) m->flags |= FL_MENU_TOGGLE;
-					items[n].checked ? m->set()  : m->clear();
+					items[n].checked ? m->std::set()  : m->clear();
 					is_disable ? m->deactivate() : m->activate();
 				}
 			}
@@ -633,7 +633,7 @@ void	GUI_Application::RebuildMenu(GUI_Menu new_menu, const GUI_MenuItem_t	items[
 				Fl_Menu_Item * m = menu + idx;
 				strcpy((char*) m->text,itemname.c_str());
 				if(items[n].checked) m->flags |= FL_MENU_TOGGLE;
-				items[n].checked ? m->set() : m->clear();
+				items[n].checked ? m->std::set() : m->clear();
 				is_disable ? m->deactivate() : m->activate();
 			}
 		}
@@ -652,7 +652,7 @@ int			GUI_Application::HandleCommand(int command)
 	}
 }
 
-int			GUI_Application::CanHandleCommand(int command, string& ioName, int& ioCheck)
+int			GUI_Application::CanHandleCommand(int command, std::string& ioName, int& ioCheck)
 {
 	switch(command) {
 	case gui_About: return 1;

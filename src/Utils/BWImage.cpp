@@ -128,7 +128,7 @@ BWINLINE void			BWImage::RasterizeLocal(
 	if (top > mHeight)	top		= mHeight;
 
 	// Optimization - if the user doesn't want us to ever draw and is really just hit testing,
-	// there is no need to actually set pixels OR to do any save-restore!
+	// there is no need to actually std::set pixels OR to do any save-restore!
 	rasterizer.SortMasters();
 	int y = bottom;
 	rasterizer.StartScanline(y);
@@ -217,7 +217,7 @@ BWINLINE bool			BWImage::RasterizeLocalStopConflicts(
 	if (top > mHeight)	top		= mHeight;
 
 	// Optimization - if the user doesn't want us to ever draw and is really just hit testing,
-	// there is no need to actually set pixels OR to do any save-restore!
+	// there is no need to actually std::set pixels OR to do any save-restore!
 
 	StRestoreChunk chunk(
 					(char *) mData,

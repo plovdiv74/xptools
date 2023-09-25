@@ -33,7 +33,7 @@
  * ENUM COLORS
  ************************************************************************/
 
-typedef hash_map<int, RGBColor_t>		EnumColorTable;
+typedef std::hash_map<int, RGBColor_t>		EnumColorTable;
 extern	EnumColorTable					gEnumColors;
 
 struct	DEMColorBand_t {
@@ -43,11 +43,11 @@ struct	DEMColorBand_t {
 	RGBColor_t		hi_color;
 };
 
-typedef map<float, DEMColorBand_t>	ColorBandMap;
-typedef hash_map<int, ColorBandMap>	ColorBandTable;
+typedef std::map<float, DEMColorBand_t>	ColorBandMap;
+typedef std::hash_map<int, ColorBandMap>	ColorBandTable;
 extern ColorBandTable				gColorBands;
 
-extern set<int>						gEnumDEMs;
+extern std::set<int>						gEnumDEMs;
 
 enum proj_dir_t {
 	proj_Down,
@@ -118,13 +118,13 @@ struct CliffInfo_t {
 	float			hill_angle2;
 	float			cliff_angle1;
 	float			cliff_angle2;	
-	string			hill_tex;
-	string			cliff_tex;
+	std::string			hill_tex;
+	std::string			cliff_tex;
 };
 
 struct	Regionalization_t {
-	string			variant_prefix;
-	string			region_png;
+	std::string			variant_prefix;
+	std::string			region_png;
 };
 
 struct	NaturalTerrainInfo_t {
@@ -140,16 +140,16 @@ struct	NaturalTerrainInfo_t {
 
 	// 2-D texturing common to pretty much everything.
 	int				autogen_mode;
-	string			base_tex;
-	string			lit_tex;
+	std::string			base_tex;
+	std::string			lit_tex;
 	Point2			base_res;
-	string			border_tex;			
-	string			compo_tex;		/// ALL modes that can have a second texture jam it here.
-	string			noise_tex;
+	std::string			border_tex;			
+	std::string			compo_tex;		/// ALL modes that can have a second texture jam it here.
+	std::string			noise_tex;
 
-	string			decal;
+	std::string			decal;
 	float			normal_scale;
-	string			normal;
+	std::string			normal;
 	
 	// Mode of shader we run in
 	shader_t		shader;
@@ -176,10 +176,10 @@ struct	NaturalTerrainInfo_t {
 
 	RGBColor_t		map_rgb;
 };
-typedef vector<NaturalTerrainRule_t>	NaturalTerrainRuleVector;			// Natural terrain rules ordered by rule priority
-typedef map<int, NaturalTerrainInfo_t>	NaturalTerrainInfoMap;				// Index from .ter enum to line info!
+typedef std::vector<NaturalTerrainRule_t>	NaturalTerrainRuleVector;			// Natural terrain rules ordered by rule priority
+typedef std::map<int, NaturalTerrainInfo_t>	NaturalTerrainInfoMap;				// Index from .ter enum to line info!
 
-typedef vector<Regionalization_t>		RegionalizationVector;
+typedef std::vector<Regionalization_t>		RegionalizationVector;
 
 extern	RegionalizationVector			gRegionalizations;
 extern	NaturalTerrainRuleVector		gNaturalTerrainRules;
@@ -222,7 +222,7 @@ void	MakeDirectRules(void);
  ************************************************************************/
 
 
-//typedef pair<int, int>										TerrainTypeTuple;
+//typedef std::pair<int, int>										TerrainTypeTuple;
 //struct	HashTerrianTuple {
 //	std::size_t operator()(const TerrainTypeTuple& key) const {
 //		return key.first ^ (key.second << 13); }
@@ -266,21 +266,21 @@ struct BeachInfo_t {
 	int			require_open;
 	float		min_area;
 	int			require_airport;
-	set<int>	require_landuse;
+	std::set<int>	require_landuse;
 	int			x_beach_type;
 	int			x_backup;
 	RGBColor_t	debug_color;
 };
 typedef vector<BeachInfo_t>		BeachInfoTable;
 extern BeachInfoTable			gBeachInfoTable;
-typedef map<int, int>			BeachIndex;
+typedef std::map<int, int>			BeachIndex;
 extern BeachIndex				gBeachIndex;
 
 /************************************************************************
  * BEACH TERRAIN INFO
  ************************************************************************/
 
-typedef hash_map<int, int> 	LandUseTransTable;
+typedef std::hash_map<int, int> 	LandUseTransTable;
 extern LandUseTransTable	gLandUseTransTable;
 
 // Given two specific terrains, equivalent to priority(lsh) < priority(rhs).
@@ -295,16 +295,16 @@ inline bool	LowerPriorityNaturalTerrain(int lhs, int rhs);			// Returns true if 
 //inline int		AnyVariant(int terrain);								// Returns any variant of the terrain randomly
 //inline int		SpecificVariant(int terrain, int i);					// Use i (0-4) as a seed - get variant
 //void	GetForestMapping(map<int,int>& forests);
-//void			GetForestTypes(set<int>& forests);
+//void			GetForestTypes(std::set<int>& forests);
 
 bool	IsAirportTerrain(int t);
 int		GetAirportTerrainBorder(int t);
 
 
-extern	string	gNaturalTerrainFile;
-extern	string	gLanduseTransFile;
-extern	string	gReplacementClimate;
-extern 	string	gReplacementRoads;
+extern	std::string	gNaturalTerrainFile;
+extern	std::string	gLanduseTransFile;
+extern	std::string	gReplacementClimate;
+extern 	std::string	gReplacementRoads;
 
 void	LoadDEMTables(void);
 //void	CheckDEMRuleCoverage(ProgressFunc func);
@@ -318,7 +318,7 @@ struct tex_proj_info {
 	Point2	corners[4];
 	Point2	ST[4];
 };
-typedef map<int,tex_proj_info>		TexProjTable;
+typedef std::map<int,tex_proj_info>		TexProjTable;
 extern TexProjTable					gTexProj;
 
 enum {

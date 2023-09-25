@@ -41,7 +41,7 @@ LevelCrossingTable				gLevelCrossings;
 ZonePromoteTable				gZonePromote;
 RoadCountryTable				gRoadCountry;
 
-set<int>						gPromotedZoningSet;
+std::set<int>						gPromotedZoningSet;
 
 
 bool	RoadGeneralProps(const vector<string>& tokens, void * ref)

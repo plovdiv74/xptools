@@ -74,7 +74,7 @@ typename Arr::Halfedge_handle next_he_pred(typename Arr::Halfedge_handle he)
 // "wrong ways" are vertices that we must NOT go through.  This allows us to disambiguate going
 // the wrong way around a loop.
 template <typename Arr, bool(* Pred)(typename Arr::Halfedge_handle)>
-typename Arr::Face_handle face_for_vertices(typename Arr::Vertex_handle v1, typename Arr::Vertex_handle v2, const set<typename Arr::Vertex_handle>& wrong_ways)
+typename Arr::Face_handle face_for_vertices(typename Arr::Vertex_handle v1, typename Arr::Vertex_handle v2, const std::set<typename Arr::Vertex_handle>& wrong_ways)
 {
 	typename Arr::Halfedge_around_vertex_circulator circ, stop;
 	circ = stop = v1->incident_halfedges();
@@ -112,7 +112,7 @@ typename Arr::Face_handle face_for_vertices(typename Arr::Vertex_handle v1, type
 // "wrong ways" are vertices that we must NOT go through.  This allows us to disambiguate going
 // the wrong way around a loop.
 template <typename Arr, bool(* Pred)(typename Arr::Halfedge_handle)>
-typename Arr::Halfedge_handle halfedge_for_vertices(typename Arr::Vertex_handle v1, typename Arr::Vertex_handle v2, const set<typename Arr::Vertex_handle>& wrong_ways)
+typename Arr::Halfedge_handle halfedge_for_vertices(typename Arr::Vertex_handle v1, typename Arr::Vertex_handle v2, const std::set<typename Arr::Vertex_handle>& wrong_ways)
 {
 	typename Arr::Halfedge_around_vertex_circulator circ, stop;
 	circ = stop = v1->incident_halfedges();
@@ -171,7 +171,7 @@ int count_paths_to(typename Arr::Vertex_handle v1, typename Arr::Vertex_handle v
 		typename Arr::Halfedge_handle h = circ->twin();
 		if(Pred(h))
 		{
-			// This 'spoke' off of v1 via 'h' is in the predicate set.
+			// This 'spoke' off of v1 via 'h' is in the predicate std::set.
 			// Run unambiguously until we hit something - v2, or a non-deg-2 node.
 			while(h != Halfedge_handle() && h->target() != v2)
 				h = next_he_pred<Arr,Pred>(h);
@@ -253,7 +253,7 @@ public:
 
 
 	typename Arr::X_monotone_curve_2	input;
-	set<typename Arr::Halfedge_handle>	results;
+	std::set<typename Arr::Halfedge_handle>	results;
 	int ctr;
 
 	// A new edge is created.  CGAL always inserts a sub-curve of the original curve, so the half-edge we
@@ -449,7 +449,7 @@ public:
 	void simplify(Arr& io_block, double max_err, const Traits& tr=Traits(), ProgressFunc=NULL);
 
 private:
-	typedef	map<typename Arr::Halfedge_handle, list<Point2> >		Error_map;
+	typedef	map<typename Arr::Halfedge_handle, std::list<Point2> >		Error_map;
 	typedef pqueue<double, typename Arr::Vertex_handle>				Remove_Queue;
 
 	// Given a vertex, how much error do we pick up by removing it?  Also, return the two half-edges pointing to the vertex.
@@ -457,7 +457,7 @@ private:
 	
 	// Return whether the error from removing 'v' is within max-err.  We evaluate ALL past points that were removed, to make sure cumulative error does not
 	// get out of control.
-	bool total_error_ok(typename Arr::Vertex_handle v, typename Arr::Halfedge_handle h1, typename Arr::Halfedge_handle h2, const list<Point2>& l1, const list<Point2>& l2, double max_err);
+	bool total_error_ok(typename Arr::Vertex_handle v, typename Arr::Halfedge_handle h1, typename Arr::Halfedge_handle h2, const std::list<Point2>& l1, const std::list<Point2>& l2, double max_err);
 	
 	// Given two HEs, queue up their end points into our curve map if needed.
 	void queue_incident_edges_if_needed(typename Arr::Halfedge_iterator he1, typename Arr::Halfedge_iterator he2, Error_map& err_checks);
@@ -546,7 +546,7 @@ void	circle_to_search(const typename Traits::Point_2& a,const typename Traits::P
 		circ = typename Traits::Circle_2(a,b,c);
 }
 
-// Given a pair of ordered points ABC, this returns true if the spatial index has any points in the interior of ABC or between A and C (not including B).
+// Given a std::pair of ordered points ABC, this returns true if the spatial index has any points in the interior of ABC or between A and C (not including B).
 // We use this to check for squatters.
 template <class Arr>
 bool			squatters_in_area(
@@ -637,11 +637,11 @@ double arrangement_simplifier<Arr,Traits>::simple_vertex_error(typename Arr::Ver
 }
 
 template <class Arr, class Traits>
-bool arrangement_simplifier<Arr,Traits>::total_error_ok(typename Arr::Vertex_handle v, typename Arr::Halfedge_handle h1, typename Arr::Halfedge_handle h2, const list<Point2>& l1, const list<Point2>& l2, double max_err2)
+bool arrangement_simplifier<Arr,Traits>::total_error_ok(typename Arr::Vertex_handle v, typename Arr::Halfedge_handle h1, typename Arr::Halfedge_handle h2, const std::list<Point2>& l1, const std::list<Point2>& l2, double max_err2)
 {
 	DebugAssert(v->degree() == 2);
 	Line2 sl(cgal2ben(h1->source()->point()),cgal2ben(h2->source()->point()));
-	list<Point2>::const_iterator p;
+	std::list<Point2>::const_iterator p;
 	for(p = l1.begin(); p != l1.end(); ++p)
 	if(sl.squared_distance(*p) > max_err2)
 		return false;
@@ -660,13 +660,13 @@ void arrangement_simplifier<Arr,Traits>::queue_incident_edges_if_needed(typename
 	typename Error_map::iterator i2 = err_checks.find(he2);
 	if(i1 == err_checks.end())
 	{
-		i1 = err_checks.insert(typename Error_map::value_type(he1, list<Point2>())).first;
+		i1 = err_checks.insert(typename Error_map::value_type(he1, std::list<Point2>())).first;
 		i1->second.push_back(cgal2ben(he1->source()->point()));
 		i1->second.push_back(cgal2ben(he1->target()->point()));
 	}
 	if(i2 == err_checks.end())
 	{
-		i2 = err_checks.insert(typename Error_map::value_type(he2, list<Point2>())).first;
+		i2 = err_checks.insert(typename Error_map::value_type(he2, std::list<Point2>())).first;
 		i2->second.push_back(cgal2ben(he2->source()->point()));
 		i2->second.push_back(cgal2ben(he2->target()->point()));
 	}
@@ -751,7 +751,7 @@ void arrangement_simplifier<Arr,Traits>::simplify(Arr& io_block, double max_err,
 	//				}
 					if(!squatters_stopping_merge(io_block,h1,vertex_index))
 					{
-						list<Point2>	ml;
+						std::list<Point2>	ml;
 						if(i1->second.front() == i2->second.front())
 						{
 							ml.swap(i1->second);

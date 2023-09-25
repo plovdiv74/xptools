@@ -46,7 +46,7 @@ public:
 
 private:
 
-	string	tool_name;
+	std::string	tool_name;
 
 
 };

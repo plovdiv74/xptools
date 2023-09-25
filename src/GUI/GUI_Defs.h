@@ -166,7 +166,7 @@ typedef int GUI_KeyFlags;
 #define GUI_VK_F23          ((const char)0x86)
 #define GUI_VK_F24          ((const char)0x87)
 /* The following definitions are extended and are not based on the Microsoft   *
- * key set.                                                                    */
+ * key std::set.                                                                    */
 #define GUI_VK_EQUAL        ((const char)0xB0)
 #define GUI_VK_MINUS        ((const char)0xB1)
 #define GUI_VK_RBRACE       ((const char)0xB2)
@@ -221,7 +221,7 @@ typedef	void			(* GUI_FreeFunc_f)(const void * mem, void * ref);
 // GUI data fetcher function.  This routine is passed around as a way of getting data
 // for clipboard/drag and drop later.
 // Passed in: clip_type.
-// Returned: set out_start and out_end to the range of memory for the data, or set
+// Returned: std::set out_start and out_end to the range of memory for the data, or std::set
 // out_start to a NULL ptr on failure.
 // Return: if the memory needs to be deallocated, return a free func that can be used
 // on the start ptr.

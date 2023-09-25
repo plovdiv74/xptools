@@ -52,17 +52,17 @@ private:
 
 			const char *	ResString(int z);
 
-	map<long long, AsyncImage*>		mImages[NUM_LEVELS];
+	std::map<long long, AsyncImage*>		mImages[NUM_LEVELS];
 
 	int mX1[NUM_LEVELS], mX2[NUM_LEVELS], mY1[NUM_LEVELS], mY2[NUM_LEVELS], mDomain[NUM_LEVELS], mHas[NUM_LEVELS];
 
 	AsyncImageLocator *						mLocator[NUM_LEVELS];
 	AsyncConnectionPool *					mPool;
 
-	string									mData;
+	std::string									mData;
 	int										mRes;
 	bool									mVis;
-	string									mStatus;
+	std::string									mStatus;
 
 };
 

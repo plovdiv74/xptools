@@ -43,12 +43,12 @@ const LargestUInt Value::maxLargestUInt = LargestUInt(-1);
 static const unsigned int unknown = (unsigned)-1;
 
 
-/** Duplicates the specified string value.
- * @param value Pointer to the string to duplicate. Must be zero-terminated if
+/** Duplicates the specified std::string value.
+ * @param value Pointer to the std::string to duplicate. Must be zero-terminated if
  *              length is "unknown".
  * @param length Length of the value. if equals to unknown, then it will be
  *               computed using strlen(value).
- * @return Pointer on the duplicate instance of string.
+ * @return Pointer on the duplicate instance of std::string.
  */
 static inline char *
 duplicateStringValue( const char *value, 
@@ -57,14 +57,14 @@ duplicateStringValue( const char *value,
    if ( length == unknown )
       length = (unsigned int)strlen(value);
    char *newString = static_cast<char *>( malloc( length + 1 ) );
-   JSON_ASSERT_MESSAGE( newString != 0, "Failed to allocate string value buffer" );
+   JSON_ASSERT_MESSAGE( newString != 0, "Failed to allocate std::string value buffer" );
    memcpy( newString, value, length );
    newString[length] = 0;
    return newString;
 }
 
 
-/** Free the string duplicated by duplicateStringValue().
+/** Free the std::string duplicated by duplicateStringValue().
  */
 static inline void 
 releaseStringValue( char *value )
@@ -136,8 +136,8 @@ Value::CommentInfo::setComment( const char *text )
 // //////////////////////////////////////////////////////////////////
 # ifndef JSON_VALUE_USE_INTERNAL_MAP
 
-// Notes: index_ indicates if the string was allocated when
-// a string is stored.
+// Notes: index_ indicates if the std::string was allocated when
+// a std::string is stored.
 
 Value::CZString::CZString( ArrayIndex index )
    : cstr_( 0 )
@@ -670,7 +670,7 @@ Value::asString() const
    case realValue:
    case arrayValue:
    case objectValue:
-      JSON_FAIL_MESSAGE( "Type is not convertible to string" );
+      JSON_FAIL_MESSAGE( "Type is not convertible to std::string" );
    default:
       JSON_ASSERT_UNREACHABLE;
    }
@@ -1557,7 +1557,7 @@ Value::begin()
       {
          ValueInternalArray::IteratorState it;
          value_.array_->makeBeginIterator( it );
-         return iterator( it );
+         return std::iterator( it );
       }
       break;
    case objectValue:
@@ -1565,7 +1565,7 @@ Value::begin()
       {
          ValueInternalMap::IteratorState it;
          value_.map_->makeBeginIterator( it );
-         return iterator( it );
+         return std::iterator( it );
       }
       break;
 #else
@@ -1592,7 +1592,7 @@ Value::end()
       {
          ValueInternalArray::IteratorState it;
          value_.array_->makeEndIterator( it );
-         return iterator( it );
+         return std::iterator( it );
       }
       break;
    case objectValue:
@@ -1600,7 +1600,7 @@ Value::end()
       {
          ValueInternalMap::IteratorState it;
          value_.map_->makeEndIterator( it );
-         return iterator( it );
+         return std::iterator( it );
       }
       break;
 #else

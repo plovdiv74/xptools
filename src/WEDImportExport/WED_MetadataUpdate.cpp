@@ -80,14 +80,14 @@ public:
 	//Called each time WED's timer is fired, checks download progress
 	virtual	void TimerFired(void);
 
-	static const string& GetAirportMetadataCSVPath();
+	static const std::string& GetAirportMetadataCSVPath();
 
 private:
 	//Used for downloading the airport metadata defaults
 	RAII_CurlHandle*        mAirportMetadataCURLHandle;
 
 	//Where the airport metadata csv file was ultimately downloaded to
-	static string           mAirportMetadataCSVPath;
+	static std::string           mAirportMetadataCSVPath;
 
 	//The airport we are attempting to update
 	WED_Airport*            mApt;
@@ -96,7 +96,7 @@ private:
 	WED_file_cache_request  mCacheRequest;
 
 	//The chosen airport's chosen ICAO
-	string                  mChosenICAO;
+	std::string                  mChosenICAO;
 
 	//The phase of the state in the dialog box
 	update_dialog_stage     mPhase;
@@ -106,9 +106,9 @@ private:
 };
 
 //Static member definitions
-string WED_UpdateMetadataDialog::mAirportMetadataCSVPath = "";
+std::string WED_UpdateMetadataDialog::mAirportMetadataCSVPath = "";
 
-const string& WED_UpdateMetadataDialog::GetAirportMetadataCSVPath()
+const std::string& WED_UpdateMetadataDialog::GetAirportMetadataCSVPath()
 {
 	return mAirportMetadataCSVPath;
 }
@@ -133,16 +133,16 @@ void WED_DoUpdateMetadata(IResolver * resolver)
 	new WED_UpdateMetadataDialog(apt, resolver);
 }
 
-static string InterpretNetworkError(curl_http_get_file* curl)
+static std::string InterpretNetworkError(curl_http_get_file* curl)
 {
 	int err = curl->get_error();
 	bool bad_net = curl->is_net_fail();
 
-	stringstream ss;
+	std::stringstream ss;
 			
 	if(err <= CURL_LAST)
 	{
-		string msg = curl_easy_strerror((CURLcode) err);
+		std::string msg = curl_easy_strerror((CURLcode) err);
 		ss << "Upload failed: " << msg << ". (" << err << ")";
 
 		if(bad_net) ss << "\n(Please check your internet connectivity.)";
@@ -151,10 +151,10 @@ static string InterpretNetworkError(curl_http_get_file* curl)
 	{
 		ss << "Upload failed.  The server returned error " << err << ".";
 				
-		vector<char>	errdat;
+		std::vector<char>	errdat;
 		curl->get_error_data(errdat);
 		bool is_ok = !errdat.empty();
-		for(vector<char>::iterator i = errdat.begin(); i != errdat.end(); ++i)
+		for(std::vector<char>::iterator i = errdat.begin(); i != errdat.end(); ++i)
 		if(!isprint(*i))
 		{
 			is_ok = false;
@@ -163,7 +163,7 @@ static string InterpretNetworkError(curl_http_get_file* curl)
 				
 		if(is_ok)
 		{
-			string errmsg = string(errdat.begin(),errdat.end());
+			std::string errmsg = std::string(errdat.begin(),errdat.end());
 			ss << "\n" << errmsg;
 		}
 	}
@@ -212,10 +212,10 @@ void WED_UpdateMetadataDialog::Submit()
 	else if(mPhase == update_dialog_waiting)
 	{
 		DebugAssert(mApt);
-		string icao;
+		std::string icao;
 		mApt->GetICAO(icao);
 		
-		mApt->StartOperation((string("Update " + icao + "'s Metadata").c_str()));
+		mApt->StartOperation((std::string("Update " + icao + "'s Metadata").c_str()));
 		mApt->StateChanged();
 		bool success = fill_in_airport_metadata_defaults(*mApt, mAirportMetadataCSVPath);
 		if(success == false)
@@ -253,14 +253,14 @@ void WED_UpdateMetadataDialog::TimerFired()
 				mPhase = update_dialog_waiting;
 				this->Reset("","OK","Cancel", true);
 				
-				string icao;
+				std::string icao;
 				mApt->GetICAO(icao);
 				this->AddLabel("Update metadata for the airport " + icao + "?");
 				this->AddLabel("(Adds new metadata if available, will not overwrite existing values)");
 			}
 			else if(res.out_status == cache_status_error)
 			{
-				string err = InterpretNetworkError(&this->mAirportMetadataCURLHandle->get_curl_handle());
+				std::string err = InterpretNetworkError(&this->mAirportMetadataCURLHandle->get_curl_handle());
 				LOG_MSG("E/MDU Metadata update failed due to error '%s'\n", err.c_str());
 				mPhase = update_dialog_done;
 				this->Reset("","","Exit",true);
@@ -271,7 +271,7 @@ void WED_UpdateMetadataDialog::TimerFired()
 	}
 }
 //---------------------------------------------------------------------------//
-static CSVParser::CSVTable s_csv = CSVParser::CSVTable(CSVParser::CSVTable::CSVHeader(), vector<CSVParser::CSVTable::CSVRow>());
+static CSVParser::CSVTable s_csv = CSVParser::CSVTable(CSVParser::CSVTable::CSVHeader(), std::vector<CSVParser::CSVTable::CSVRow>());
 void	WED_DoInvisibleUpdateMetadata(WED_Airport * apt)
 {
 	if(s_csv.GetRows().empty())
@@ -292,7 +292,7 @@ void	WED_DoInvisibleUpdateMetadata(WED_Airport * apt)
 				std::ifstream t(res.out_path.c_str());
 				if(!t.bad())
 				{
-					s_csv = CSVParser(',', string((istreambuf_iterator<char>(t)), istreambuf_iterator<char>())).ParseCSV();
+					s_csv = CSVParser(',', std::string((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>())).ParseCSV();
 					bool success = fill_in_airport_metadata_defaults(*apt, s_csv);
 				}
 				t.close();

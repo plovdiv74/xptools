@@ -171,15 +171,15 @@ public:
 							intptr_t				inMsg,
 							intptr_t				inParam);
 
-	virtual	void    SetClosed(const set<int>& closed_list);
-	virtual	void    GetClosed(		set<int>& closed_list);
+	virtual	void    SetClosed(const std::set<int>& closed_list);
+	virtual	void    GetClosed(		std::set<int>& closed_list);
 
-	void	SetFilter(const string& filter);
+	void	SetFilter(const std::string& filter);
 
 private:
 
 			void			RebuildCache(void);
-			void			RebuildCacheRecursive(WED_Thing * e, ISelection * sel, set<WED_Thing *> * sel_and_friends);
+			void			RebuildCacheRecursive(WED_Thing * e, ISelection * sel, std::set<WED_Thing *> * sel_and_friends);
 			WED_Thing *		FetchNth(int row);
 			int				GetThingDepth(WED_Thing * d);
 
@@ -196,25 +196,25 @@ private:
 
 			void	Resort();
 
-	vector<WED_Thing *>			mThingCache;
-	vector<WED_Thing *>			mSortedCache;
+	std::vector<WED_Thing *>			mThingCache;
+	std::vector<WED_Thing *>			mSortedCache;
 
-	string						mSearchFilter;
+	std::string						mSearchFilter;
 
 	bool						mCacheValid;
 
-	vector<string>				mColNames;
+	std::vector<std::string>				mColNames;
 
 	IResolver *					mResolver;
 
-	hash_map<int,int>			mOpen;
+	std::hash_map<int,int>			mOpen;
 
 	int							mVertical;
 	int							mDynamicCols;
 	int							mSelOnly;
-	set<string>					mFilter;
+	std::set<std::string>					mFilter;
 
-	vector<ISelectable *>		mSelSave;
+	std::vector<ISelectable *>		mSelSave;
 
 };
 
@@ -232,7 +232,7 @@ public:
 
 private:
 
-	vector<string>				mColNames;
+	std::vector<std::string>				mColNames;
 
 };
 

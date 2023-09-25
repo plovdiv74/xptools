@@ -48,12 +48,12 @@ void WED_ForestPlacement::SetDensity(double h)
 	density = h;
 }
 
-void		WED_ForestPlacement::GetResource(	  string& r) const
+void		WED_ForestPlacement::GetResource(	  std::string& r) const
 {
 	r = resource.value;
 }
 
-void		WED_ForestPlacement::SetResource(const string& r)
+void		WED_ForestPlacement::SetResource(const std::string& r)
 {
 	resource = r;
 }

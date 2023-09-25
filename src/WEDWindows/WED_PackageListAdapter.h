@@ -36,12 +36,12 @@ public:
 	virtual			~WED_PackageListAdapter();
 
 			bool	HasSelection(void);
-			int		GetSelection(string * package);
+			int		GetSelection(std::string * package);
 			void	CreateBlankNew(void);
 			void	SelectPackage(int n);
-			int     SelectPackage(const string& package);
-			void	LockPackage(const string& name);
-			void	UnlockPackage(const string& name);
+			int     SelectPackage(const std::string& package);
+			void	LockPackage(const std::string& name);
+			void	UnlockPackage(const std::string& name);
 	virtual void	GetCellContent(
 						int							cell_x,
 						int							cell_y,
@@ -152,7 +152,7 @@ public:
 private:
 
 	GUI_Commander *	mCmdTarget;
-	set<string>		mLock;
+	std::set<std::string>		mLock;
 	int				mSel;
 
 };

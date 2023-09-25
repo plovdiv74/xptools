@@ -28,8 +28,8 @@
 
 struct MetaDataKey
 {
-	string display_text; //The text displayed to the user, such as "City/Locality" or "FAA Code"
-	string name;    //The name used in WED, such as "city" or "faa_code"
+	std::string display_text; //The text displayed to the user, such as "City/Locality" or "FAA Code"
+	std::string name;    //The name used in WED, such as "city" or "faa_code"
 };
 
 //Any wed_AddMetaDataKey from wed_AddMetaDataKeyBegin to wed_AddMetaDataKeyEnd (inclusive)
@@ -39,17 +39,17 @@ typedef int KeyEnum;
 const MetaDataKey& META_KeyInfo(KeyEnum key_enum);
 
 //Returns the display text associated with a given (valid) key
-const string& META_KeyDisplayText(KeyEnum key_enum);
+const std::string& META_KeyDisplayText(KeyEnum key_enum);
 
 //Returns the key name associated a given (valid) key
-const string& META_KeyName(KeyEnum key_enum);
+const std::string& META_KeyName(KeyEnum key_enum);
 
 //Searches through the known keys for the KeyEnum matching the name given.
 //Returns wed_AddMetaDataEnd if not found
-KeyEnum META_KeyEnumFromName(const string& name_str);
+KeyEnum META_KeyEnumFromName(const std::string& name_str);
 
 //Searches through the known keys for the KeyEnum matching the display text given.
 //Returns wed_AddMetaDataEnd if not found
-KeyEnum META_KeyEnumFromDisplayText(const string& display_text_str);
+KeyEnum META_KeyEnumFromDisplayText(const std::string& display_text_str);
 
 #endif

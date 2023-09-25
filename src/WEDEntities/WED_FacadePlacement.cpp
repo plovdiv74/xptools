@@ -59,12 +59,12 @@ void WED_FacadePlacement::SetHeight(double h)
 	height = h;
 }
 
-void		WED_FacadePlacement::GetResource(	  string& r) const
+void		WED_FacadePlacement::GetResource(	  std::string& r) const
 {
 	r = resource.value;
 }
 
-void		WED_FacadePlacement::SetResource(const string& r)
+void		WED_FacadePlacement::SetResource(const std::string& r)
 {
 	resource = r;
 }
@@ -135,9 +135,9 @@ int		WED_FacadePlacement::GetType(void) const
 	return 0;
 }
 
-const vector<float>	WED_FacadePlacement::GetHeightChoices(void) const
+const std::vector<float>	WED_FacadePlacement::GetHeightChoices(void) const
 {
-	vector<float> heights;
+	std::vector<float> heights;
 	if(auto info = GetFacInfo())
 	{
 		for (const auto& f : info->floors)
@@ -235,7 +235,7 @@ void		WED_FacadePlacement::ExportJetway(Jetway_t& jetway)
 		if (f && f->tunnels.size())
 		{
 			Point2 loc, cabin_loc, type;
-			string tun_path;
+			std::string tun_path;
 			tunnel->GetLocation(gis_Geo, loc);
 			jetway.location = loc;
 

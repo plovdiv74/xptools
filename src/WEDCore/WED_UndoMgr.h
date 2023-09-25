@@ -52,14 +52,14 @@ public:
 	WED_UndoMgr(WED_Archive * inArchive, WED_UndoFatalErrorHandler * panic_handler);
 	~WED_UndoMgr();
 
-	void	__StartCommand(const string& inName, const char * inFile, int inLine);
+	void	__StartCommand(const std::string& inName, const char * inFile, int inLine);
 	void	CommitCommand(void);
 	void	AbortCommand(void);
 
 	bool	HasUndo(void) const;
 	bool	HasRedo(void) const;
-	string	GetUndoName(void) const;
-	string	GetRedoName(void) const;
+	std::string	GetUndoName(void) const;
+	std::string	GetRedoName(void) const;
 
 	void	Undo(void);
 	void	Redo(void);
@@ -68,7 +68,7 @@ public:
 	void	PurgeRedo(void);
 
 	void	MarkUndo(void);
-	bool 	UndoToMark(void);     // undo ALL ops done since last mark was set
+	bool 	UndoToMark(void);     // undo ALL ops done since last mark was std::set
 
 	// From GUI_MemoryHog
 	virtual	bool	ReleaseMemory(void);

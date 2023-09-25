@@ -27,7 +27,7 @@
 
 	MemFileUtils - THEORY OF OPERATION
 
-	MemFileUtils is a set of file reading commands designed around memory-mapped or pseudo-memory-mapped files.
+	MemFileUtils is a std::set of file reading commands designed around memory-mapped or pseudo-memory-mapped files.
 
 	This lib optimizes for:
 	 - Flexibility to read compressed archives.
@@ -98,7 +98,7 @@ bool			TextScanner_IsDone		(MFTextScanner * inScanner);
 void			TextScanner_Next		(MFTextScanner * inScanner);
 
 char			TextScanner_ExtractChar(MFTextScanner * inScanner, int inBegin);
-void			TextScanner_ExtractString(MFTextScanner * inScanner, int inBegin, int inEnd, string& outString, bool inTrim);
+void			TextScanner_ExtractString(MFTextScanner * inScanner, int inBegin, int inEnd, std::string& outString, bool inTrim);
 long			TextScanner_ExtractLong(MFTextScanner * inScanner, int inBegin, int inEnd);
 unsigned long	TextScanner_ExtractUnsignedLong(MFTextScanner * inScanner, int inBegin, int inEnd);
 
@@ -106,7 +106,7 @@ unsigned long	TextScanner_ExtractUnsignedLong(MFTextScanner * inScanner, int inB
 typedef	bool (* TextScanner_TokenizeFunc_f)(const char * inBegin, const char * inEnd, void * inRef);
 void			TextScanner_TokenizeLine(MFTextScanner * inScanner, const char * inDelim, const char * inTerm, int inMax, TextScanner_TokenizeFunc_f inFunc, void * inRef);
 
-// The string characters are: i = int, s = short, t = char buf, T = STL string, f = float, d = double, space = skip.
+// The std::string characters are: i = int, s = short, t = char buf, T = STL std::string, f = float, d = double, space = skip.
 // Return the number of processed arguments, limited by eitiher format or number of tokens in the line.
 int				TextScanner_FormatScan(MFTextScanner * inScanner, const char * fmt, ...);
 
@@ -122,14 +122,14 @@ struct	MFScanner {
 void	MFS_init(MFScanner * scanner, MFMemFile * inFile);
 void	MFS_init(MFScanner * scanner, const char * begin, const char * end);
 int		MFS_done(MFScanner * scanner);
-void	MFS_string_eol(MFScanner * scanner, string * out_string);
-void	MFS_string(MFScanner * scanner, string * out_string);
+void	MFS_string_eol(MFScanner * scanner, std::string * out_string);
+void	MFS_string(MFScanner * scanner, std::string * out_string);
 int		MFS_string_match(MFScanner * s, const char * input, int eol_ok);
 int		MFS_string_match_no_case(MFScanner * s, const char * input, int eol_ok);
 int		MFS_has_word(MFScanner * s);
 int		MFS_int(MFScanner * scanner);
 double	MFS_double(MFScanner * scanner);
-int		MFS_xplane_header(MFScanner * scanner, int * versions, const char * identifier, string * copyright);
+int		MFS_xplane_header(MFScanner * scanner, int * versions, const char * identifier, std::string * copyright);
 
 /******************************************************************************
  * UTILITIES

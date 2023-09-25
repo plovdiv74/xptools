@@ -63,7 +63,7 @@ PCSBSocket::PCSBSocket(unsigned short inPort, bool inServer)
 	if (setsockopt(mWinSocket, IPPROTO_TCP, TCP_NODELAY, (const char *)&on,
       sizeof(on))<0)
    {
-	   printf("-----------------------Could not set TCP_NODELAY on port %d-------------\n",inPort);
+	   printf("-----------------------Could not std::set TCP_NODELAY on port %d-------------\n",inPort);
    }
 	if (::bind(mWinSocket, (LPSOCKADDR)&sIn, sizeof(sIn)) != 0) //Bind the socket to the local addy
 	{
@@ -72,7 +72,7 @@ PCSBSocket::PCSBSocket(unsigned short inPort, bool inServer)
 	}
 
 	unsigned long nSetSocketType = NON_BLOCKING;
-	nResult = ioctlsocket(mWinSocket,FIONBIO,&nSetSocketType);	//set to non-blocking
+	nResult = ioctlsocket(mWinSocket,FIONBIO,&nSetSocketType);	//std::set to non-blocking
 
 	//We're a server so start listening!
 	if(inServer)
@@ -97,7 +97,7 @@ PCSBSocket::PCSBSocket(SOCKET inWorkerSocket)
 	mIsAServer = false;
 
 	unsigned long nSetSocketType = NON_BLOCKING;
-	int nResult = ioctlsocket(mWinSocket,FIONBIO,&nSetSocketType);	//set to non-blocking
+	int nResult = ioctlsocket(mWinSocket,FIONBIO,&nSetSocketType);	//std::set to non-blocking
 
 }
 /* Start up the networking DLL for the first time.  Returns true if
@@ -181,7 +181,7 @@ PCSBSocket::Status PCSBSocket::GetStatus(void)
 		fd_set socketSetWrite,socketSetError;
 		FD_ZERO(&socketSetWrite);
 		FD_ZERO(&socketSetError);
-		FD_SET(mWinSocket,&socketSetWrite);		//macro to form set
+		FD_SET(mWinSocket,&socketSetWrite);		//macro to form std::set
 		FD_SET(mWinSocket,&socketSetError);
 		int nReturn = select(NULL,NULL,&socketSetWrite,&socketSetError,&timeout);
 		// Check to see if our connection completed.
@@ -228,8 +228,8 @@ void PCSBSocket::Connect(unsigned long inIP, unsigned short inPort)
 	int nResult;
 
 	sOut.sin_family = AF_INET;
-	sOut.sin_port = htons(inPort);				//set the remote connection port
-	sOut.sin_addr.S_un.S_addr = htonl(inIP);	//set the remote IP to connect to
+	sOut.sin_port = htons(inPort);				//std::set the remote connection port
+	sOut.sin_addr.S_un.S_addr = htonl(inIP);	//std::set the remote IP to connect to
 	nResult = connect(mWinSocket,(LPSOCKADDR)&sOut,sizeof(sOut));	//connect
 	if(nResult == SOCKET_ERROR)
 	{
@@ -389,14 +389,14 @@ int PCSBSocket::WaitForSockets(PCSBSocket** inSockets, int inCount, long inTimeo
 	FD_ZERO(&socketSetWrite);
 	FD_ZERO(&socketSetRead);
 
-	//The default set array size is 64. If we have more than
+	//The default std::set array size is 64. If we have more than
 	//that, we have a problem that we need to deal with by breaking
 	//the checks up into pieces
 	//
 	//TODO: FIX THIS KNOWN PROBLEM!
 	//For now, just pray that inCount < 64
 
-	//Set up the "set" that we want to look through for reads and writes
+	//Set up the "std::set" that we want to look through for reads and writes
 	for(int n = 0; n < inCount; n++)
 	{
 		//We can't write to a listener socket and winsock will

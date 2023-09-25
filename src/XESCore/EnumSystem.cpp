@@ -134,7 +134,7 @@ void	ReadEnumsAtomFromFile(XAtomContainer& inAtomContainer, TokenMap& outTokens,
 		const char * i;
 		for (i = strings.GetFirstString(); i; i = strings.GetNextString(i))
 		{
-			outTokens.push_back(string(i));
+			outTokens.push_back(std::string(i));
 		}
 	}
 }
@@ -151,7 +151,7 @@ int				NewToken(const char * inString)
 
 void EnumSystemSelfCheck(void)
 {
-	set<string>	dummy;
+	std::set<std::string>	dummy;
 	for (int n = 0; n < gTokens.size(); ++n)
 	{
 		Assert(dummy.count(gTokens[n]) == 0);

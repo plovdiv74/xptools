@@ -35,7 +35,7 @@ struct block_create_t {
 };
 */
 
-// Create a block from a set of polygons.  
+// Create a block from a std::set of polygons.  
 // When two polygons overlap, the LATER polygon in the vector takes priority.
 // If we want to specify that the area OUTSIDE the block (unbounded) has some
 // property, we can pass the index of one polygon whose _outside_ is tagged.  Pass
@@ -73,15 +73,15 @@ void find_major_axis(vector<block_pt>&	pts,
 // or if any side is shorter than "min side len".
 bool	build_convex_polygon(
 				Pmwx::Ccb_halfedge_circulator									ccb,				// Outer boundary of face to translate.
-				vector<pair<Pmwx::Halfedge_handle, Pmwx::Halfedge_handle> >&	sides,				// Per side: inclusive range of half-edges "consolidated" into the sides.
+				vector<std::pair<Pmwx::Halfedge_handle, Pmwx::Halfedge_handle> >&	sides,				// Per side: inclusive range of half-edges "consolidated" into the sides.
 				const CoordTranslator2&											trans,				// Coord tranlator that gets us metric.
-				Polygon2&														metric_bounds,		// Inset boundary in metric, first side matched to the list.
+				Polygon2&														metric_bounds,		// Inset boundary in metric, first side matched to the std::list.
 				double															max_err_mtrs,		// Limit :max err in meters in simplifying sides.
 				double															min_side_len);		// Limit: shotest side length in polygon.
 
 int	pick_major_axis(
-				vector<pair<Pmwx::Halfedge_handle, Pmwx::Halfedge_handle> >&	sides,				// Per side: inclusive range of half-edges "consolidated" into the sides.
-				Polygon2&														metric_bounds,		// Inset boundary in metric, first side matched to the list.
+				vector<std::pair<Pmwx::Halfedge_handle, Pmwx::Halfedge_handle> >&	sides,				// Per side: inclusive range of half-edges "consolidated" into the sides.
+				Polygon2&														metric_bounds,		// Inset boundary in metric, first side matched to the std::list.
 				Vector2&														v_x,
 				Vector2&														v_y);
 				

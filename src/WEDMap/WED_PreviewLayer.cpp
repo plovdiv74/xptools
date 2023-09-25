@@ -200,7 +200,7 @@ static bool setup_taxi_texture(int surface_code, double heading, const Point2& c
 	if(surface_code != surf_Trans && surface_code != shoulder_None)
 	{
 		WED_LibraryMgr * lmgr = WED_GetLibraryMgr(resolver);
-		string resource;
+		std::string resource;
 		if (lmgr->GetSurfVpath(surface_code, resource))
 		{
 			WED_ResourceMgr* rmgr = WED_GetResourceMgr(resolver);
@@ -705,8 +705,8 @@ struct	preview_polygon : public WED_PreviewItem {
 	preview_polygon(WED_GISPolygon * p, int l, bool uv) : WED_PreviewItem(l), pol(p), has_uv(uv) { }
 	virtual void draw_it(WED_MapZoomerNew * zoomer, GUI_GraphState * g, float mPavementAlpha)
 	{
-		vector<Point2>	pts;
-		vector<int>		hole_starts;
+		std::vector<Point2>	pts;
+		std::vector<int>		hole_starts;
 
 		PointSequenceToVector(pol->GetOuterRing(), zoomer, pts, has_uv);
 		int n = pol->GetNumHoles();
@@ -765,7 +765,7 @@ struct	preview_forest : public preview_polygon {
 			IGISPointSequence * ps = fst->GetOuterRing();
 			for(int i = 0; i < ps->GetNumSides(); ++i)
 			{
-				vector<Point2>	pts;
+				std::vector<Point2>	pts;
 				SideToPoints(ps,i,zoomer, pts);
 				glLineWidth(5);
 				glShape2v(GL_LINES/*GL_LINE_STRIP*/, &*pts.begin(), pts.size());
@@ -776,7 +776,7 @@ struct	preview_forest : public preview_polygon {
 	}
 };
 
-static void draw_line_preview(const vector<Point2>& pts, const lin_info_t& linfo, int l, double PPM)
+static void draw_line_preview(const std::vector<Point2>& pts, const lin_info_t& linfo, int l, double PPM)
 {
 	double half_width =  (linfo.s2[l]-linfo.s1[l]) / 2.0 * linfo.scale_s * PPM;
 	double offset     = ((linfo.s2[l]+linfo.s1[l]) / 2.0 - linfo.sm[l]) * linfo.scale_s * PPM;
@@ -903,7 +903,7 @@ struct	preview_line : WED_PreviewItem {
 	virtual void draw_it(WED_MapZoomerNew * zoomer, GUI_GraphState * g, float mPavementAlpha)
 	{
 		WED_ResourceMgr * rmgr = WED_GetResourceMgr(resolver);
-		string vpath;
+		std::string vpath;
 		const lin_info_t * linfo;
 		lin->GetResource(vpath);
 		if (!rmgr->GetLin(vpath,linfo)) return;
@@ -927,7 +927,7 @@ struct	preview_line : WED_PreviewItem {
 			glFrontFace(GL_CCW);
 			for (int l = 0; l < linfo->s1.size(); ++l)
 			{
-				vector<Point2>	pts;
+				std::vector<Point2>	pts;
 				PointSequenceToVector(ps, zoomer, pts, false, true);
 				draw_line_preview(pts, *linfo, l, zoomer->GetPPM());
 			}
@@ -936,7 +936,7 @@ struct	preview_line : WED_PreviewItem {
 	}
 };
 
-static void draw_string_preview(const vector<Point2>& pts, double& d0, double ds, const str_info_t& sinfo, WED_MapZoomerNew * zoomer,
+static void draw_string_preview(const std::vector<Point2>& pts, double& d0, double ds, const str_info_t& sinfo, WED_MapZoomerNew * zoomer,
 	GUI_GraphState * g, ITexMgr * tman, const XObj8 * obj)
 {
 	double ppm = zoomer->GetPPM();
@@ -998,7 +998,7 @@ struct	preview_string : WED_PreviewItem {
 	virtual void draw_it(WED_MapZoomerNew * zoomer, GUI_GraphState * g, float mPavementAlpha)
 	{
 		WED_ResourceMgr * rmgr = WED_GetResourceMgr(resolver);
-		string vpath;
+		std::string vpath;
 		const str_info_t * sinfo;
 		str->GetResource(vpath);
 		if (!rmgr->GetStr(vpath,sinfo)) return;
@@ -1024,7 +1024,7 @@ struct	preview_string : WED_PreviewItem {
 
 					for(int i = 0; i < ps->GetNumSides(); ++i)
 					{
-						vector<Point2>	pts;
+						std::vector<Point2>	pts;
 						SideToPoints(ps, i, zoomer, pts);
 						draw_string_preview(pts, d0, ds, *sinfo, zoomer, g, tman, o);
 					}
@@ -1050,12 +1050,12 @@ struct	preview_airportlines : WED_PreviewItem {
 		int i = 0;
 		while (i < ps->GetNumSides())
 		{
-			set<int> attrs;
+			std::set<int> attrs;
 			WED_AirportNode * apt_node = dynamic_cast<WED_AirportNode*>(ps->GetNthPoint(i));
 			if (apt_node) apt_node->GetAttributes(attrs);
 
 			int t = 0;
-			for(set<int>::const_iterator a = attrs.begin(); a != attrs.end(); ++a)
+			for(std::set<int>::const_iterator a = attrs.begin(); a != attrs.end(); ++a)
 			{
 				int n = ENUM_Export(*a);
 				if(n < 100)
@@ -1064,7 +1064,7 @@ struct	preview_airportlines : WED_PreviewItem {
 					break;
 				}
 			}
-			string vpath;
+			std::string vpath;
 			const lin_info_t * linfo = nullptr;
 			int tex_id = 0;
 			WED_ResourceMgr * rmgr = WED_GetResourceMgr(res);
@@ -1080,7 +1080,7 @@ struct	preview_airportlines : WED_PreviewItem {
 
 			if(tex_id)
 			{
-				vector<Point2> pts;
+				std::vector<Point2> pts;
 
 				g->SetState(false,1,false,true,true,false,false);
 				g->BindTex(tex_id,0);
@@ -1097,7 +1097,7 @@ struct	preview_airportlines : WED_PreviewItem {
 						apt_node = dynamic_cast<WED_AirportNode*>(ps->GetNthPoint(i+1));
 						if (apt_node) apt_node->GetAttributes(attrs);
 						int tn = 0;
-						for(set<int>::const_iterator a = attrs.begin(); a != attrs.end(); ++a)
+						for(std::set<int>::const_iterator a = attrs.begin(); a != attrs.end(); ++a)
 						{
 							int n = ENUM_Export(*a);
 							if (n < 100)
@@ -1137,12 +1137,12 @@ struct	preview_airportlights : WED_PreviewItem {
 		int i = 0;
 		while (i < ps->GetNumSides())
 		{
-			set<int> attrs;
+			std::set<int> attrs;
 			WED_AirportNode * apt_node = dynamic_cast<WED_AirportNode*>(ps->GetNthPoint(i));
 			if (apt_node) apt_node->GetAttributes(attrs);
 
 			int t = 0;
-			for(set<int>::const_iterator a = attrs.begin(); a != attrs.end(); ++a)
+			for(std::set<int>::const_iterator a = attrs.begin(); a != attrs.end(); ++a)
 			{
 				int n = ENUM_Export(*a);
 				if(n > 100 && n < 200)
@@ -1151,12 +1151,12 @@ struct	preview_airportlights : WED_PreviewItem {
 					break;
 				}
 			}
-			string vpath;
+			std::string vpath;
 			const str_info_t * sinfo;
 			int tex_id = 0;
 			if (t && lmgr->GetLineVpath(t, vpath) && rmgr->GetStr(vpath, sinfo))
 			{
-				vector<Point2> pts;
+				std::vector<Point2> pts;
 				double ds = 8.0;                     // default spacing, e.g. taxiline center lights
 				if(t == apt_light_taxi_edge || t == apt_light_bounary) ds = 20.0;          // twy edge lights
 				if(t == apt_light_hold_short || t == apt_light_hold_short_flash) ds = 2.0;  // hold lights
@@ -1175,7 +1175,7 @@ struct	preview_airportlights : WED_PreviewItem {
 						apt_node = dynamic_cast<WED_AirportNode*>(ps->GetNthPoint(i+1));
 						if (apt_node) apt_node->GetAttributes(attrs);
 						int tn = 0;
-						for(set<int>::const_iterator a = attrs.begin(); a != attrs.end(); ++a)
+						for(std::set<int>::const_iterator a = attrs.begin(); a != attrs.end(); ++a)
 						{
 							int n = ENUM_Export(*a);
 							if(n > 100 && n < 200)
@@ -1214,7 +1214,7 @@ struct	preview_facade : public preview_polygon {
 			WED_ResourceMgr * rmgr = WED_GetResourceMgr(resolver);
 			ITexMgr * tman = WED_GetTexMgr(resolver);
 			Polygon2 pts;
-			vector<int> choices;
+			std::vector<int> choices;
 
 			int n = ps->GetNumSides();
 			pts.reserve(n);
@@ -1225,7 +1225,7 @@ struct	preview_facade : public preview_polygon {
 			CoordTranslator2 tr;
 			CreateTranslatorForBounds(bounds, tr);
 
-			string vpath;
+			std::string vpath;
 			fac->GetResource(vpath);
 			const fac_info_t * info;
 
@@ -1364,7 +1364,7 @@ struct	preview_pol : public preview_polygon {
 	{
 		WED_ResourceMgr * rmgr = WED_GetResourceMgr(resolver);
 		ITexMgr *	tman = WED_GetTexMgr(resolver);
-		string vpath;
+		std::string vpath;
 		const pol_info_t * pol_info;
 
 		pol->GetResource(vpath);
@@ -1386,7 +1386,7 @@ struct	preview_autogen: public preview_polygon {
 		IGISPointSequence * ps = ags->GetOuterRing();
 		int tile_width = min(zoomer->GetPPM() * 20.0, 10.0);
         g->SetState(false,0,false,true,true,false,false);
-		vector<Point2>	pts;
+		std::vector<Point2>	pts;
         if(tile_width > 0)
         {
 			glLineWidth(tile_width);
@@ -1444,7 +1444,7 @@ struct	preview_ortho : public preview_polygon {
 		//If this ortho is new
 		if(orth->IsNew() == true)
 		{
-			string rpath;
+			std::string rpath;
 			orth->GetResource(rpath);
 			TexRef	tref = tman->LookupTexture(rpath.c_str(), false, tex_Compress_Ok|tex_Linear);
 			if(tref == NULL) return;
@@ -1457,7 +1457,7 @@ struct	preview_ortho : public preview_polygon {
 		}
 		else
 		{
-			string vpath;
+			std::string vpath;
 			const pol_info_t * pol_info;
 			orth->GetResource(vpath);
 			if(!rmgr->GetPol(vpath,pol_info)) return;
@@ -1478,7 +1478,7 @@ struct	preview_object : public WED_PreviewItem {
 		WED_ResourceMgr * rmgr = WED_GetResourceMgr(resolver);
 		ITexMgr *		tman = WED_GetTexMgr(resolver);
 		ILibrarian *	lmgr = WED_GetLibrarian(resolver);
-		string			vpath;
+		std::string			vpath;
 		const XObj8 *	o;
 		const agp_t *	agp;
 		Point2			loc;
@@ -1518,7 +1518,7 @@ struct	preview_taxisign : public WED_PreviewItem {
 		Point2 loc;
 		double hdg;
 		int letters;
-		string name;
+		std::string name;
 
 		ts->GetLocation(gis_Geo,loc);
 		hdg = ts->GetHeading();
@@ -1652,7 +1652,7 @@ struct	preview_truck : public WED_PreviewItem {
 		WED_ResourceMgr * rmgr = WED_GetResourceMgr(resolver);
 		ITexMgr *	tman = WED_GetTexMgr(resolver);
 		ILibrarian * lmgr = WED_GetLibrarian(resolver);
-		string vpath1, vpath2;
+		std::string vpath1, vpath2;
 
 		vpath1 = trk->GetTruckCustom();
 		if(vpath1.empty())
@@ -1736,7 +1736,7 @@ struct	preview_light : public WED_PreviewItem {
 		WED_ResourceMgr * rmgr = WED_GetResourceMgr(resolver);
 		ITexMgr *	tman = WED_GetTexMgr(resolver);
 		ILibrarian * lmgr = WED_GetLibrarian(resolver);
-		string vpath;
+		std::string vpath;
 		AptLight_t light;
 		lgt->Export(light);
 
@@ -1807,7 +1807,7 @@ struct	preview_road : WED_PreviewItem {
 	virtual void draw_it(WED_MapZoomerNew * zoomer, GUI_GraphState * g, float mPavementAlpha)
 	{
 		WED_ResourceMgr * rmgr = WED_GetResourceMgr(resolver);
-		string vpath;
+		std::string vpath;
 		road->GetResource(vpath);
 		const road_info_t * rds;
 		if(!rmgr->GetRoad(vpath,rds)) return;
@@ -1837,7 +1837,7 @@ struct	preview_road : WED_PreviewItem {
 
 				for(int i = 0; i < road->GetNumSides(); ++i)
 				{
-					vector<Point2>	pts;
+					std::vector<Point2>	pts;
 					SideToPoints(ps,i,zoomer, pts);
 					glLineWidth(5);
 					glShape2v(GL_LINES, &*pts.begin(), pts.size());
@@ -1852,7 +1852,7 @@ struct	preview_road : WED_PreviewItem {
 				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 				for (const auto& s : rd.segs)
 				{
-					vector<Point2>	pts;
+					std::vector<Point2>	pts;
 					PointSequenceToVector(ps, zoomer, pts, false, true);
 
 					double left  = s.left  * PPM;
@@ -1985,7 +1985,7 @@ bool		WED_PreviewLayer::DrawEntityVisualization		(bool inCurrent, IGISEntity * e
 			pol->GetBounds(gis_Geo, b);
 			if (GetZoomer()->PixelSize(b) > MIN_PIXELS_PREVIEW)
 			{
-				string vpath;
+				std::string vpath;
 				const pol_info_t* pol_info;
 				int lg = group_TaxiwaysBegin;
 				WED_ResourceMgr* rmgr = WED_GetResourceMgr(GetResolver());
@@ -2004,7 +2004,7 @@ bool		WED_PreviewLayer::DrawEntityVisualization		(bool inCurrent, IGISEntity * e
 			orth->GetBounds(gis_Geo, b);
 			if (GetZoomer()->PixelSize(b) > MIN_PIXELS_PREVIEW)
 			{
-				string vpath;
+				std::string vpath;
 					const pol_info_t* pol_info;
 					int lg = group_TaxiwaysBegin;
 					WED_ResourceMgr* rmgr = WED_GetResourceMgr(GetResolver());
@@ -2036,7 +2036,7 @@ bool		WED_PreviewLayer::DrawEntityVisualization		(bool inCurrent, IGISEntity * e
 	{
 		if(auto line = dynamic_cast<WED_LinePlacement*>(entity))
 		{
-			string vpath;
+			std::string vpath;
 			const lin_info_t* lin_info;
 			int lg = group_Markings;
 			double lwidth = 0.4;
@@ -2132,7 +2132,7 @@ void		WED_PreviewLayer::DrawVisualization			(bool inCurent, GUI_GraphState * g)
 	// sort, draw, nuke 'em.
 
 	sort(mPreviewItems.begin(),mPreviewItems.end(),sort_item_by_layer());
-	for(vector<WED_PreviewItem *>::iterator i = mPreviewItems.begin(); i != mPreviewItems.end(); ++i)
+	for(std::vector<WED_PreviewItem *>::iterator i = mPreviewItems.begin(); i != mPreviewItems.end(); ++i)
 	{
 		(*i)->draw_it(GetZoomer(), g, mPavementAlpha);
 		delete *i;

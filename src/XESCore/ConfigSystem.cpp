@@ -31,15 +31,15 @@ using std::list;
 
 #include "PlatformUtils.h"
 
-typedef pair<ProcessConfigString_f, void *>			HandlerEntry;
-typedef hash_map<string, HandlerEntry>				HandlerMap;
+typedef std::pair<ProcessConfigString_f, void *>			HandlerEntry;
+typedef std::hash_map<std::string, HandlerEntry>				HandlerMap;
 static HandlerMap									sHandlerTable;
-static set<string>									sLoadedFiles;
+static std::set<std::string>									sLoadedFiles;
 
-static list<string>									sPathStack;
+static std::list<std::string>									sPathStack;
 
 #if 0
-void	TokenizeOneLine(const char * begin, const char * end, vector<string>& outTokens)
+void	TokenizeOneLine(const char * begin, const char * end, std::vector<std::string>& outTokens)
 {
 	while (begin < end)
 	{
@@ -61,24 +61,24 @@ void	TokenizeOneLine(const char * begin, const char * end, vector<string>& outTo
 							  *begin != '\n' &&
 							  *begin != '#'))
 			++begin;
-		outTokens.push_back(string(tokenStart, begin));
+		outTokens.push_back(std::string(tokenStart, begin));
 	}
 }
 #endif
 
 bool TokenizeFunc(const char * s, const char * e, void * ref)
 {
-	vector<string> * v = (vector<string> *) ref;
-	v->push_back(string(s,e));
+	std::vector<std::string> * v = (std::vector<std::string> *) ref;
+	v->push_back(std::string(s,e));
 	return true;
 }
 
-static bool HandleInclude(const vector<string>& args, void * ref)
+static bool HandleInclude(const std::vector<std::string>& args, void * ref)
 {
 	if (args.size() < 2) return false;
 
 	Assert(!sPathStack.empty());
-	string full = sPathStack.back() + args[1];
+	std::string full = sPathStack.back() + args[1];
 	return LoadConfigFileFullPath(full.c_str());
 }
 
@@ -92,22 +92,22 @@ bool	RegisterLineHandler(
 	{
 		sHandlerTable.insert(HandlerMap::value_type("INCLUDE", HandlerEntry(HandleInclude, (void*)NULL)));
 	}
-	string	token(inToken);
+	std::string	token(inToken);
 	if (sHandlerTable.find(inToken) != sHandlerTable.end())
 		return false;
 	sHandlerTable.insert(HandlerMap::value_type(token, HandlerEntry(inHandler, inRef)));
 	return true;
 }
 
-string	FindConfigFile(const char * inFilename)
+std::string	FindConfigFile(const char * inFilename)
 {
-	string	partial_path = string("config" DIR_STR) + inFilename;
+	std::string	partial_path = std::string("config" DIR_STR) + inFilename;
 	return partial_path;
 }
 
 bool	LoadConfigFile(const char * inFilename)
 {
-	string partial_path = FindConfigFile(inFilename);
+	std::string partial_path = FindConfigFile(inFilename);
 	return LoadConfigFileFullPath(partial_path.c_str());
 }
 
@@ -122,7 +122,7 @@ bool	LoadConfigFileFullPath(const char * inFilename)
 		return ok;
 	}
 
-	string	dir(inFilename);
+	std::string	dir(inFilename);
 	dir.erase(dir.find_last_of("\\/:")+1);
 	sPathStack.push_back(dir);
 
@@ -131,20 +131,20 @@ bool	LoadConfigFileFullPath(const char * inFilename)
 	{
 		while (!TextScanner_IsDone(scanner))
 		{
-			vector<string>	tokens;
+			std::vector<std::string>	tokens;
 			TextScanner_TokenizeLine(scanner, " \t", "\r\n#\"", -1, TokenizeFunc, &tokens);
 			if (!tokens.empty())
 			{
 				HandlerMap::iterator h = sHandlerTable.find(tokens[0]);
 				if (h == sHandlerTable.end())
 				{
-					string	line(TextScanner_GetBegin(scanner), TextScanner_GetEnd(scanner));
+					std::string	line(TextScanner_GetBegin(scanner), TextScanner_GetEnd(scanner));
 					printf("Unable to parse line: %s\n", line.c_str());
 					goto bail;
 				}
 				if (!h->second.first(tokens,h->second.second))
 				{
-					string	line(TextScanner_GetBegin(scanner), TextScanner_GetEnd(scanner));
+					std::string	line(TextScanner_GetBegin(scanner), TextScanner_GetEnd(scanner));
 					printf("Parse error in file %s line: %s\n", inFilename, line.c_str());
 					goto bail;
 				}
@@ -164,7 +164,7 @@ bail:
 // this is called.  This is useful for lazy on-demand loading of prefs files.
 bool	LoadConfigFileOnce(const char * inFilename)
 {
-	string	fname(inFilename);
+	std::string	fname(inFilename);
 	if (sLoadedFiles.find(fname) != sLoadedFiles.end())
 		return true;
 
@@ -174,19 +174,19 @@ bool	LoadConfigFileOnce(const char * inFilename)
 	return ok;
 }
 
-int					TokenizeInt(const string& s)
+int					TokenizeInt(const std::string& s)
 {
 	return atoi(s.c_str());
 }
 
-float				TokenizeFloat(const string& s)
+float				TokenizeFloat(const std::string& s)
 {
 	float val = atof(s.c_str());
 	if (s[s.length()-1] == '%') return val / 100.0;
 	else return val;
 }
 
-float				TokenizeFloatWithEnum(const string& s)
+float				TokenizeFloatWithEnum(const std::string& s)
 {
 	if (s.empty()) return 0.0f;
 	if(s[0] < '0' || s[0] > '9')
@@ -214,7 +214,7 @@ inline	int	hex_digit(char c)
 	return 0;
 }
 
-bool				TokenizeColor(const string& s, RGBColor_t& c)
+bool				TokenizeColor(const std::string& s, RGBColor_t& c)
 {
 	if (s.find(',') != s.npos)
 	{
@@ -241,7 +241,7 @@ bool				TokenizeColor(const string& s, RGBColor_t& c)
 	return true;
 }
 
-bool				TokenizeEnum(const string& token, int& slot, const char * errMsg)
+bool				TokenizeEnum(const std::string& token, int& slot, const char * errMsg)
 {
 	slot = LookupToken(token.c_str());
 	if (slot == -1)
@@ -251,15 +251,15 @@ bool				TokenizeEnum(const string& token, int& slot, const char * errMsg)
 	return (slot != -1);
 }
 
-bool				TokenizeEnumSet(const string& tokens, set<int>& slots)
+bool				TokenizeEnumSet(const std::string& tokens, std::set<int>& slots)
 {
-	string::size_type e,s=0;
+	std::string::size_type e,s=0;
 	slots.clear();
 	while(1)
 	{
 		e=tokens.find(',', s);
 
-		string subst;
+		std::string subst;
 		if(e==tokens.npos)
 			subst=tokens.substr(s);
 		else
@@ -284,12 +284,12 @@ bool				TokenizeEnumSet(const string& tokens, set<int>& slots)
 // f - float
 // c - color
 // e - enum
-// s - STL string
+// s - STL std::string
 // t = char **
-// S - enum set
+// S - enum std::set
 // P - Point2, splatted
 //   - skip
-int				TokenizeLine(const vector<string>& tokens, const char * fmt, ...)
+int				TokenizeLine(const std::vector<std::string>& tokens, const char * fmt, ...)
 {
 	va_list	args;
 	va_start(args, fmt);
@@ -297,8 +297,8 @@ int				TokenizeLine(const vector<string>& tokens, const char * fmt, ...)
 	int * 			ip;
 	float *			fp;
 	RGBColor_t *	cp;
-	string *		sp;
-	set<int>*		es;
+	std::string *		sp;
+	std::set<int>*		es;
 	char **			tp;
 	Point2 *		pp;
 	while (fmt[n] && n < tokens.size())
@@ -327,11 +327,11 @@ int				TokenizeLine(const vector<string>& tokens, const char * fmt, ...)
 				goto bail;
 			break;
 		case 's':
-			sp = va_arg(args, string *);
+			sp = va_arg(args, std::string *);
 			*sp = tokens[n];
 			break;
 		case 'S':
-			es = va_arg(args, set<int> *);
+			es = va_arg(args, std::set<int> *);
 			if(!TokenizeEnumSet(tokens[n], *es))
 				goto bail;
 			break;
@@ -362,7 +362,7 @@ bail:
 }
 
 
-void	DebugPrintTokens(const vector<string>& tokens)
+void	DebugPrintTokens(const std::vector<std::string>& tokens)
 {
 	for(int n = 0; n < tokens.size(); ++n)
 	{

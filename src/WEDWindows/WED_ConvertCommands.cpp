@@ -52,7 +52,7 @@ int		WED_CanConvertTo(IResolver * resolver, const char* DstClass)
 	auto sel = WED_GetSelect(resolver);
 	if (sel->GetSelectionCount() == 0) return 0;
 
-	vector<ISelectable*> sources;
+	std::vector<ISelectable*> sources;
 	sel->GetSelectionVector(sources);
 
 	for (auto src_sel : sources)
@@ -96,7 +96,7 @@ int		WED_CanConvertTo(IResolver * resolver, const char* DstClass)
 }
 
 // Gets all the WED_GISChains in 't', including 't' itself if it is a WED_GISChain.
-static void get_chains(WED_Thing * t, vector<WED_GISChain*>& chains)
+static void get_chains(WED_Thing * t, std::vector<WED_GISChain*>& chains)
 {
 	if (!t)
 		return;
@@ -122,7 +122,7 @@ static void get_chains(WED_Thing * t, vector<WED_GISChain*>& chains)
 static void move_points(WED_Thing * src, WED_Thing * dst)
 {
 	// Collect points from 'src' (before we start removing any childern)
-	vector<WED_GISPoint*> points;
+	std::vector<WED_GISPoint*> points;
 	for (int i = 0; i < src->CountChildren(); ++i)
 	{
 		WED_GISPoint * p = dynamic_cast<WED_GISPoint*>(src->GetNthChild(i));
@@ -156,7 +156,7 @@ static void move_points(WED_Thing * src, WED_Thing * dst)
 			}
 			else
 				dst_node = WED_SimpleBoundaryNode::CreateTyped(dst->GetArchive());
-			string name;
+			std::string name;
 			points[i]->GetName(name);
 			dst_node->SetName(name);
 			if (src_bezier && dst_bezier)
@@ -178,7 +178,7 @@ static void move_points(WED_Thing * src, WED_Thing * dst)
 
 static bool is_ccw(WED_GISChain* c)
 {
-	vector<Point2> points(c->GetNumPoints());
+	std::vector<Point2> points(c->GetNumPoints());
 	for (int i = 0; i < c->GetNumPoints(); ++i)
 		c->GetNthPoint(i)->GetLocation(gis_Geo, points[i]);
 	return is_ccw_polygon_pt(points.begin(), points.end());
@@ -186,7 +186,7 @@ static bool is_ccw(WED_GISChain* c)
 
 // Adds copies of the given chains to 'dst'; creates chains of the appropriate type for 'dst'. The source chains are not
 // deleted or reparented, but nodes may be removed from them.
-static void add_chains(WED_Thing * dst, const vector<WED_GISChain*>& chains)
+static void add_chains(WED_Thing * dst, const std::vector<WED_GISChain*>& chains)
 {
 	for (int i = 0; i < chains.size(); ++i)
 	{
@@ -222,34 +222,34 @@ static void copy_heading(WED_Thing * src, WED_Thing * dst)
 	}
 }
 
-typedef pair<int, vector<int> > style_t;
+typedef std::pair<int, std::vector<int> > style_t;
 
 static style_t get_style(WED_Thing * t)
 {
 	int surf_type;
-	vector<int> line_style;
+	std::vector<int> line_style;
 
 	if (t->GetClass() == WED_Taxiway::sClass)
 	{
 		auto twy = static_cast<WED_Taxiway*>(t);
 		surf_type = twy->GetSurface();
 
-		string resource;
+		std::string resource;
 		twy->GetResource(resource);
 		auto dollar_pos = resource.find('$');
 		line_style.push_back(ENUM_Export(ENUM_LookupDesc(LinearFeature, resource.substr(0, dollar_pos).c_str())));
-		if (dollar_pos != string::npos)
+		if (dollar_pos != std::string::npos)
 			line_style.push_back(ENUM_Export(ENUM_LookupDesc(LinearFeature, resource.substr(dollar_pos + 2).c_str())));
 	}
 	else if(t->GetClass() == WED_PolygonPlacement::sClass)
 	{
-		string resource;
+		std::string resource;
 		static_cast<WED_PolygonPlacement*>(t)->GetResource(resource);
 
 		surf_type = WED_GetLibraryMgr(t->GetArchive()->GetResolver())->GetSurfEnum(resource);
 		if (surf_type < 0)
 		{
-			if (resource.find("concrete") != string::npos)
+			if (resource.find("concrete") != std::string::npos)
 				surf_type = surf_Concrete;
 			else
 				surf_type = surf_Asphalt;
@@ -257,7 +257,7 @@ static style_t get_style(WED_Thing * t)
 	}
 	else if (t->GetClass() == WED_LinePlacement::sClass)
 	{
-		string resource;
+		std::string resource;
 		static_cast<WED_LinePlacement*>(t)->GetResource(resource);
 		if(resource.substr(0,strlen("lib/airport/lines/")) == "lib/airport/lines/")
 		{
@@ -271,16 +271,16 @@ static style_t get_style(WED_Thing * t)
 	{
 		// return value only if whl chain same style ... need to break up multi-linestyle chains beforehand
 
-		string resource;
+		std::string resource;
 		static_cast<WED_AirportChain*>(t)->GetResource(resource);
 		auto dollar_pos = resource.find('$');
 		line_style.push_back(ENUM_Export(ENUM_LookupDesc(LinearFeature, resource.substr(0,dollar_pos).c_str())));
-		if(dollar_pos != string::npos)
+		if(dollar_pos != std::string::npos)
 			line_style.push_back(ENUM_Export(ENUM_LookupDesc(LinearFeature, resource.substr(dollar_pos+2).c_str())));
 	}
 	if (t->GetClass() == WED_StringPlacement::sClass)
 	{
-		string resource;
+		std::string resource;
 		static_cast<WED_LinePlacement*>(t)->GetResource(resource);
 		if (resource.substr(0, strlen("lib/airport/lights/slow/")) == "lib/airport/lights/slow/")
 		{
@@ -290,7 +290,7 @@ static style_t get_style(WED_Thing * t)
 				line_style.push_back(linetype);
 		}
 	}
-	return make_pair(surf_type, line_style);
+	return std::make_pair(surf_type, line_style);
 }
 
 static void set_style(WED_Thing * t, style_t style, WED_LibraryMgr * lmgr)
@@ -305,21 +305,21 @@ static void set_style(WED_Thing * t, style_t style, WED_LibraryMgr * lmgr)
 	}
 	if (t->GetClass() == WED_PolygonPlacement::sClass)
 	{
-		string resource;
+		std::string resource;
 		if (!lmgr->GetSurfVpath(style.first, resource))
 			resource = "lib/airport/pavement/asphalt_3D.pol";              // default to default asphalt
 		static_cast<WED_PolygonPlacement*>(t)->SetResource(resource);
 	}
 	if (t->GetClass() == WED_LinePlacement::sClass)
 	{
-		string vpath;
+		std::string vpath;
 		if(style.second.size())
 			if (lmgr->GetLineVpath(style.second.front() < 100 ? style.second.front() : style.second.back(), vpath))
 				static_cast<WED_LinePlacement*>(t)->SetResource(vpath);
 	}
 	if (t->GetClass() == WED_AirportChain::sClass)
 	{
-		set<int> attr;
+		std::set<int> attr;
 		for (auto a : style.second)
 			if(auto style = ENUM_Import(LinearFeature, a) > 0)
 				attr.insert(style);
@@ -333,7 +333,7 @@ static void set_style(WED_Thing * t, style_t style, WED_LibraryMgr * lmgr)
 	}
 	if (t->GetClass() == WED_StringPlacement::sClass)
 	{
-		string vpath;
+		std::string vpath;
 		if (style.second.size())
 			if (lmgr->GetLineVpath(style.second.front() >= 100 ? style.second.front() : style.second.back(), vpath))
 				static_cast<WED_StringPlacement*>(t)->SetResource(vpath);
@@ -359,22 +359,22 @@ static bool needs_apt(WED_Thing* t)
 		return 0;
 }
 
-static void split_chains_by_attribute(vector<WED_GISChain*>& chains, set<WED_Thing*>& to_delete, WED_Thing* src, WED_Thing* dst)
+static void split_chains_by_attribute(std::vector<WED_GISChain*>& chains, std::set<WED_Thing*>& to_delete, WED_Thing* src, WED_Thing* dst)
 {
 	for (int c = 0; c < chains.size(); ++c)
 	{
 		auto chain = chains[c];
-		set<int> last_attrs;
+		std::set<int> last_attrs;
 		int num_vert = chain->CountChildren();
 		for (int vert = 0; vert < num_vert; vert++)
 		{
 			if (auto node = dynamic_cast<WED_AirportNode*>(chain->GetNthChild(vert)))
 			{
-				set<int> attrs;
+				std::set<int> attrs;
 				node->GetAttributes(attrs);
 				if (dst->GetClass() == WED_LinePlacement::sClass)
 				{
-					set<int> tmp;
+					std::set<int> tmp;
 					for (auto a : attrs)
 						if (ENUM_Export(a) < 100)
 							tmp.insert(a);
@@ -382,7 +382,7 @@ static void split_chains_by_attribute(vector<WED_GISChain*>& chains, set<WED_Thi
 				}
 				else if (dst->GetClass() == WED_StringPlacement::sClass)
 				{
-					set<int> tmp;
+					std::set<int> tmp;
 					for (auto a : attrs)
 						if (ENUM_Export(a) >= 100)
 							tmp.insert(a);
@@ -418,7 +418,7 @@ static void split_chains_by_attribute(vector<WED_GISChain*>& chains, set<WED_Thi
 						num_vert++;
 					}
 					auto new_chain = WED_AirportChain::CreateTyped(src->GetArchive());
-					string name;
+					std::string name;
 					src->GetName(name);
 					new_chain->SetName(name);
 					chains.push_back(new_chain);
@@ -446,19 +446,19 @@ void	WED_DoConvertTo(IResolver * resolver, CreateThingFunc create, bool in_cmd)
 {
 	auto lmgr = WED_GetLibraryMgr(resolver);
 	auto sel = WED_GetSelect(resolver);
-	vector<ISelectable*> to_convert;
+	std::vector<ISelectable*> to_convert;
 	sel->GetSelectionVector(to_convert);
 
-	set<WED_Thing*> to_delete;
+	std::set<WED_Thing*> to_delete;
 
 	IOperation* op = dynamic_cast<IOperation*>(sel);
-	if(in_cmd) op->StartOperation((string("Convert to ") /* + dst->HumanReadableType() */).c_str());
+	if(in_cmd) op->StartOperation((std::string("Convert to ") /* + dst->HumanReadableType() */).c_str());
 
 	for (const auto tc : to_convert)
 	{
 		auto src = dynamic_cast<WED_Thing*>(tc);
 
-		vector<WED_GISChain*> chains;
+		std::vector<WED_GISChain*> chains;
 		get_chains(src, chains);
 		if (chains.empty())
 		{
@@ -474,7 +474,7 @@ void	WED_DoConvertTo(IResolver * resolver, CreateThingFunc create, bool in_cmd)
 		{
 			add_chains(dst, chains);
 
-			string name;
+			std::string name;
 			src->GetName(name);
 			dst->SetName(name);
 
@@ -496,7 +496,7 @@ void	WED_DoConvertTo(IResolver * resolver, CreateThingFunc create, bool in_cmd)
 
 				if (i > 0) dst = create(src->GetArchive());
 
-				string name;
+				std::string name;
 				src->GetName(name);
 				dst->SetName(name);
 
@@ -523,7 +523,7 @@ void	WED_DoConvertToForest(IResolver* resolver)
 {
 	auto sel = WED_GetSelect(resolver);
 	auto op = dynamic_cast<IOperation*>(sel);
-	set<WED_Thing*> to_delete;
+	std::set<WED_Thing*> to_delete;
 
 	auto where = dynamic_cast<WED_Thing*>(sel->GetNthSelection(0));
 	if(!where)
@@ -550,7 +550,7 @@ void	WED_DoConvertToForest(IResolver* resolver)
 			Point2 pt;
 			src->GetLocation(gis_Geo, pt);
 			dst->SetLocation(gis_Geo, pt);
-			dst->SetName(string("Tree ") + to_string(i));
+			dst->SetName(std::string("Tree ") + std::to_string(i));
 			to_delete.insert(src);
 		}
 	}

@@ -62,24 +62,24 @@ enum CACHE_error_type
 struct WED_file_cache_request
 {
 	WED_file_cache_request();
-	WED_file_cache_request(CACHE_domain domain, const string& folder_prefix, const string& url, const string& dir);
+	WED_file_cache_request(CACHE_domain domain, const std::string& folder_prefix, const std::string& url, const std::string& dir);
 
 	CACHE_domain in_domain;   // Domain policy for the file, stores information on how files should be downloaded and kept
-	string in_folder_prefix;  // A folder prefix to place this cached file in, no leading or trailing slash
-	string in_url;            // The URL to request from, cached inside CACHE_CacheObject
-	string in_dir;            //
+	std::string in_folder_prefix;  // A folder prefix to place this cached file in, no leading or trailing slash
+	std::string in_url;            // The URL to request from, cached inside CACHE_CacheObject
+	std::string in_dir;            //
 };
 
-ostream& operator << (ostream& os, const WED_file_cache_request& rhs);
+std::ostream& operator << (std::ostream& os, const WED_file_cache_request& rhs);
 
 struct WED_file_cache_response
 {
-	WED_file_cache_response(float download_progress, string error_human, CACHE_error_type error_type, string path, CACHE_status status);
+	WED_file_cache_response(float download_progress, std::string error_human, CACHE_error_type error_type, std::string path, CACHE_status status);
 	
 	float out_download_progress;	// From a range from -1.0 (download not started), to 100.0
-	string out_error_human;	      // Human readable error string
+	std::string out_error_human;	      // Human readable error std::string
 	CACHE_error_type out_error_type;// The type of error we just occured (who is to blame.) cached inside CACHE_CacheObject
-	string out_path;	            // Path to load downloaded file from, cached inside CACHE_CacheObject and file existing on disk
+	std::string out_path;	            // Path to load downloaded file from, cached inside CACHE_CacheObject and file existing on disk
 	CACHE_status out_status;      // Status of the cache
 
 	bool operator==(const WED_file_cache_response& rhs) const;
@@ -94,19 +94,19 @@ class WED_FileCache
 		void				init(void);           // WED_file_cache_init()
 
 		WED_file_cache_response	request_file(const WED_file_cache_request& req);
-		string			file_in_cache(const WED_file_cache_request& req);
-		string			url_to_cache_path(const WED_file_cache_request& req);
+		std::string			file_in_cache(const WED_file_cache_request& req);
+		std::string			url_to_cache_path(const WED_file_cache_request& req);
 
 	private:
 
-		vector<string>	get_files_available(CACHE_domain domain, string folder_prefix);
+		std::vector<std::string>	get_files_available(CACHE_domain domain, std::string folder_prefix);
 		WED_file_cache_response Request_file(const WED_file_cache_request& req);
 		WED_file_cache_response start_new_cache_object(WED_file_cache_request req);
-		void 				remove_cache_object(vector<CACHE_CacheObject* >::iterator itr);
+		void 				remove_cache_object(std::vector<CACHE_CacheObject* >::iterator itr);
 
-		const string 	CACHE_INFO_FILE_EXT = ".cache_object_info";
-		string 			CACHE_folder;	                  // The fully qualified path to the file cache folder
-		vector<CACHE_CacheObject* > CACHE_file_cache;   // Our vector of CacheObjects
+		const std::string 	CACHE_INFO_FILE_EXT = ".cache_object_info";
+		std::string 			CACHE_folder;	                  // The fully qualified path to the file cache folder
+		std::vector<CACHE_CacheObject* > CACHE_file_cache;   // Our std::vector of CacheObjects
 };
 
 extern WED_FileCache gFileCache;

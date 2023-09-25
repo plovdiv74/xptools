@@ -29,13 +29,12 @@
 
 using std::map;
 using std::vector;
-using std::binary_function;
 
 template <class T>
-struct lex_compare_vector : public binary_function<vector<T>, vector<T>, bool> {
+struct lex_compare_vector {
 
 	bool operator()(const vector<T>& lhs, const vector<T>& rhs) const {
-		return lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+		return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
 	}
 };
 
@@ -59,10 +58,10 @@ public:
 
 private:
 
-	typedef	vector<float>									key_type;
-	typedef map<key_type, int, lex_compare_vector<float> >	index_type;
+	typedef	std::vector<float>									key_type;
+	typedef std::map<key_type, int, lex_compare_vector<float> >	index_type;
 
-	vector<float>	mData;
+	std::vector<float>	mData;
 	index_type		mIndex;
 	int				mDepth;
 

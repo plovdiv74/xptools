@@ -118,7 +118,7 @@ void 			WED_Thing::WriteTo(IOWriter * writer)
 
 	// Viewers
 	writer->WriteInt(viewer_id.size());
-	for(set<int>::iterator vid = viewer_id.begin(); vid != viewer_id.end(); ++vid)
+	for(std::set<int>::iterator vid = viewer_id.begin(); vid != viewer_id.end(); ++vid)
 		writer->WriteInt(*vid);
 
 	//Sources
@@ -149,7 +149,7 @@ void			WED_Thing::ToXML(WED_XMLElement * parent)
 	if(viewer_id.size())
 	{
 		WED_XMLElement * vwr = obj->add_sub_element("viewers");
-		for(set<int>::iterator v = viewer_id.begin(); v != viewer_id.end(); ++v)
+		for(std::set<int>::iterator v = viewer_id.begin(); v != viewer_id.end(); ++v)
 		{
 			WED_XMLElement * vi = vwr->add_sub_element("viewer");
 			vi->add_attr_int("id",*v);
@@ -234,7 +234,7 @@ WED_Thing *		WED_Thing::GetNthChild(int n) const
 		return STATIC_CAST(WED_Thing,FetchPeer(child_id[n]));
 }
 
-WED_Thing *		WED_Thing::GetNamedChild(const string& s) const
+WED_Thing *		WED_Thing::GetNamedChild(const std::string& s) const
 {
 	int c = CountChildren();
 	for (int n = 0; n < c; ++n)
@@ -242,7 +242,7 @@ WED_Thing *		WED_Thing::GetNamedChild(const string& s) const
 		WED_Thing * t = GetNthChild(n);
 		if (t)
 		{
-			string n;
+			std::string n;
 			t->GetName(n);
 			if (s==n)
 				return t;
@@ -266,10 +266,10 @@ int					WED_Thing::CountViewers(void) const
 	return viewer_id.size();
 }
 
-void WED_Thing::GetAllViewers(set<WED_Thing *>& out_viewers) const
+void WED_Thing::GetAllViewers(std::set<WED_Thing *>& out_viewers) const
 {
 	out_viewers.clear();
-	for(set<int>::iterator i = viewer_id.begin(); i != viewer_id.end(); ++i)
+	for(std::set<int>::iterator i = viewer_id.begin(); i != viewer_id.end(); ++i)
 	{
 		WED_Thing * v = STATIC_CAST(WED_Thing, FetchPeer(*i));
 		DebugAssert(v);
@@ -279,12 +279,12 @@ void WED_Thing::GetAllViewers(set<WED_Thing *>& out_viewers) const
 }
 
 
-void	WED_Thing::GetName(string& n) const
+void	WED_Thing::GetName(std::string& n) const
 {
 	n = name.value;
 }
 
-void	WED_Thing::SetName(const string& n)
+void	WED_Thing::SetName(const std::string& n)
 {
 	name = n;
 }
@@ -315,7 +315,7 @@ void				WED_Thing::AddSource(WED_Thing * src, int nth)
 
 void				WED_Thing::RemoveSource(WED_Thing * src)
 {
-	vector<int>::iterator k = find(source_id.begin(), source_id.end(), src->GetID());
+	std::vector<int>::iterator k = find(source_id.begin(), source_id.end(), src->GetID());
 	DebugAssert(k != source_id.end());
 	DebugAssert(src->viewer_id.count(GetID()) > 0);
 	StateChanged(wed_Change_Topology);
@@ -338,7 +338,7 @@ void	WED_Thing::ReplaceSource(WED_Thing * old, WED_Thing * rep)
 
 	StateChanged();
 	int subs =0;
-	for(vector<int>::iterator s = source_id.begin(); s != source_id.end(); ++s)
+	for(std::vector<int>::iterator s = source_id.begin(); s != source_id.end(); ++s)
 	if(*s == old_id)
 	{
 		++subs;
@@ -354,7 +354,7 @@ int			WED_Thing::GetMyPosition(void) const
 {
 	WED_Thing * parent = STATIC_CAST(WED_Thing, FetchPeer(parent_id));
 	if (!parent) return 0;
-	vector<int>::iterator i = find(parent->child_id.begin(), parent->child_id.end(), this->GetID());
+	std::vector<int>::iterator i = find(parent->child_id.begin(), parent->child_id.end(), this->GetID());
 	return distance(parent->child_id.begin(), i);
 }
 
@@ -363,7 +363,7 @@ void				WED_Thing::AddChild(int id, int n)
 	StateChanged(wed_Change_Topology);
 	DebugAssert(n >= 0);
 	DebugAssert(n <= child_id.size());
-	vector<int>::iterator i = find(child_id.begin(),child_id.end(),id);
+	std::vector<int>::iterator i = find(child_id.begin(),child_id.end(),id);
 	DebugAssert(i == child_id.end());
 	child_id.insert(child_id.begin()+n,id);
 }
@@ -371,7 +371,7 @@ void				WED_Thing::AddChild(int id, int n)
 void				WED_Thing::RemoveChild(int id)
 {
 	StateChanged(wed_Change_Topology);
-	vector<int>::iterator i = find(child_id.begin(),child_id.end(),id);
+	std::vector<int>::iterator i = find(child_id.begin(),child_id.end(),id);
 	DebugAssert(i != child_id.end());
 	child_id.erase(i);
 }
@@ -445,29 +445,29 @@ void	WED_Thing::Validate(void)
 	{
 		WED_Thing * p = SAFE_CAST(WED_Thing,FetchPeer(parent_id));
 		DebugAssert(p);
-		vector<int>::iterator me = find(p->child_id.begin(),p->child_id.end(), GetID());
+		std::vector<int>::iterator me = find(p->child_id.begin(),p->child_id.end(), GetID());
 		DebugAssert(me != p->child_id.end());
 	}
 
-	for(vector<int>::iterator c = child_id.begin(); c != child_id.end(); ++c)
+	for(std::vector<int>::iterator c = child_id.begin(); c != child_id.end(); ++c)
 	{
 		WED_Thing * cc = SAFE_CAST(WED_Thing,FetchPeer(*c));
 		DebugAssert(cc);
 		DebugAssert(cc->parent_id == GetID());
 	}
 
-	for(vector<int>::iterator s = source_id.begin(); s != source_id.end(); ++s)
+	for(std::vector<int>::iterator s = source_id.begin(); s != source_id.end(); ++s)
 	{
 		WED_Thing * ss = SAFE_CAST(WED_Thing,FetchPeer(*s));
 		DebugAssert(ss);
 		DebugAssert(ss->viewer_id.count(GetID()) > 0);
 	}
 
-	for(set<int>::iterator v = viewer_id.begin(); v != viewer_id.end(); ++v)
+	for(std::set<int>::iterator v = viewer_id.begin(); v != viewer_id.end(); ++v)
 	{
 		WED_Thing * vv = SAFE_CAST(WED_Thing,FetchPeer(*v));
 		DebugAssert(vv);
-		vector<int>::iterator me = find(vv->source_id.begin(), vv->source_id.end(), GetID());
+		std::vector<int>::iterator me = find(vv->source_id.begin(), vv->source_id.end(), GetID());
 		DebugAssert(me != vv->source_id.end());
 	}
 }
@@ -492,7 +492,7 @@ void		WED_TypeField::GetPropertyDict(PropertyDict_t& dict)
 {
 }
 
-void		WED_TypeField::GetPropertyDictItem(int e, string& item)
+void		WED_TypeField::GetPropertyDictItem(int e, std::string& item)
 {
 }
 

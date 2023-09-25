@@ -179,7 +179,7 @@ WED_ValidateDialog::WED_ValidateDialog(WED_Document * resolver, WED_MapPane * pa
 	else
 	{
 		cncl_btn->SetDescriptor(abortText);
-		if(string(abortText).find("ancel") != string::npos)
+		if(std::string(abortText).find("ancel") != std::string::npos)
 		{
 			int k_all[4] = {0,0,1,1};
 			GUI_Button * ex_sig = new GUI_Button("exclaim.png", btn_Push, k_all, k_all, k_all, k_all);
@@ -241,10 +241,10 @@ void WED_ValidateDialog::ReceiveMessage(
 			wrl->StartOperation("Select Invalid");
 			ISelection * sel = WED_GetSelect(mResolver);
 			sel->Clear();
-			set<int>	selected;
+			std::set<int>	selected;
 			mMsgTable.GetSelection(selected);
 			for(auto i : selected)
-				sel->Insert(set<ISelectable*>(msgs_orig[i].bad_objects.begin(), msgs_orig[i].bad_objects.end()));
+				sel->Insert(std::set<ISelectable*>(msgs_orig[i].bad_objects.begin(), msgs_orig[i].bad_objects.end()));
 			wrl->CommitOperation();
 		}
 		if (inMsg == GUI_TABLE_CONTENT_CHANGED) break;

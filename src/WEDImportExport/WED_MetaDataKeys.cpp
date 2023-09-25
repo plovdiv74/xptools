@@ -35,17 +35,17 @@ const MetaDataKey& META_KeyInfo(KeyEnum key_enum)
 	return known_keys[key_enum - (wed_AddMetaDataBegin + 1)];
 }
 
-const string& META_KeyDisplayText(KeyEnum key_enum)
+const std::string& META_KeyDisplayText(KeyEnum key_enum)
 {
 	return META_KeyInfo(key_enum).display_text;
 }
 
-const string& META_KeyName(KeyEnum key_enum)
+const std::string& META_KeyName(KeyEnum key_enum)
 {
 	return META_KeyInfo(key_enum).name;
 }
 
-KeyEnum META_KeyEnumFromName(const string& name_str)
+KeyEnum META_KeyEnumFromName(const std::string& name_str)
 {
 	for(int key_enum = wed_AddMetaDataBegin + 1; key_enum < wed_AddMetaDataEnd; ++key_enum)
 	{
@@ -58,7 +58,7 @@ KeyEnum META_KeyEnumFromName(const string& name_str)
 	return wed_AddMetaDataEnd;
 }
 
-KeyEnum META_KeyEnumFromDisplayText(const string& display_text_str)
+KeyEnum META_KeyEnumFromDisplayText(const std::string& display_text_str)
 {
 	for(int key_enum = wed_AddMetaDataBegin + 1; key_enum < wed_AddMetaDataEnd; ++key_enum)
 	{

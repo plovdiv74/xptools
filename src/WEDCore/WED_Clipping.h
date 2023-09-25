@@ -86,20 +86,20 @@
 
 */
 
-void	clip_segments(vector<Segment2>& out_segs, const Bbox2& box);
-void	clip_segments(vector<Segment2p>& out_segs, const Bbox2& box);
-void	clip_segments(vector<Bezier2>& out_segs, const Bbox2& box);
-void	clip_segments(vector<Bezier2p>& out_segs, const Bbox2& box);
+void	clip_segments(std::vector<Segment2>& out_segs, const Bbox2& box);
+void	clip_segments(std::vector<Segment2p>& out_segs, const Bbox2& box);
+void	clip_segments(std::vector<Bezier2>& out_segs, const Bbox2& box);
+void	clip_segments(std::vector<Bezier2p>& out_segs, const Bbox2& box);
 
 // Returns true if clip succeeeded - returns false if something went wrong - typical failures are induced
 // by polygons with the wrong winding and self-intersecting or degenerate polygons.  On failure, contents
 // of out_pwh_list are undefined and should not be uesd.
-bool	clip_polygon(const vector<Polygon2>& in_pwh, vector<vector<Polygon2> >& out_pwh_list, const Bbox2& box);
-bool	clip_polygon(const vector<Polygon2p>& in_pwh, vector<vector<Polygon2p> >& out_pwh_list, const Bbox2& box);
-bool	clip_polygon(const vector<Polygon2uv>& in_pwh, vector<vector<Polygon2uv> >& out_pwh_list, const Bbox2& box);
+bool	clip_polygon(const std::vector<Polygon2>& in_pwh, std::vector<std::vector<Polygon2> >& out_pwh_list, const Bbox2& box);
+bool	clip_polygon(const std::vector<Polygon2p>& in_pwh, std::vector<std::vector<Polygon2p> >& out_pwh_list, const Bbox2& box);
+bool	clip_polygon(const std::vector<Polygon2uv>& in_pwh, std::vector<std::vector<Polygon2uv> >& out_pwh_list, const Bbox2& box);
 
-bool	clip_polygon(const vector<BezierPolygon2>& in_pwh, vector<vector<BezierPolygon2> >& out_pwh_list, const Bbox2& box);
-bool	clip_polygon(const vector<BezierPolygon2p>& in_pwh, vector<vector<BezierPolygon2p> >& out_pwh_list, const Bbox2& box);
-bool	clip_polygon(const vector<BezierPolygon2uv>& in_pwh, vector<vector<BezierPolygon2uv> >& out_pwh_list, const Bbox2& box);
+bool	clip_polygon(const std::vector<BezierPolygon2>& in_pwh, std::vector<std::vector<BezierPolygon2> >& out_pwh_list, const Bbox2& box);
+bool	clip_polygon(const std::vector<BezierPolygon2p>& in_pwh, std::vector<std::vector<BezierPolygon2p> >& out_pwh_list, const Bbox2& box);
+bool	clip_polygon(const std::vector<BezierPolygon2uv>& in_pwh, std::vector<std::vector<BezierPolygon2uv> >& out_pwh_list, const Bbox2& box);
 
 #endif

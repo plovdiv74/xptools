@@ -50,12 +50,12 @@ void WED_StringPlacement::SetClosed(int h)
 	closed = h;
 }
 
-void		WED_StringPlacement::GetResource(	  string& r) const
+void		WED_StringPlacement::GetResource(	  std::string& r) const
 {
 	r = resource.value;
 }
 
-void		WED_StringPlacement::SetResource(const string& r)
+void		WED_StringPlacement::SetResource(const std::string& r)
 {
 	resource = r;
 }
@@ -69,7 +69,7 @@ void			WED_StringPlacement::SetSpacing(double s)
 {
 	spacing = s;
 }
-// ---- senak in extra property that allows to modify known string styles via the line style GUI ------
+// ---- senak in extra property that allows to modify known std::string styles via the line style GUI ------
 
 int			WED_StringPlacement::CountProperties(void) const
 {
@@ -78,7 +78,7 @@ int			WED_StringPlacement::CountProperties(void) const
 
 int			WED_StringPlacement::FindProperty(const char * in_prop) const
 {
-	if(string(in_prop) ==  "= Airport Light")
+	if(std::string(in_prop) ==  "= Airport Light")
 		return CountProperties();
 	else
 		return WED_GISChain::FindProperty(in_prop);
@@ -104,21 +104,21 @@ void		WED_StringPlacement::GetNthPropertyDict(int n, PropertyDict_t& dict) const
 {
 	if (n >= WED_GISChain::CountProperties())
 	{
-		map<int, string>		dm;
+		std::map<int, std::string>		dm;
 		
 		DOMAIN_Members(LinearFeature,dm);
 		
-		for(map<int, string>::iterator i = dm.begin(); i != dm.end(); ++i)
+		for(std::map<int, std::string>::iterator i = dm.begin(); i != dm.end(); ++i)
 		{
 			if(ENUM_Export(i->first) >= 100)                                                // filter out the light styles
-				dict.insert(PropertyDict_t::value_type(i->first, make_pair(i->second,true)));
+				dict.insert(PropertyDict_t::value_type(i->first, std::make_pair(i->second,true)));
 		}
 	}
 	else
 		WED_GISChain::GetNthPropertyDict(n, dict);
 }
 
-void		WED_StringPlacement::GetNthPropertyDictItem(int n, int e, string& item) const
+void		WED_StringPlacement::GetNthPropertyDictItem(int n, int e, std::string& item) const
 {
 	if (n >= WED_GISChain::CountProperties())
 	{
@@ -164,7 +164,7 @@ void		WED_StringPlacement::SetNthProperty(int n, const PropertyVal_t& val)
 		IResolver * resolver = GetArchive()->GetResolver();
 		if (resolver)
 		{
-			string vpath;
+			std::string vpath;
 			if(WED_GetLibraryMgr(resolver)->GetLineVpath(lighttype, vpath))
 				resource = vpath;
 		}

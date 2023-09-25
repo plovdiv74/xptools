@@ -41,18 +41,18 @@ public:
 	};
 
 				curl_http_get_file(
-							const string&			inURL,
-							const string&			outDestFile);
+							const std::string&			inURL,
+							const std::string&			outDestFile);
 
 				curl_http_get_file(
-							const string&			inURL,
-							vector<char>*			outDestBuffer);
+							const std::string&			inURL,
+							std::vector<char>*			outDestBuffer);
 
 				curl_http_get_file(
-							const string&			inURL,
-							const string *			inPostInfo,
-							const string *			inPutInfo,
-							vector<char>*			outBuffer);
+							const std::string&			inURL,
+							const std::string *			inPostInfo,
+							const std::string *			inPutInfo,
+							std::vector<char>*			outBuffer);
 				
 				~curl_http_get_file();
 	
@@ -65,8 +65,8 @@ public:
 
 	float		get_progress(void);		// if nt done, progress, percent, e.g 53.4f;
 	int			get_error(void);		// If done and not ok, what is error
-	void		get_error_data(vector<char>& out_data);	// If an error, any stuff the server sent -- might be text, HTML, who knows!
-	const string&	get_url() const; //The URL we are attempted to GET from
+	void		get_error_data(std::vector<char>& out_data);	// If an error, any stuff the server sent -- might be text, HTML, who knows!
+	const std::string&	get_url() const; //The URL we are attempted to GET from
 
 private:
 
@@ -91,13 +91,13 @@ private:
 		static	void *		thread_proc(void * param);
 		#endif
 	
-		vector<char>			m_dl_buffer;
-		vector<char>*			m_dest_buffer;
+		std::vector<char>			m_dl_buffer;
+		std::vector<char>*			m_dest_buffer;
 		
-		string					m_dest_path;
-		string					m_url;
-		string					m_post;
-		string					m_put;
+		std::string					m_dest_path;
+		std::string					m_url;
+		std::string					m_post;
+		std::string					m_put;
 		
 		double					m_last_dl_amount;
 		time_t					m_last_data_time;

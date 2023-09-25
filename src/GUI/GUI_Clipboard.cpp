@@ -35,7 +35,7 @@
 #endif
 
 #if APL || LIN
-	typedef	string	GUI_CIT;		// Clipboard Internal Type
+	typedef	std::string	GUI_CIT;		// Clipboard Internal Type
 #elif IBM
 	typedef	CLIPFORMAT	GUI_CIT;    // Clipboard Internal Type
 #endif
@@ -48,7 +48,7 @@
 static const char * const m_fl_clipboard_plain_text = "text/plain";
 #endif
 
-static string get_nth_clipboard_format(int n)
+static std::string get_nth_clipboard_format(int n)
 {
 	#if FL_PATCH_VERSION > 3
 	if( n == 0 ) return Fl::clipboard_plain_text;
@@ -78,8 +78,8 @@ enum {
 	gui_First_Private
 };
 
-static vector<string>		sClipStrings;
-static vector<GUI_CIT>		sCITs;
+static std::vector<std::string>		sClipStrings;
+static std::vector<GUI_CIT>		sCITs;
 
 //---------------------------------------------------------------------------------------------------------
 // TYPE MANAGEMENT
@@ -128,7 +128,7 @@ GUI_ClipType GUI_RegisterPrivateClipType(const char * clip_type)
 
 	sClipStrings.push_back(clip_type);
 	#if APL || LIN
-		string full_type = "com.laminar.";
+		std::string full_type = "com.laminar.";
 		full_type += clip_type;
 		sCITs.push_back(full_type);
 	#elif IBM
@@ -143,7 +143,7 @@ GUI_ClipType GUI_GetTextClipType(void)
 }
 
 #if APL
-void GUI_GetMacNativeDragTypeList(vector<string>& out_types)
+void GUI_GetMacNativeDragTypeList(std::vector<std::string>& out_types)
 {
 	out_types = sCITs;
 }
@@ -169,7 +169,7 @@ bool GUI_Clipboard_HasClipType(GUI_ClipType inType)
 	#endif
 }
 
-void GUI_Clipboard_GetTypes(vector<GUI_ClipType>& outTypes)
+void GUI_Clipboard_GetTypes(std::vector<GUI_ClipType>& outTypes)
 {
 		outTypes.clear();
 	#if APL
@@ -332,7 +332,7 @@ bool GUI_Clipboard_SetData(int type_count, GUI_ClipType inTypes[], int sizes[], 
 			// Ben says: ownership rules of the block are as follows:
 			// - function fails...we still own the handle.
 			// - function succeeds...we own the handle IF it is a private scrap, but NOT if it is public.
-			// So for successful public scrap set, release the block so we don't double-deallocate
+			// So for successful public scrap std::set, release the block so we don't double-deallocate
 			if (inTypes[n] < gui_First_Private)
 				block.release();
 		}
@@ -356,16 +356,16 @@ bool GUI_Clipboard_SetData(int type_count, GUI_ClipType inTypes[], int sizes[], 
 // CONVENIENCE ROUTINES
 //---------------------------------------------------------------------------------------------------------
 
-bool GUI_GetTextFromClipboard(string& outText)
+bool GUI_GetTextFromClipboard(std::string& outText)
 {
 	GUI_ClipType text = GUI_GetTextClipType();
 	if (!GUI_Clipboard_HasClipType(text)) return false;
 	int sz = GUI_Clipboard_GetSize(text);
 	if (sz <= 0) return false;
-	vector<char> buf(sz);
+	std::vector<char> buf(sz);
 	if (!GUI_Clipboard_GetData(text, sz, &*buf.begin())) return false;
 	#if APL ||  LIN
-		outText = string(buf.begin(),buf.begin()+sz);
+		outText = std::string(buf.begin(),buf.begin()+sz);
 	#elif IBM
 		const UTF16 * p = (const UTF16 *) &buf[0];
 		string_utf16 str16(p,p+sz/2-1);
@@ -374,7 +374,7 @@ bool GUI_GetTextFromClipboard(string& outText)
 	return true;
 }
 
-bool GUI_SetTextToClipboard(const string& inText)
+bool GUI_SetTextToClipboard(const std::string& inText)
 {
 	GUI_ClipType text = GUI_GetTextClipType();
 	const void * ptr;
@@ -398,7 +398,7 @@ bool GUI_SetTextToClipboard(const string& inText)
 #if IBM
 
 // Enumerating the viable drag & drop formats on Windows is done via a separate COM object.  Because it is
-// an iterator and has "state" and can be  cloned, we must actually use a real object.  Annyoing!
+// an std::iterator and has "state" and can be  cloned, we must actually use a real object.  Annyoing!
 
 class	GUI_SimpleEnumFORMATETC : public IEnumFORMATETC {
 public:
@@ -418,7 +418,7 @@ private:
 
 	ULONG					mRefCount;
 	ULONG					mIndex;		// Position in our iteration
-	vector<GUI_ClipType>	mTypes;		// Note - we pre-copy our types to a vector.  Easier and puts them in a random-accessible container
+	std::vector<GUI_ClipType>	mTypes;		// Note - we pre-copy our types to a std::vector.  Easier and puts them in a random-accessible container
 };
 
 
@@ -514,9 +514,9 @@ GUI_SimpleDataObject::GUI_SimpleDataObject(
 	for (int n = 0; n < type_count; ++n)
 	{
 		if (ptrs[n] == NULL)
-			mData[inTypes[n]] = vector<char>();
+			mData[inTypes[n]] = std::vector<char>();
 		else
-			mData[inTypes[n]] = vector<char>((const char*)ptrs[n],(const char *)ptrs[n]+sizes[n]);
+			mData[inTypes[n]] = std::vector<char>((const char*)ptrs[n],(const char *)ptrs[n]+sizes[n]);
 	}
 }
 
@@ -572,7 +572,7 @@ STDMETHODIMP		GUI_SimpleDataObject::GetData				(FORMATETC * format, STGMEDIUM * 
 		GUI_FreeFunc_f free_it = mFetchFunc(desired_type, &start_p, &end_p, mFetchRef);
 		if (start_p == NULL)						return E_OUTOFMEMORY;
 
-		vector<char>	buf((const char*)start_p,(const char*)end_p);
+		std::vector<char>	buf((const char*)start_p,(const char*)end_p);
 		mData[desired_type].swap(buf);
 		if (free_it) free_it(start_p, mFetchRef);
 	}
@@ -616,7 +616,7 @@ STDMETHODIMP		GUI_SimpleDataObject::GetDataHere			(FORMATETC * format, STGMEDIUM
 		GUI_FreeFunc_f free_it = mFetchFunc(desired_type, &start_p, &end_p, mFetchRef);
 		if (start_p == NULL)						return E_OUTOFMEMORY;
 
-		vector<char>	buf((const char *)start_p,(const char *)end_p);
+		std::vector<char>	buf((const char *)start_p,(const char *)end_p);
 		mData[desired_type].swap(buf);
 		if (free_it) free_it(start_p, mFetchRef);
 	}
@@ -690,7 +690,7 @@ GUI_SimpleEnumFORMATETC::GUI_SimpleEnumFORMATETC(GUI_SimpleDataObject * parent) 
 	mRefCount(1),
 	mIndex(0)
 {
-	for (map<GUI_ClipType, vector<char> >::iterator i = parent->mData.begin(); i != parent->mData.end(); ++i)
+	for (std::map<GUI_ClipType, std::vector<char> >::iterator i = parent->mData.begin(); i != parent->mData.end(); ++i)
 		mTypes.push_back(i->first);
 }
 
@@ -817,7 +817,7 @@ void * GUI_LoadOneSimpleDrag(
 							const void *			ptrs[],
 							const int				bounds[4])
 {
-	vector<const char *>	raw_types;
+	std::vector<const char *>	raw_types;
 
 	for(int i = 0; i < inTypeCount; ++i)
 	{

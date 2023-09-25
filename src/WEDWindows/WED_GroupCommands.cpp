@@ -166,7 +166,7 @@ void	WED_DoGroup(IResolver * inResolver)
 
 	parent->StartCommand("Group");
 
-	vector<WED_Thing *> items;
+	std::vector<WED_Thing *> items;
 	WED_GetSelectionInOrder(inResolver, items);
 
 	WED_Group * group = WED_Group::CreateTyped(parent->GetArchive());
@@ -177,7 +177,7 @@ void	WED_DoGroup(IResolver * inResolver)
 	DebugAssert(items.front()->GetParent() == parent);
 	group->SetParent(parent,items.front()->GetMyPosition());
 
-	for (vector<WED_Thing *>::iterator i = items.begin(); i != items.end(); ++i)
+	for (std::vector<WED_Thing *>::iterator i = items.begin(); i != items.end(); ++i)
 	{
 		(*i)->SetParent(group, group->CountChildren());
 	}
@@ -188,7 +188,7 @@ void	WED_DoGroup(IResolver * inResolver)
 void	WED_DoUngroup(IResolver * inResolver)
 {
 	ISelection * sel = WED_GetSelect(inResolver);
-	vector<ISelectable *> items;
+	std::vector<ISelectable *> items;
 	sel->GetSelectionVector(items);
 
 	IOperation * op = dynamic_cast<IOperation *>(sel);
@@ -196,7 +196,7 @@ void	WED_DoUngroup(IResolver * inResolver)
 
 	sel->Clear();
 
-	for (vector<ISelectable *>::iterator i = items.begin(); i != items.end(); ++i)
+	for (std::vector<ISelectable *>::iterator i = items.begin(); i != items.end(); ++i)
 	{
 		WED_Thing * dead_group = dynamic_cast<WED_Thing *>(*i);
 		DebugAssert(dead_group != NULL);
@@ -246,7 +246,7 @@ void	WED_DoMakeNewOverlay(IResolver * inResolver, WED_MapZoomerNew * zoomer)
 				img->SetParent(wrl,0);
 				sel->Select(img);
 
-				string img_path(path);
+				std::string img_path(path);
 				lib->ReducePath(img_path);
 				img->SetImage(img_path);
 				img->SetName(img_path);
@@ -288,7 +288,7 @@ void	WED_DoMakeNewAirport(IResolver * inResolver)
 	wrl->CommitCommand();
 }
 
-int		WED_CanSetCurrentAirport(IResolver * inResolver, string& io_cmd_name)
+int		WED_CanSetCurrentAirport(IResolver * inResolver, std::string& io_cmd_name)
 {
 	ISelection * sel = WED_GetSelect(inResolver);
 	if (sel->GetSelectionCount() != 1) return 0;
@@ -298,12 +298,12 @@ int		WED_CanSetCurrentAirport(IResolver * inResolver, string& io_cmd_name)
 
 	WED_Airport * now_sel = WED_GetCurrentAirport(inResolver);
 
-	string n;
+	std::string n;
 	want_sel->GetName(n);
 	if (want_sel != now_sel)
-	io_cmd_name = string("Edit Airport ") + n;
+	io_cmd_name = std::string("Edit Airport ") + n;
 	else
-	io_cmd_name = string("Editing Airport ") + n;
+	io_cmd_name = std::string("Editing Airport ") + n;
 
 	return want_sel != now_sel;
 }
@@ -333,7 +333,7 @@ void WED_DoAddMetaData(IResolver * inResolver, int command)
 	if (want_sel == NULL) return;
 
 	MetaDataKey key_info = META_KeyInfo(command);
-	want_sel->StartOperation(string("Add Metadata Key " + key_info.display_text).c_str());
+	want_sel->StartOperation(std::string("Add Metadata Key " + key_info.display_text).c_str());
 	want_sel->StateChanged();
 	want_sel->AddMetaDataKey(key_info.name, "");
 	want_sel->CommitOperation();
@@ -384,7 +384,7 @@ void	WED_DoMakeNewATCFlow(IResolver * inResolver)
 	const WED_Airport * airport = WED_GetParentAirport(f);
 	if(airport)
 	{
-		set<int> legal;
+		std::set<int> legal;
 		WED_GetAllRunwaysOneway(airport, legal);
 
 		if(!legal.empty())
@@ -403,7 +403,7 @@ void	WED_DoMakeNewATCRunwayUse(IResolver * inResolver)
 	const WED_Airport * airport = WED_GetParentAirport(f);
 	if(airport)
 	{
-		set<int> legal;
+		std::set<int> legal;
 		WED_GetAllRunwaysOneway(airport, legal);
 
 		if(!legal.empty())
@@ -442,9 +442,9 @@ void	WED_DoSetCurrentAirport(IResolver * inResolver)
 	WED_Airport * want_sel = SAFE_CAST(WED_Airport, sel->GetNthSelection(0));
 	if (want_sel == NULL) return;
 
-	string apt_name;
+	std::string apt_name;
 	want_sel->GetName(apt_name);
-	string cmd = string("Make ") + apt_name + string("current");
+	std::string cmd = std::string("Make ") + apt_name + std::string("current");
 
 	want_sel->StartCommand(cmd.c_str());
 
@@ -505,11 +505,11 @@ static bool WED_NoLongerViable(WED_Thing * t, bool strict)
 }
 
 // For every object in 'who', adds all of its descendents to 'who'.
-void WED_AddChildrenRecursive(set<WED_Thing *>& who)
+void WED_AddChildrenRecursive(std::set<WED_Thing *>& who)
 {
 	// Make a copy of the roots of the search, as we don't want to modify 'who' while we're
 	// iterating over it.
-	vector<WED_Thing*> roots(who.begin(), who.end());
+	std::vector<WED_Thing*> roots(who.begin(), who.end());
 
 	for (size_t i = 0; i < roots.size(); ++i)
 		CollectRecursive(roots[i], inserter(who, who.end()), IgnoreVisiblity, TakeAlways);
@@ -518,15 +518,15 @@ void WED_AddChildrenRecursive(set<WED_Thing *>& who)
 // Deletes everything in 'who', along with any parents, sources and viewers that the deletion
 // makes unviable.
 // Requirement: For every object in 'who', all of its children must also be be in 'who'.
-void WED_RecursiveDelete(set<WED_Thing *>& who)
+void WED_RecursiveDelete(std::set<WED_Thing *>& who)
 {
 	// This is sort of a scary mess.  We are going to delete everyone in 'who'.  But this might have
 	// some reprecussions on other objects.
 	while(!who.empty())
 	{
-		set<WED_Thing *>	chain;		// Chain - dependents who _might_ need to be nuked!
+		std::set<WED_Thing *>	chain;		// Chain - dependents who _might_ need to be nuked!
 
-		for (set<WED_Thing *>::iterator i = who.begin(); i != who.end(); ++i)
+		for (std::set<WED_Thing *>::iterator i = who.begin(); i != who.end(); ++i)
 		{
 			// Children get detached...just in case.  They should be fully
 			// contained in our recursive selection.
@@ -538,11 +538,11 @@ void WED_RecursiveDelete(set<WED_Thing *>& who)
 			if (p)
 				chain.insert(p);
 
-			set<WED_Thing *> viewers;
+			std::set<WED_Thing *> viewers;
 			(*i)->GetAllViewers(viewers);
 
 			// All of our viewers lose a source.
-			for(set<WED_Thing *>::iterator v = viewers.begin(); v != viewers.end(); ++v)
+			for(std::set<WED_Thing *>::iterator v = viewers.begin(); v != viewers.end(); ++v)
 				(*v)->RemoveSource(*i);
 
 			// And - any one of our viewers might now be hosed, due to a lack of sources!
@@ -560,11 +560,11 @@ void WED_RecursiveDelete(set<WED_Thing *>& who)
 
 		// If we had a guy who was going to be potentially unviable, but he was elsewherein the selection,
 		// we need to not consider him.  With viewers, this can happen!
-		for (set<WED_Thing *>::iterator i = who.begin(); i != who.end(); ++i)
+		for (std::set<WED_Thing *>::iterator i = who.begin(); i != who.end(); ++i)
 			chain.erase(*i);
 
 		who.clear();
-		for(set<WED_Thing *>::iterator i = chain.begin(); i != chain.end(); ++i)
+		for(std::set<WED_Thing *>::iterator i = chain.begin(); i != chain.end(); ++i)
 		{
 			if (WED_NoLongerViable(*i, true))		// Strict viability for delete key - be aggressive about not making junk data DURING editing.
 				who.insert(*i);						// User can alwys hit undo.
@@ -583,7 +583,7 @@ void	WED_DoClear(IResolver * resolver)
 	ISelection * sel = WED_GetSelect(resolver);
 	IOperation * op = dynamic_cast<IOperation *> (sel);
 
-	set<WED_Thing *>	who;		// Who - objs to be nuked!
+	std::set<WED_Thing *>	who;		// Who - objs to be nuked!
 
 	WED_GetSelectionRecursive(resolver, who);
 	if (who.empty()) return;
@@ -592,8 +592,8 @@ void	WED_DoClear(IResolver * resolver)
 
 	sel->Clear();
 
-	set<WED_AirportNode *>	common_nodes;
-	set<WED_Thing *>	shape_points;
+	std::set<WED_AirportNode *>	common_nodes;
+	std::set<WED_Thing *>	shape_points;
 
 	for (auto i : who)
 	{
@@ -604,7 +604,7 @@ void	WED_DoClear(IResolver * resolver)
 		auto r = dynamic_cast<WED_RoadNode *>(i);
 		if(r)
 		{
-			set<WED_Thing *> viewers;
+			std::set<WED_Thing *> viewers;
 			r->GetAllViewers(viewers);
 			for(auto v : viewers)
 			{
@@ -638,12 +638,12 @@ void	WED_DoClear(IResolver * resolver)
 	for(auto s : shape_points)
 		who.insert(s);
 
-	for(set<WED_AirportNode *>::iterator n = common_nodes.begin(); n != common_nodes.end(); ++n)
+	for(std::set<WED_AirportNode *>::iterator n = common_nodes.begin(); n != common_nodes.end(); ++n)
 	{
-		set<WED_Thing *> viewers;
+		std::set<WED_Thing *> viewers;
 		(*n)->GetAllViewers(viewers);
 		DebugAssert(viewers.size() == 2);
-		set<WED_Thing *>::iterator v =viewers.begin();
+		std::set<WED_Thing *>::iterator v =viewers.begin();
 		WED_Thing * e1 = *v;
 		++v;
 		WED_Thing * e2 = *v;
@@ -680,7 +680,7 @@ int		WED_CanCrop(IResolver * resolver)
 
 static int	AccumSelectionAndParents(ISelectable * what, void * ref)
 {
-	set<WED_Thing *> * container = (set<WED_Thing *> *) ref;
+	std::set<WED_Thing *> * container = (std::set<WED_Thing *> *) ref;
 	WED_Thing * who = dynamic_cast<WED_Thing *>(what);
 	while(who)
 	{
@@ -690,7 +690,7 @@ static int	AccumSelectionAndParents(ISelectable * what, void * ref)
 	return 0;
 }
 
-static void AccumDead(WED_Thing * who, set<WED_Thing *>& nuke_em, const set<WED_Thing *>& must_keep, ISelection * sel)
+static void AccumDead(WED_Thing * who, std::set<WED_Thing *>& nuke_em, const std::set<WED_Thing *>& must_keep, ISelection * sel)
 {
 	if (must_keep.count(who) == 0)
 	{
@@ -708,9 +708,9 @@ void	WED_DoCrop(IResolver * resolver)
 {
 	ISelection *	sel = WED_GetSelect(resolver);
 	WED_Thing *		wrl = WED_GetWorld(resolver);
-	set<WED_Thing *>	must_keep;
-	set<WED_Thing *>	nuke_em;
-	set<WED_Thing *>	chain;
+	std::set<WED_Thing *>	must_keep;
+	std::set<WED_Thing *>	nuke_em;
+	std::set<WED_Thing *>	chain;
 
 	sel->IterateSelectionOr(AccumSelectionAndParents, &must_keep);
 	AccumDead(wrl, nuke_em, must_keep, sel);
@@ -722,7 +722,7 @@ void	WED_DoCrop(IResolver * resolver)
 
 	while(!nuke_em.empty())
 	{
-		for (set<WED_Thing *>::iterator i = nuke_em.begin(); i != nuke_em.end(); ++i)
+		for (std::set<WED_Thing *>::iterator i = nuke_em.begin(); i != nuke_em.end(); ++i)
 		{
 			WED_Thing * p = (*i)->GetParent();
 			if (p && nuke_em.count(p) == 0)
@@ -733,7 +733,7 @@ void	WED_DoCrop(IResolver * resolver)
 		}
 
 		nuke_em.clear();
-		for(set<WED_Thing *>::iterator i = chain.begin(); i != chain.end(); ++i)
+		for(std::set<WED_Thing *>::iterator i = chain.begin(); i != chain.end(); ++i)
 		{
 			if (WED_NoLongerViable(*i, true))
 				nuke_em.insert(*i);
@@ -767,9 +767,9 @@ int		WED_CanReorder(IResolver * resolver, int direction, int to_end)
 
 void	WED_DoReorder (IResolver * resolver, int direction, int to_end)
 {
-	vector<WED_Thing *>	sel;
-	vector<WED_Thing *>::iterator it;
-	vector<WED_Thing *>::reverse_iterator rit;
+	std::vector<WED_Thing *>	sel;
+	std::vector<WED_Thing *>::iterator it;
+	std::vector<WED_Thing *>::reverse_iterator rit;
 	WED_GetSelectionInOrder(resolver, sel);
 
 	if (sel.empty()) return;
@@ -841,9 +841,9 @@ int		WED_CanMoveSelectionTo(IResolver * resolver, WED_Thing * dest, int dest_slo
 	if(sel->IterateSelectionOr(Iterate_IsPartOfStructuredObject, NULL)) return 0;
 
 	// Finally, we need to make sure that everyone in the selection is going to get their needs met.
-	set<string>	required_parents;
+	std::set<std::string>	required_parents;
 	sel->IterateSelectionOr(Iterate_CollectRequiredParents, &required_parents);
-	for(set<string>::iterator s = required_parents.begin(); s != required_parents.end(); ++s)
+	for(std::set<std::string>::iterator s = required_parents.begin(); s != required_parents.end(); ++s)
 		if(!Iterate_IsOrParentClass(dest, (void*) s->c_str()))
 			return 0;
 	return 1;
@@ -851,8 +851,8 @@ int		WED_CanMoveSelectionTo(IResolver * resolver, WED_Thing * dest, int dest_slo
 
 void	WED_DoMoveSelectionTo(IResolver * resolver, WED_Thing * dest, int dest_slot)
 {
-	vector<WED_Thing *>	sel;
-	vector<WED_Thing *>::iterator it;
+	std::vector<WED_Thing *>	sel;
+	std::vector<WED_Thing *>::iterator it;
 
 	WED_GetSelectionInOrder(resolver, sel);
 
@@ -922,7 +922,7 @@ int		WED_CanSelectParent(IResolver * resolver)
 
 void	WED_DoSelectParent(IResolver * resolver)
 {
-	vector<WED_Thing *>	things;
+	std::vector<WED_Thing *>	things;
 	WED_Thing * wrl = WED_GetWorld(resolver);
 	ISelection * sel = WED_GetSelect(resolver);
 	IOperation * op = dynamic_cast<IOperation *>(sel);
@@ -930,7 +930,7 @@ void	WED_DoSelectParent(IResolver * resolver)
 	if (things.empty()) return;
 	op->StartOperation("Select Parent");
 	sel->Clear();
-	for (vector<WED_Thing *>::iterator i = things.begin(); i != things.end(); ++i)
+	for (std::vector<WED_Thing *>::iterator i = things.begin(); i != things.end(); ++i)
 	if (*i == wrl)
 		sel->Select(*i);
 	else
@@ -947,7 +947,7 @@ int		WED_CanSelectChildren(IResolver * resolver)
 void	WED_DoSelectChildren(IResolver * resolver)
 {
 	IGISComposite * comp;
-	vector<WED_Thing *>	things;
+	std::vector<WED_Thing *>	things;
 	ISelection * sel = WED_GetSelect(resolver);
 	IOperation * op = dynamic_cast<IOperation *>(sel);
 	sel->IterateSelectionOr(Iterate_CollectThings,&things);
@@ -957,7 +957,7 @@ void	WED_DoSelectChildren(IResolver * resolver)
 
 	int ctr;
 	int n;
-	for (vector<WED_Thing *>::iterator i = things.begin(); i != things.end(); ++i)
+	for (std::vector<WED_Thing *>::iterator i = things.begin(); i != things.end(); ++i)
 	{
 		if ((comp = dynamic_cast<IGISComposite *>(*i)) != NULL && comp->GetGISClass() == gis_Composite && (ctr=comp->GetNumEntities()) > 0)
 		for (n = 0; n < ctr; ++n)
@@ -979,13 +979,13 @@ int		WED_CanSelectVertices(IResolver * resolver)
 
 void	WED_DoSelectVertices(IResolver * resolver)
 {
-	vector<IGISPointSequence *>	seqs;
+	std::vector<IGISPointSequence *>	seqs;
 	ISelection * sel = WED_GetSelect(resolver);
 	IOperation * op = dynamic_cast<IOperation *>(sel);
 	sel->IterateSelectionOr(Iterate_CollectChildPointSequences, &seqs);
 	op->StartOperation("Select Vertices");
 	sel->Clear();
-	for(vector<IGISPointSequence *>::iterator s=  seqs.begin(); s != seqs.end(); ++s)
+	for(std::vector<IGISPointSequence *>::iterator s=  seqs.begin(); s != seqs.end(); ++s)
 	{
 		int pc = (*s)->GetNumPoints();
 		for (int p = 0; p < pc; ++p)
@@ -1005,14 +1005,14 @@ int		WED_CanSelectPolygon(IResolver * resolver)
 
 void	WED_DoSelectPolygon(IResolver * resolver)
 {
-	vector<WED_Thing *>	things;
+	std::vector<WED_Thing *>	things;
 	ISelection * sel = WED_GetSelect(resolver);
 	IOperation * op = dynamic_cast<IOperation *>(sel);
 	sel->IterateSelectionOr(Iterate_CollectThings,&things);
 	if (things.empty()) return;
 	op->StartOperation("Select Polygon");
 	sel->Clear();
-	for (vector<WED_Thing *>::iterator i = things.begin(); i != things.end(); ++i)
+	for (std::vector<WED_Thing *>::iterator i = things.begin(); i != things.end(); ++i)
 	{
 		WED_Thing * parent = (*i)->GetParent();
 		WED_Thing * keeper = NULL;
@@ -1040,13 +1040,13 @@ int		WED_CanSelectConnected(IResolver * resolver)
 
 void	WED_DoSelectConnected(IResolver * resolver)
 {
-	vector<WED_Thing *>	things;
+	std::vector<WED_Thing *>	things;
 	ISelection * sel = WED_GetSelect(resolver);
 	IOperation * op = dynamic_cast<IOperation *>(sel);
 	sel->IterateSelectionOr(Iterate_CollectThings,&things);
 	if (things.empty()) return;
 	op->StartOperation("Select Connected");
-	set<WED_Thing *>	visited, to_visit;
+	std::set<WED_Thing *>	visited, to_visit;
 	std::copy(things.begin(),things.end(), inserter(to_visit,to_visit.end()));
 
 	while(!to_visit.empty())
@@ -1062,19 +1062,19 @@ void	WED_DoSelectConnected(IResolver * resolver)
 			if(visited.count(src) == 0)
 				to_visit.insert(src);
 		}
-		set<WED_Thing *>	viewers;
+		std::set<WED_Thing *>	viewers;
 		i->GetAllViewers(viewers);
 		set_difference(viewers.begin(), viewers.end(), visited.begin(), visited.end(), inserter(to_visit, to_visit.end()));
 	}
 
-	for(set<WED_Thing *>::iterator v = visited.begin(); v != visited.end(); ++v)
+	for(std::set<WED_Thing *>::iterator v = visited.begin(); v != visited.end(); ++v)
 	{
 		sel->Insert(*v);
 	}
 	op->CommitOperation();
 }
 
-void WED_select_zero_recursive(WED_Thing * t, set<WED_GISEdge *> *s)
+void WED_select_zero_recursive(WED_Thing * t, std::set<WED_GISEdge *> *s)
 {
 	WED_GISEdge * e = dynamic_cast<WED_GISEdge *>(t);
 	if(e)
@@ -1092,10 +1092,10 @@ bool WED_DoSelectZeroLength(IResolver * resolver, WED_Thing * sub_tree)
 	op->StartOperation("Select Zero-Length Edges");
 	sel->Clear();
 
-	set<WED_GISEdge *> edges;
+	std::set<WED_GISEdge *> edges;
 	WED_select_zero_recursive(sub_tree ? sub_tree : WED_GetWorld(resolver), &edges);
 
-	sel->Insert(set<ISelectable*>(edges.begin(), edges.end()));
+	sel->Insert(std::set<ISelectable*>(edges.begin(), edges.end()));
 
 	if(sel->GetSelectionCount() == 0)
 	{
@@ -1109,9 +1109,9 @@ bool WED_DoSelectZeroLength(IResolver * resolver, WED_Thing * sub_tree)
 	}
 }
 
-set<WED_Thing *> WED_select_doubles(WED_Thing * t)
+std::set<WED_Thing *> WED_select_doubles(WED_Thing * t)
 {
-	vector<WED_Thing *> pts;
+	std::vector<WED_Thing *> pts;
 /*	CollectRecursive(t, back_inserter(pts), ThingNotHidden, IsGraphNode);
 
 	We can not trust the ThingNotHidden - as it stops looking into levels that are hidden.
@@ -1120,21 +1120,21 @@ set<WED_Thing *> WED_select_doubles(WED_Thing * t)
 	On the other hand, we do not want to check nodes that are only connected to hidden edges,
 	as those do not matter. So go check which nodes are actually in use. */
 	{
-		vector<WED_GISEdge *> edges;
+		std::vector<WED_GISEdge *> edges;
 		CollectRecursive(t, back_inserter(edges), ThingNotHidden, IsGraphEdge);
 
-		set<WED_Thing *> nodes;
-		for(vector<WED_GISEdge *>::iterator e = edges.begin(); e != edges.end(); ++e)
+		std::set<WED_Thing *> nodes;
+		for(std::vector<WED_GISEdge *>::iterator e = edges.begin(); e != edges.end(); ++e)
 		{
 			DebugAssert(*e);
 			nodes.insert( (*e)->GetNthSource(0) );
 			nodes.insert( (*e)->GetNthSource(1) );
 		}
-		for(set<WED_Thing *>::iterator s = nodes.begin(); s != nodes.end(); ++s)
+		for(std::set<WED_Thing *>::iterator s = nodes.begin(); s != nodes.end(); ++s)
 			pts.push_back(*s);
 	}
 
-	set<WED_Thing *> doubles;
+	std::set<WED_Thing *> doubles;
 
 	// Ben says: yes this totally sucks - replace it someday?
 	for(int i = 0; i < pts.size(); ++i)
@@ -1174,10 +1174,10 @@ bool WED_DoSelectDoubles(IResolver * resolver, WED_Thing * sub_tree)
 	IOperation * op = dynamic_cast<IOperation *>(sel);
 	op->StartOperation("Select Double Nodes");
 
-	set<WED_Thing*> things = WED_select_doubles(sub_tree == NULL ? WED_GetWorld(resolver) : sub_tree);
+	std::set<WED_Thing*> things = WED_select_doubles(sub_tree == NULL ? WED_GetWorld(resolver) : sub_tree);
 
 	sel->Clear();
-	sel->Insert(set<ISelectable*>(things.begin(), things.end()));
+	sel->Insert(std::set<ISelectable*>(things.begin(), things.end()));
 
 	if(sel->GetSelectionCount() == 0)
 	{
@@ -1191,20 +1191,20 @@ bool WED_DoSelectDoubles(IResolver * resolver, WED_Thing * sub_tree)
 	}
 }
 
-set<WED_GISEdge *> WED_do_select_crossing(WED_Thing * t)
+std::set<WED_GISEdge *> WED_do_select_crossing(WED_Thing * t)
 {
-	vector<WED_GISEdge *> edges;
+	std::vector<WED_GISEdge *> edges;
 	CollectRecursive(t, back_inserter(edges), ThingNotHidden, IsGraphEdge);
 	Bbox2 emptybox(0,0,0,0);
 	return WED_do_select_crossing(edges,emptybox);
 }
 
-set<WED_GISEdge *> WED_do_select_crossing(const vector<WED_GISEdge *>& edges , Bbox2& cull_bounds)
+std::set<WED_GISEdge *> WED_do_select_crossing(const std::vector<WED_GISEdge *>& edges , Bbox2& cull_bounds)
 {
 	#if DEV && DEBUG_EDGE_CROSSING
 	printf("select crossing on %ld edges\n",edges.size());
 	#endif
-	set<WED_GISEdge*> crossed_edges;
+	std::set<WED_GISEdge*> crossed_edges;
 	Bbox2 edge_bounds;
 	// Ben says: yes this totally sucks - replace it someday?
 	for (int i = 0; i < edges.size(); ++i)
@@ -1289,9 +1289,9 @@ bool WED_DoSelectCrossing(IResolver * resolver, WED_Thing * sub_tree)
 	sel->Clear();
 	//-----------------
 
-	set<WED_GISEdge *> crossed_edges = WED_do_select_crossing(sub_tree == NULL ? WED_GetWorld(resolver) : sub_tree);
+	std::set<WED_GISEdge *> crossed_edges = WED_do_select_crossing(sub_tree == NULL ? WED_GetWorld(resolver) : sub_tree);
 
-	sel->Insert(set<ISelectable*>(crossed_edges.begin(), crossed_edges.end()));
+	sel->Insert(std::set<ISelectable*>(crossed_edges.begin(), crossed_edges.end()));
 
 	//--Keep-------------------------
 	if(sel->GetSelectionCount() == 0)
@@ -1307,7 +1307,7 @@ bool WED_DoSelectCrossing(IResolver * resolver, WED_Thing * sub_tree)
 	//-------------------------------
 }
 
-static bool get_any_resource_for_thing(WED_Thing * thing, string& r)
+static bool get_any_resource_for_thing(WED_Thing * thing, std::string& r)
 {
 	IHasResource * has_resource_thing = dynamic_cast<IHasResource*>(thing);
 	if (has_resource_thing != NULL)
@@ -1321,7 +1321,7 @@ static bool get_any_resource_for_thing(WED_Thing * thing, string& r)
 bool HasMissingResource(WED_Thing * t)
 {
 	static WED_LibraryMgr * mgr = WED_GetLibraryMgr(t->GetArchive()->GetResolver());
-	string r;
+	std::string r;
 	if(!get_any_resource_for_thing(t,r))
 		return false;
 	if (r == "::FLATTEN::.pol")
@@ -1332,7 +1332,7 @@ bool HasMissingResource(WED_Thing * t)
 bool HasLocalResource(WED_Thing * t)
 {
 	static WED_LibraryMgr * mgr = WED_GetLibraryMgr(t->GetArchive()->GetResolver());
-	string r;
+	std::string r;
 	if(!get_any_resource_for_thing(t,r))
 		return false;
 
@@ -1342,7 +1342,7 @@ bool HasLocalResource(WED_Thing * t)
 bool HasLibraryResource(WED_Thing * t)
 {
 	static WED_LibraryMgr * mgr = WED_GetLibraryMgr(t->GetArchive()->GetResolver());
-	string r;
+	std::string r;
 	if(!get_any_resource_for_thing(t,r))
 		return false;
 
@@ -1352,7 +1352,7 @@ bool HasLibraryResource(WED_Thing * t)
 bool HasDefaultResource(WED_Thing * t)
 {
 	static WED_LibraryMgr * mgr = WED_GetLibraryMgr(t->GetArchive()->GetResolver());
-	string r;
+	std::string r;
 	if(!get_any_resource_for_thing(t,r))
 		return false;
 
@@ -1362,7 +1362,7 @@ bool HasDefaultResource(WED_Thing * t)
 bool HasThirdPartyResource(WED_Thing * t)
 {
 	static WED_LibraryMgr * mgr = WED_GetLibraryMgr(t->GetArchive()->GetResolver());
-	string r;
+	std::string r;
 	if(!get_any_resource_for_thing(t,r))
 		return false;
 
@@ -1379,10 +1379,10 @@ static void DoSelectWithFilter(const char * op_name, bool (* filter)(WED_Thing *
 
 	WED_LibraryMgr * mgr = WED_GetLibraryMgr(resolver);
 
-	vector<WED_Thing *> who;
+	std::vector<WED_Thing *> who;
 	CollectRecursive(WED_GetWorld(resolver), back_inserter(who), ThingNotHidden, filter);
 
-	for(vector<WED_Thing *>::iterator w = who.begin(); w != who.end(); ++w)
+	for(std::vector<WED_Thing *>::iterator w = who.begin(); w != who.end(); ++w)
 	{
 		sel->Insert(*w);
 	}
@@ -1415,12 +1415,12 @@ void	WED_DoSelectThirdPartyObjects(IResolver * resolver)
 	DoSelectWithFilter("Select Third Party Art Assets", HasThirdPartyResource, resolver);
 }
 
-// Given a vector of nodes all in the same place, this routine merges them all, returning the one surviver,
+// Given a std::vector of nodes all in the same place, this routine merges them all, returning the one surviver,
 // and nukes the rest.  All incoming edges of all of them are merged.  Note that any edges liknking two nodes in
 // nodes are now zero length.
 
 //Return the winning node
-static WED_Thing* run_merge(vector<WED_Thing *> nodes)
+static WED_Thing* run_merge(std::vector<WED_Thing *> nodes)
 {
 	DebugAssert(nodes.size() > 1);
 	WED_Thing * winner = nodes.front();
@@ -1447,9 +1447,9 @@ static WED_Thing* run_merge(vector<WED_Thing *> nodes)
 	for(int i = 1; i < nodes.size(); ++i)
 	{
 		WED_Thing * victim = nodes[i];
-		set<WED_Thing *> viewers;
+		std::set<WED_Thing *> viewers;
 		victim->GetAllViewers(viewers);
-		for(set<WED_Thing *>::iterator v = viewers.begin(); v != viewers.end(); ++v)
+		for(std::set<WED_Thing *>::iterator v = viewers.begin(); v != viewers.end(); ++v)
 			(*v)->ReplaceSource(victim, winner);
 
 		victim->SetParent(NULL, 0);
@@ -1494,7 +1494,7 @@ static int	unsplittable(ISelectable * base, void * ref)
 	return !okay;
 }
 
-typedef	pair<ISelection *, vector<WED_Thing *> * >	hack_t;
+typedef	std::pair<ISelection *, std::vector<WED_Thing *> * >	hack_t;
 
 static int	collect_splits(ISelectable * base, void * ref)
 {
@@ -1543,7 +1543,7 @@ struct sort_by_distance {
 // For a given edge, this stores the splits that we found - we later sort them once they are all found.
 //struct split_edge_info_t {
 	//IGISEdge *				edge;
-	//vector<Point2>			splits;
+	//std::vector<Point2>			splits;
 
 split_edge_info_t::split_edge_info_t(WED_GISEdge * e, bool a) : edge(e), active(a)
 {
@@ -1560,7 +1560,7 @@ void split_edge_info_t::sort_along_edge()
 // Simple collector of all GIS Edges in the selection.
 static int collect_edges(ISelectable * base, void * ref)
 {
-	vector<split_edge_info_t> * edges = (vector<split_edge_info_t>*) ref;
+	std::vector<split_edge_info_t> * edges = (std::vector<split_edge_info_t>*) ref;
 	WED_GISEdge * e = dynamic_cast<WED_GISEdge *>(base);
 	if(e)
 		edges->push_back(split_edge_info_t(e,true));
@@ -1783,7 +1783,7 @@ static void do_chain_split(ISelection * sel, const chain_split_info_t & info)
 
 		sel->Insert(chain_clone->GetNthChild(pos));
 
-		set<WED_Thing*> to_delete;
+		std::set<WED_Thing*> to_delete;
 		for (int i = 0; i < info.c->CountChildren(); ++i)
 		{
 			if (i < pos)
@@ -1804,7 +1804,7 @@ static void do_chain_split(ISelection * sel, const chain_split_info_t & info)
 // line.
 static int hole_side(IGISPointSequence * hole, IGISPoint * p1, IGISPoint * p2)
 {
-	vector<Bezier2> pol;
+	std::vector<Bezier2> pol;
 	WED_BezierVectorForPointSequence(hole, pol);
 
 	Point2 point1, point2;
@@ -1813,7 +1813,7 @@ static int hole_side(IGISPointSequence * hole, IGISPoint * p1, IGISPoint * p2)
 	Segment2 segment(point1, point2);
 
 	// Collect all points in the hole, including control points.
-	vector<Point2> points;
+	std::vector<Point2> points;
 	for (int i = 0; i < hole->GetNumPoints(); ++i)
 	{
 		IGISPoint * igis_point = hole->GetNthPoint(i);
@@ -1865,11 +1865,11 @@ static void do_ring_split(ISelection* sel, const ring_split_info_t& info)
 	auto polygon = dynamic_cast<WED_GISPolygon*>(info.chain->GetParent());
 
 	IOperation* op = dynamic_cast<IOperation*>(sel);
-	set<WED_Thing*> to_delete;
+	std::set<WED_Thing*> to_delete;
 
 	if(!info.cut_to_hole)
 	{
-		vector<int> hole_sides;
+		std::vector<int> hole_sides;
 		if (polygon && info.chain == polygon->GetOuterRing())
 		{
 			// For each hole, check which side of the split it is on.
@@ -1992,9 +1992,9 @@ static void do_ring_split(ISelection* sel, const ring_split_info_t& info)
 	op->CommitOperation();
 }
 
-map<WED_Thing*,vector<WED_Thing*> > run_split_on_edges(vector<split_edge_info_t>& edges ,bool no_uncrossed)
+std::map<WED_Thing*,std::vector<WED_Thing*> > run_split_on_edges(std::vector<split_edge_info_t>& edges ,bool no_uncrossed)
 {
-	map<WED_Thing*, vector<WED_Thing*> > new_pieces;
+	std::map<WED_Thing*, std::vector<WED_Thing*> > new_pieces;
 	//
 	// This block splits overlapping GIS edges anywhere they cross.
 	//
@@ -2052,7 +2052,7 @@ map<WED_Thing*,vector<WED_Thing*> > run_split_on_edges(vector<split_edge_info_t>
 	// This will be a collection of all the nodes we _create_ by splitting, bucketed by their split point.
 	// When A and B cross, we create two new nodes, Xa and Xb, in the middle of each...when done we have
 	// to merge Xa and Xb to cross-link A1, A2, B1 and B2.  So we bucket Xa and Xb at point X.
-	map<Point2, vector<WED_Thing *>, lesser_x_then_y >	splits;
+	std::map<Point2, std::vector<WED_Thing *>, lesser_x_then_y >	splits;
 
 	for (int i = 0; i < edges.size(); ++i)
 	{
@@ -2077,7 +2077,7 @@ map<WED_Thing*,vector<WED_Thing*> > run_split_on_edges(vector<split_edge_info_t>
 		// Now we go BACKWARD from high to low - we do this because the GIS Edge's split makes the clone
 		// on the "dst" side - so by breaking off the very LAST split first, we keep as "us" the part of
 		// the segment containing all other splits.  We work backward.
-		for (vector<Point2>::reverse_iterator r = edges[i].splits.rbegin(); r != edges[i].splits.rend(); ++r)
+		for (std::vector<Point2>::reverse_iterator r = edges[i].splits.rbegin(); r != edges[i].splits.rend(); ++r)
 		{
 			// If we had a 'T' then in theory SplitSide could return NULL?
 			IGISPoint * split = edges[i].edge->SplitEdge(*r, 0.0);
@@ -2091,9 +2091,9 @@ map<WED_Thing*,vector<WED_Thing*> > run_split_on_edges(vector<split_edge_info_t>
 				// Select every incident segment - some already selected but that's okay.
 
 				//key observation, runs before node is merged in run merge
-				set<WED_Thing *> incident;
+				std::set<WED_Thing *> incident;
 				t->GetAllViewers(incident);
-				for (set<WED_Thing *>::iterator itr = incident.begin(); itr != incident.end(); ++itr)
+				for (std::set<WED_Thing *>::iterator itr = incident.begin(); itr != incident.end(); ++itr)
 				{
 					//here is access of only two new edges map
 					edge_to_child_edges_map_t::mapped_type& child_edges = new_pieces[(WED_Thing*)edges[i].edge];
@@ -2103,8 +2103,8 @@ map<WED_Thing*,vector<WED_Thing*> > run_split_on_edges(vector<split_edge_info_t>
 		}
 	}
 
-	// Finally for each bucketed set of nodes, merge them down to get topology.
-	for (map<Point2, vector<WED_Thing *>, lesser_x_then_y>::iterator s = splits.begin(); s != splits.end(); ++s)
+	// Finally for each bucketed std::set of nodes, merge them down to get topology.
+	for (std::map<Point2, std::vector<WED_Thing *>, lesser_x_then_y>::iterator s = splits.begin(); s != splits.end(); ++s)
 	{
 		if (s->second.size() > 1)
 			//ufuse nodes
@@ -2118,13 +2118,13 @@ void do_edge_split(ISelection * sel)
 {
 	IOperation * op = dynamic_cast<IOperation *>(sel);
 
-	vector<WED_Thing *> who;
+	std::vector<WED_Thing *> who;
 	hack_t	info;
 	info.first = sel;
 	info.second = &who;
 	sel->IterateSelectionOr(collect_splits, &info);
 
-	vector<split_edge_info_t> edges;
+	std::vector<split_edge_info_t> edges;
 	sel->IterateSelectionOr(collect_edges, &edges);
 	if (who.empty() && edges.empty()) return;
 	op->StartOperation("Split Segments.");
@@ -2133,7 +2133,7 @@ void do_edge_split(ISelection * sel)
 	// This super-obtuse block splits pairs of points in a GIS Chain.
 	//
 
-	for (vector<WED_Thing *>::iterator w = who.begin(); w != who.end(); ++w)
+	for (std::vector<WED_Thing *>::iterator w = who.begin(); w != who.end(); ++w)
 	{
 		WED_Thing * parent = (*w)->GetParent();
 		IGISPointSequence * seq = dynamic_cast<IGISPointSequence *>(parent);
@@ -2144,7 +2144,7 @@ void do_edge_split(ISelection * sel)
 
 		Bezier2		bez;
 
-//		set<int> attrs;
+//		std::set<int> attrs;
 //		node->GetAttributes(attrs);
 ///		new_node->SetAttributes(attrs);
 
@@ -2186,7 +2186,7 @@ void do_edge_split(ISelection * sel)
 			}
 		}
 		new_w->SetParent(parent, (*w)->GetMyPosition() + 1);
-		string name;
+		std::string name;
 		new_w->GetName(name);
 		name += ".1";
 		new_w->SetName(name);
@@ -2199,7 +2199,7 @@ void do_edge_split(ISelection * sel)
 	for (edge_to_child_edges_map_t::iterator itr = new_pieces.begin(); itr != new_pieces.end(); ++itr)
 	{
 		sel->Insert(itr->first);
-		for(vector<WED_Thing *>::iterator nt = itr->second.begin(); nt != itr->second.end(); ++nt)
+		for(std::vector<WED_Thing *>::iterator nt = itr->second.begin(); nt != itr->second.end(); ++nt)
 			sel->Insert(*nt);
 	}
 
@@ -2229,7 +2229,7 @@ void	WED_DoSplit(IResolver * resolver)
 
 static int collect_pnts(ISelectable * base,void * ref)
 {
-	vector<IGISPoint *> * points = (vector<IGISPoint *> *) ref;
+	std::vector<IGISPoint *> * points = (std::vector<IGISPoint *> *) ref;
 	IGISPoint * p = dynamic_cast<IGISPoint *>(base);
 	if(p)
 	{
@@ -2256,7 +2256,7 @@ void	WED_DoAlign(IResolver * resolver)
 	ISelection * sel = WED_GetSelect(resolver);
 	IOperation * op = dynamic_cast<IOperation *>(sel);
 
-	vector<IGISPoint *> pnts;
+	std::vector<IGISPoint *> pnts;
 	if (!sel->IterateSelectionAnd(collect_pnts, &pnts))
 		return ;
 	if(pnts.size() < 3) return;
@@ -2290,7 +2290,7 @@ void	WED_DoAlign(IResolver * resolver)
 	if( bb.xspan() == 0.0 || bb.yspan() == 0.0) return;
 
 	op->StartOperation("Align in line");
-	set<WED_DrapedOrthophoto *> os;
+	std::set<WED_DrapedOrthophoto *> os;
 
 	s->GetLocation(gis_Geo,p1);
 	d->GetLocation(gis_Geo,p2);
@@ -2298,7 +2298,7 @@ void	WED_DoAlign(IResolver * resolver)
 	CreateTranslatorForBounds(bb,translator);
 	Segment2 l(translator.Forward(p1),translator.Forward(p2));
 	// move the other points on the line
-	for(vector<IGISPoint *>::iterator it = pnts.begin(); it != pnts.end();++it)
+	for(std::vector<IGISPoint *>::iterator it = pnts.begin(); it != pnts.end();++it)
 	{
 		if(*it == s || *it == d ) continue;
 		Point2 ll,p;
@@ -2324,7 +2324,7 @@ void	WED_DoAlign(IResolver * resolver)
 	}
 
 	// redrape DrapedOthosphoto's upon modification of points
-	for(set<WED_DrapedOrthophoto *>::iterator it = os.begin(); it != os.end();++it)
+	for(std::set<WED_DrapedOrthophoto *>::iterator it = os.begin(); it != os.end();++it)
 	{
 		 (*it)->Redrape();
 	}
@@ -2332,7 +2332,7 @@ void	WED_DoAlign(IResolver * resolver)
 	op->CommitOperation();
 }
 
-static void get_bezier_points(WED_Thing * t, vector<WED_GISPoint_Bezier *> & points)
+static void get_bezier_points(WED_Thing * t, std::vector<WED_GISPoint_Bezier *> & points)
 {
 	WED_GISPoint_Bezier * bezier = dynamic_cast<WED_GISPoint_Bezier *>(t);
 	if (bezier)
@@ -2348,7 +2348,7 @@ static void get_bezier_points(WED_Thing * t, vector<WED_GISPoint_Bezier *> & poi
 int		WED_CanMatchBezierHandles(IResolver * resolver)
 {
 	ISelection * sel = WED_GetSelect(resolver);
-	vector<ISelectable*> selected;
+	std::vector<ISelectable*> selected;
 	sel->GetSelectionVector(selected);
 
 	if (selected.empty())
@@ -2359,7 +2359,7 @@ int		WED_CanMatchBezierHandles(IResolver * resolver)
 		WED_Thing * t = dynamic_cast<WED_Thing *>(selected[i]);
 		if (!t)
 			return false;
-		vector<WED_GISPoint_Bezier *> points;
+		std::vector<WED_GISPoint_Bezier *> points;
 		get_bezier_points(t, points);
 		if (points.empty())
 			return false;
@@ -2369,8 +2369,8 @@ int		WED_CanMatchBezierHandles(IResolver * resolver)
 }
 
 // Implementation helper for get_snapped_bezier_points().
-static void get_snapped_bezier_points_impl(WED_Thing * t, const set<WED_GISPoint_Bezier *> & ignore,
-	const set<Point2> & points, const Bbox2 & bounds, multimap<Point2, WED_GISPoint_Bezier *> & snapped)
+static void get_snapped_bezier_points_impl(WED_Thing * t, const std::set<WED_GISPoint_Bezier *> & ignore,
+	const std::set<Point2> & points, const Bbox2 & bounds, std::multimap<Point2, WED_GISPoint_Bezier *> & snapped)
 {
 	IGISEntity * ent = dynamic_cast<IGISEntity *>(t);
 	if (!ent || !ent->IntersectsBox(gis_Geo, bounds))
@@ -2390,15 +2390,15 @@ static void get_snapped_bezier_points_impl(WED_Thing * t, const set<WED_GISPoint
 		get_snapped_bezier_points_impl(t->GetNthChild(i), ignore, points, bounds, snapped);
 }
 
-// For the given set of Bezier points in the world 'wrl', finds all Bezier
+// For the given std::set of Bezier points in the world 'wrl', finds all Bezier
 // points that are snapped to them and returns them as a map of locations to
 // points.
 static void get_snapped_bezier_points(WED_Thing * wrl,
-	const vector<WED_GISPoint_Bezier *> & points,
-	multimap<Point2, WED_GISPoint_Bezier *> & snapped)
+	const std::vector<WED_GISPoint_Bezier *> & points,
+	std::multimap<Point2, WED_GISPoint_Bezier *> & snapped)
 {
-	set<WED_GISPoint_Bezier *> points_set;
-	set<Point2> locations;
+	std::set<WED_GISPoint_Bezier *> points_set;
+	std::set<Point2> locations;
 	Bbox2 bounds;
 	for (size_t i = 0; i < points.size(); ++i)
 	{
@@ -2497,14 +2497,14 @@ void	WED_DoMatchBezierHandles(IResolver * resolver)
 {
 	WED_Thing * wrl = WED_GetWorld(resolver);
 	ISelection * sel = WED_GetSelect(resolver);
-	vector<ISelectable*> selected;
+	std::vector<ISelectable*> selected;
 	sel->GetSelectionVector(selected);
 
 	IOperation * op = dynamic_cast<IOperation *>(sel);
 	op->StartOperation("Match Bezier Handles");
 
 	// Find all Bezier points to be matched.
-	vector<WED_GISPoint_Bezier *> points;
+	std::vector<WED_GISPoint_Bezier *> points;
 	for (size_t i = 0; i < selected.size(); ++i)
 	{
 		WED_Thing * t = dynamic_cast<WED_Thing *>(selected[i]);
@@ -2513,7 +2513,7 @@ void	WED_DoMatchBezierHandles(IResolver * resolver)
 		get_bezier_points(t, points);
 	}
 
-	typedef multimap<Point2, WED_GISPoint_Bezier *> Snapped_t;
+	typedef std::multimap<Point2, WED_GISPoint_Bezier *> Snapped_t;
 	Snapped_t snapped;
 	get_snapped_bezier_points(wrl, points, snapped);
 
@@ -2523,7 +2523,7 @@ void	WED_DoMatchBezierHandles(IResolver * resolver)
 		points[i]->GetLocation(gis_Geo, location);
 
 		// Among the Bezier points snapped to us, find matching handles on both sides.
-		vector<BezierHandle> lo_matches, hi_matches;
+		std::vector<BezierHandle> lo_matches, hi_matches;
 		std::pair<Snapped_t::iterator, Snapped_t::iterator> range = snapped.equal_range(location);
 		for (Snapped_t::iterator iter = range.first; iter != range.second; ++iter)
 		{
@@ -2724,13 +2724,13 @@ void	WED_DoOrthogonalize(IResolver * resolver)
 	ISelection * sel = WED_GetSelect(resolver);
 	IOperation * op = dynamic_cast<IOperation *>(sel);
 
-	vector<WED_Thing *> things;
+	std::vector<WED_Thing *> things;
 	sel->IterateSelectionOr(Iterate_CollectThings, &things);
 	if(things.empty()) return;
 
 	op->StartOperation("Orthogonalize");
 
-	for(vector<WED_Thing *>::iterator it = things.begin(); it != things.end();++it)
+	for(std::vector<WED_Thing *>::iterator it = things.begin(); it != things.end();++it)
 	{
 		IGISPointSequence * seq = dynamic_cast<IGISPointSequence *>(*it);
 		if(seq)
@@ -2892,13 +2892,13 @@ void	WED_DoMakeRegularPoly(IResolver * resolver)
 	ISelection * sel = WED_GetSelect(resolver);
 	IOperation * op = dynamic_cast<IOperation *>(sel);
 
-	vector<WED_Thing *> things;
+	std::vector<WED_Thing *> things;
 	sel->IterateSelectionOr(Iterate_CollectThings, &things);
 	if(things.empty()) return;
 
 	op->StartOperation("Make Regular Poly");
 
-	for(vector<WED_Thing *>::iterator it = things.begin(); it != things.end();++it)
+	for(std::vector<WED_Thing *>::iterator it = things.begin(); it != things.end();++it)
 	{
 		IGISPointSequence * seq = dynamic_cast<IGISPointSequence *>(*it);
 		if(seq)
@@ -2920,10 +2920,10 @@ void	WED_DoMakeRegularPoly(IResolver * resolver)
 	op->CommitOperation();
 }
 
-typedef vector<pair<Point2, pair<const char *, WED_Thing *> > > merge_class_map;
+typedef std::vector<std::pair<Point2, std::pair<const char *, WED_Thing *> > > merge_class_map;
 
 //
-static bool lesser_y_then_x_merge_class_map(const pair<Point2, pair<const char *, WED_Thing * > >& lhs, const pair<Point2, pair<const char *, WED_Thing * > > & rhs)
+static bool lesser_y_then_x_merge_class_map(const std::pair<Point2, std::pair<const char *, WED_Thing * > >& lhs, const std::pair<Point2, std::pair<const char *, WED_Thing * > > & rhs)
 {
 	return (lhs.first.y() == rhs.first.y()) ? (lhs.first.x() < rhs.first.x()) : (lhs.first.y() < rhs.first.y());
 }
@@ -2980,7 +2980,7 @@ static int iterate_can_merge(ISelectable * who, void * ref)
 	Point2	loc;
 	p->GetLocation(gis_Geo, loc);
 
-	sinks->push_back(make_pair(loc, make_pair(tag, t)));
+	sinks->push_back(std::make_pair(loc, std::make_pair(tag, t)));
 	return 1;
 }
 
@@ -3000,7 +3000,7 @@ struct chain_merge_info_t {
 	bool merge_points;
 
 	// Whether to select the whole chain once the merge is complete
-	// (this is set if two entire chains were selected to merge)
+	// (this is std::set if two entire chains were selected to merge)
 	bool select_whole_chain;
 };
 
@@ -3019,7 +3019,7 @@ struct ring_merge_info_t {
 	entry e[2];
 
 	// Whether to select the whole ring once the merge is complete
-	// (this is set if two entire rings were selected to merge)
+	// (this is std::set if two entire rings were selected to merge)
 	bool select_whole_ring;
 };
 };
@@ -3057,7 +3057,7 @@ static bool chains_snapped(WED_GISChain * c0, WED_GISChain * c1, WED_GISPoint **
 
 static bool is_chain_merge(ISelection * sel, chain_merge_info_t * info)
 {
-	vector<ISelectable*> selected;
+	std::vector<ISelectable*> selected;
 	sel->GetSelectionVector(selected);
 
 	// Must have exactly two points or two chains selected
@@ -3118,10 +3118,10 @@ static bool is_chain_merge(ISelection * sel, chain_merge_info_t * info)
 	return true;
 }
 
-// Returns whether a set of points in a ring (identified by their indexes 'idx') are adjacent to each other.
+// Returns whether a std::set of points in a ring (identified by their indexes 'idx') are adjacent to each other.
 // 'num_points' is the number of points in the ring. The points with indexes 0 and num_points-1 are taken to be adjacent.
 // If the points are all adjacent, the indexes of the first and last point in the sequence are returned in *first and *last.
-static bool are_adjacent(set<int> idx, int num_points, int * first, int * last)
+static bool are_adjacent(std::set<int> idx, int num_points, int * first, int * last)
 {
 	if (idx.empty())
 		return false;
@@ -3162,10 +3162,10 @@ static bool are_adjacent(set<int> idx, int num_points, int * first, int * last)
 }
 
 // Checks whether the selection identifies two rings to be merged through a number of points selected on each ring.
-static bool ring_info_from_points(const vector<ISelectable*> selected, vector<ring_merge_info_t::entry> * rings)
+static bool ring_info_from_points(const std::vector<ISelectable*> selected, std::vector<ring_merge_info_t::entry> * rings)
 {
 	// Must have points selected that belong to exactly two WED_GISChain parents.
-	typedef std::map<WED_GISChain *, set<int> > ChainToPoints;
+	typedef std::map<WED_GISChain *, std::set<int> > ChainToPoints;
 	ChainToPoints chain_to_points;
 	for (size_t i = 0; i < selected.size(); ++i)
 	{
@@ -3202,7 +3202,7 @@ static bool ring_info_from_points(const vector<ISelectable*> selected, vector<ri
 }
 
 // Checks whether the selection contains two rings or polygons to be merged (with the points to merge snapped together).
-static bool ring_info_from_chains(const vector<ISelectable*> selected, vector<ring_merge_info_t::entry> * rings)
+static bool ring_info_from_chains(const std::vector<ISelectable*> selected, std::vector<ring_merge_info_t::entry> * rings)
 {
 	// Must have exactly two chains or two polygons selected.
 	if (selected.size() != 2)
@@ -3225,7 +3225,7 @@ static bool ring_info_from_chains(const vector<ISelectable*> selected, vector<ri
 	}
 
 	// For all points in the first chain, create a map from location to index.
-	map<Point2, int> points_0;
+	std::map<Point2, int> points_0;
 	for (int i = 0; i < chains[0]->GetNumPoints(); ++i)
 	{
 		Point2 p;
@@ -3234,12 +3234,12 @@ static bool ring_info_from_chains(const vector<ISelectable*> selected, vector<ri
 	}
 
 	// Find points in both chains that are snapped to counterparts in the other chain.
-	set<int> idx[2];
+	std::set<int> idx[2];
 	for (int i = 0; i < chains[1]->GetNumPoints(); ++i)
 	{
 		Point2 p;
 		chains[1]->GetNthPoint(i)->GetLocation(gis_Geo, p);
-		map<Point2, int>::iterator iter = points_0.find(p);
+		std::map<Point2, int>::iterator iter = points_0.find(p);
 		if (iter != points_0.end())
 		{
 			idx[0].insert(iter->second);
@@ -3268,10 +3268,10 @@ static bool ring_info_from_chains(const vector<ISelectable*> selected, vector<ri
 
 static bool is_ring_merge(ISelection * sel, ring_merge_info_t * info)
 {
-	vector<ISelectable*> selected;
+	std::vector<ISelectable*> selected;
 	sel->GetSelectionVector(selected);
 
-	vector<ring_merge_info_t::entry> rings;
+	std::vector<ring_merge_info_t::entry> rings;
 	bool select_whole_ring = false;
 	if (ring_info_from_chains(selected, &rings))
 		select_whole_ring = true;
@@ -3354,7 +3354,7 @@ static bool is_node_merge(IResolver * resolver)
 			thing->GetClass() != WED_RoadNode::sClass ||
 			thing->CountViewers() != 2) return false;
 
-		set<WED_Thing *> viewers;
+		std::set<WED_Thing *> viewers;
 		thing->GetAllViewers(viewers);
 
 		if( (*viewers.begin())->GetClass()     != WED_RoadEdge::sClass) return false;
@@ -3372,7 +3372,7 @@ static bool is_node_merge(IResolver * resolver)
 		// check for direction
 		if(b1.p2 != b2.p1 && b1.p1 != b2.p2) return false;
 		// check resource match
-		string resource_1,resource_2;
+		std::string resource_1,resource_2;
 		road_edge_1->GetResource(resource_1);
 		road_edge_2->GetResource(resource_2);
 		if(resource_1 != resource_2) return false;
@@ -3408,7 +3408,7 @@ static bool is_node_merge(IResolver * resolver)
 	sort(sinkmap.begin(), sinkmap.end(), lesser_y_then_x_merge_class_map);
 
 	//Keeps track of which objects we've discovered we can snap (hopefully all)
-	set<merge_class_map::iterator> can_snap_objects;
+	std::set<merge_class_map::iterator> can_snap_objects;
 
 	//For each item in the sink map
 	for (merge_class_map::iterator thing_1_itr = sinkmap.begin(); thing_1_itr != sinkmap.end() - 1; ++thing_1_itr)
@@ -3421,7 +3421,7 @@ static bool is_node_merge(IResolver * resolver)
 			if( thing_1_itr->second.first == WED_RoadNode::sClass
 			 && merge_pair_itr->second.first == WED_RoadNode::sClass)
 			{
-				set<WED_Thing *> viewers1,viewers2;
+				std::set<WED_Thing *> viewers1,viewers2;
 				thing_1_itr->second.second->GetAllViewers(viewers1);
 				merge_pair_itr->second.second->GetAllViewers(viewers2);
 
@@ -3434,7 +3434,7 @@ static bool is_node_merge(IResolver * resolver)
 
 						if(road_edge_1 == nullptr || road_edge_2 == nullptr) return false;
 
-						string res1,res2;
+						std::string res1,res2;
 						road_edge_1->GetResource(res1);
 						road_edge_2->GetResource(res2);
 						if(res1 != res2) return false;
@@ -3477,7 +3477,7 @@ static void do_chain_merge(ISelection * sel, const chain_merge_info_t & info)
 	WED_Thing * p0 =  info.c0->GetNthChild(info.c0->CountChildren() -1);
 	WED_Thing * p1 =  info.c1->GetNthChild(0);
 
-	set<WED_Thing*> to_delete;
+	std::set<WED_Thing*> to_delete;
 	if (info.merge_points)
 	{
 		p0->SetParent(NULL, 0);
@@ -3501,7 +3501,7 @@ static void do_chain_merge(ISelection * sel, const chain_merge_info_t & info)
 	}
 	else
 	{
-		vector<WED_Thing *> points;
+		std::vector<WED_Thing *> points;
 		for (int i = 0; i < info.c1->CountChildren(); ++i)
 			points.push_back(info.c1->GetNthChild(i));
 		for (size_t i = 0; i < points.size(); ++i)
@@ -3528,7 +3528,7 @@ static void do_chain_merge(ISelection * sel, const chain_merge_info_t & info)
 
 static bool is_ccw(WED_GISChain * c)
 {
-	vector<Point2> points(c->GetNumPoints());
+	std::vector<Point2> points(c->GetNumPoints());
 	for (int i = 0; i < c->GetNumPoints(); ++i)
 		c->GetNthPoint(i)->GetLocation(gis_Geo, points[i]);
 	return is_ccw_polygon_pt(points.begin(), points.end());
@@ -3542,7 +3542,7 @@ static void do_ring_merge(ISelection * sel, ring_merge_info_t info)
 	sel->Clear();
 
 	// Do we need to merge polygons?
-	set<WED_Thing*> to_delete;
+	std::set<WED_Thing*> to_delete;
 	if (info.e[0].poly != info.e[1].poly)
 	{
 		// Transfer all of the holes to the first polygon
@@ -3569,7 +3569,7 @@ static void do_ring_merge(ISelection * sel, ring_merge_info_t info)
 	}
 
 	// Collect the points that will make up the finished merged ring.
-	vector<WED_GISPoint *> points[2];
+	std::vector<WED_GISPoint *> points[2];
 	for (int i = 0; i < 2; ++i)
 	{
 		// First, take all the points out of the ring.
@@ -3693,7 +3693,7 @@ static void do_node_merge(IResolver * resolver)
 		if(thing)
 		{
 			sel->Clear();
-			set<WED_Thing *> viewers;
+			std::set<WED_Thing *> viewers;
 			thing->GetAllViewers(viewers);
 			WED_Thing * edge = *viewers.begin();
 			WED_Thing * obsolete_edge = *(++viewers.begin());
@@ -3769,7 +3769,7 @@ static void do_node_merge(IResolver * resolver)
 	sort(sinkmap.begin(), sinkmap.end(), lesser_y_then_x_merge_class_map);
 
 	//All the nodes that will end up snapped
-	set<WED_Thing*> snapped_nodes;
+	std::set<WED_Thing*> snapped_nodes;
 	merge_class_map::iterator start_thing = sinkmap.begin();
 	while (start_thing != sinkmap.end())
 	{
@@ -3786,7 +3786,7 @@ static void do_node_merge(IResolver * resolver)
 				//do not merge road nodes from same edge or with different resource
 				if(can_be_merged && tag_1 == WED_RoadNode::sClass )
 				{
-					set<WED_Thing *> viewers1,viewers2;
+					std::set<WED_Thing *> viewers1,viewers2;
 					start_thing->second.second->GetAllViewers(viewers1);
 					merge_pair->second.second->GetAllViewers(viewers2);
 
@@ -3805,7 +3805,7 @@ static void do_node_merge(IResolver * resolver)
 
 							if(road_edge_1 != nullptr && road_edge_2 != nullptr)
 							{
-								string res1,res2;
+								std::string res1,res2;
 								road_edge_1->GetResource(res1);
 								road_edge_2->GetResource(res2);
 								if(res1 != res2)
@@ -3822,7 +3822,7 @@ static void do_node_merge(IResolver * resolver)
 #endif
 				if (can_be_merged && is_within_snapping_distance(start_thing, merge_pair))
 				{
-					vector<WED_Thing*> sub_list = vector<WED_Thing*>();
+					std::vector<WED_Thing*> sub_list = std::vector<WED_Thing*>();
 					sub_list.push_back(start_thing->second.second);
 					sub_list.push_back(merge_pair->second.second);
 
@@ -3841,11 +3841,11 @@ static void do_node_merge(IResolver * resolver)
 
 	sel->Clear();
 
-	for(set<WED_Thing *>::iterator node = snapped_nodes.begin(); node != snapped_nodes.end(); ++node)
+	for(std::set<WED_Thing *>::iterator node = snapped_nodes.begin(); node != snapped_nodes.end(); ++node)
 	{
-		set<WED_Thing *>	viewers;
+		std::set<WED_Thing *>	viewers;
 		(*node)->GetAllViewers(viewers);
-		for(set<WED_Thing *>::iterator v = viewers.begin(); v != viewers.end(); ++v)
+		for(std::set<WED_Thing *>::iterator v = viewers.begin(); v != viewers.end(); ++v)
 		{
 			if((*v)->GetNthSource(0) == (*v)->GetNthSource(1))
 			{
@@ -3956,21 +3956,21 @@ int		WED_CanDuplicate(IResolver * resolver)
 
 void	WED_DoDuplicate(IResolver * resolver, bool wrap_in_cmd)
 {
-	set<ISelectable *>	sel_set;
-	vector<WED_Thing *>	dupe_targs;
+	std::set<ISelectable *>	sel_set;
+	std::vector<WED_Thing *>	dupe_targs;
 	ISelection *		sel;
 	WED_Thing *			t;
 	sel = WED_GetSelect(resolver);
 	sel->GetSelectionSet(sel_set);
 	WED_Thing * wrl = WED_GetWorld(resolver);
-	for (set<ISelectable *>::iterator s = sel_set.begin(); s != sel_set.end(); ++s)
+	for (std::set<ISelectable *>::iterator s = sel_set.begin(); s != sel_set.end(); ++s)
 	if ((t = dynamic_cast<WED_Thing *>(*s)) != NULL)
 	{
 		if (t == wrl) continue;
-		set<WED_Thing *> v;
+		std::set<WED_Thing *> v;
 		t->GetAllViewers(v);
 		bool edge_sel = false;
-		for(set<WED_Thing *>::iterator vv = v.begin(); vv != v.end(); ++vv)
+		for(std::set<WED_Thing *>::iterator vv = v.begin(); vv != v.end(); ++vv)
 		{
 			if(sel->IsSelected(*vv))
 			{
@@ -4001,15 +4001,15 @@ void	WED_DoDuplicate(IResolver * resolver, bool wrap_in_cmd)
 
 	sel->Clear();
 
-	map<WED_Thing *,WED_Thing *>	src_map;
-	vector<WED_Thing *>				new_things;
+	std::map<WED_Thing *,WED_Thing *>	src_map;
+	std::vector<WED_Thing *>				new_things;
 
-	for (vector<WED_Thing *>::iterator i = dupe_targs.begin(); i != dupe_targs.end(); ++i)
+	for (std::vector<WED_Thing *>::iterator i = dupe_targs.begin(); i != dupe_targs.end(); ++i)
 	{
 		WED_Thing * orig = *i;
 		int ss = orig->CountSources();
 		for(int s = 0; s < ss; ++s)
-			src_map.insert(make_pair(orig->GetNthSource(s),(WED_Thing *)NULL));
+			src_map.insert(std::make_pair(orig->GetNthSource(s),(WED_Thing *)NULL));
 		WED_Persistent * np = orig->Clone();
 		t = dynamic_cast<WED_Thing *>(np);
 		DebugAssert(t);
@@ -4018,12 +4018,12 @@ void	WED_DoDuplicate(IResolver * resolver, bool wrap_in_cmd)
 		new_things.push_back(t);
 	}
 
-	for(map<WED_Thing*,WED_Thing *>::iterator s = src_map.begin(); s != src_map.end(); ++s)
+	for(std::map<WED_Thing*,WED_Thing *>::iterator s = src_map.begin(); s != src_map.end(); ++s)
 	{
 		s->second = dynamic_cast<WED_Thing *>(s->first->Clone());
 		s->second->SetParent(s->first->GetParent(),s->first->GetMyPosition());
 	}
-	for(vector<WED_Thing*>::iterator nt = new_things.begin(); nt != new_things.end(); ++nt)
+	for(std::vector<WED_Thing*>::iterator nt = new_things.begin(); nt != new_things.end(); ++nt)
 	{
 		int ss = (*nt)->CountSources();
 		for(int s = 0; s < ss; ++s)
@@ -4037,7 +4037,7 @@ void	WED_DoDuplicate(IResolver * resolver, bool wrap_in_cmd)
 	if (wrap_in_cmd)		wrl->CommitOperation();
 }
 
-int WED_CanCopyToAirport(IResolver * resolver, string& aptName)
+int WED_CanCopyToAirport(IResolver * resolver, std::string& aptName)
 {
     bool good_selection = WED_CanDuplicate(resolver);
 
@@ -4049,7 +4049,7 @@ int WED_CanCopyToAirport(IResolver * resolver, string& aptName)
 // do we want to allow moving items that are already at this airport ? Might confuse user to copy *into* the LEGO airport
 
 		curApt->GetName(aptName);
-		aptName = string("Duplicate + Move to Airport '") + aptName + "'";
+		aptName = std::string("Duplicate + Move to Airport '") + aptName + "'";
 		return good_selection && can_move;
 	}
 	else
@@ -4111,11 +4111,11 @@ void WED_DoCopyToAirport(IResolver * resolver)
     //   WED_MarqueeTool::ApplyRescale(bounds,new_bounds);
     // that does not care about locked or hidden
 
-        vector<ISelectable *>	iu;
-        set<IGISEntity *>		ent_set;
+        std::vector<ISelectable *>	iu;
+        std::set<IGISEntity *>		ent_set;
 
         sel->GetSelectionVector(iu);
-        for (vector<ISelectable *>::iterator i = iu.begin(); i != iu.end(); ++i)
+        for (std::vector<ISelectable *>::iterator i = iu.begin(); i != iu.end(); ++i)
         {
             IGISEntity * ent = SAFE_CAST(IGISEntity,*i);
             if (ent)
@@ -4134,7 +4134,7 @@ void WED_DoCopyToAirport(IResolver * resolver)
                     ent_set.insert(ent);
             }
         }
-        for(set<IGISEntity *>::iterator e = ent_set.begin(); e != ent_set.end(); ++e)
+        for(std::set<IGISEntity *>::iterator e = ent_set.begin(); e != ent_set.end(); ++e)
             (*e)->Rescale(gis_Geo,sel_bounds,new_bounds);
 
         op->CommitOperation();
@@ -4143,7 +4143,7 @@ void WED_DoCopyToAirport(IResolver * resolver)
     WED_DoMoveSelectionTo(resolver, curApt, 0);
 }
 
-static void accum_unviable_recursive(WED_Thing * who, set<WED_Thing *>& unviable)
+static void accum_unviable_recursive(WED_Thing * who, std::set<WED_Thing *>& unviable)
 {
 	if(WED_NoLongerViable(who, false))		// LOOSE viability for file repair - only freak out when the alternative is seg fault.
 		unviable.insert(who);
@@ -4156,14 +4156,14 @@ static void accum_unviable_recursive(WED_Thing * who, set<WED_Thing *>& unviable
 int		WED_Repair(IResolver * resolver)
 {
 	WED_Thing * root = WED_GetWorld(resolver);
-	set<WED_Thing *> unviable;
+	std::set<WED_Thing *> unviable;
 	accum_unviable_recursive(root,unviable);
 	if(unviable.empty())
 		return false;
 	LOG_MSG("E/Repair:\n");
 	for(auto u : unviable)
 	{
-		string nam;
+		std::string nam;
 		u->GetName(nam);
 		LOG_MSG("  Deleting %s '%s'",u->HumanReadableType(), nam.c_str());
 		if (WED_Thing * parent = u->GetParent())
@@ -4184,9 +4184,9 @@ int		WED_Repair(IResolver * resolver)
 // Obj and Agp Replacement
 //----------------------------------------------------------------------------
 
-static set<string> build_agp_list()
+static std::set<std::string> build_agp_list()
 {
-	set<string> agp_list;
+	std::set<std::string> agp_list;
 	//-------------------------------------------------------------------------
 	//10/06/2016 - The code for breaking apart AGPs doesn't take into account if textures should be saved
 	//because these agps can have their textures thrown away. Additional AGPs will have to be analyzed
@@ -4207,7 +4207,7 @@ int		WED_CanBreakApartAgps(IResolver* resolver)
 {
 	//Returns true if the selection contains only .agp objects
 
-	vector<ISelectable*> selected;
+	std::vector<ISelectable*> selected;
 	WED_GetSelect(resolver)->GetSelectionVector(selected);
 
 	if (selected.empty()) return false;
@@ -4217,14 +4217,14 @@ int		WED_CanBreakApartAgps(IResolver* resolver)
 		WED_AgpPlacement* agp = dynamic_cast<WED_AgpPlacement*>(itr);
 		if (!agp) return false;
 
-		string agp_resource;
+		std::string agp_resource;
 		agp->GetResource(agp_resource);
 		if(FILE_get_file_extension(agp_resource) != "agp") return false;
 	}
 	return true;
 }
 
-static void replace_all_obj_in_agp(WED_AgpPlacement* agp, const agp_t * agp_data, WED_Archive* archive, vector<WED_ObjPlacement*>& out_added_objs)
+static void replace_all_obj_in_agp(WED_AgpPlacement* agp, const agp_t * agp_data, WED_Archive* archive, std::vector<WED_ObjPlacement*>& out_added_objs)
 {
 	Point2 agp_origin_geo;
 	agp->GetLocation(gis_Geo, agp_origin_geo);
@@ -4254,15 +4254,15 @@ static void replace_all_obj_in_agp(WED_AgpPlacement* agp, const agp_t * agp_data
 	}
 }
 
-int wed_break_apart_special_agps(const vector<WED_AgpPlacement*>& agp_placements, WED_ResourceMgr * rmgr, vector<WED_ObjPlacement*>& out_added_objs)
+int wed_break_apart_special_agps(const std::vector<WED_AgpPlacement*>& agp_placements, WED_ResourceMgr * rmgr, std::vector<WED_ObjPlacement*>& out_added_objs)
 {
 	//The list of agp files we've decided to be special "service truck related"
-	set<string> agp_list = build_agp_list();
-	vector<WED_AgpPlacement*> replaced_agps;
+	std::set<std::string> agp_list = build_agp_list();
+	std::vector<WED_AgpPlacement*> replaced_agps;
 
 	for (auto agp : agp_placements)
 	{
-		string agp_resource;
+		std::string agp_resource;
 
 		agp->GetResource(agp_resource);
 		//Is the agp found in the special agp list?
@@ -4294,10 +4294,10 @@ void	WED_DoBreakApartAgps(IResolver* resolver)
 	WED_LibraryMgr * lmgr	= WED_GetLibraryMgr(resolver);
 	ISelection * sel 		= WED_GetSelect(resolver);
 
-	vector<ISelectable*> selected;
+	std::vector<ISelectable*> selected;
 	sel->GetSelectionVector(selected);
 
-	vector<WED_AgpPlacement*> agp_placements;
+	std::vector<WED_AgpPlacement*> agp_placements;
 	for (auto itr : selected)
 	{
 		WED_AgpPlacement* agp = dynamic_cast<WED_AgpPlacement*>(itr);
@@ -4307,12 +4307,12 @@ void	WED_DoBreakApartAgps(IResolver* resolver)
 
 	root->StartOperation("Break Apart Agps");
 
-	vector<WED_AgpPlacement*> replaced_agps;
-	vector<WED_ObjPlacement*> added_objs;
+	std::vector<WED_AgpPlacement*> replaced_agps;
+	std::vector<WED_ObjPlacement*> added_objs;
 
 	for(auto agp : agp_placements)
 	{
-		string agp_resource;
+		std::string agp_resource;
 		const agp_t * agp_data;
 
 		agp->GetResource(agp_resource);
@@ -4349,7 +4349,7 @@ void	WED_DoBreakApartAgps(IResolver* resolver)
 	else
 	{
 		sel->Clear();
-		sel->Insert(set<ISelectable*>(added_objs.begin(), added_objs.end()));
+		sel->Insert(std::set<ISelectable*>(added_objs.begin(), added_objs.end()));
 		root->CommitOperation();
 
 		stringstream ss;
@@ -4391,7 +4391,7 @@ int	WED_CanReplaceVehicleObj(WED_Airport* apt)
 
 struct vehicle_replacement_info
 {
-	vehicle_replacement_info(/*const vector<string>& resource_strs,*/const int service_truck_type, const int number_of_cars)
+	vehicle_replacement_info(/*const std::vector<std::string>& resource_strs,*/const int service_truck_type, const int number_of_cars)
 		:/*resource_strs(resource_strs),*/
 		 service_truck_type(service_truck_type),
 		 number_of_cars(number_of_cars)
@@ -4399,7 +4399,7 @@ struct vehicle_replacement_info
 	}
 
 	//The resource strings that can represent this vehicle_replacement_info
-	//vector<string> resource_strs;
+	//std::vector<std::string> resource_strs;
 
 	//A member of ATCServiceTruckType
 	int service_truck_type;
@@ -4408,31 +4408,31 @@ struct vehicle_replacement_info
 	int number_of_cars;
 };
 
-static map<string,vehicle_replacement_info> build_replacement_table()
+static std::map<std::string,vehicle_replacement_info> build_replacement_table()
 {
-	map<string,vehicle_replacement_info> table;
+	std::map<std::string,vehicle_replacement_info> table;
 
-	table.insert(make_pair("lib/airport/Ramp_Equipment/Belt_Loader.obj", vehicle_replacement_info(atc_ServiceTruck_Baggage_Loader, 0)));
-	table.insert(make_pair("lib/airport/vehicles/baggage_handling/belt_loader.obj", vehicle_replacement_info(atc_ServiceTruck_Baggage_Loader, 0)));
+	table.insert(std::make_pair("lib/airport/Ramp_Equipment/Belt_Loader.obj", vehicle_replacement_info(atc_ServiceTruck_Baggage_Loader, 0)));
+	table.insert(std::make_pair("lib/airport/vehicles/baggage_handling/belt_loader.obj", vehicle_replacement_info(atc_ServiceTruck_Baggage_Loader, 0)));
 	for(int i = 1; i <= 5; ++i)
 	{
- 		string s = "lib/airport/Ramp_Equipment/Lugg_Train_Straight" + to_string(i) + ".obj";
-		table.insert(make_pair(s, vehicle_replacement_info(atc_ServiceTruck_Baggage_Train,i)));
+ 		std::string s = "lib/airport/Ramp_Equipment/Lugg_Train_Straight" + std::to_string(i) + ".obj";
+		table.insert(std::make_pair(s, vehicle_replacement_info(atc_ServiceTruck_Baggage_Train,i)));
 	}
-	table.insert(make_pair("lib/airport/Ramp_Equipment/Luggage_Truck.obj", vehicle_replacement_info(atc_ServiceTruck_Baggage_Train,0)));
-	table.insert(make_pair("lib/airport/vehicles/servicing/crew_car.obj", vehicle_replacement_info(atc_ServiceTruck_Crew_Car,0)));
-	table.insert(make_pair("lib/airport/vehicles/servicing/crew_ferrari.obj", vehicle_replacement_info(atc_ServiceTruck_Crew_Ferrari, 0)));
+	table.insert(std::make_pair("lib/airport/Ramp_Equipment/Luggage_Truck.obj", vehicle_replacement_info(atc_ServiceTruck_Baggage_Train,0)));
+	table.insert(std::make_pair("lib/airport/vehicles/servicing/crew_car.obj", vehicle_replacement_info(atc_ServiceTruck_Crew_Car,0)));
+	table.insert(std::make_pair("lib/airport/vehicles/servicing/crew_ferrari.obj", vehicle_replacement_info(atc_ServiceTruck_Crew_Ferrari, 0)));
 	//atc_ServiceTruck_Crew_Limo
 	//TODO: Waiting for art asset
-	table.insert(make_pair("lib/airport/vehicles/servicing/catering_truck.obj", vehicle_replacement_info(atc_ServiceTruck_Food,0)));
-	table.insert(make_pair("lib/airport/Common_Elements/vehicles/hyd_disp_truck.obj", vehicle_replacement_info(atc_ServiceTruck_FuelTruck_Liner, 0)));
+	table.insert(std::make_pair("lib/airport/vehicles/servicing/catering_truck.obj", vehicle_replacement_info(atc_ServiceTruck_Food,0)));
+	table.insert(std::make_pair("lib/airport/Common_Elements/vehicles/hyd_disp_truck.obj", vehicle_replacement_info(atc_ServiceTruck_FuelTruck_Liner, 0)));
 	//!!Important!! - Large and Small are reversed on purpose!
-	table.insert(make_pair("lib/airport/Common_Elements/vehicles/Small_Fuel_Truck.obj", vehicle_replacement_info(atc_ServiceTruck_FuelTruck_Jet,0)));
-	table.insert(make_pair("lib/airport/Common_Elements/vehicles/Large_Fuel_Truck.obj", vehicle_replacement_info(atc_ServiceTruck_FuelTruck_Prop,0)));
-	table.insert(make_pair("lib/airport/vehicles/baggage_handling/tractor.obj", vehicle_replacement_info(atc_ServiceTruck_Ground_Power_Unit,0)));
-	table.insert(make_pair("lib/airport/Ramp_Equipment/GPU_1.obj", vehicle_replacement_info(atc_ServiceTruck_Ground_Power_Unit,0)));
-	table.insert(make_pair("lib/airport/Ramp_Equipment/Tow_Tractor_1.obj", vehicle_replacement_info(atc_ServiceTruck_Pushback,0)));
-	table.insert(make_pair("lib/airport/Ramp_Equipment/Tow_Tractor_2.obj", vehicle_replacement_info(atc_ServiceTruck_Pushback,0)));
+	table.insert(std::make_pair("lib/airport/Common_Elements/vehicles/Small_Fuel_Truck.obj", vehicle_replacement_info(atc_ServiceTruck_FuelTruck_Jet,0)));
+	table.insert(std::make_pair("lib/airport/Common_Elements/vehicles/Large_Fuel_Truck.obj", vehicle_replacement_info(atc_ServiceTruck_FuelTruck_Prop,0)));
+	table.insert(std::make_pair("lib/airport/vehicles/baggage_handling/tractor.obj", vehicle_replacement_info(atc_ServiceTruck_Ground_Power_Unit,0)));
+	table.insert(std::make_pair("lib/airport/Ramp_Equipment/GPU_1.obj", vehicle_replacement_info(atc_ServiceTruck_Ground_Power_Unit,0)));
+	table.insert(std::make_pair("lib/airport/Ramp_Equipment/Tow_Tractor_1.obj", vehicle_replacement_info(atc_ServiceTruck_Pushback,0)));
+	table.insert(std::make_pair("lib/airport/Ramp_Equipment/Tow_Tractor_2.obj", vehicle_replacement_info(atc_ServiceTruck_Pushback,0)));
 
 	return table;
 }
@@ -4440,7 +4440,7 @@ static map<string,vehicle_replacement_info> build_replacement_table()
 void	WED_DoReplaceVehicleObj(IResolver* resolver, WED_Airport* apt)
 {
 	WED_Thing * root = WED_GetWorld(resolver);
-	vector<WED_ObjPlacement*> obj_placements;
+	std::vector<WED_ObjPlacement*> obj_placements;
 
 	WED_Thing* collection_start = apt == NULL ? root : apt;
 	CollectRecursive(collection_start, back_inserter(obj_placements), WED_ObjPlacement::sClass);
@@ -4449,18 +4449,18 @@ void	WED_DoReplaceVehicleObj(IResolver* resolver, WED_Airport* apt)
 	{
 		int replace_count = 0;
 		root->StartOperation("Replace Objects");
-		map<string,vehicle_replacement_info> table = build_replacement_table();
+		std::map<std::string,vehicle_replacement_info> table = build_replacement_table();
 
 #if !TYLER_MODE
 		ISelection * sel = WED_GetSelect(resolver);
 		sel->Clear();
 #endif
-		for(vector<WED_ObjPlacement*>::iterator itr = obj_placements.begin(); itr != obj_placements.end(); ++itr)
+		for(std::vector<WED_ObjPlacement*>::iterator itr = obj_placements.begin(); itr != obj_placements.end(); ++itr)
 		{
-			string resource;
+			std::string resource;
 			(*itr)->GetResource(resource);
 
-			map<string,vehicle_replacement_info>::iterator info_itr = table.find(resource);
+			std::map<std::string,vehicle_replacement_info>::iterator info_itr = table.find(resource);
 			if(info_itr != table.end())
 			{
 
@@ -4471,7 +4471,7 @@ void	WED_DoReplaceVehicleObj(IResolver* resolver, WED_Airport* apt)
 				(*itr)->GetLocation(gis_Geo, p);
 				parking_loc->SetLocation(gis_Geo,p);
 
-				string name;
+				std::string name;
 				(*itr)->GetName(name);
 				parking_loc->SetName(name);
 				parking_loc->SetNumberOfCars(info_itr->second.number_of_cars);
@@ -4551,7 +4551,7 @@ static void center_and_radius_for_ramp_start(WED_RampPosition * pos, Point2& out
 	out_rad = mtr * 0.5;
 }
 
-static void collect_ramps_recursive(WED_Thing * who, vector<WED_RampPosition *>& out_ramps, vector<obj_conflict_info>& out_conflicting_objs, WED_ResourceMgr * rmgr)
+static void collect_ramps_recursive(WED_Thing * who, std::vector<WED_RampPosition *>& out_ramps, std::vector<obj_conflict_info>& out_conflicting_objs, WED_ResourceMgr * rmgr)
 {
 	if(who->GetClass() == WED_RampPosition::sClass)
 	{
@@ -4562,7 +4562,7 @@ static void collect_ramps_recursive(WED_Thing * who, vector<WED_RampPosition *>&
 		WED_ObjPlacement * obj = static_cast<WED_ObjPlacement *>(who);
 		DebugAssert(obj);
 		obj_conflict_info r;
-		string vpath;
+		std::string vpath;
 		obj->GetResource(vpath);
 		const XObj8 * obj8;
 
@@ -4601,12 +4601,12 @@ static void collect_ramps_recursive(WED_Thing * who, vector<WED_RampPosition *>&
 	}
 }
 
-static const vector<Point2> canada {{-135,50}, {-123.3,48.2}, {-123.2,49}, {-94.5,49}, {-83.1,46}, {-81.8,43.6}, {-83.14,42.13}, {-82,41.7}, {-74.8,45},
+static const std::vector<Point2> canada {{-135,50}, {-123.3,48.2}, {-123.2,49}, {-94.5,49}, {-83.1,46}, {-81.8,43.6}, {-83.14,42.13}, {-82,41.7}, {-74.8,45},
 									{-72,45}, {-68,47}, {-67,45}, {-66,42}, {-40,50}, {-73,77}, {-50,84}, {-141,84}, {-141,60}, {-135,60}, {-130,56}};
 
-static string get_regional_codes(const Point2& loc, int ac_size, int ops_type)
+static std::string get_regional_codes(const Point2& loc, int ac_size, int ops_type)
 {
-	string code;
+	std::string code;
 	
 	if(ops_type == ramp_operation_Cargo)   // cargo isn't regionalized for now
 	{
@@ -4676,19 +4676,19 @@ static string get_regional_codes(const Point2& loc, int ac_size, int ops_type)
 	return code;
 }
 
-static string get_xplane_codes(int width_enum, const set<int>& eq, int ops_type, WED_LibraryMgr* lmgr)
+static std::string get_xplane_codes(int width_enum, const std::set<int>& eq, int ops_type, WED_LibraryMgr* lmgr)
 {
 	const char *ops_str = ops_type == ramp_operation_Airline ? "lib/airport/aircraft/airliners" : "lib/airport/aircraft/cargo";
-	vector<string> static_ac_vpaths;
+	std::vector<std::string> static_ac_vpaths;
 	lmgr->GetResourceChildren(ops_str, pack_Default, static_ac_vpaths, true);
-	set<string>	codes_matching_start;
+	std::set<std::string>	codes_matching_start;
 	
 	char width_char = width_enum - width_A + 'a';
 	char width_char2 = max((char) (width_char - 1), 'a');
 	
 	for(auto v : static_ac_vpaths)
 	{
-		string s = v.substr(strlen(ops_str) + 1);
+		std::string s = v.substr(strlen(ops_str) + 1);
 		if(eq.count(atc_Turbos) && s.find("turboprop_") == 0)
 			if((s[10] == width_char || s[10] == width_char2 )&& s[11] != '.')
 				codes_matching_start.insert(s.substr(12,3));
@@ -4702,7 +4702,7 @@ static string get_xplane_codes(int width_enum, const set<int>& eq, int ops_type,
 				codes_matching_start.insert(s.substr(8,3));
 	}
 
-	string out;
+	std::string out;
 	for(auto c : codes_matching_start)
 		out += c + " ";
 
@@ -4717,8 +4717,8 @@ int wed_upgrade_ramps(WED_Thing* who)
 	auto sel  = WED_GetSelect(who->GetArchive()->GetResolver());
 
 	int did_work = 0;
-	vector<WED_RampPosition *> ramps;
-	vector<obj_conflict_info> objs;
+	std::vector<WED_RampPosition *> ramps;
+	std::vector<obj_conflict_info> objs;
 	collect_ramps_recursive(who, ramps, objs, rmgr);
 
 	Point2 apt_loc;
@@ -4745,7 +4745,7 @@ int wed_upgrade_ramps(WED_Thing* who)
 					break;			
 				case atc_Ramp_TieDown:
 				{
-					set<int> eq;
+					std::set<int> eq;
 					r->GetEquipment(eq);
 
 					if(eq.count(atc_Heavies))
@@ -4773,19 +4773,19 @@ int wed_upgrade_ramps(WED_Thing* who)
 		// fill in regio apropriate airline names
 		if (r->GetRampOperationType() == ramp_operation_Airline || r->GetRampOperationType() == ramp_operation_Cargo)
 		{
-			string old_codes =  WED_RampPosition::CorrectAirlinesString(r->GetAirlines());
-			string new_codes;
+			std::string old_codes =  WED_RampPosition::CorrectAirlinesString(r->GetAirlines());
+			std::string new_codes;
 			if(r->GetWidth() < width_D || rand() & 1)     // regionalize only half the large ones, as large birds roam the whole world
 			{
-				set<int> eq;
+				std::set<int> eq;
 				r->GetEquipment(eq);
-				string available_codes = get_xplane_codes(r->GetWidth(), eq, r->GetRampOperationType(), lmgr);
-				string regional_codes = get_regional_codes(apt_loc,r->GetWidth(), r->GetRampOperationType());
+				std::string available_codes = get_xplane_codes(r->GetWidth(), eq, r->GetRampOperationType(), lmgr);
+				std::string regional_codes = get_regional_codes(apt_loc,r->GetWidth(), r->GetRampOperationType());
 
 				bool old_codes_good_enough = false;
 				while (old_codes.size() >= 3)
 				{
-					if(available_codes.find(old_codes.substr(0,3)) != string::npos)
+					if(available_codes.find(old_codes.substr(0,3)) != std::string::npos)
 					{
 						new_codes = old_codes;
 						old_codes_good_enough = true;
@@ -4859,7 +4859,7 @@ void WED_UpgradeRampStarts(IResolver * resolver)
 
 struct changelist_t
 {
-	string ICAO;
+	std::string ICAO;
 	int new_rwy;
 	Point2 thr_pt0;        // the location of that runways thresholds
 	Point2 thr_pt1;
@@ -4873,7 +4873,7 @@ struct changelist_t
 #define MAX_ERROR_TO_FIND  100.0    // Both thresholds must be within this distance of the CIFP location for any runway to be considered
                                     // to be matching the one in the CIFP data. Also implies - no airport is moved any further than this.
 
-static bool IsRwyMatching(const WED_Runway * rwy, const struct changelist_t * entry, double loc_err_allowed, vector<WED_Runway *>& rwys, vector<Vector2>& errors)
+static bool IsRwyMatching(const WED_Runway * rwy, const struct changelist_t * entry, double loc_err_allowed, std::vector<WED_Runway *>& rwys, std::vector<Vector2>& errors)
 {
 	// match criteria is location, only
 
@@ -4927,7 +4927,7 @@ static bool IsRwyMatching(const WED_Runway * rwy, const struct changelist_t * en
 	// next try the runway ends
 	if(end_err0 < good_match && end_err1 < good_match)
 	{
-		// ends match, thresholds not => displacemnt is set wrong in scenery. Could fix this right here and now ?
+		// ends match, thresholds not => displacemnt is std::set wrong in scenery. Could fix this right here and now ?
 		printf("      NOT fixing wrong displaced threshold entry for below apt\n");
 		errors.push_back(Vector2(rwy_loc0, entry->rwy_pt0));
 		errors.push_back(Vector2(rwy_loc1, entry->rwy_pt1));
@@ -4961,7 +4961,7 @@ static bool IsRwyMatching(const WED_Runway * rwy, const struct changelist_t * en
 
 void WED_AlignAirports(IResolver * resolver)
 {
-	vector<struct changelist_t> changelist;
+	std::vector<struct changelist_t> changelist;
 
 	char fn[200];
 	if (!GetFilePathFromUser(getFile_Open,"Pick file with runway coordinates", "Start processing",
@@ -4978,8 +4978,8 @@ void WED_AlignAirports(IResolver * resolver)
 		MFS_string_eol(&s,NULL);
 
 		bool second_end = false;
-		string first_rwy;
-		string icao, rnam;
+		std::string first_rwy;
+		std::string icao, rnam;
 		struct changelist_t entry;
 		double disp0;
 
@@ -4997,7 +4997,7 @@ void WED_AlignAirports(IResolver * resolver)
 			{
 				if (entry.ICAO == icao)
 				{
-					string rwy_2wy = first_rwy + "/" + rnam;
+					std::string rwy_2wy = first_rwy + "/" + rnam;
 					entry.new_rwy = ENUM_LookupDesc(ATCRunwayTwoway,rwy_2wy.c_str());
 					if (entry.new_rwy == -1)
 					{
@@ -5017,7 +5017,7 @@ void WED_AlignAirports(IResolver * resolver)
 						changelist.push_back(entry);
 					}
 					else
-						printf("Read changelist: Ignoring bad rwy spec pair %s ending in line %d\n",rwy_2wy.c_str(),lnum);
+						printf("Read changelist: Ignoring bad rwy spec std::pair %s ending in line %d\n",rwy_2wy.c_str(),lnum);
 
 					second_end = false;
 				}
@@ -5050,7 +5050,7 @@ void WED_AlignAirports(IResolver * resolver)
 		WED_Thing * wrl = WED_GetWorld(resolver);
 		ISelection * sel = WED_GetSelect(resolver);
 
-		vector<WED_Airport *> apts;
+		std::vector<WED_Airport *> apts;
 		int renamed_count = 0;
 		int moved_count = 0;
 		int unchanged_count = 0;
@@ -5060,12 +5060,12 @@ void WED_AlignAirports(IResolver * resolver)
 		wrl->StartCommand("Align Airports");
 		sel->Clear();
 
-		for(vector<WED_Airport *>::iterator apt = apts.begin(); apt !=apts.end(); ++apt)
+		for(std::vector<WED_Airport *>::iterator apt = apts.begin(); apt !=apts.end(); ++apt)
 		{
-			vector<WED_Runway *> rwys;
-			vector<Vector2> coord_errors;
+			std::vector<WED_Runway *> rwys;
+			std::vector<Vector2> coord_errors;
 			bool apt_changed = false;
-			string thisICAO; (*apt)->GetICAO(thisICAO);
+			std::string thisICAO; (*apt)->GetICAO(thisICAO);
 
 			CollectRecursive(*apt, back_inserter(rwys),  WED_Runway::sClass);
 
@@ -5074,12 +5074,12 @@ void WED_AlignAirports(IResolver * resolver)
 
 			// determine the closest runway spacing at this airport
 			if (rwys.size() > 1)
-				for(vector<WED_Runway *>::iterator i = rwys.begin(); i != rwys.end(); ++i)
+				for(std::vector<WED_Runway *>::iterator i = rwys.begin(); i != rwys.end(); ++i)
 				{
 					Point2 i0,i1;
 					(*i)->GetSource()->GetLocation(gis_Geo, i0);
 					(*i)->GetTarget()->GetLocation(gis_Geo, i1);
-					for(vector<WED_Runway *>::iterator j = i+1; j != rwys.end(); ++j)
+					for(std::vector<WED_Runway *>::iterator j = i+1; j != rwys.end(); ++j)
 					{
 						Point2 j0,j1;
 						(*j)->GetSource()->GetLocation(gis_Geo, j0);
@@ -5094,10 +5094,10 @@ void WED_AlignAirports(IResolver * resolver)
 					}
 				}
 
-			for(vector<WED_Runway *>::iterator r = rwys.begin(); r != rwys.end(); ++r)
+			for(std::vector<WED_Runway *>::iterator r = rwys.begin(); r != rwys.end(); ++r)
 			{
 				int old_rwy_enum = (*r)->GetRunwayEnumsTwoway();
-				for(vector<struct changelist_t>::iterator cl_entry = changelist.begin(); cl_entry != changelist.end(); ++cl_entry)
+				for(std::vector<struct changelist_t>::iterator cl_entry = changelist.begin(); cl_entry != changelist.end(); ++cl_entry)
 				{
 					if(cl_entry->ICAO == thisICAO)
 					{
@@ -5126,7 +5126,7 @@ void WED_AlignAirports(IResolver * resolver)
 				Bbox2 old_apt_pos;
 				(*apt)->GetBounds(gis_Geo, old_apt_pos);
 
-				for(vector<Vector2>::iterator i = coord_errors.begin(); i != coord_errors.end(); ++i)
+				for(std::vector<Vector2>::iterator i = coord_errors.begin(); i != coord_errors.end(); ++i)
 				{
 					avg_errVec += *i;
 //					printf("threshold error = ~%.1lf EW ~%.1lf NS\n", 1.1e5*i->x(), 0.8e5*i->y());
@@ -5135,7 +5135,7 @@ void WED_AlignAirports(IResolver * resolver)
 
 				float peak_errDist_aft = 0.0, peak_errDist = 0.0;
 
-				for(vector<Vector2>::iterator i = coord_errors.begin(); i != coord_errors.end(); ++i)
+				for(std::vector<Vector2>::iterator i = coord_errors.begin(); i != coord_errors.end(); ++i)
 				{
 					float loc_errDist = LonLatDistMeters(old_apt_pos.centroid(), old_apt_pos.centroid() + *i);    // sqrt(i->squared_length());
 					(*i) -= avg_errVec;
@@ -5184,9 +5184,9 @@ static void dummy_func(void* ref, const char* fmt, ...) { return; }
 
 int WED_DoConvertToJW(WED_Airport* apt, int statistics[4])
 {
-	vector<WED_RampPosition*> ramps;
-	vector<WED_ObjPlacement*> all_objects, jw_tun, jw_ext;
-	vector<WED_FacadePlacement*> jw_facs;
+	std::vector<WED_RampPosition*> ramps;
+	std::vector<WED_ObjPlacement*> all_objects, jw_tun, jw_ext;
+	std::vector<WED_FacadePlacement*> jw_facs;
 	WED_ResourceMgr* rmgr = WED_GetResourceMgr(apt->GetArchive()->GetResolver());
 
 	CollectRecursive(apt, back_inserter(ramps), ThingNotHidden, TakeAlways, WED_RampPosition::sClass);
@@ -5202,7 +5202,7 @@ int WED_DoConvertToJW(WED_Airport* apt, int statistics[4])
 	int obj2JW_count = 0;
 	for (auto o : all_objects)
 	{
-		string res;
+		std::string res;
 		o->GetResource(res);
 		if (res.compare(0, strlen("lib/airport/Ramp_Equipment/Jetway_"), "lib/airport/Ramp_Equipment/Jetway_") == 0)
 			jw_tun.push_back(o);
@@ -5214,7 +5214,7 @@ int WED_DoConvertToJW(WED_Airport* apt, int statistics[4])
 				 res == "lib/airport/Ramp_Equipment/400cm_Jetway_Group.agp" ||
 				 res == "lib/airport/Ramp_Equipment/500cm_Jetway_Group.agp")
 		{
-			vector<WED_ObjPlacement*> added_objs;
+			std::vector<WED_ObjPlacement*> added_objs;
 			const agp_t* agp_info;
 			if (rmgr->GetAGP(res, agp_info))
 			{
@@ -5247,7 +5247,7 @@ int WED_DoConvertToJW(WED_Airport* apt, int statistics[4])
 			Point2 acf_pos, tun_pos, jw_pos;
 			Vector2 tun_dir;
 			c->GetLocation(gis_Geo, jw_pos);
-			string res;
+			std::string res;
 			c->GetResource(res);
 			double tun_len = ( res[strlen("lib/airport/Ramp_Equipment/Jetway_")] == '5' ||
 							   res[strlen("lib/airport/Ramp_Equipment/Uni_Jetway_")] == '5' ) ? 20 : 15;
@@ -5285,7 +5285,7 @@ int WED_DoConvertToJW(WED_Airport* apt, int statistics[4])
 			{
 				auto fac = WED_FacadePlacement::CreateTyped(apt->GetArchive());
 				fac->SetParent(c->GetParent(), c->GetMyPosition());
-				string nam;
+				std::string nam;
 				c->GetName(nam);
 				fac->SetName(nam + " (conv)");
 
@@ -5310,7 +5310,7 @@ int WED_DoConvertToJW(WED_Airport* apt, int statistics[4])
 					Point2 p1, p2;
 					(*e)->GetLocation(gis_Geo, p1);
 					double hdg = (*e)->GetHeading();
-					string ext_nam;
+					std::string ext_nam;
 					(*e)->GetResource(ext_nam);
 					double len;
 					if (ext_nam == "lib/airport/Ramp_Equipment/JetWayWallBase.obj")
@@ -5369,7 +5369,7 @@ int WED_DoConvertToJW(WED_Airport* apt, int statistics[4])
 			IGISPointSequence* ps;
 			int last_pt;
 		};
-		vector<struct jw_info> jw_serving_us;
+		std::vector<struct jw_info> jw_serving_us;
 
 		r->GetLocation(gis_Geo, ramp_loc);
 		for (auto f : jw_facs)
@@ -5427,7 +5427,7 @@ int WED_DoConvertToJW(WED_Airport* apt, int statistics[4])
 		if(jw_serving_us.size() > 0)
 		{
 			// check if tunnel length is suitable to reach ramp with some margin for actual door locations
-			string res;
+			std::string res;
 			const fac_info_t* info;
 			jw_serving_us[0].f->GetResource(res);
 			if (rmgr->GetFac(res, info))
@@ -5496,7 +5496,7 @@ int WED_DoConvertToJW(WED_Airport* apt, int statistics[4])
 void WED_UpgradeJetways(IResolver* resolver)
 {
 	WED_Thing* wrl = WED_GetWorld(resolver);
-	vector<WED_Airport *> all_apts;
+	std::vector<WED_Airport *> all_apts;
 	int changes = 0, statistics[4] = { 0 };
 
 	CollectRecursiveNoNesting(wrl, back_inserter(all_apts), WED_Airport::sClass);
@@ -5508,11 +5508,11 @@ void WED_UpgradeJetways(IResolver* resolver)
 	if (changes > 0)
 	{
 		wrl->CommitOperation();
-		string msg("Created ");
-		msg += to_string(statistics[0]) + " JW facades from JW objects\n";
-		msg += to_string(statistics[1]) + " tunnels made longer to reach A/C\n";
-		msg += to_string(statistics[2]) + " tunnels made shorter to reach A/C\n";
-		msg += to_string(statistics[3]) + " set non-docking to avoid conflicts at ramps reached by multiple JW";
+		std::string msg("Created ");
+		msg += std::to_string(statistics[0]) + " JW facades from JW objects\n";
+		msg += std::to_string(statistics[1]) + " tunnels made longer to reach A/C\n";
+		msg += std::to_string(statistics[2]) + " tunnels made shorter to reach A/C\n";
+		msg += std::to_string(statistics[3]) + " std::set non-docking to avoid conflicts at ramps reached by multiple JW";
 		DoUserAlert(msg.c_str());
 	}
 	else
@@ -5543,9 +5543,9 @@ static int get_aged_surf(int surf, int age)
 
 int WED_DoAgePavement(WED_Airport* apt, int age)  // age 1 = older
 {
-	vector<WED_Runway*> rwys;
-	vector<WED_Taxiway*> twys;
-	vector<WED_PolygonPlacement*> pols;
+	std::vector<WED_Runway*> rwys;
+	std::vector<WED_Taxiway*> twys;
+	std::vector<WED_PolygonPlacement*> pols;
 
 	CollectRecursive(apt, back_inserter(rwys));
 	CollectRecursive(apt, back_inserter(twys));
@@ -5585,13 +5585,13 @@ int WED_DoAgePavement(WED_Airport* apt, int age)  // age 1 = older
 
 	for (auto p : pols)
 	{
-		string res;
+		std::string res;
 		p->GetResource(res);
 
 		int surf = 0;
 		if (res == "lib/airport/pavement/" || "lib/airport/pavement/")
 		{
-			string t  = res.substr(res.length() - 8, 4);
+			std::string t  = res.substr(res.length() - 8, 4);
 
 			if (t == "t_1D")                                    surf = surf_Asphalt_16;
 			else if (t == "t_2D" || t == "t_3D" || t == "t_4D") surf = surf_Asphalt_12;
@@ -5624,7 +5624,7 @@ int WED_DoAgePavement(WED_Airport* apt, int age)  // age 1 = older
 void WED_AgePavement(IResolver* resolver)
 {
 	WED_Thing* wrl = WED_GetWorld(resolver);
-	vector<WED_Airport*> all_apts;
+	std::vector<WED_Airport*> all_apts;
 
 	int ans = DoSaveDiscardDialog("Change pavement apperance ?",
 		"Yes = worn/cracked, lighter asphalt, darker concrete\n"
@@ -5644,17 +5644,17 @@ void WED_AgePavement(IResolver* resolver)
 	if (count > 0)
 	{
 		wrl->CommitOperation();
-		string msg("Converted ");
-		msg += to_string(count) + " items";
+		std::string msg("Converted ");
+		msg += std::to_string(count) + " items";
 		DoUserAlert(msg.c_str());
 	}
 	else
 		wrl->AbortOperation();
 }
 
-static vector<WED_PolygonPlacement *> PolygonsForWED_Polygon(WED_Thing * parent, const vector<Polygon2>& poly)
+static std::vector<WED_PolygonPlacement *> PolygonsForWED_Polygon(WED_Thing * parent, const std::vector<Polygon2>& poly)
 {
-	vector<WED_PolygonPlacement *> mpol;
+	std::vector<WED_PolygonPlacement *> mpol;
 	WED_Archive * arch = parent->GetArchive();
 	
 //	printf("conv size %d\n", poly.size());
@@ -5687,13 +5687,13 @@ static vector<WED_PolygonPlacement *> PolygonsForWED_Polygon(WED_Thing * parent,
 			auto n = WED_SimpleBezierBoundaryNode::CreateTyped(arch);
 			n->SetParent(ring, i);
 			n->SetLocation(gis_Geo, p[i]);
-			n->SetName(string("Node ") + to_string(i));
+			n->SetName(std::string("Node ") + std::to_string(i));
 		}
 	}
 	return mpol;
 }
 
-static bool inside_pt(const vector<Polygon2>& vec_poly, const Point2 pt)
+static bool inside_pt(const std::vector<Polygon2>& vec_poly, const Point2 pt)
 {
 	int inside = 0;
 	for(const auto& p : vec_poly)
@@ -5752,15 +5752,15 @@ bool WED_DoMowGrass(WED_Airport* apt, int statistics[4])
 	Point2 apt_loc = bounds.centroid();
 	srand( 100 * (apt_loc.x()+180) + 36000 * (apt_loc.y()+90) ); // for repeatable patterns per airport
 
-	vector<WED_Runway*> rwys;
-	vector<WED_Taxiway*> twys;
-	vector<WED_PolygonPlacement*> polys;
-	vector<WED_AirportBoundary*> bdys;
+	std::vector<WED_Runway*> rwys;
+	std::vector<WED_Taxiway*> twys;
+	std::vector<WED_PolygonPlacement*> polys;
+	std::vector<WED_AirportBoundary*> bdys;
 
-	typedef vector<Polygon2> vPoly2;
+	typedef std::vector<Polygon2> vPoly2;
 	vPoly2 apt_boundary, all_grass_poly, all_pave_poly;
 
-	vector<pair<vPoly2, double> > grass;
+	std::vector<std::pair<vPoly2, double> > grass;
 	
 	WED_LibraryMgr* lmgr = WED_GetLibraryMgr(apt->GetArchive()->GetResolver());
 	WED_Group * art_grp = nullptr;
@@ -5771,7 +5771,7 @@ bool WED_DoMowGrass(WED_Airport* apt, int statistics[4])
 	if(apt_boundary.size() == 0) return 0;
 
 	// prevent mowing the water e.g. at Juneau
-	vector<WED_Sealane*> sealn;
+	std::vector<WED_Sealane*> sealn;
 	CollectRecursive(apt, back_inserter(sealn), WED_Sealane::sClass);
 	for (auto s : sealn)
 	{
@@ -5813,14 +5813,14 @@ bool WED_DoMowGrass(WED_Airport* apt, int statistics[4])
 
 		Quad_Resize(tmp, r->GetWidth() * (r->GetSurface() == surf_Grass ? 1.0 : 4.0), 400.0, 400.0);
 
-		grass.push_back(make_pair(vPoly2(), r->GetHeading()));
+		grass.push_back(std::make_pair(vPoly2(), r->GetHeading()));
 		vPoly2 * this_grass = &grass.back().first;
 
 		this_grass->push_back(Polygon2());
 		for(int i = 3; i >= 0; i--)
 			this_grass->back().push_back(tmp[i]);
 
-		vector<Polygon2> tmp_poly = PolygonCut(apt_boundary, all_grass_poly);
+		std::vector<Polygon2> tmp_poly = PolygonCut(apt_boundary, all_grass_poly);
 		*this_grass = PolygonIntersect(*this_grass, tmp_poly);
 		if(this_grass->empty())
 		{
@@ -5832,9 +5832,9 @@ bool WED_DoMowGrass(WED_Airport* apt, int statistics[4])
 		auto new_p = PolygonsForWED_Polygon(art_grp, *this_grass);
 		if(statistics) statistics[0] += new_p.size();
 		
-		string nam;
+		std::string nam;
 		r->GetName(nam);
-		nam = string("Mowing along ") + nam;
+		nam = std::string("Mowing along ") + nam;
 		for(auto p: new_p)
 		{
 			p->SetName(nam);
@@ -5858,7 +5858,7 @@ bool WED_DoMowGrass(WED_Airport* apt, int statistics[4])
 		{
 			if (auto p = dynamic_cast<WED_PolygonPlacement*>(v))
 			{
-				string res;
+				std::string res;
 				p->GetName(res);
 				p->GetResource(res);
 				if(res.compare(0, strlen("lib/airport/pavement/"),"lib/airport/pavement/") == 0) 
@@ -5875,7 +5875,7 @@ bool WED_DoMowGrass(WED_Airport* apt, int statistics[4])
 	for(auto p : polys)
 		WED_BezierPolygonWithHolesForPolygon(p, all_pave_poly);
 	
-	all_pave_poly = PolygonUnion(all_pave_poly, vector<Polygon2>());
+	all_pave_poly = PolygonUnion(all_pave_poly, std::vector<Polygon2>());
 	// from here only we can assume 'flat' topology: No overlapping windings, no nested holes.
 
 	// turning circles where mowing lines hit pavement
@@ -5996,7 +5996,7 @@ bool WED_DoMowGrass(WED_Airport* apt, int statistics[4])
 	}
 
 	// paved pads and mowing swirls underneath signs and some lights
-	vector<WED_AirportSign *> signs;
+	std::vector<WED_AirportSign *> signs;
 	CollectRecursive(apt, back_inserter(signs), WED_AirportSign::sClass);
 	
 	for(auto s : signs)
@@ -6011,13 +6011,13 @@ bool WED_DoMowGrass(WED_Airport* apt, int statistics[4])
 			auto obj = WED_ObjPlacement::CreateTyped(apt->GetArchive());
 			obj->SetParent(art_grp, 0);
 			obj->SetLocation(gis_Geo, pt);
-			string label;
+			std::string label;
 			s->GetName(label);
 			sign_data tsign;
 			tsign.from_code(label);
 			int w = max(tsign.calc_width(0), tsign.calc_width(1));
 
-			string res = "lib/airport/ground/terrain_FX/taxi_sign_base/light/";
+			std::string res = "lib/airport/ground/terrain_FX/taxi_sign_base/light/";
 			switch(s->GetHeight())
 			{
 				case size_SmallRemaining:
@@ -6063,7 +6063,7 @@ bool WED_DoMowGrass(WED_Airport* apt, int statistics[4])
 	}
 	
 	// mow around all winsocks - also enhances their visibility
-	vector<WED_Windsock *> socks;
+	std::vector<WED_Windsock *> socks;
 	CollectRecursive(apt, back_inserter(socks), WED_Windsock::sClass);
 	for(auto s : socks)
 	{
@@ -6094,7 +6094,7 @@ bool WED_DoMowGrass(WED_Airport* apt, int statistics[4])
 void WED_MowGrass(IResolver* resolver)
 {
 	WED_Thing* wrl = WED_GetWorld(resolver);
-	vector<WED_Airport *> all_apts;
+	std::vector<WED_Airport *> all_apts;
 	int changed_apts = 0, statistics[4] = { 0 };
 
 	CollectRecursiveNoNesting(wrl, back_inserter(all_apts), WED_Airport::sClass);
@@ -6106,12 +6106,12 @@ void WED_MowGrass(IResolver* resolver)
 	if (changed_apts > 0)
 	{
 		wrl->CommitOperation();
-		string msg("Created at ");
-		msg += to_string(changed_apts) + " Airport(s)\n\n";
-		msg += to_string(statistics[0]) + " Grass Polygons\n";
-		msg += to_string(statistics[1]) + " Grass Lines\n";
-		msg += to_string(statistics[2]) + " Grass Objects\n";
-		msg += to_string(statistics[3]) + " Paved Pads\n";
+		std::string msg("Created at ");
+		msg += std::to_string(changed_apts) + " Airport(s)\n\n";
+		msg += std::to_string(statistics[0]) + " Grass Polygons\n";
+		msg += std::to_string(statistics[1]) + " Grass Lines\n";
+		msg += std::to_string(statistics[2]) + " Grass Objects\n";
+		msg += std::to_string(statistics[3]) + " Paved Pads\n";
 		
 		DoUserAlert(msg.c_str());
 	}

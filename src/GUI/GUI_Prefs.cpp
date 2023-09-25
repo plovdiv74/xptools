@@ -39,23 +39,23 @@
     #include <pwd.h>
 #endif
 
-typedef map<string,string>				GUI_PrefSection_t;
-typedef map<string,GUI_PrefSection_t>	GUI_Prefs_t;
+typedef std::map<std::string,std::string>				GUI_PrefSection_t;
+typedef std::map<std::string,GUI_PrefSection_t>	GUI_Prefs_t;
 
 static	GUI_Prefs_t		sPrefs;
 
-void	dequote(string& s)
+void	dequote(std::string& s)
 {
-	for(string::size_type n = 0; n < s.length(); ++n)
+	for(std::string::size_type n = 0; n < s.length(); ++n)
 	{
 		if (s[n] == '\\')
 			s.erase(n,1);
 	}
 }
 
-void	enquote(string& s)
+void	enquote(std::string& s)
 {
-	for(string::size_type n = 0; n < s.length(); ++n)
+	for(std::string::size_type n = 0; n < s.length(); ++n)
 	{
 		if (s[n] == ' ' ||
 			s[n] == '\\' ||
@@ -71,7 +71,7 @@ void	enquote(string& s)
 }
 
 
-bool			GUI_GetPrefsDir(string& path)
+bool			GUI_GetPrefsDir(std::string& path)
 {
 	#if APL
 			FSRef	ref;
@@ -94,7 +94,7 @@ bool			GUI_GetPrefsDir(string& path)
 		return true;
 	#endif
 	#if LIN
-		string he = getenv("HOME");
+		std::string he = getenv("HOME");
         passwd *pw = getpwuid(getuid());
         if (pw)
         {
@@ -123,7 +123,7 @@ inline void	skip_eol(const char *&p, const char * e) { while(p<e && is_eol(*p)) 
 void			GUI_Prefs_Read(const char *app_name)
 {
 	sPrefs.clear();
-	string pref_dir;
+	std::string pref_dir;
 	if (!GUI_GetPrefsDir(pref_dir)) return;
 	pref_dir += DIR_STR;
     #if LIN
@@ -149,7 +149,7 @@ void			GUI_Prefs_Read(const char *app_name)
 				const char * cs = p;
 				while(p<e && !is_eol(*p) && *p != ']')
 					++p;
-				string cur_name(cs,p);
+				std::string cur_name(cs,p);
 				cur=&sPrefs[cur_name];
 			}
 			else if(p<e && *p != '\r' && *p != '\n')
@@ -178,8 +178,8 @@ void			GUI_Prefs_Read(const char *app_name)
 						const char * ve = p;
 						if(cur)
 						{
-							string key(ks,ke);
-							string val(vs,ve);
+							std::string key(ks,ke);
+							std::string val(vs,ve);
 							dequote(key);
 							dequote(val);
 							(*cur)[key] = val;
@@ -204,7 +204,7 @@ void			GUI_Prefs_Read(const char *app_name)
 
 void			GUI_Prefs_Write(const char * app_name)
 {
-	string pref_dir;
+	std::string pref_dir;
 	if (!GUI_GetPrefsDir(pref_dir)) { DoUserAlert("Warning: preferences file could not be written - preferences directory not found."); return; }
 	pref_dir += DIR_STR;
     #if LIN
@@ -222,7 +222,7 @@ void			GUI_Prefs_Write(const char * app_name)
 		fprintf(fi,"[%s]" CRLF, s->first.c_str());
 		for(GUI_PrefSection_t::iterator p = s->second.begin(); p != s->second.end(); ++p)
 		{
-			string k(p->first), v(p->second);
+			std::string k(p->first), v(p->second);
 			enquote(k);
 			enquote(v);
 			fprintf(fi,"%s=%s" CRLF, k.c_str(), v.c_str());
@@ -233,7 +233,7 @@ void			GUI_Prefs_Write(const char * app_name)
 
 void			GUI_EnumSection(const char * section, void (* cb)(const char * key, const char * value, void * ref), void * ref)
 {
-	GUI_Prefs_t::iterator sec=sPrefs.find(string(section));
+	GUI_Prefs_t::iterator sec=sPrefs.find(std::string(section));
 	if (sec != sPrefs.end())
 	for(GUI_PrefSection_t::iterator pref = sec->second.begin(); pref != sec->second.end(); ++pref)
 	{
@@ -243,7 +243,7 @@ void			GUI_EnumSection(const char * section, void (* cb)(const char * key, const
 
 const char *	GUI_GetPrefString(const char * section, const char * key, const char * def)
 {
-	GUI_Prefs_t::iterator sec=sPrefs.find(string(section));
+	GUI_Prefs_t::iterator sec=sPrefs.find(std::string(section));
 	if(sec==sPrefs.end()) return def;
 	GUI_PrefSection_t::iterator pref=sec->second.find(key);
 	if (pref==sec->second.end()) return def;

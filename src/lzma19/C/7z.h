@@ -167,7 +167,7 @@ UInt16 *SzArEx_GetFullNameUtf16_Back(const CSzArEx *p, size_t fileIndex, UInt16 
     If you use external function, you can declare these 3 cache variables
     (blockIndex, outBuffer, outBufferSize) as static in that external function.
     
-    Free *outBuffer and set *outBuffer to 0, if you want to flush cache.
+    Free *outBuffer and std::set *outBuffer to 0, if you want to flush cache.
 */
 
 SRes SzArEx_Extract(

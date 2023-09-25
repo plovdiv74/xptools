@@ -59,7 +59,7 @@ void		WED_ATCTimeRule::PropEditCallback(int before)
 	{
 		char buf[20];
 		snprintf(buf,20,"Time %04d-%04dz",start_time_zulu.value,end_time_zulu.value);
-		string old_name;
+		std::string old_name;
 		GetName(old_name);
 		if (old_name != buf)     // Prevent infinite recursion by calling SetName() if name actually changes
 			SetName(buf);

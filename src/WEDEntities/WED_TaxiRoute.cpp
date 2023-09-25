@@ -28,7 +28,7 @@
 #include "STLUtils.h"
 #include "WED_TaxiRouteNode.h"
 
-static void get_runway_parts(int rwy, set<int>& rwy_parts)
+static void get_runway_parts(int rwy, std::set<int>& rwy_parts)
 {
 	if(rwy == atc_rwy_None)
 		return;
@@ -93,32 +93,32 @@ void		WED_TaxiRoute::SetRunway(int r)
 	runway = r;
 }
 
-void		WED_TaxiRoute::SetHotDepart(const set<int>& rwys)
+void		WED_TaxiRoute::SetHotDepart(const std::set<int>& rwys)
 {
 	hot_depart = rwys;
 }
 
-void		WED_TaxiRoute::SetHotArrive(const set<int>& rwys)
+void		WED_TaxiRoute::SetHotArrive(const std::set<int>& rwys)
 {
 	hot_arrive = rwys;
 }
 
-void		WED_TaxiRoute::SetHotILS(const set<int>& rwys)
+void		WED_TaxiRoute::SetHotILS(const std::set<int>& rwys)
 {
 	hot_ils = rwys;
 }
 
-set<int> WED_TaxiRoute::GetHotDepart()
+std::set<int> WED_TaxiRoute::GetHotDepart()
 {
 	return hot_depart;
 }
 
-set<int> WED_TaxiRoute::GetHotArrive()
+std::set<int> WED_TaxiRoute::GetHotArrive()
 {
 	return hot_arrive;
 }
 
-set<int> WED_TaxiRoute::GetHotILS()
+std::set<int> WED_TaxiRoute::GetHotILS()
 {
 	return hot_ils;
 }
@@ -159,7 +159,7 @@ void	WED_TaxiRoute::Import(const AptRouteEdge_t& info, void (* print_func)(void 
 		width = width_E;
 	}
 
-	for(set<string>::iterator h = info.hot_depart.begin(); h != info.hot_depart.end(); ++h)
+	for(std::set<std::string>::iterator h = info.hot_depart.begin(); h != info.hot_depart.end(); ++h)
 	{
 		int r = ENUM_LookupDesc(ATCRunwayOneway,h->c_str());
 		if(r == -1)
@@ -168,7 +168,7 @@ void	WED_TaxiRoute::Import(const AptRouteEdge_t& info, void (* print_func)(void 
 			hot_depart += r;
 	}
 
-	for(set<string>::iterator h = info.hot_arrive.begin(); h != info.hot_arrive.end(); ++h)
+	for(std::set<std::string>::iterator h = info.hot_arrive.begin(); h != info.hot_arrive.end(); ++h)
 	{
 		int r = ENUM_LookupDesc(ATCRunwayOneway,h->c_str());
 		if(r == -1)
@@ -177,7 +177,7 @@ void	WED_TaxiRoute::Import(const AptRouteEdge_t& info, void (* print_func)(void 
 			hot_arrive += r;
 	}
 
-	for(set<string>::iterator h = info.hot_ils.begin(); h != info.hot_ils.end(); ++h)
+	for(std::set<std::string>::iterator h = info.hot_ils.begin(); h != info.hot_ils.end(); ++h)
 	{
 		int r = ENUM_LookupDesc(ATCRunwayOneway,h->c_str());
 		if(r == -1)
@@ -220,10 +220,10 @@ void	WED_TaxiRoute::Export(AptRouteEdge_t& info, AptServiceRoadEdge_t& info2) co
 			info.runway = 1;
 			info.name = ENUM_Desc(runway.value);
 			
-			set<int>	runway_parts;
+			std::set<int>	runway_parts;
 			get_runway_parts(runway.value,runway_parts);
 
-			for(set<int>::iterator itr = runway_parts.begin(); itr != runway_parts.end(); ++itr)
+			for(std::set<int>::iterator itr = runway_parts.begin(); itr != runway_parts.end(); ++itr)
 			{
 				info.hot_depart.insert(ENUM_Desc(*itr));
 				info.hot_arrive.insert(ENUM_Desc(*itr));
@@ -231,7 +231,7 @@ void	WED_TaxiRoute::Export(AptRouteEdge_t& info, AptServiceRoadEdge_t& info2) co
 			}
 		}
 
-		set<int>::iterator h;
+		std::set<int>::iterator h;
 		for (h = hot_depart.value.begin(); h != hot_depart.value.end(); ++h)
 			info.hot_depart.insert(ENUM_Desc(*h));
 		for (h = hot_arrive.value.begin(); h != hot_arrive.value.end(); ++h)
@@ -254,7 +254,7 @@ void	WED_TaxiRoute::GetNthPropertyDict(int n, PropertyDict_t& dict) const
 		{
 			PropertyDict_t full;
 			WED_GISEdge::GetNthPropertyDict(n,full);			
-			set<int> legal;
+			std::set<int> legal;
 			WED_GetAllRunwaysTwoway(airport, legal);
 			legal.insert(runway.value);
 			legal.insert(atc_rwy_None);
@@ -271,13 +271,13 @@ void	WED_TaxiRoute::GetNthPropertyDict(int n, PropertyDict_t& dict) const
 		const WED_Airport * airport = WED_GetParentAirport(this);
 		if(airport)
 		{
-			set<int>	runway_parts;
+			std::set<int>	runway_parts;
 			get_runway_parts(runway.value,runway_parts);
 			
 		
 			PropertyDict_t full;
 			WED_GISEdge::GetNthPropertyDict(n,full);			
-			set<int> legal;
+			std::set<int> legal;
 			WED_GetAllRunwaysOneway(airport, legal);
 			PropertyVal_t val;
 			this->GetNthProperty(n,val);
@@ -286,7 +286,7 @@ void	WED_TaxiRoute::GetNthPropertyDict(int n, PropertyDict_t& dict) const
 			dict.clear();
 			for(PropertyDict_t::iterator f = full.begin(); f != full.end(); ++f)
 			if(legal.count(f->first))
-				dict.insert(PropertyDict_t::value_type(f->first,make_pair(f->second.first,runway_parts.count(f->first) == 0)));
+				dict.insert(PropertyDict_t::value_type(f->first,std::make_pair(f->second.first,runway_parts.count(f->first) == 0)));
 		}
 	}
 	else
@@ -335,7 +335,7 @@ void		WED_TaxiRoute::GetNthProperty(int n, PropertyVal_t& val) const
 		n == PropertyItemNumber(&hot_arrive) ||
 		n == PropertyItemNumber(&hot_ils))
 		{
-			set<int>	runway_parts;
+			std::set<int>	runway_parts;
 			get_runway_parts(runway.value,runway_parts);
 			copy(runway_parts.begin(),runway_parts.end(),set_inserter(val.set_val));
 		}
@@ -359,10 +359,10 @@ bool	WED_TaxiRoute::HasHotArrival(void) const
 	// a LAHSO marking.  So only return TRUE hotness.
 	if(!AllowAircraft()) return 0;
 	
-	set<int>	runway_parts;
+	std::set<int>	runway_parts;
 	get_runway_parts(runway.value,runway_parts);
 
-	for(set<int>::iterator i = hot_arrive.value.begin(); i != hot_arrive.value.end(); ++i)
+	for(std::set<int>::iterator i = hot_arrive.value.begin(); i != hot_arrive.value.end(); ++i)
 		if(runway_parts.count(*i) == 0)
 			return true;
 	return false;
@@ -372,10 +372,10 @@ bool	WED_TaxiRoute::HasHotDepart(void) const
 {
 	if(!AllowAircraft()) return 0;
 	
-	set<int>	runway_parts;
+	std::set<int>	runway_parts;
 	get_runway_parts(runway.value,runway_parts);
 
-	for(set<int>::iterator i = hot_depart.value.begin(); i != hot_depart.value.end(); ++i)
+	for(std::set<int>::iterator i = hot_depart.value.begin(); i != hot_depart.value.end(); ++i)
 		if(runway_parts.count(*i) == 0)
 			return true;
 	return false;
@@ -385,18 +385,18 @@ bool	WED_TaxiRoute::HasHotILS(void) const
 {
 	if(!AllowAircraft()) return 0;
 	
-	set<int>	runway_parts;
+	std::set<int>	runway_parts;
 	get_runway_parts(runway.value,runway_parts);
 
-	for(set<int>::iterator i = hot_ils.value.begin(); i != hot_ils.value.end(); ++i)
+	for(std::set<int>::iterator i = hot_ils.value.begin(); i != hot_ils.value.end(); ++i)
 		if(runway_parts.count(*i) == 0)
 			return true;
 	return false;
 }
 
-bool	WED_TaxiRoute::HasInvalidHotZones(const set<int>& legal_rwys) const
+bool	WED_TaxiRoute::HasInvalidHotZones(const std::set<int>& legal_rwys) const
 {
-	set<int>::const_iterator z;
+	std::set<int>::const_iterator z;
 
 	for(z = hot_depart.value.begin(); z != hot_depart.value.end(); ++z)
 	if(legal_rwys.count(*z) == 0)
@@ -458,6 +458,6 @@ void  WED_TaxiRoute::PropEditCallback(int before)
 	}
 	else if(old_rwy_tag != runway.value)
 	{
-		SetName(string(ENUM_Desc(runway.value)));
+		SetName(std::string(ENUM_Desc(runway.value)));
 	}
 }

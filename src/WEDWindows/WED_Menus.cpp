@@ -81,12 +81,12 @@ static const GUI_MenuItem_t kExportTargetMenu[] = {
 {	NULL,					0,		0,								0,	0					}
 };
 
-string WED_GetTargetMenuName(int target)
+std::string WED_GetTargetMenuName(int target)
 {
 	if (target <= wed_ExportGateway - wed_Export900)
 		return kExportTargetMenu[target].name;
 	else
-		return string();
+		return std::string();
 }
 
 static const GUI_MenuItem_t kAdvancedMenu[] = {
@@ -272,7 +272,7 @@ static const GUI_MenuItem_t kHelpMenu[] = {
 	Ben says: what Matthias and Janos have done here warrants a little bit of explanation.
 	Basically the GUI menu port isn't quite opaque to client code yet.  Unlike Win32,
 	the Qt Menus used on Linux cannot be shared by multiple windows, thus we cannot
-	really have a global set of menu resources (simulating the mac) that are installed
+	really have a global std::set of menu resources (simulating the mac) that are installed
 	in every window.
 
 	So...right now we have a temporary call-out from the window code to re-generate

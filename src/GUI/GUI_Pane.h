@@ -48,7 +48,7 @@
 		A pane has four 'sticky' flags, indicating that they should move relative to their parents
 		corresponding walls.
 
-		The ideas is that the initial layout is set once and the stickiness preserves this relationship.
+		The ideas is that the initial layout is std::set once and the stickiness preserves this relationship.
 
 	DRAG & DROP
 
@@ -64,7 +64,7 @@
 
 		The operational flags are used to control what the drag actually does.  They are used in four ways:
 
-		1.	The allowed flags are passed by the drag originator.  This is a set of all possible drag
+		1.	The allowed flags are passed by the drag originator.  This is a std::set of all possible drag
 			operations, e.g. we can only move, we can only copy, etc.  The operation won't be outside
 			the allowed bounds.
 
@@ -72,7 +72,7 @@
 			modifier keys being held down).
 
 		3.	The tracking result is calculated by the receiver, based on the allowed and recommended flags.
-			Only one bit flag should be set (or none), indicating what will happen.
+			Only one bit flag should be std::set (or none), indicating what will happen.
 
 		4.	The drop result is a little bit different - the receiver returns "move" if the desired
 			operation is a move AND the receiver is only able to do a copy (requiring the source to
@@ -147,8 +147,8 @@ public:
 			void		SetID(int id);
 			GUI_Pane *	FindByID(int id);
 			GUI_Pane *	FindByPoint(int x, int y);
-			void		GetDescriptor(string& outDesc) const;
-	virtual	void		SetDescriptor(const string& inDesc);
+			void		GetDescriptor(std::string& outDesc) const;
+	virtual	void		SetDescriptor(const std::string& inDesc);
 
 			bool		IsVisible(void) const;
 	virtual bool		IsVisibleNow(void) const;
@@ -214,7 +214,7 @@ public:
 	virtual	int			TrapNotify(int x, int y, int button) { return 0; }
 
 	virtual	int			GetCursor(int x, int y) { return gui_Cursor_None; }
-	virtual	int			GetHelpTip(int x, int y, int tip_bounds[4], string& tip) { return 0; }
+	virtual	int			GetHelpTip(int x, int y, int tip_bounds[4], std::string& tip) { return 0; }
 
 	virtual	GUI_DragOperation			DragEnter	(int x, int y, GUI_DragData * drag, GUI_DragOperation allowed, GUI_DragOperation recommended) { return gui_Drag_None;	}
 	virtual	GUI_DragOperation			DragOver	(int x, int y, GUI_DragData * drag, GUI_DragOperation allowed, GUI_DragOperation recommended) { return gui_Drag_None;	}
@@ -234,7 +234,7 @@ private:
 			GUI_Pane *	InternalMouseMove(int x, int y);
 			int			InternalMouseWheel(int x, int y, int dist, int axis);
 			int			InternalGetCursor(int x, int y);
-			int			InternalGetHelpTip(int x, int y, int tip_bounds[4], string& tip);
+			int			InternalGetHelpTip(int x, int y, int tip_bounds[4], std::string& tip);
 
 			void		ParentResized(int inOldBounds[4], int inNewBounds[4]);
 
@@ -248,15 +248,15 @@ private:
 		float				mSticky[4];
 		
 		GUI_Pane *			mParent;
-		vector<GUI_Pane *>	mChildren;
+		std::vector<GUI_Pane *>	mChildren;
 		int					mID;
 		int					mVisible;
 		int					mEnabled;
-		string				mDesc;
+		std::string				mDesc;
 
 		GUI_Pane *			mDragTarget;
 
-		set<GUI_Pane *>		mTrap;
+		std::set<GUI_Pane *>		mTrap;
 
 	GUI_Pane(const GUI_Pane&);
 	GUI_Pane& operator=(const GUI_Pane&);

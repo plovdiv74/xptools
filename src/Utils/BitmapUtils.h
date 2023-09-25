@@ -108,7 +108,7 @@ struct TEX_dds_caps2 {
 struct TEX_dds_pixelformat {
     uint32_t    dwSize;                 // size of structure (must be 32)
     uint32_t    dwFlags;                // pixel format flags
-    char        dwFourCC[4];               // (FOURCC code)		D X T 3 in memory string.
+    char        dwFourCC[4];               // (FOURCC code)		D X T 3 in memory std::string.
 	uint32_t	dwRGBBitCount;          // how many bits per pixel
 	uint32_t	dwRBitMask;             // mask for red bit
 	uint32_t	dwGBitMask;             // mask for green bits
@@ -117,7 +117,7 @@ struct TEX_dds_pixelformat {
 };
 
 struct TEX_dds_desc {
-	char				dwMagic[4];				// D D S <space> sequential string in memory.  This is not REALLY in the struct, but good enough for me.
+	char				dwMagic[4];				// D D S <space> sequential std::string in memory.  This is not REALLY in the struct, but good enough for me.
 
 	uint32_t            dwSize;                 // size of the DDSURFACEDESC structure		(Must be 124)
 	uint32_t            dwFlags;                // determines what fields are valid			(DDSD_CAPS, DDSD_PIXELFORMAT, DDSD_WIDTH, DDSD_HEIGHT.)
@@ -234,7 +234,7 @@ void	DestroyBitmap(const struct ImageInfo * inImageInfo);
 
 //Put in a file path the image name at the end and get back -1 for error or a
 //supported image code (see the enum SupportedTypes
-int GetSupportedType(const string& path);
+int GetSupportedType(const std::string& path);
 
 //Attempts to make a supported image type using GetSupportedType and the various CreateBitmapFromX utils
 //Error codes are passed back up and returned by the method

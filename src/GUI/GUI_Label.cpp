@@ -63,7 +63,7 @@ void		GUI_Label::SetMargins(float l, float b, float r, float t)
 	mMargins[3] = t;
 }
 
-void		GUI_Label::SetDescriptor(const string& inDesc)
+void		GUI_Label::SetDescriptor(const std::string& inDesc)
 {
 	GUI_Pane::SetDescriptor(inDesc);
 	GUI_Pane::Refresh();
@@ -71,7 +71,7 @@ void		GUI_Label::SetDescriptor(const string& inDesc)
 
 void		GUI_Label::Draw(GUI_GraphState * state)
 {
-	string txt;
+	std::string txt;
 	GetDescriptor(txt);
 
 	/* Figure out the maximum number of characters than can fit inside
@@ -81,7 +81,7 @@ void		GUI_Label::Draw(GUI_GraphState * state)
 	{	
 		const char * begin = txt.c_str();
 		const char * end = begin + txt.size();
-		//Total string width
+		//Total std::string width
 		float TS_Width = GUI_MeasureRange(mFont,begin,end);
 
 		int G_Width = TS_Width/txt.size();
@@ -102,15 +102,15 @@ void		GUI_Label::Draw(GUI_GraphState * state)
 		}
 	}
 	
-	vector<string> lines;
+	std::vector<std::string> lines;
 	
 	/*
-	while(string has text to parse)
+	while(std::string has text to parse)
 		Find the position of a new line,
 		if position cannot be found,
 			break
 
-		cut the substring from the main string and add it too the lines
+		cut the substring from the main std::string and add it too the lines
 	*/
 	
 	while(txt.size() > 0)
@@ -122,7 +122,7 @@ void		GUI_Label::Draw(GUI_GraphState * state)
 		//2:\n found
 		//3:\n not found
 
-		string excerpt;
+		std::string excerpt;
 						
 		//Case 1
 		if(txt[0] == '\n')
@@ -132,7 +132,7 @@ void		GUI_Label::Draw(GUI_GraphState * state)
 		}
 		else if(pos == txt.npos)//Case 3
 		{
-			string excerpt = txt.substr(0);
+			std::string excerpt = txt.substr(0);
 			lines.push_back(excerpt);
 			break;
 		}

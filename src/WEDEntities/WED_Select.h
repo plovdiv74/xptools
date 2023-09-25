@@ -27,7 +27,7 @@
 /*
 	WED_Select - THEORY OF OPERATION
 
-	WED_Select implmements ISelection for WED, using a set of object persistent IDs.
+	WED_Select implmements ISelection for WED, using a std::set of object persistent IDs.
 
 	WED_Select is itself persistent, that is, changes in the selection are undoable.  This is done
 	to maintain sanity -- if we back up the object model without backing up the selection, we could
@@ -52,15 +52,15 @@ public:
 	virtual		void			Clear (void			 );
 	virtual		void			Toggle(ISelectable * who);
 	virtual		void			Insert(ISelectable * who);
-	virtual		void			Insert(const set<ISelectable*>& sel);
-	virtual		void			Insert(const set<ISelectable*>::const_iterator& begin, const set<ISelectable*>::const_iterator& end);
-	virtual		void			Insert(const vector<ISelectable*>& sel);
-	virtual		void			Insert(const vector<ISelectable*>::const_iterator& begin, const vector<ISelectable*>::const_iterator& end);
+	virtual		void			Insert(const std::set<ISelectable*>& sel);
+	virtual		void			Insert(const std::set<ISelectable*>::const_iterator& begin, const std::set<ISelectable*>::const_iterator& end);
+	virtual		void			Insert(const std::vector<ISelectable*>& sel);
+	virtual		void			Insert(const std::vector<ISelectable*>::const_iterator& begin, const std::vector<ISelectable*>::const_iterator& end);
 	virtual		void			Erase (ISelectable * who);
 
 	virtual		int				GetSelectionCount(void) const;
-	virtual		void			GetSelectionSet(set<ISelectable *>& sel) const;
-	virtual		void			GetSelectionVector(vector<ISelectable *>& sel) const;
+	virtual		void			GetSelectionSet(std::set<ISelectable *>& sel) const;
+	virtual		void			GetSelectionVector(std::vector<ISelectable *>& sel) const;
 	virtual		ISelectable *	GetNthSelection(int n) const;
 
 	virtual		int				IterateSelectionOr(int (* func)(ISelectable * who, void * ref), void * ref) const;
@@ -81,7 +81,7 @@ public:
 
 private:
 
-	set<int>		mSelected;
+	std::set<int>		mSelected;
 
 };
 

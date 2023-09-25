@@ -118,13 +118,13 @@ inline Pmwx_Coastal_t pmwx_categorize(Pmwx::Vertex_const_handle v)
  * It is often useful to treat a group of faces or a group of edges as a unit...two examples:
  *
  * - A body of water might be made up of multiple faces becaue bridges split the body of water.
- *   So we use a face set to represent the entire body of water.
+ *   So we use a face std::set to represent the entire body of water.
  *
  * - When merging or copying from one map to another, a single face or single edge in one map
  *   may be represented by many edges or faces in the new one!
  *
- * Generally when we have an edge set we mean a set of halfedges that form one or more rings.
- * (But the edge set is not ordered!)  When we have a face set, the area of the faces is not
+ * Generally when we have an edge std::set we mean a std::set of halfedges that form one or more rings.
+ * (But the edge std::set is not ordered!)  When we have a face std::set, the area of the faces is not
  * necessarily continuous and may contain holes, islands, or whatever!
  *
  */
@@ -143,7 +143,7 @@ struct PredicateAlways { bool operator()(const Value& v) const { return true; } 
 
 template <typename Arr, typename Value, typename Predicate=PredicateAlways<Value> >
 struct CollectionVisitor {
-	typedef set<Value>	CollectionType;	
+	typedef std::set<Value>	CollectionType;	
 	CollectionType *		col_;
 	Predicate				pred_;
 	CollectionVisitor(CollectionType * col, const Predicate& pred=Predicate()) : col_(col), pred_(pred) { }
@@ -158,37 +158,37 @@ struct CollectionVisitor {
  *
  */
 template <typename Arr>
-void	FindEdgesForFace(typename Arr::Face_handle face, set<typename Arr::Halfedge_handle>& outEdges);
+void	FindEdgesForFace(typename Arr::Face_handle face, std::set<typename Arr::Halfedge_handle>& outEdges);
 
 /*
  * FindFacesForEdgeSet
  *
- * Given a bounded edge set, return all faces within that edge set.
+ * Given a bounded edge std::set, return all faces within that edge std::set.
  * THIS DOES CLEAR THE FACE SET!
  *
  */
 template <typename Arr>
-void	FindFacesForEdgeSet(const set<typename Arr::Halfedge_handle>& inEdges, set<typename Arr::Face_handle>& outFaces);
+void	FindFacesForEdgeSet(const std::set<typename Arr::Halfedge_handle>& inEdges, std::set<typename Arr::Face_handle>& outFaces);
 
 /*
  * FindEdgesForFaceSet
  *
- * Given a set of faces, finds the halfedges that bound the set of faces.  Halfedges facing the
- * inside of the face set are returned.
+ * Given a std::set of faces, finds the halfedges that bound the std::set of faces.  Halfedges facing the
+ * inside of the face std::set are returned.
  *
  */
 template <typename Arr>
-void	FindEdgesForFaceSet(const set<typename Arr::Face_handle>& inFaces, set<typename Arr::Halfedge_handle>& outEdges);
+void	FindEdgesForFaceSet(const std::set<typename Arr::Face_handle>& inFaces, std::set<typename Arr::Halfedge_handle>& outEdges);
 
 /*
  * FindInternalEdgesForFaceSet
  *
- * Given a set of edges that rings an area, return any edges inside.  Edges returned are guaranteed to not
+ * Given a std::set of edges that rings an area, return any edges inside.  Edges returned are guaranteed to not
  * be twins, but no guarantee about which edge we get!
  *
  */
 template <typename Arr>
-void	FindInternalEdgesForEdgeSet(const set<typename Arr::Halfedge_handle>& inEdges, set<typename Arr::Halfedge_handle>& outEdges);
+void	FindInternalEdgesForEdgeSet(const std::set<typename Arr::Halfedge_handle>& inEdges, std::set<typename Arr::Halfedge_handle>& outEdges);
 
 /*
  * FindAdjacentFaces
@@ -197,7 +197,7 @@ void	FindInternalEdgesForEdgeSet(const set<typename Arr::Halfedge_handle>& inEdg
  *
  */
 template <typename Arr>
-void	FindAdjacentFaces(typename Arr::Face_handle inFace, set<typename Arr::Face_handle>& outFaces);
+void	FindAdjacentFaces(typename Arr::Face_handle inFace, std::set<typename Arr::Face_handle>& outFaces);
 
 /*
  * FindAdjacentWetFaces
@@ -206,7 +206,7 @@ void	FindAdjacentFaces(typename Arr::Face_handle inFace, set<typename Arr::Face_
  *
  */
  #if 0
-void	FindAdjacentWetFaces(Face_handle inFace, set<Face_handle>& outFaces);
+void	FindAdjacentWetFaces(Face_handle inFace, std::set<Face_handle>& outFaces);
 
 /*
  * IsAdjacentWater
@@ -225,7 +225,7 @@ bool		IsAdjacentWater(Face_const_handle in_face, bool unbounded_is_wet);
  * body, taking into account things like bridges.
  *
  */
-void	FindConnectedWetFaces(Face_handle inFace, set<Face_handle>& outFaces);
+void	FindConnectedWetFaces(Face_handle inFace, std::set<Face_handle>& outFaces);
 #endif
 /*
  * CleanFace
@@ -287,8 +287,8 @@ template <typename Properties, typename Arr=Pmwx>
 class	MapBFSVisitor {
 public:
 
-	typedef pair<typename Arr::Face_handle, Properties>				prop_pair;
-	typedef list<prop_pair>											face_queue;
+	typedef std::pair<typename Arr::Face_handle, Properties>				prop_pair;
+	typedef std::list<prop_pair>											face_queue;
 
 	virtual	void	initialize_properties(Properties& io_properties)=0;
 	virtual	void	adjust_properties(typename Arr::Halfedge_handle edge, Properties& io_properties)=0;
@@ -378,7 +378,7 @@ template <typename Arr, typename Visitor>
 void	VisitAdjacentFaces(typename Arr::Face_handle face, Visitor& v)
 {
 	typedef typename Arr::Face_handle	Face_handle;
-	set<Face_handle>					visited_faces;
+	std::set<Face_handle>					visited_faces;
 	
 	typename Arr::Ccb_halfedge_circulator	circ, stop;
 	if (!face->is_unbounded())
@@ -411,7 +411,7 @@ template <typename Arr, typename Visitor>
 void	VisitContiguousFaces(typename Arr::Face_handle face, Visitor& v)
 {
 	typedef typename Arr::Face_handle	Face_handle;
-	set<Face_handle>					visited_faces, to_visit;
+	std::set<Face_handle>					visited_faces, to_visit;
 	to_visit.insert(face);
 	visited_faces.insert(face);
 	
@@ -453,7 +453,7 @@ void	VisitContiguousFaces(typename Arr::Face_handle face, Visitor& v)
 
 
 template <typename Arr>
-inline void	FindEdgesForFace(typename Arr::Face_handle face, set<typename Arr::Halfedge_handle> &outEdges)
+inline void	FindEdgesForFace(typename Arr::Face_handle face, std::set<typename Arr::Halfedge_handle> &outEdges)
 {
 	typedef CollectionVisitor<Arr, typename Arr::Halfedge_handle>	Collector;
 	Collector col(&outEdges);
@@ -461,12 +461,12 @@ inline void	FindEdgesForFace(typename Arr::Face_handle face, set<typename Arr::H
 }
 
 template <typename Arr>
-inline void	FindFacesForEdgeSet(const set<typename Arr::Halfedge_handle>& inEdges, set<typename Arr::Face_handle>& outFaces)
+inline void	FindFacesForEdgeSet(const std::set<typename Arr::Halfedge_handle>& inEdges, std::set<typename Arr::Face_handle>& outFaces)
 {
 	if (inEdges.empty()) return;
 	outFaces.clear();
 
-	set<typename Arr::Face_handle>	working;
+	std::set<typename Arr::Face_handle>	working;
 
 	// Ben sez: the basic idea here is a "flood fill".  We keep adding more and more faces.
 	// Each time we add a new face, we cross all edges that aren't in our hard boundary
@@ -476,7 +476,7 @@ inline void	FindFacesForEdgeSet(const set<typename Arr::Halfedge_handle>& inEdge
 	// So make sure to add ALL of the faces adjacent to inEdges immediately...otherwise
 	// we might not flood-fill from one disjoint area to another.
 
-	for (typename set<typename Arr::Halfedge_handle>::const_iterator e = inEdges.begin(); e != inEdges.end(); ++e)
+	for (typename std::set<typename Arr::Halfedge_handle>::const_iterator e = inEdges.begin(); e != inEdges.end(); ++e)
 		working.insert((*e)->face());
 
 	while (!working.empty())
@@ -486,10 +486,10 @@ inline void	FindFacesForEdgeSet(const set<typename Arr::Halfedge_handle>& inEdge
 		outFaces.insert(who);
 		working.erase(who);
 
-		set<typename Arr::Halfedge_handle> edges;
+		std::set<typename Arr::Halfedge_handle> edges;
 		FindEdgesForFace<Arr>(who, edges);
 
-		for (typename set<typename Arr::Halfedge_handle>::iterator edge = edges.begin(); edge != edges.end(); ++edge)
+		for (typename std::set<typename Arr::Halfedge_handle>::iterator edge = edges.begin(); edge != edges.end(); ++edge)
 		{
 			if (inEdges.count(*edge) == 0)
 			{
@@ -503,11 +503,11 @@ inline void	FindFacesForEdgeSet(const set<typename Arr::Halfedge_handle>& inEdge
 }
 
 template <typename Arr>
-inline void	FindInternalEdgesForEdgeSet(const set<typename Arr::Halfedge_handle>& inEdges, set<typename Arr::Halfedge_handle>& outEdges)
+inline void	FindInternalEdgesForEdgeSet(const std::set<typename Arr::Halfedge_handle>& inEdges, std::set<typename Arr::Halfedge_handle>& outEdges)
 {
 	outEdges.clear();
-	set<typename Arr::Face_handle>	to_visit;
-	set<typename Arr::Face_handle>	visited;
+	std::set<typename Arr::Face_handle>	to_visit;
+	std::set<typename Arr::Face_handle>	visited;
 
 	to_visit.insert((*inEdges.begin())->face());
 
@@ -518,11 +518,11 @@ inline void	FindInternalEdgesForEdgeSet(const set<typename Arr::Halfedge_handle>
 		to_visit.erase(who);
 		visited.insert(who);
 
-		set<typename Arr::Halfedge_handle>	who_edges;
+		std::set<typename Arr::Halfedge_handle>	who_edges;
 
 		FindEdgesForFace<Arr>(who,who_edges);
 
-		for(typename set<typename Arr::Halfedge_handle>::iterator edge = who_edges.begin(); edge != who_edges.end(); ++edge)
+		for(typename std::set<typename Arr::Halfedge_handle>::iterator edge = who_edges.begin(); edge != who_edges.end(); ++edge)
 		if(inEdges.count(*edge) == 0)
 		{
 			// For every half-edge of this face that is not in the outer boundary...
@@ -542,14 +542,14 @@ inline void	FindInternalEdgesForEdgeSet(const set<typename Arr::Halfedge_handle>
 }
 
 template <typename Arr>
-inline void	FindEdgesForFaceSet(const set<typename Arr::Face_handle>& inFaces, set<typename Arr::Halfedge_handle>& outEdges)
+inline void	FindEdgesForFaceSet(const std::set<typename Arr::Face_handle>& inFaces, std::set<typename Arr::Halfedge_handle>& outEdges)
 {
 	outEdges.clear();
-	for (typename set<typename Arr::Face_handle>::const_iterator f = inFaces.begin(); f != inFaces.end(); ++f)
+	for (typename std::set<typename Arr::Face_handle>::const_iterator f = inFaces.begin(); f != inFaces.end(); ++f)
 	{
-		set<typename Arr::Halfedge_handle>	local;
+		std::set<typename Arr::Halfedge_handle>	local;
 		FindEdgesForFace<Pmwx>(*f, local);
-		for (typename set<typename Arr::Halfedge_handle>::iterator l = local.begin(); l != local.end(); ++l)
+		for (typename std::set<typename Arr::Halfedge_handle>::iterator l = local.begin(); l != local.end(); ++l)
 		{
 			if (inFaces.count((*l)->twin()->face()) == 0)
 				outEdges.insert(*l);
@@ -558,12 +558,12 @@ inline void	FindEdgesForFaceSet(const set<typename Arr::Face_handle>& inFaces, s
 }
 
 template <typename Arr>
-inline void	FindAdjacentFaces(typename Arr::Face_handle inFace, set<typename Arr::Face_handle>& outFaces)
+inline void	FindAdjacentFaces(typename Arr::Face_handle inFace, std::set<typename Arr::Face_handle>& outFaces)
 {
 	outFaces.clear();
-	set<typename Arr::Halfedge_handle> e;
+	std::set<typename Arr::Halfedge_handle> e;
 	FindEdgesForFace<Arr>(inFace, e);
-	for (typename set<typename Arr::Halfedge_handle>::iterator he = e.begin(); he != e.end(); ++he)
+	for (typename std::set<typename Arr::Halfedge_handle>::iterator he = e.begin(); he != e.end(); ++he)
 	if ((*he)->twin()->face() != inFace)
 		outFaces.insert((*he)->twin()->face());
 }

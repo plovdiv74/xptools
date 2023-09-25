@@ -377,10 +377,10 @@ static void	BuildPointSequence(
 	every face with positive depth is inside.
 */
 
-static void visit_face(Face_handle f, set<Face_handle>& to_visit, int depth);
+static void visit_face(Face_handle f, std::set<Face_handle>& to_visit, int depth);
 
 // Visit each hal-edge bounding the face "from".  If we haven't touched the adjacent face, propagate the depth.
-static void visit_ccb(Face_handle from, set<Face_handle>& to_visit, Pmwx::Ccb_halfedge_circulator stop, int depth)
+static void visit_ccb(Face_handle from, std::set<Face_handle>& to_visit, Pmwx::Ccb_halfedge_circulator stop, int depth)
 {
 	Pmwx::Ccb_halfedge_circulator circ=stop;
 	do {
@@ -405,7 +405,7 @@ static void visit_ccb(Face_handle from, set<Face_handle>& to_visit, Pmwx::Ccb_ha
 	while (++circ != stop);
 }
 
-static void visit_face(Face_handle f, set<Face_handle>& to_visit, int depth)
+static void visit_face(Face_handle f, std::set<Face_handle>& to_visit, int depth)
 {
 	DebugAssert(to_visit.count(f) == 1);
 	to_visit.erase(f);															// Make sure we have not visited before.
@@ -538,7 +538,7 @@ void	BufferPolygon(
 
 	// Step 3.
 	// Visit all faces starting at unbounded and propagate depth.
-	set<Pmwx::Face_handle>	all_faces;
+	std::set<Pmwx::Face_handle>	all_faces;
 	for(Pmwx::Face_iterator f = arr.faces_begin(); f != arr.faces_end(); ++f)
 		all_faces.insert(f);
 
@@ -557,18 +557,18 @@ void	BufferPolygon(
 		{
 			if(e->data().mTransition > e->twin()->data().mTransition)
 			{
-			gMeshLines.push_back(pair<Point2,Point3>(cgal2ben(e->source()->point()),Point3(1,0,0)));
-			gMeshLines.push_back(pair<Point2,Point3>(cgal2ben(e->target()->point()),Point3(0,1,0)));
+			gMeshLines.push_back(std::pair<Point2,Point3>(cgal2ben(e->source()->point()),Point3(1,0,0)));
+			gMeshLines.push_back(std::pair<Point2,Point3>(cgal2ben(e->target()->point()),Point3(0,1,0)));
 			}
 			else  if(e->data().mTransition < e->twin()->data().mTransition)
 			{
-			gMeshLines.push_back(pair<Point2,Point3>(cgal2ben(e->source()->point()),Point3(0,1,0)));
-			gMeshLines.push_back(pair<Point2,Point3>(cgal2ben(e->target()->point()),Point3(1,0,0)));
+			gMeshLines.push_back(std::pair<Point2,Point3>(cgal2ben(e->source()->point()),Point3(0,1,0)));
+			gMeshLines.push_back(std::pair<Point2,Point3>(cgal2ben(e->target()->point()),Point3(1,0,0)));
 			}
 			else
 			{
-			gMeshLines.push_back(pair<Point2,Point3>(cgal2ben(e->source()->point()),Point3(1,1,0)));
-			gMeshLines.push_back(pair<Point2,Point3>(cgal2ben(e->target()->point()),Point3(1,1,0)));
+			gMeshLines.push_back(std::pair<Point2,Point3>(cgal2ben(e->source()->point()),Point3(1,1,0)));
+			gMeshLines.push_back(std::pair<Point2,Point3>(cgal2ben(e->target()->point()),Point3(1,1,0)));
 			}
 		}
 
@@ -606,16 +606,16 @@ void	ValidateBuffer(
 				Polygon_set_2&				ps)
 {
 /*
-	typedef pair<Point_2, CGAL::Object>              Query_result;
-	list<Point_2>       query_points;
-	list<Query_result>  results;
+	typedef std::pair<Point_2, CGAL::Object>              Query_result;
+	std::list<Point_2>       query_points;
+	std::list<Query_result>  results;
 	for(Pmwx::Vertex_const_iterator v = ps.arrangement().vertices_begin(); v != ps.arrangement().vertices_end(); ++v)
 		query_points.push_back(v->point());
 
 	CGAL::locate (arr, query_points.begin(), query_points.end(),
 		  back_inserter (results));
 
-	for(list<Query_result>::iterator i = results.begin(); i != results.end(); ++i)
+	for(std::list<Query_result>::iterator i = results.begin(); i != results.end(); ++i)
 	{
 		Face_const_handle f;
 		if(!CGAL::assign(f,i->second))
@@ -653,9 +653,9 @@ void	BufferPolygonSet(
 				double						in_inset,
 				Polygon_set_2&				out_new_polygon)
 {
-	list<Polygon_with_holes_2>	plist_in, plist_out;
+	std::list<Polygon_with_holes_2>	plist_in, plist_out;
 	in_polygon.polygons_with_holes(back_inserter(plist_in));
-	for(list<Polygon_with_holes_2>::iterator i = plist_in.begin(); i != plist_in.end(); ++i)
+	for(std::list<Polygon_with_holes_2>::iterator i = plist_in.begin(); i != plist_in.end(); ++i)
 	{
 		Polygon_set_2 buffered;
 		BufferPolygonWithHoles(*i, NULL, in_inset, buffered);

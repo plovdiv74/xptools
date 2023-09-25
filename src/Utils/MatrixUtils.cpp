@@ -765,7 +765,7 @@ buildLookAtMatrix(GLdouble m[16],
 
 
 
-   /* Z vector */
+   /* Z std::vector */
 
    z[0] = eyex - centerx;
 
@@ -787,7 +787,7 @@ buildLookAtMatrix(GLdouble m[16],
 
 
 
-   /* Y vector */
+   /* Y std::vector */
 
    y[0] = upx;
 
@@ -797,7 +797,7 @@ buildLookAtMatrix(GLdouble m[16],
 
 
 
-   /* X vector = Y cross Z */
+   /* X std::vector = Y cross Z */
 
    x[0] =  y[1]*z[2] - y[2]*z[1];
 
@@ -1073,11 +1073,11 @@ buildRotation( GLdouble	m[16],
 
        *
 
-       *  Rz' is a rotation about the Z-axis, to bring the axis vector
+       *  Rz' is a rotation about the Z-axis, to bring the axis std::vector
 
        *  into the x-z plane.  Then Ry' is applied, rotating about the
 
-       *  Y-axis to bring the axis vector parallel with the X-axis.  The
+       *  Y-axis to bring the axis std::vector parallel with the X-axis.  The
 
        *  rotation about the X-axis is then performed.  Ry and Rz are
 
@@ -1095,7 +1095,7 @@ buildRotation( GLdouble	m[16],
 
        *  The basic calculation used is to recognize that the arbitrary
 
-       *  axis vector (x, y, z), since it is of unit length, actually
+       *  axis std::vector (x, y, z), since it is of unit length, actually
 
        *  represents the sines and cosines of the angles to rotate the
 

@@ -31,7 +31,7 @@
 class GUI_GraphState;
 
 struct entry {
-	string	name;
+	std::string	name;
 	bool	checked;
 	int		enu;
 	entry(const char * c = "") : name(c), checked(false), enu(-1) {}

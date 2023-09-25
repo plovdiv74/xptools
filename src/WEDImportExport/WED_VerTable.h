@@ -32,27 +32,27 @@ struct VerInfo_t
 {
 	int sceneryId;
 	int parentId;
-	string icao;
+	std::string icao;
 	int userId;
-	string userName;
+	std::string userName;
 	//Dates will appear as ISO8601: https://en.wikipedia.org/wiki/ISO_8601
 	//For example 2014-07-31T14:34:47.000Z
-	string dateUploaded;
-	string dateAccepted;
-	string dateApproved;
-	string status;			// Now provided by the server.
+	std::string dateUploaded;
+	std::string dateAccepted;
+	std::string dateApproved;
+	std::string status;			// Now provided by the server.
 
 	//2 for 2D; 3 for 3D
-	string type;
-	vector<char> features;//Currently there is a bug where the chars representing the letters turns them into their ASCII numbers '2'->50, this is a TODO
-	string artistComments;
-	string moderatorComments;
-	vector<char> masterBlobzip;
+	std::string type;
+	std::vector<char> features;//Currently there is a bug where the chars representing the letters turns them into their ASCII numbers '2'->50, this is a TODO
+	std::string artistComments;
+	std::string moderatorComments;
+	std::vector<char> masterBlobzip;
 
 	bool isRecommended;
 };
 
-typedef vector<VerInfo_t> VerVector;
+typedef std::vector<VerInfo_t> VerVector;
 
 class	WED_VerTable :	public GUI_TextTableProvider, 
 						public GUI_SimpleTableGeometry, 
@@ -60,24 +60,24 @@ class	WED_VerTable :	public GUI_TextTableProvider,
 						public GUI_Broadcaster 
 {
 public:
-	// Note: you must call set-filter once after the dust settles to get the 
+	// Note: you must call std::set-filter once after the dust settles to get the 
 	// table synced!
 					 WED_VerTable(
 						const VerVector *			apts);
 	virtual			~WED_VerTable();
 	
 	
-	// Call this to push a new filter string.
+	// Call this to push a new filter std::string.
 			void	SetFilter(
-						const string&				new_filter);
+						const std::string&				new_filter);
 			
-	// Call this any time you change the contents of your apt vector - call
+	// Call this any time you change the contents of your apt std::vector - call
 	// IMMEDIATELY, before letting the UI do anything!
 			void	VerVectorChanged(void);
 			
-	// Call this to get the current selected indicies of your apt vector.
+	// Call this to get the current selected indicies of your apt std::vector.
 			void	GetSelection(
-						set<int>&					out_selection);
+						std::set<int>&					out_selection);
 
 	// GUI_TextTableHeaderProvider
 	virtual	void	GetHeaderContent(
@@ -194,11 +194,11 @@ private:
 	void					resort();
 
 	const VerVector *	mVers;
-	vector<int>			mSorted;
-	set<int>			mSelected;
-	set<int>			mSelectedOrig;
+	std::vector<int>			mSorted;
+	std::set<int>			mSelected;
+	std::set<int>			mSelectedOrig;
 	int					mSortColumn;
 	int					mInvertSort;
-	string				mFilter;
+	std::string				mFilter;
 };
 #endif

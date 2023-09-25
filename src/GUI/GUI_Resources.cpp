@@ -66,7 +66,7 @@ static char* mangle_name (const char* filename, const char* suffix)
 	return buf;
 }
 
-static bool resource_get_memory(const string& res_name, char** begin, char** end)
+static bool resource_get_memory(const std::string& res_name, char** begin, char** end)
 {
 	const char* sym_start = 0;
 	const char* sym_end = 0;
@@ -95,7 +95,7 @@ cleanup:
 #endif
 
 #if APL
-static int 	GUI_GetResourcePath(const char * in_resource, string& out_path)
+static int 	GUI_GetResourcePath(const char * in_resource, std::string& out_path)
 {
 	#if APL
 		int found = 0;
@@ -110,9 +110,9 @@ static int 	GUI_GetResourcePath(const char * in_resource, string& out_path)
 				if(path_str)
 				{
 					CFRange range = CFRangeMake(0, CFStringGetLength(path_str));
-					vector<UInt8> buf(CFStringGetBytes(path_str,range,kCFStringEncodingMacRoman,0,false,NULL,0, NULL));
+					std::vector<UInt8> buf(CFStringGetBytes(path_str,range,kCFStringEncodingMacRoman,0,false,NULL,0, NULL));
 					CFStringGetBytes(path_str,range,kCFStringEncodingMacRoman,0,false,&*buf.begin(),buf.size(), NULL);
-					out_path = string(buf.begin(), buf.end());
+					out_path = std::string(buf.begin(), buf.end());
 					found = 1;
 					CFRelease(path_str);
 				}
@@ -129,7 +129,7 @@ static int 	GUI_GetResourcePath(const char * in_resource, string& out_path)
 
 GUI_Resource	GUI_LoadResource(const char * in_resource)
 {
-	string path;
+	std::string path;
 	if (!GUI_GetResourcePath(in_resource, path)) return NULL;
 	return MemFile_Open(path.c_str());
 }
@@ -149,7 +149,7 @@ const char *	GUI_GetResourceEnd(GUI_Resource res)
 	return 	MemFile_GetEnd((MFMemFile *) res);
 }
 
-bool			GUI_GetTempResourcePath(const char * in_resource, string& out_path)
+bool			GUI_GetTempResourcePath(const char * in_resource, std::string& out_path)
 {
 	return GUI_GetResourcePath(in_resource, out_path);
 }
@@ -161,12 +161,12 @@ struct res_struct {
 	const char * start_p;
 	const char * end_p;
 };
-typedef map<string, res_struct>	res_map;
+typedef std::map<std::string, res_struct>	res_map;
 static res_map sResMap;
 
 GUI_Resource	GUI_LoadResource(const char * in_resource)
 {
-	string path(in_resource);
+	std::string path(in_resource);
 	res_map::iterator i = sResMap.find(path);
 	if (i != sResMap.end()) return &(i->second);
 
@@ -180,7 +180,7 @@ GUI_Resource	GUI_LoadResource(const char * in_resource)
 	if (ptr == NULL) return NULL;
 
 	res_struct info = { (const char *) ptr, (const char *) ptr + sz };
-	pair<res_map::iterator,bool> ins = sResMap.insert(res_map::value_type(path,info));
+	std::pair<res_map::iterator,bool> ins = sResMap.insert(res_map::value_type(path,info));
 	return &ins.first->second;
 }
 
@@ -198,7 +198,7 @@ const char *	GUI_GetResourceEnd(GUI_Resource res)
 		return ((res_struct*)res)->end_p;
 }
 
-bool			GUI_GetTempResourcePath(const char* in_resource, string& out_path)
+bool			GUI_GetTempResourcePath(const char* in_resource, std::string& out_path)
 {
 	GUI_Resource res = GUI_LoadResource(in_resource);
 	if (res == NULL) return false;
@@ -235,7 +235,7 @@ struct res_struct {
 	const char * start_p;
 	const char * end_p;
 };
-typedef map<string, res_struct>	res_map;
+typedef std::map<std::string, res_struct>	res_map;
 static res_map sResMap;
 
 
@@ -247,7 +247,7 @@ GUI_Resource	GUI_LoadResource(const char* in_resource)
 		printf("error opening module\n");
 		return 0;
 	}
-	string path(in_resource);
+	std::string path(in_resource);
 	res_map::iterator i = sResMap.find(path);
 	if (i != sResMap.end()) return &(i->second);
 
@@ -258,7 +258,7 @@ GUI_Resource	GUI_LoadResource(const char* in_resource)
 
 	res_struct info = { (const char *) b, (const char *) e };
 
-	pair<res_map::iterator,bool> ins = sResMap.insert(res_map::value_type(path,info));
+	std::pair<res_map::iterator,bool> ins = sResMap.insert(res_map::value_type(path,info));
 	return &ins.first->second;
 }
 
@@ -282,10 +282,10 @@ const char *	GUI_GetResourceEnd(GUI_Resource res)
 	return ((res_struct*)res)->end_p;
 }
 
-typedef map<string, string>	tmp_res_paths;
+typedef std::map<std::string, std::string>	tmp_res_paths;
 static tmp_res_paths sTmpResPaths;
 
-bool			GUI_GetTempResourcePath(const char * in_resource, string& out_path)
+bool			GUI_GetTempResourcePath(const char * in_resource, std::string& out_path)
 {
 	tmp_res_paths::iterator it = sTmpResPaths.find(in_resource);
 	if (it != sTmpResPaths.end())
@@ -349,7 +349,7 @@ struct	TexInfo {
 	GUI_TexPosition_t	metrics;
 };
 
-typedef hash_map<string, TexInfo>	TexResourceTable;
+typedef std::hash_map<std::string, TexInfo>	TexResourceTable;
 static TexResourceTable		sTexes;
 
 int	GUI_GetTextureResource(
@@ -357,7 +357,7 @@ int	GUI_GetTextureResource(
 			int					flags,
 			GUI_TexPosition_t *	out_metrics)
 {
-	string r(in_resource);
+	std::string r(in_resource);
 
 	TexResourceTable::iterator i = sTexes.find(r);
 	if (i != sTexes.end())
@@ -368,7 +368,7 @@ int	GUI_GetTextureResource(
 
 	TexInfo	info;
 	glGenTextures(1,&info.tex_id);
-	string full_path;
+	std::string full_path;
 
 	ImageInfo	image;
 
@@ -395,7 +395,7 @@ int	GUI_GetTextureResource(
 
 int	GUI_GetImageResourceWidth(const char * in_resource)
 {
-	string r(in_resource);
+	std::string r(in_resource);
 	TexResourceTable::iterator i = sTexes.find(r);
 	if (i != sTexes.end())
 		return i->second.metrics.real_width;
@@ -414,7 +414,7 @@ int	GUI_GetImageResourceWidth(const char * in_resource)
 
 int	GUI_GetImageResourceHeight(const char * in_resource)
 {
-	string r(in_resource);
+	std::string r(in_resource);
 	TexResourceTable::iterator i = sTexes.find(r);
 	if (i != sTexes.end())
 		return i->second.metrics.real_height;
@@ -435,7 +435,7 @@ int	GUI_GetImageResourceHeight(const char * in_resource)
 int	GUI_GetImageResourceSize(const char * in_resource, int bounds[2])
 {
 	bounds[0] = bounds[1] = 0;
-	string r(in_resource);
+	std::string r(in_resource);
 	TexResourceTable::iterator i = sTexes.find(r);
 	if (i != sTexes.end())
 	{
@@ -461,8 +461,8 @@ int	GUI_GetImageResourceSize(const char * in_resource, int bounds[2])
 float	GUI_Rescale_S(float s, GUI_TexPosition_t * metrics);
 float	GUI_Rescale_T(float t, GUI_TexPosition_t * metrics);
 
-// WordWrap a string by replacing spaces in it for \n.
-// If the string already has some \n in it, be clever as to not insert more than needed.
+// WordWrap a std::string by replacing spaces in it for \n.
+// If the std::string already has some \n in it, be clever as to not insert more than needed.
 // Also be clever about words longer than the allowed width, i.e. don't truncate those.
 
 std::string WordWrap( std::string str, size_t width )
@@ -484,7 +484,7 @@ std::string WordWrap( std::string str, size_t width )
 		{
 			spacePos = str.rfind(' ', maxPos);     // look for a space just before the line gets too long
 			if( spacePos == std::string::npos ||
-			   (lastCR != string::npos && spacePos <= lastCR))   // no joy, i.e. a very long word
+			   (lastCR != std::string::npos && spacePos <= lastCR))   // no joy, i.e. a very long word
 			{
 				spacePos = str.find(' ', maxPos);  // so we look for a good place after that word,
 			}                                      // as we have no better choice here.

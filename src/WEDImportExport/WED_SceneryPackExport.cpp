@@ -44,14 +44,14 @@
 
 #include <iostream>
 
-void	WED_ExportPackToPath(WED_Thing * root, IResolver * resolver, const string& in_path, set<WED_Thing *>& problem_children)
+void	WED_ExportPackToPath(WED_Thing * root, IResolver * resolver, const std::string& in_path, std::set<WED_Thing *>& problem_children)
 {
 	int result = DSF_Export(root, resolver, in_path,problem_children);
 	if (result == -1)
 		return;
 
-	string	apt = in_path + "Earth nav data" DIR_STR "apt.dat";
-	string	apt_dir = in_path + "Earth nav data";
+	std::string	apt = in_path + "Earth nav data" DIR_STR "apt.dat";
+	std::string	apt_dir = in_path + "Earth nav data";
 
 	FILE_make_dir_exist(apt_dir.c_str());
 	WED_AptExport(root, apt.c_str());
@@ -100,7 +100,7 @@ static void	DoHueristicAnalysisAndAutoUpgrade(IResolver* resolver)
 {
 	LOG_MSG("I/exp Starting upgrade heuristics\n");
 	WED_Thing * wrl = WED_GetWorld(resolver);
-	vector<WED_Airport*> apts;
+	std::vector<WED_Airport*> apts;
 	CollectRecursiveNoNesting(wrl, back_inserter(apts),WED_Airport::sClass);    // ATTENTION: all code here assumes 'normal' hierachies and no hidden items,
 																				//	i.e. apts 1 level down, groups next, then items in them at 2 levels down.
 	WED_ResourceMgr * rmgr = WED_GetResourceMgr(resolver);                      // Speeds up recursive collecting, avoids recursing too deep.
@@ -111,12 +111,12 @@ static void	DoHueristicAnalysisAndAutoUpgrade(IResolver* resolver)
 	int added_country_codes = 0;
 	int grass_statistics[4] = { 0 };
 
-	auto t0 = chrono::high_resolution_clock::now();
+	auto t0 = std::chrono::high_resolution_clock::now();
 
 	for (auto apt_itr = apts.begin(); apt_itr != apts.end(); ++apt_itr)
 	{
-		auto t2 = chrono::high_resolution_clock::now();
-		string ICAO_code;
+		auto t2 = std::chrono::high_resolution_clock::now();
+		std::string ICAO_code;
 
 		//-- Erase implausible ICAO and now undesired closed tags (the [X] in the name is now official) ----
 		if ((*apt_itr)->ContainsMetaDataKey(wed_AddMetaDataICAO))
@@ -142,7 +142,7 @@ static void	DoHueristicAnalysisAndAutoUpgrade(IResolver* resolver)
 		// prevent this 'inheriting' of the illegal ICAO code, causing name collisions with other airports.
 		if (ICAO_code.empty())
 		{
-			string local_code, faa_code;
+			std::string local_code, faa_code;
 			if((*apt_itr)->ContainsMetaDataKey(wed_AddMetaDataFAA))
 				faa_code = (*apt_itr)->GetMetaDataValue(wed_AddMetaDataFAA);
 			if((*apt_itr)->ContainsMetaDataKey(wed_AddMetaDataLocal))
@@ -150,7 +150,7 @@ static void	DoHueristicAnalysisAndAutoUpgrade(IResolver* resolver)
 			
 			if(local_code.empty() && faa_code.empty())
 			{
-				string apt_ID;
+				std::string apt_ID;
 				(*apt_itr)->GetICAO(apt_ID);
 				bool illicit = apt_ID.size() != 4 || toupper(apt_ID[0]) < 'A' || toupper(apt_ID[0]) >= 'Z';
 				for (int i = 1; i < 4; i++)
@@ -167,9 +167,9 @@ static void	DoHueristicAnalysisAndAutoUpgrade(IResolver* resolver)
 		// -- tag heliports that are oilrigs, so the sim uses a more specific symbol in the map
 		if ((*apt_itr)->GetAirportType() == type_Heliport)
 		{
-			vector<WED_ObjPlacement*> oilrigs;
+			std::vector<WED_ObjPlacement*> oilrigs;
 			CollectRecursive(*apt_itr, back_inserter(oilrigs), IgnoreVisiblity, [](WED_Thing* objs)->bool {
-				string res;
+				std::string res;
 				static_cast<WED_ObjPlacement*>(objs)->GetResource(res);
 				return res.compare(0, strlen("lib/ships/OilRig"), "lib/ships/OilRig") == 0 ||
 					   res.compare(0, strlen("lib/ships/OilPlat"), "lib/ships/OilPlat") == 0;
@@ -197,10 +197,10 @@ static void	DoHueristicAnalysisAndAutoUpgrade(IResolver* resolver)
 
 #if 0  // this was good in 10.45, but not needed any for gateway airports as of 2022
 		//-- Agp and obj upgrades to create more ground traffic --------------------------------
-		vector<WED_TruckParkingLocation*> parking_locations;
+		std::vector<WED_TruckParkingLocation*> parking_locations;
 		CollectRecursive(*apt_itr, back_inserter(parking_locations));
 
-		vector<WED_TruckDestination*>     truck_destinations;
+		std::vector<WED_TruckDestination*>     truck_destinations;
 		CollectRecursive(*apt_itr, back_inserter(truck_destinations));
 
 		bool found_truck_evidence = false;
@@ -209,19 +209,19 @@ static void	DoHueristicAnalysisAndAutoUpgrade(IResolver* resolver)
 
 		if (found_truck_evidence == false)
 		{
-			vector<WED_ObjPlacement*> all_objs;
-			vector<WED_AgpPlacement*> agp_placements;
+			std::vector<WED_ObjPlacement*> all_objs;
+			std::vector<WED_AgpPlacement*> agp_placements;
 			CollectRecursive(*apt_itr, back_inserter(all_objs));
 
-			for (vector<WED_AgpPlacement*>::iterator obj_itr = all_objs.begin(); obj_itr != all_objs.end(); ++obj_itr)
+			for (std::vector<WED_AgpPlacement*>::iterator obj_itr = all_objs.begin(); obj_itr != all_objs.end(); ++obj_itr)
 			{
-				string agp_resource;
+				std::string agp_resource;
 				(*obj_itr)->GetResource(agp_resource);
 				if (FILE_get_file_extension(agp_resource) == ".agp")
 					agp_placements.push_back(*obj_itr);
 			}
 
-			vector<WED_ObjPlacement*> out_added_objs;
+			std::vector<WED_ObjPlacement*> out_added_objs;
 			wrl->StartCommand("Break Apart Special Agps");
 			int num_replaced = wed_break_apart_special_agps(agp_placements, rmgr, out_added_objs);
 			if (num_replaced == 0)
@@ -242,7 +242,7 @@ static void	DoHueristicAnalysisAndAutoUpgrade(IResolver* resolver)
 
 		if ((*apt_itr)->GetAirportType() == type_Airport)
 		{
-			string ICAO_region;
+			std::string ICAO_region;
 			if ((*apt_itr)->ContainsMetaDataKey(wed_AddMetaDataRegionCode))
 				ICAO_region = (*apt_itr)->GetMetaDataValue(wed_AddMetaDataRegionCode);
 
@@ -252,12 +252,12 @@ static void	DoHueristicAnalysisAndAutoUpgrade(IResolver* resolver)
 			if(ICAO_region != "CY" && ICAO_region != "MM")
 			if(ICAO_code != "KEDW" && ICAO_code != "9L2" && ICAO_code != "KFFO" && ICAO_code != "KSSC" && ICAO_code != "KCHS")
 			{
-				vector<WED_Runway*> rwys;
+				std::vector<WED_Runway*> rwys;
 				CollectRecursive(*apt_itr, back_inserter(rwys));
 				for (auto r : rwys)
 					if(r->GetSurface() < surf_Grass)
 					{
-						string r_nam;
+						std::string r_nam;
 						r->GetName(r_nam);
 						if (r_nam[0] == '0')
 						{
@@ -285,12 +285,12 @@ static void	DoHueristicAnalysisAndAutoUpgrade(IResolver* resolver)
 		// of new art assets will some day get out of hand and backporting to XP11 will end ...
 		#define XP12PATH  "lib/airport/ground/"
 		#define XP12N  strlen(XP12PATH)
-		vector<IHasResource*> xp12_art;
+		std::vector<IHasResource*> xp12_art;
 		CollectRecursive(*apt_itr, back_inserter(xp12_art), IgnoreVisiblity, [](WED_Thing* t)->bool 
 			{
 				if(auto r = dynamic_cast<IHasResource*>(t))
 				{
-					string res;
+					std::string res;
 					r->GetResource(res);
 					return res.compare(0, XP12N, XP12PATH) == 0 || 
 						   res.compare(0, strlen("lib/vehicles/"), "lib/vehicles/") == 0 ||
@@ -304,7 +304,7 @@ static void	DoHueristicAnalysisAndAutoUpgrade(IResolver* resolver)
 			wrl->StartCommand("Translate XP12 art");
 			for (auto p : xp12_art)
 			{
-				string res;
+				std::string res;
 				p->GetResource(res);
 				if      (res.compare(XP12N, strlen("pavement/asphalt_L"), "pavement/asphalt_L") == 0)
 					res = "lib/airport/pavement/asphalt_1L.pol";
@@ -328,10 +328,10 @@ static void	DoHueristicAnalysisAndAutoUpgrade(IResolver* resolver)
 		}
 #else
 		// mow the grass
-		vector<WED_Thing*> terFX;
+		std::vector<WED_Thing*> terFX;
 		CollectRecursive(*apt_itr, back_inserter(terFX), IgnoreVisiblity, [](WED_Thing* t)->bool 
 			{
-				string res;
+				std::string res;
 #if TYLER_MODE
 				t->GetName(res);
 				return res == "Terrain FX";
@@ -341,7 +341,7 @@ static void	DoHueristicAnalysisAndAutoUpgrade(IResolver* resolver)
 				if (auto tr = dynamic_cast<IHasResource*>(t))  // thats pretty slow - the reason why in TYLER_MODE we go for the group only
 				{                                              // but for user exports we can't rely on that group to already exist.
 					tr->GetResource(res);
-					return res.find("terrain_FX") != string::npos;
+					return res.find("terrain_FX") != std::string::npos;
 				}
 				return false;
 			}
@@ -359,9 +359,9 @@ static void	DoHueristicAnalysisAndAutoUpgrade(IResolver* resolver)
 				wrl->AbortOperation();
 		}
 		// convert tree objects into a forest
-		vector<WED_ObjPlacement*> tree_objs;
+		std::vector<WED_ObjPlacement*> tree_objs;
 		CollectRecursive(*apt_itr, back_inserter(tree_objs), IgnoreVisiblity, [](WED_Thing* objs)->bool {
-			string res;
+			std::string res;
 			static_cast<WED_ObjPlacement*>(objs)->GetResource(res);
 			return res.compare(0, strlen("lib/g10/forests/autogen"), "lib/g10/forests/autogen") == 0 ||
 				   res.compare(0, strlen("lib/airport/Common_Elements/Miscellaneous/Tree"), "lib/airport/Common_Elements/Miscellaneous/Tree") == 0;
@@ -371,15 +371,15 @@ static void	DoHueristicAnalysisAndAutoUpgrade(IResolver* resolver)
 		{
 			wrl->StartCommand("Select");
 			sel->Clear();
-			sel->Insert(vector<ISelectable*>(tree_objs.begin(), tree_objs.end()));
+			sel->Insert(std::vector<ISelectable*>(tree_objs.begin(), tree_objs.end()));
 			wrl->CommitCommand();
 			WED_DoConvertToForest(resolver);
 			LOG_MSG("Converted Trees into Forests at %s\n", ICAO_code.c_str());
 		}
 		// convert long deprecated 2D only forests into contemporary 3D forests.
-		vector<WED_ForestPlacement*> forests;
+		std::vector<WED_ForestPlacement*> forests;
 		CollectRecursive(*apt_itr, back_inserter(forests), IgnoreVisiblity, [](WED_Thing* thing)->bool {
-			string res;
+			std::string res;
 			static_cast<WED_ForestPlacement*>(thing)->GetResource(res);
 			return res.compare(0, strlen("lib/g10/forests/AG_"), "lib/g10/forests/AG_") == 0;
 			},
@@ -393,10 +393,10 @@ static void	DoHueristicAnalysisAndAutoUpgrade(IResolver* resolver)
 			LOG_MSG("Converted AG_* forests to 3D at %s\n", ICAO_code.c_str());
 		}
 		// add soft edges to all pavement
-		vector<WED_Group*> pavFX;
+		std::vector<WED_Group*> pavFX;
 		CollectRecursive(*apt_itr, back_inserter(pavFX), IgnoreVisiblity, [](WED_Thing* t)->bool
 			{
-				string res;
+				std::string res;
 				t->GetName(res);
 				return res == "Pavement FX";
 			},
@@ -413,13 +413,13 @@ static void	DoHueristicAnalysisAndAutoUpgrade(IResolver* resolver)
 				wrl->AbortOperation();
 		}
 /*		// add soft edges for airport grass
-		vector<WED_AirportBoundary*> bdy;
+		std::vector<WED_AirportBoundary*> bdy;
 		CollectRecursive(*apt_itr, back_inserter(bdy), IgnoreVisiblity, TakeAlways, WED_AirportBoundary::sClass, 2);
 		if (bdy.size() && (*apt_itr)->GetAirportType() == type_Airport)
 		{
-			vector<WED_LinePlacement*> grass_lines;
+			std::vector<WED_LinePlacement*> grass_lines;
 			CollectRecursive(*apt_itr, back_inserter(grass_lines), IgnoreVisiblity, [](WED_Thing* lin)->bool {
-				string res;
+				std::string res;
 				static_cast<WED_LinePlacement*>(lin)->GetResource(res);
 				return res.compare(0, strlen("lib/g10/terrain10/apt_border_"), "lib/g10/terrain10/apt_border_") == 0;
 				},
@@ -428,11 +428,11 @@ static void	DoHueristicAnalysisAndAutoUpgrade(IResolver* resolver)
 			{
 				wrl->StartCommand("Create AptGrass Soft Edges");
 				sel->Clear();
-				sel->Insert(vector<ISelectable*>(bdy.begin(), bdy.end()));
+				sel->Insert(std::vector<ISelectable*>(bdy.begin(), bdy.end()));
 				WED_DoDuplicate(resolver, false);
 				WED_DoConvertTo(resolver, &CreateThing<WED_LinePlacement>, false);
 				// change to particular line type
-				string grass_line_res = string("lib/g10/terrain10/apt_border_") + climate_map[ICAO_code] + ".lin";
+				std::string grass_line_res = std::string("lib/g10/terrain10/apt_border_") + climate_map[ICAO_code] + ".lin";
 				int n_sel = sel->GetSelectionCount();
 				for (int i = 0; i < n_sel; i++)
 				{
@@ -458,10 +458,10 @@ static void	DoHueristicAnalysisAndAutoUpgrade(IResolver* resolver)
 			// nuke all large terrain polygons unless at high lattitudes (cuz there is no gobal scenery there ...)
 			if (apt_box.p1.y() < 73.0 && apt_box.p1.y() > -60.0)
 			{
-				vector<WED_PolygonPlacement*> terrain_polys;
+				std::vector<WED_PolygonPlacement*> terrain_polys;
 				CollectRecursive(*apt_itr, back_inserter(terrain_polys), IgnoreVisiblity, [](WED_Thing* t)->bool
 					{
-						string res;
+						std::string res;
 						static_cast<WED_PolygonPlacement*>(t)->GetResource(res);
 						return res.compare(0, strlen("lib/g10/terrain10/"), "lib/g10/terrain10/") == 0 ||
 							res.compare(0, strlen("lib/g8/pol/"), "lib/g8/pol/") == 0;
@@ -469,7 +469,7 @@ static void	DoHueristicAnalysisAndAutoUpgrade(IResolver* resolver)
 					WED_PolygonPlacement::sClass, 2);
 				if (terrain_polys.size())
 				{
-					set<WED_Thing*> things;
+					std::set<WED_Thing*> things;
 					for (auto p : terrain_polys)
 					{
 						Bbox2 bounds;
@@ -485,9 +485,9 @@ static void	DoHueristicAnalysisAndAutoUpgrade(IResolver* resolver)
 			}
 
 			// nuke all "Grunge" draped objects
-			vector<WED_ObjPlacement*> grunge_objs;
+			std::vector<WED_ObjPlacement*> grunge_objs;
 			CollectRecursive(*apt_itr, back_inserter(grunge_objs), IgnoreVisiblity, [](WED_Thing* objs)->bool {
-				string res;
+				std::string res;
 				static_cast<WED_ObjPlacement*>(objs)->GetResource(res);
 				return res.compare(0, strlen("lib/airport/Common_Elements/Parking/Grunge"), "lib/airport/Common_Elements/Parking/Grunge") == 0;
 				},
@@ -495,20 +495,20 @@ static void	DoHueristicAnalysisAndAutoUpgrade(IResolver* resolver)
 			if (grunge_objs.size())
 			{
 				wrl->StartCommand("Delete Grunge Objects");
-				set<WED_Thing*> things(grunge_objs.begin(), grunge_objs.end());
+				std::set<WED_Thing*> things(grunge_objs.begin(), grunge_objs.end());
 				WED_RecursiveDelete(things);
 				wrl->CommitCommand();
 				LOG_MSG("Deleted %zd Grunges at %s\n", grunge_objs.size(), ICAO_code.c_str());
 			}
 
 			// nuke ALL exclusions at airports, but only for 2D stuff like Beaches, Roads, Polygons, Lines at Sea/Heliports
-			vector<WED_ExclusionZone*> exclusions;
+			std::vector<WED_ExclusionZone*> exclusions;
 			CollectRecursive(*apt_itr, back_inserter(exclusions), IgnoreVisiblity, TakeAlways,
 				WED_ExclusionZone::sClass, 2);
 			if (exclusions.size())
 			{
 				wrl->StartCommand("Remove XP11 era exclusions");
-				set<WED_Thing*> ex_set;
+				std::set<WED_Thing*> ex_set;
 				int reduced_ex = 0;
 				if((*apt_itr)->GetAirportType() == type_Airport)
 				{
@@ -519,7 +519,7 @@ static void	DoHueristicAnalysisAndAutoUpgrade(IResolver* resolver)
 				{
 					for (auto e : exclusions)
 					{
-						set<int> ex;
+						std::set<int> ex;
 						e->GetExclusions(ex);
 						ex.erase(exclude_Bch);
 						ex.erase(exclude_Net);
@@ -541,7 +541,7 @@ static void	DoHueristicAnalysisAndAutoUpgrade(IResolver* resolver)
 			// nuke all per-airport flatten
 			AptInfo_t apt_info;
 			(*apt_itr)->Export(apt_info);
-			auto it = std::find(apt_info.meta_data.begin(), apt_info.meta_data.end(), make_pair(string("flatten"), string("1")));
+			auto it = std::find(apt_info.meta_data.begin(), apt_info.meta_data.end(), std::make_pair(std::string("flatten"), std::string("1")));
 			if (it != apt_info.meta_data.end())
 			{
 				wrl->StartCommand("Remove XP11 era flatten");
@@ -585,19 +585,19 @@ static void	DoHueristicAnalysisAndAutoUpgrade(IResolver* resolver)
 	LOG_MSG("Prefixed %d country meta data with iso3166 codes\n", added_country_codes);
 	LOG_MSG("Mowed %d polys %d lines %d spots %d patches\n", grass_statistics[0], grass_statistics[1],grass_statistics[2],grass_statistics[3]);
 
-	auto t1 = chrono::high_resolution_clock::now();
-	chrono::duration<double> elapsed = t1 - t0;
+	auto t1 = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> elapsed = t1 - t0;
 	LOG_MSG("I/exp Done with upgrade heuristics, took %lf sec\n", elapsed.count());
 	LOG_FLUSH();
 }
 
-int		WED_CanExportPack(IResolver* resolver, string& ioname)
+int		WED_CanExportPack(IResolver* resolver, std::string& ioname)
 {
 	int target_idx = gExportTarget - wet_xplane_900;
 	if (target_idx > wet_latest_xplane)
 		ioname = "Export to Scenery (w/Scenery Gateway heuristics)";
 	else
-		 ioname = string("Export to Scenery for ") + WED_GetTargetMenuName(target_idx);
+		 ioname = std::string("Export to Scenery for ") + WED_GetTargetMenuName(target_idx);
 	return 1;
 }
 
@@ -624,9 +624,9 @@ void	WED_DoExportPack(WED_Document * resolver, WED_MapPane * pane)
 	WED_Thing * w = WED_GetWorld(resolver);
 	WED_Group * g = dynamic_cast<WED_Group*>(w);
 	DebugAssert(g);
-	set<WED_Thing *>	problem_children;
+	std::set<WED_Thing *>	problem_children;
 
-	string pack_base;
+	std::string pack_base;
 	l->LookupPath(pack_base);
 
 	WED_ExportPackToPath(g, resolver, pack_base, problem_children);
@@ -644,7 +644,7 @@ void	WED_DoExportPack(WED_Document * resolver, WED_MapPane * pane)
 		ISelection * sel = WED_GetSelect(resolver);
 		(*problem_children.begin())->StartOperation("Select broken items.");
 		sel->Clear();
-		for(set<WED_Thing*>::iterator p = problem_children.begin(); p != problem_children.end(); ++p)
+		for(std::set<WED_Thing*>::iterator p = problem_children.begin(); p != problem_children.end(); ++p)
 			sel->Insert(*p);
 		(*problem_children.begin())->CommitOperation();
 	}

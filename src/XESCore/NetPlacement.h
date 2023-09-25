@@ -36,8 +36,8 @@ class	CDT;
 
 struct Net_JunctionInfo_t ;
 struct Net_ChainInfo_t;
-typedef set<Net_JunctionInfo_t *>	Net_JunctionInfoSet;
-typedef set<Net_ChainInfo_t *>		Net_ChainInfoSet;
+typedef std::set<Net_JunctionInfo_t *>	Net_JunctionInfoSet;
+typedef std::set<Net_ChainInfo_t *>		Net_ChainInfoSet;
 
 struct	Net_JunctionInfo_t {
 	int								index;
@@ -152,7 +152,7 @@ void generate_bezier(
 				const Point2&	c,
 				double			min_deflection,
 				double			crease_angle_cos,
-				list<Point2c>&	pts);
+				std::list<Point2c>&	pts);
 
 void fix_control_point(const Point2c& origin, Point2c& control_pt, const Vector2& limit_vec);
 

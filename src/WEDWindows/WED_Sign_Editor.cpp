@@ -255,7 +255,7 @@ static sign_token make_from_parser(const parser_glyph_info& g)
 	return t;
 }
 
-bool	sign_data::from_code(const string& code)
+bool	sign_data::from_code(const std::string& code)
 {
 	parser_in_info input(code);
 	parser_out_info output;	
@@ -285,19 +285,19 @@ bool	sign_data::from_code(const string& code)
 	return true;
 }
 
-string	sign_data::to_code() const
+std::string	sign_data::to_code() const
 {
 	parser_color_t lc = sign_color_invalid;
 	bool in_braces = false;
 	int side_count = back.empty() ? 1 : 2;
 	
-	string out_text;
+	std::string out_text;
 	
 	for(int side = 0; side < side_count; ++side)
 	{
-		const vector<sign_token>& s(side ? back : front);
+		const std::vector<sign_token>& s(side ? back : front);
 		
-		for(vector<sign_token>::const_iterator t = s.begin(); t != s.end(); ++t)
+		for(std::vector<sign_token>::const_iterator t = s.begin(); t != s.end(); ++t)
 		{
 			if(lc != t->color && t->color != sign_color_independent)
 			{
@@ -312,8 +312,8 @@ string	sign_data::to_code() const
 				lc = t->color;
 			}
 			
-			string sn = short_name_for_glyph(t->glyph);
-			string ln = parser_name_for_glyph(t->glyph);
+			std::string sn = short_name_for_glyph(t->glyph);
+			std::string ln = parser_name_for_glyph(t->glyph);
 			
 			if(in_braces && t->glyph == glyph_comma)
 				sn.clear();
@@ -362,7 +362,7 @@ void	sign_data::recalc_borders()
 {
 	for(int side = 0; side < 2; ++side)
 	{
-		vector<sign_token>& s(side ? back : front);
+		std::vector<sign_token>& s(side ? back : front);
 		if(!s.empty())
 		{
 			s.front().has_left_border = (s.front().color == sign_color_independent ? 0 : 1);
@@ -388,16 +388,16 @@ void	sign_data::recalc_borders()
 
 int		sign_data::calc_width(int side)
 {
-	vector<sign_token>& s(side ? back : front);
+	std::vector<sign_token>& s(side ? back : front);
 	int total = 0;
-	for(vector<sign_token>::iterator t = s.begin(); t != s.end(); ++t)
+	for(std::vector<sign_token>::iterator t = s.begin(); t != s.end(); ++t)
 		total += t->calc_width();
 	return total;
 }
 
 int		sign_data::left_offset(int side, int token)
 {
-	vector<sign_token>& s(side ? back : front);
+	std::vector<sign_token>& s(side ? back : front);
 	DebugAssert(token <= s.size());
 	int p = 0;
 	for(int i = 0; i < token; ++i)
@@ -407,7 +407,7 @@ int		sign_data::left_offset(int side, int token)
 
 int		sign_data::right_offset(int side, int token)
 {
-	vector<sign_token>& s(side ? back : front);
+	std::vector<sign_token>& s(side ? back : front);
 	DebugAssert(token < s.size());
 	int p = 0;
 	for(int i = 0; i <= token; ++i)
@@ -417,7 +417,7 @@ int		sign_data::right_offset(int side, int token)
 
 int		sign_data::find_token(int side, int offset)
 {
-	vector<sign_token>& s(side ? back : front);
+	std::vector<sign_token>& s(side ? back : front);
 	if(offset < 0) return -1;
 	int idx = 0;
 	while(idx < s.size())
@@ -433,7 +433,7 @@ int		sign_data::find_token(int side, int offset)
 
 int		sign_data::insert_point(int side, int offset)
 {
-	vector<sign_token>& s(side ? back : front);
+	std::vector<sign_token>& s(side ? back : front);
 	if(offset < 0) return 0;
 	int idx = 0;
 	while(idx < s.size())
@@ -455,7 +455,7 @@ int		sign_data::insert_point(int side, int offset)
 
 void	sign_data::insert_glyph(int side, int position, const sign_token& glyph)
 {
-	vector<sign_token>& s(side ? back : front);
+	std::vector<sign_token>& s(side ? back : front);
 	DebugAssert(position >= 0);
 	DebugAssert(position <= s.size());
 	s.insert(s.begin()+position,glyph);
@@ -464,7 +464,7 @@ void	sign_data::insert_glyph(int side, int position, const sign_token& glyph)
 
 void	sign_data::delete_range(int side, int start, int end)
 {
-	vector<sign_token>& s(side ? back : front);
+	std::vector<sign_token>& s(side ? back : front);
 	DebugAssert(start <= end);
 	DebugAssert(start >= 0);
 	DebugAssert(end <= s.size());
@@ -587,7 +587,7 @@ void	WED_Sign_Editor::Draw(GUI_GraphState * state)
 		int x = bounds[0] + 16;
 		int y = bounds[3] - 42 * (s+1);
 		
-		vector<sign_token>& sign(s ? mData.back : mData.front);
+		std::vector<sign_token>& sign(s ? mData.back : mData.front);
 		
 		for(int t = 0; t < sign.size(); ++t)
 		{	
@@ -833,7 +833,7 @@ int		WED_Sign_Editor::HandleKeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFl
 			Refresh();
 		}
 		
-		string k;
+		std::string k;
 		k += toupper(inKey);
 		parser_glyph_t g = glyph_for_short_name(k);
 		if(inKey == ' ')
@@ -923,7 +923,7 @@ void	WED_Sign_Editor::delete_selection()
 
 void		WED_Sign_Editor::replace_selection(parser_glyph_t g, parser_color_t c)
 {
-	vector<sign_token>& side(mEditSide ? mData.back : mData.front);
+	std::vector<sign_token>& side(mEditSide ? mData.back : mData.front);
 	int low = min(mEditStart,mEditEnd);
 	int high = max(mEditStart,mEditEnd);
 	
@@ -962,7 +962,7 @@ void		WED_Sign_Editor::selection_changed()
 {
 	Refresh();
 
-	vector<sign_token>& side(mEditSide ? mData.back : mData.front);
+	std::vector<sign_token>& side(mEditSide ? mData.back : mData.front);
 	if(mEditStart < 0) mEditStart = 0;
 	if(mEditEnd < 0) mEditEnd = 0;
 	if(mEditStart > side.size()) mEditStart = side.size();
@@ -991,7 +991,7 @@ void		WED_Sign_Editor::GetData(GUI_CellContent& c)
 	c.text_val = mData.to_code();
 }
 
-void RenderSign(GUI_GraphState * state, int x, int y, const string& sign_text, float scale, int font_id, const float color[4])
+void RenderSign(GUI_GraphState * state, int x, int y, const std::string& sign_text, float scale, int font_id, const float color[4])
 {
 	sign_data sign;
 	if(sign.from_code(sign_text))
@@ -999,7 +999,7 @@ void RenderSign(GUI_GraphState * state, int x, int y, const string& sign_text, f
 		y -= 4.0 * scale;
 		for(int s = 0; s < 2; ++s)
 		{
-			vector<sign_token>& side(s ? sign.back : sign.front);
+			std::vector<sign_token>& side(s ? sign.back : sign.front);
 			for(int t = 0; t < side.size(); ++t)
 			{
 				x += plot_token(side[t], x, y, scale, state);

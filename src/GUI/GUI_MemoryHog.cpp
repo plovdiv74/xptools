@@ -23,8 +23,8 @@
 
 #include "GUI_MemoryHog.h"
 #include <new>
-static set<GUI_MemoryHog *>	sHogs;
-static new_handler			sOldHandler;
+static std::set<GUI_MemoryHog *>	sHogs;
+static std::new_handler			sOldHandler;
 
 
 GUI_MemoryHog::GUI_MemoryHog()
@@ -39,22 +39,22 @@ GUI_MemoryHog::~GUI_MemoryHog()
 
 void	GUI_MemoryHog::InstallNewHandler(void)
 {
-	sOldHandler = set_new_handler(GUI_MemoryHog::our_new_handler);
+	sOldHandler = std::set_new_handler(GUI_MemoryHog::our_new_handler);
 }
 
 void	GUI_MemoryHog::RemoveNewHandler(void)
 {
-	set_new_handler(sOldHandler);
+	std::set_new_handler(sOldHandler);
 }
 
 void	GUI_MemoryHog::our_new_handler()
 {
-	for(set<GUI_MemoryHog *>::iterator h = sHogs.begin(); h != sHogs.end(); ++h)
+	for(std::set<GUI_MemoryHog *>::iterator h = sHogs.begin(); h != sHogs.end(); ++h)
 	{
 		if ((*h)->ReleaseMemory())
 			return;
 	}
 	if (sOldHandler)	sOldHandler();
-	else				throw bad_alloc();
+	else				throw std::bad_alloc();
 }
 

@@ -29,7 +29,7 @@
 /*
 	IRESOLVER - THEORY OF OPERATION
 
-	A resolver can return objects by a string path, in the form of
+	A resolver can return objects by a std::string path, in the form of
 
 	obj.subcomp[idx].recursively[used][if].desired
 

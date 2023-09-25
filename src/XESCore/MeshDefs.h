@@ -153,7 +153,7 @@ struct	MeshFaceInfo {
 	int				terrain;				// Specific terrain type, e.g. natural converted to a real land use. (This is a .ter enum, NOT a table index btw)
 	int				feature;				// General terrain type for this triangle, e.g. terrain_Natural, terrain_Water
 	int				flag;					// General purpose, useful for..um...algorithms.
-	set<int>		terrain_border;			// All terrains on top of us!
+	std::set<int>		terrain_border;			// All terrains on top of us!
 	float			normal[3];				// Tri flat normal - not in final DSF but handy for other sh-t.
 	char			edge_flags[3];
 
@@ -212,11 +212,11 @@ public:
 			void		cache_reset(void);
 			void		clear(void);
 
-	Vertex_handle	insert_collect_flips(const Point& p, Face_handle hint, set<Face_handle>& all);
+	Vertex_handle	insert_collect_flips(const Point& p, Face_handle hint, std::set<Face_handle>& all);
 
 private:
 
-	void			my_propagating_flip(Face_handle& f,int i, set<Face_handle>& all);
+	void			my_propagating_flip(Face_handle& f,int i, std::set<Face_handle>& all);
 
 	static	int		sKeyGen;
 	mutable	HintMap	mHintMap;

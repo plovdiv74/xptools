@@ -125,7 +125,7 @@ public:
 /*
 
 	Replace overlay trates: "contained" faces in arrangement B replace what is below.  Any edges fully inside a contained
-	area are put on the "dead" list (because they should not exist and need to be later removed) and do not have meta data
+	area are put on the "dead" std::list (because they should not exist and need to be later removed) and do not have meta data
 	copied.  Meta data is copied based on the "overlay-replace area" principle.
 	
  */
@@ -211,7 +211,7 @@ public:
 	void create_face (Face_handle_A f1, Face_handle_B f2, Face_handle_R f) const override
 	{
 		f->set_contained(f2->contained());															// overlay face drives containment after merge - that is, we copy the overlay pattern.  If we wanted
-		f->set_data(f2->contained() ? f2->data() : f1->data());										// the whole surface area, we could just set contained = ! unbounded.
+		f->set_data(f2->contained() ? f2->data() : f1->data());										// the whole surface area, we could just std::set contained = ! unbounded.
 	}
 };
 
@@ -336,9 +336,9 @@ static void	CollectEdges(Pmwx& io_dst, edge_collector_t<Pmwx> * collector, const
 		CollectEdges(io_dst,collector,*h,loc);
 }
 
-// Polygon set is NOT REALLY a container of polygons with holes.  It is in fact a planar map.  Calling the output iterator
+// Polygon std::set is NOT REALLY a container of polygons with holes.  It is in fact a planar map.  Calling the output iterator
 // requires a search over the entire map to capture the topology.  This will copy all edges, which we will then re-iterate.
-// So instead, we simply go over every edge in the set (all of which "have meaning") and insert them.  gives us nice linear time
+// So instead, we simply go over every edge in the std::set (all of which "have meaning") and insert them.  gives us nice linear time
 // processing, which is as good as it gets.
 static void		CollectEdges(Pmwx& io_dst, edge_collector_t<Pmwx> * collector, const Polygon_set_2& src, Locator * loc)
 {
@@ -353,7 +353,7 @@ static void		CollectEdges(Pmwx& io_dst, edge_collector_t<Pmwx> * collector, cons
 	for(Pmwx::Edge_const_iterator eit = src.arrangement().edges_begin(); eit != src.arrangement().edges_end(); ++eit)
 	{
 		DebugAssert(eit->face()->contained() || eit->twin()->face()->contained());			// If not true, why is this edge in the
-		DebugAssert(!eit->face()->contained() || !eit->twin()->face()->contained());		// arrangement?  Illegal for polygon set.
+		DebugAssert(!eit->face()->contained() || !eit->twin()->face()->contained());		// arrangement?  Illegal for polygon std::set.
 		DebugAssert(eit->face() != eit->twin()->face());
 		DebugAssert(eit->face()->contained() != eit->twin()->face()->contained());
 		if(eit->face()->contained())
@@ -374,7 +374,7 @@ static void		CollectEdges(Pmwx& io_dst, edge_collector_t<Pmwx> * collector, cons
 
 
 template <class __EdgeContainer>
-void	MapMergePolygonAny(Pmwx& io_dst, const __EdgeContainer& src, set<Face_handle> * out_faces, Locator * loc)
+void	MapMergePolygonAny(Pmwx& io_dst, const __EdgeContainer& src, std::set<Face_handle> * out_faces, Locator * loc)
 {
 	edge_collector_t<Pmwx>	collector;
 	collector.attach(io_dst);
@@ -399,12 +399,12 @@ Face_handle		MapOverlayPolygonAny(Pmwx& io_dst, const __EdgeContainer& src, Loca
 	DebugAssert(!collector.results.empty());
 
 	// Go through and find all internal edges to the area - we will nuke them!
-	set<Halfedge_handle>	to_nuke;
+	std::set<Halfedge_handle>	to_nuke;
 	FindInternalEdgesForEdgeSet<Pmwx>(collector.results, to_nuke);
 
 	collector.detach();
 
-	for(set<Halfedge_handle>::iterator k = to_nuke.begin(); k != to_nuke.end(); ++k)
+	for(std::set<Halfedge_handle>::iterator k = to_nuke.begin(); k != to_nuke.end(); ++k)
 	{
 		DebugAssert(to_nuke.count((*k)->twin())==0);		// Make sure we didn't pick up edge twice!
 		io_dst.remove_edge(*k);								// Land-mark locator doesn't do full
@@ -416,7 +416,7 @@ Face_handle		MapOverlayPolygonAny(Pmwx& io_dst, const __EdgeContainer& src, Loca
 
 	// Dev check - make sure ALL half-edges point to the same face - otherwise something is dreadfully wrong.
 	#if DEV
-		for(set<Halfedge_handle>::iterator e = collector.results.begin(); e != collector.results.end(); ++e)
+		for(std::set<Halfedge_handle>::iterator e = collector.results.begin(); e != collector.results.end(); ++e)
 		{
 			DebugAssert((*e)->face() == f);
 		}
@@ -427,15 +427,15 @@ Face_handle		MapOverlayPolygonAny(Pmwx& io_dst, const __EdgeContainer& src, Loca
 }
 
 
-void			MapMergePolygon(Pmwx& io_dst, const Polygon_2& src, set<Face_handle> * out_faces, Locator * loc)
+void			MapMergePolygon(Pmwx& io_dst, const Polygon_2& src, std::set<Face_handle> * out_faces, Locator * loc)
 {
 	MapMergePolygonAny(io_dst,src,out_faces,loc);
 }
-void			MapMergePolygonWithHoles(Pmwx& io_dst, const Polygon_with_holes_2& src, set<Face_handle> * out_faces, Locator * loc)
+void			MapMergePolygonWithHoles(Pmwx& io_dst, const Polygon_with_holes_2& src, std::set<Face_handle> * out_faces, Locator * loc)
 {
 	MapMergePolygonAny(io_dst,src,out_faces,loc);
 }
-void			MapMergePolygonSet(Pmwx& io_dst, const Polygon_set_2& src, set<Face_handle> * out_faces, Locator * loc)
+void			MapMergePolygonSet(Pmwx& io_dst, const Polygon_set_2& src, std::set<Face_handle> * out_faces, Locator * loc)
 {
 	MapMergePolygonAny(io_dst,src,out_faces,loc);
 }
@@ -450,7 +450,7 @@ Face_handle		MapOverlayPolygonWithHoles(Pmwx& io_dst, const Polygon_with_holes_2
 	return MapOverlayPolygonAny(io_dst,src,loc);
 }
 
-void			MapOverlayPolygonSet(Pmwx& io_dst, const Polygon_set_2& src, Locator * loc, set<Face_handle> * faces)
+void			MapOverlayPolygonSet(Pmwx& io_dst, const Polygon_set_2& src, Locator * loc, std::set<Face_handle> * faces)
 {
 	edge_collector_t<Pmwx>	collector;
 	collector.attach(io_dst);
@@ -460,12 +460,12 @@ void			MapOverlayPolygonSet(Pmwx& io_dst, const Polygon_set_2& src, Locator * lo
 	DebugAssert(!collector.results.empty());
 
 	// Go through and find all internal edges to the area - we will nuke them!
-	set<Halfedge_handle>	to_nuke;
+	std::set<Halfedge_handle>	to_nuke;
 	FindInternalEdgesForEdgeSet<Pmwx>(collector.results, to_nuke);
 
 	collector.detach();
 
-	for(set<Halfedge_handle>::iterator k = to_nuke.begin(); k != to_nuke.end(); ++k)
+	for(std::set<Halfedge_handle>::iterator k = to_nuke.begin(); k != to_nuke.end(); ++k)
 	{
 		DebugAssert(to_nuke.count((*k)->twin())==0);		// Make sure we didn't pick up edge twice!
 		io_dst.remove_edge(*k);								// Land-mark locator doesn't do full
@@ -491,7 +491,7 @@ void OverlayMap_legacy(
 
 
 
-void MergeMaps_legacy(Pmwx& ioDstMap, Pmwx& ioSrcMap, bool inForceProps, set<Face_handle> * outFaces, bool pre_integrated, ProgressFunc func)
+void MergeMaps_legacy(Pmwx& ioDstMap, Pmwx& ioSrcMap, bool inForceProps, std::set<Face_handle> * outFaces, bool pre_integrated, ProgressFunc func)
 {
 	DebugAssert(outFaces == NULL || !inForceProps);
 	if(outFaces) outFaces->clear();

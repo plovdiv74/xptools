@@ -97,9 +97,9 @@ void	WED_Entity::CacheInval(int flags)
 			if (e)
 				e->CacheInval(new_invals);
 		}
-		set<WED_Thing *>	viewers;
+		std::set<WED_Thing *>	viewers;
 		GetAllViewers(viewers);
-		for(set<WED_Thing *>::iterator v=  viewers.begin(); v != viewers.end(); ++v)
+		for(std::set<WED_Thing *>::iterator v=  viewers.begin(); v != viewers.end(); ++v)
 		{
 			WED_Entity * e = dynamic_cast<WED_Entity *>(*v);
 			if(e)

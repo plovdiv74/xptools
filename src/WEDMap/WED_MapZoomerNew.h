@@ -62,7 +62,7 @@ public:
 
 			Point2	PixelToLL(const Point2& p) const;
 			Point2	LLToPixel(const Point2& p) const;
-			pair<Point2, double> LLToPixelr(const Point2& p) const;
+			std::pair<Point2, double> LLToPixelr(const Point2& p) const;
 
 			void	PixelToLLv(Point2 * dst, const Point2 * src, int n) const;
 			void	LLToPixelv(Point2 * dst, const Point2 * src, int n) const;
@@ -73,7 +73,7 @@ public:
 			double	GetClickRadius(double pixels) const;
 			long long	CacheKey(void) { return mCacheKey; }
 
-	// This API is called by the map class to set up and modify the zoomer
+	// This API is called by the map class to std::set up and modify the zoomer
 
 	// Overall setup
 

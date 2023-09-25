@@ -79,8 +79,8 @@ void	GUI_PlotIconBulk(
 				const char *				in_resource,
 				int							count,
 				short *						x_y,
-				float * 					dir_x_y, // normalized direction vector for icon heading, maybe nullptr
-				unsigned * 					colors,  // color vector in RGBA bytes, maybe nullptr
+				float * 					dir_x_y, // normalized direction std::vector for icon heading, maybe nullptr
+				unsigned * 					colors,  // color std::vector in RGBA bytes, maybe nullptr
 				float						scale);
 
 

@@ -51,9 +51,9 @@
 //
 // (Someday we could make an "is-class" predicate to provide simpler casing.)
 //
-// The "sub-type" string provides an app-defined run-time type.  This is really a bit of a hack...WED does most
+// The "sub-type" std::string provides an app-defined run-time type.  This is really a bit of a hack...WED does most
 // ops on GIS-type, but in a few cases casts down to a real WED type.  The "subtype" is actually the
-// WED-persistent-class string.  If we wanted to be more pure we'd derive airport-spatial entities off of the
+// WED-persistent-class std::string.  If we wanted to be more pure we'd derive airport-spatial entities off of the
 // GIS-spatial entities, e.g. a runway (line-width with more points to edit0, a taxiway (poly with pavement type),
 // etc.
 

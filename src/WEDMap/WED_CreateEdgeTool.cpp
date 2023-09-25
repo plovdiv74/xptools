@@ -95,7 +95,7 @@ WED_CreateEdgeTool::~WED_CreateEdgeTool()
 struct sort_by_seg_rat {
 	sort_by_seg_rat(const Point2& i) : a(i) { }
 	Point2	a;
-	bool operator()(const pair<IGISPointSequence *, Point2>& p1, const pair<IGISPointSequence *, Point2>& p2) const {
+	bool operator()(const std::pair<IGISPointSequence *, Point2>& p1, const std::pair<IGISPointSequence *, Point2>& p2) const {
 		return a.squared_distance(p1.second) < a.squared_distance(p2.second);
 	}
 	bool operator()(const Point2& p1, const Point2& p2) const {
@@ -105,11 +105,11 @@ struct sort_by_seg_rat {
 
 template <class A, class B>
 struct compare_second {
-	bool operator()(const pair<A,B>& lhs, const pair<A,B>& rhs) const {
+	bool operator()(const std::pair<A,B>& lhs, const std::pair<A,B>& rhs) const {
 		return lhs.second == rhs.second; }
 };
 
-static void SortSplits(const Segment2& s, vector<Point2>& splits)
+static void SortSplits(const Segment2& s, std::vector<Point2>& splits)
 {
 	sort(splits.begin(), splits.end(), sort_by_seg_rat(s.p1));
 
@@ -119,7 +119,7 @@ static void SortSplits(const Segment2& s, vector<Point2>& splits)
 	splits.erase(unique(splits.begin(),splits.end()),splits.end());
 }
 
-static void SortSplits(const Segment2& s, vector<pair<IGISPointSequence *, Point2 > >& splits)
+static void SortSplits(const Segment2& s, std::vector<std::pair<IGISPointSequence *, Point2 > >& splits)
 {
 	sort(splits.begin(), splits.end(), sort_by_seg_rat(s.p1));
 	splits.erase(unique(splits.begin(),splits.end(), compare_second<IGISPointSequence*,Point2>()),splits.end());
@@ -134,18 +134,18 @@ split_edge_info_t cast_WED_GISEdge_to_split_edge_info_t(WED_GISEdge* edge, bool 
 }
 
 void		WED_CreateEdgeTool::AcceptPath(
-			const vector<Point2>&	in_pts,
-			const vector<Point2>&	in_dirs_lo,
-			const vector<Point2>&	in_dirs_hi,
-			const vector<int>		in_has_dirs,
-			const vector<int>		in_has_split,
+			const std::vector<Point2>&	in_pts,
+			const std::vector<Point2>&	in_dirs_lo,
+			const std::vector<Point2>&	in_dirs_hi,
+			const std::vector<int>		in_has_dirs,
+			const std::vector<int>		in_has_split,
 			int						closed)
 {
-	vector<Point2>	pts(in_pts);
-	vector<Point2>	dirs_lo(in_dirs_lo);
-	vector<Point2>	dirs_hi(in_dirs_hi);
-	vector<int>		has_dirs(in_has_dirs);
-	vector<int>		has_split(in_has_split);
+	std::vector<Point2>	pts(in_pts);
+	std::vector<Point2>	dirs_lo(in_dirs_lo);
+	std::vector<Point2>	dirs_hi(in_dirs_hi);
+	std::vector<int>		has_dirs(in_has_dirs);
+	std::vector<int>		has_split(in_has_split);
 
 	int idx;
 	WED_Thing * host_for_parent = GetHost(idx);
@@ -153,7 +153,7 @@ void		WED_CreateEdgeTool::AcceptPath(
 
 	WED_Thing * host_for_merging = WED_GetContainerForHost(GetResolver(), host_for_parent, kIsAirport[mType], idx);
 
-	string cname = string("Create ") + kCreateCmds[mType];
+	std::string cname = std::string("Create ") + kCreateCmds[mType];
 
 	GetArchive()->StartCommand(cname.c_str());
 
@@ -218,7 +218,7 @@ void		WED_CreateEdgeTool::AcceptPath(
 	/************************************************************************************************
 	 *
 	 ************************************************************************************************/
-	vector<WED_GISEdge*> tool_created_edges;
+	std::vector<WED_GISEdge*> tool_created_edges;
 	Bbox2 tool_created_bounds;
 	double	dist=frame_dist*frame_dist;
 	WED_Thing * src = NULL, * dst = NULL;
@@ -395,7 +395,7 @@ void		WED_CreateEdgeTool::AcceptPath(
 	}
 
 	//Collect edges in the current airport
-	vector<WED_GISEdge*> all_edges;
+	std::vector<WED_GISEdge*> all_edges;
 	CollectRecursive(host_for_parent, back_inserter(all_edges), edge_class);
 
 	//Filter out edges not want to split ; powerlines or edges from different resource
@@ -405,7 +405,7 @@ void		WED_CreateEdgeTool::AcceptPath(
 		if( (*e)->GetClass() == WED_RoadEdge::sClass )
 		{
 			auto r = static_cast<WED_RoadEdge *>(*e);
-			string resource;
+			std::string resource;
 			r->GetResource(resource);
 			if( r->HasWires() || mResource.value != resource )
 			{
@@ -417,12 +417,12 @@ void		WED_CreateEdgeTool::AcceptPath(
 	}
 
 	//filter them for just the crossing ones
-	set<WED_GISEdge*> crossing_edges = WED_do_select_crossing(all_edges, tool_created_bounds);
+	std::set<WED_GISEdge*> crossing_edges = WED_do_select_crossing(all_edges, tool_created_bounds);
 
 	//convert, and run split!
-	vector<split_edge_info_t> edges_to_split;
+	std::vector<split_edge_info_t> edges_to_split;
 
-	for(set<WED_GISEdge*>::iterator e = crossing_edges.begin(); e != crossing_edges.end(); ++e)
+	for(std::set<WED_GISEdge*>::iterator e = crossing_edges.begin(); e != crossing_edges.end(); ++e)
 	{
 		edges_to_split.push_back(cast_WED_GISEdge_to_split_edge_info_t(*e, find(tool_created_edges.begin(), tool_created_edges.end(), *e) != tool_created_edges.end()));
 	}
@@ -430,7 +430,7 @@ void		WED_CreateEdgeTool::AcceptPath(
 	edge_to_child_edges_map_t new_pieces = run_split_on_edges(edges_to_split,true);
 
 	//For all the tool_created_edges that were split
-	for(vector<WED_GISEdge*>::iterator itr = tool_created_edges.begin();
+	for(std::vector<WED_GISEdge*>::iterator itr = tool_created_edges.begin();
 		itr != tool_created_edges.end() && new_pieces.size() > 0;
 		++itr)
 	{
@@ -438,7 +438,7 @@ void		WED_CreateEdgeTool::AcceptPath(
 		edge_to_child_edges_map_t::mapped_type& edge_map_entry = new_pieces[*itr];
 
 		//Select only the new pieces
-		set<ISelectable*> iselectable_new_pieces(edge_map_entry.begin(), edge_map_entry.end());
+		std::set<ISelectable*> iselectable_new_pieces(edge_map_entry.begin(), edge_map_entry.end());
 		sel->Insert(iselectable_new_pieces);
 	}
 
@@ -492,7 +492,7 @@ void WED_CreateEdgeTool::FindNear(WED_Thing * host, IGISEntity * ent, const char
 			if(filter == WED_RoadEdge::sClass && t->GetClass() == WED_RoadEdge::sClass )
 			{
 				WED_RoadEdge * wre = static_cast<WED_RoadEdge *>(t);
-				string resource;
+				std::string resource;
 				wre->GetResource(resource);
 				if(mResource.value != resource) return;
 			}
@@ -566,7 +566,7 @@ void WED_CreateEdgeTool::FindNearP2S(WED_Thing * host, IGISEntity * ent, const c
 			if(filter == WED_RoadEdge::sClass && t->GetClass() == WED_RoadEdge::sClass)
 			{
 				WED_RoadEdge * wre = static_cast<WED_RoadEdge *>(t);
-				string resource;
+				std::string resource;
 				wre->GetResource(resource);
 				if(mResource.value != resource) return;
 			}
@@ -619,7 +619,7 @@ void WED_CreateEdgeTool::FindNearP2S(WED_Thing * host, IGISEntity * ent, const c
 }
 
 #if ROAD_EDITING
-void	WED_CreateEdgeTool::SetResource(const string& r)
+void	WED_CreateEdgeTool::SetResource(const std::string& r)
 {
 	if(mType == create_Road)
 	{
@@ -639,7 +639,7 @@ void	WED_CreateEdgeTool::GetNthPropertyDict(int n, PropertyDict_t& dict) const
 		{
 			for(auto i : r->vroad_types)
 			{
-				dict[i.first] = make_pair(i.second.description, true);
+				dict[i.first] = std::make_pair(i.second.description, true);
 			}
 			return;
 		}
@@ -654,7 +654,7 @@ void	WED_CreateEdgeTool::GetNthPropertyDict(int n, PropertyDict_t& dict) const
 		{
 			PropertyDict_t full;
 			WED_CreateToolBase::GetNthPropertyDict(n,full);
-			set<int> legal;
+			std::set<int> legal;
 			WED_GetAllRunwaysTwoway(airport, legal);
 			legal.insert(mRunway.value);
 			legal.insert(atc_rwy_None);
@@ -673,7 +673,7 @@ void	WED_CreateEdgeTool::GetNthPropertyDict(int n, PropertyDict_t& dict) const
 		{
 			PropertyDict_t full;
 			WED_CreateToolBase::GetNthPropertyDict(n,full);
-			set<int> legal;
+			std::set<int> legal;
 			WED_GetAllRunwaysOneway(airport, legal);
 			PropertyVal_t val;
 			this->GetNthProperty(n,val);
@@ -715,7 +715,7 @@ void		WED_CreateEdgeTool::GetNthPropertyInfo(int n, PropertyInfo_t& info) const
 			n == PropertyItemNumber(&mHotILS)    ||
 			n == PropertyItemNumber(&mWidth))
 		{
-			//"." is the special hardcoded "disable me" string, see IPropertyObject.h
+			//"." is the special hardcoded "disable me" std::string, see IPropertyObject.h
 			info.prop_name = ".";
 			info.can_edit = false;
 			info.can_delete = false;
@@ -755,7 +755,7 @@ void		WED_CreateEdgeTool::SetNthProperty(int n, const PropertyVal_t& val)
 }
 
 
-void		WED_CreateEdgeTool::GetNthPropertyDictItem(int n, int e, string& item) const
+void		WED_CreateEdgeTool::GetNthPropertyDictItem(int n, int e, std::string& item) const
 {
 #if ROAD_EDITING
 	if(n == PropertyItemNumber(&mSubtype))

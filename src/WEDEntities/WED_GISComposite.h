@@ -56,7 +56,7 @@ private:
 	mutable	Bbox2					mCacheBounds;
 	mutable	Bbox2					mCacheBoundsUV;
 	mutable	bool					mHasUV;
-	mutable	vector<IGISEntity *>	mEntities;
+	mutable	std::vector<IGISEntity *>	mEntities;
 
 };
 

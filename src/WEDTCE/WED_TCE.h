@@ -73,7 +73,7 @@ private:
 		bool			mKillAlpha;
 		bool			mWrap;
 
-	vector<WED_TCELayer *>			mLayers;
+	std::vector<WED_TCELayer *>			mLayers;
 	WED_TCEToolNew *				mTool;
 	IResolver *						mResolver;
 

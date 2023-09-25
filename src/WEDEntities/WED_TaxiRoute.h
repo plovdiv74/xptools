@@ -54,17 +54,17 @@ public:
 
 				void		SetOneway(int p);
 				void		SetRunway(int r);
-				void		SetHotDepart(const set<int>& rwys);
-				void		SetHotArrive(const set<int>& rwys);
-				void		SetHotILS(const set<int>& rwys);
-				set<int>	GetHotDepart(void);
-				set<int>	GetHotArrive(void);
-				set<int>	GetHotILS(void);
+				void		SetHotDepart(const std::set<int>& rwys);
+				void		SetHotArrive(const std::set<int>& rwys);
+				void		SetHotILS(const std::set<int>& rwys);
+				std::set<int>	GetHotDepart(void);
+				std::set<int>	GetHotArrive(void);
+				std::set<int>	GetHotILS(void);
 
 				void		SetWidth(int width);
 				void		SetVehicleClass(int vehicle_class);
 
-				bool		HasInvalidHotZones(const set<int>& legal_rwys) const;
+				bool		HasInvalidHotZones(const std::set<int>& legal_rwys) const;
 				int			GetRunway(void) const;	// returns two-way enum!
 
 	virtual		void		PropEditCallback(int before);

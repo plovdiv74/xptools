@@ -30,10 +30,10 @@ class	IResolver;
 class 	WED_MapPane;
 class	WED_Document;
 
-void	WED_ExportPackToPath(WED_Thing * root, IResolver * resolver, const string& in_path, set<WED_Thing *>& problem_children);
+void	WED_ExportPackToPath(WED_Thing * root, IResolver * resolver, const std::string& in_path, std::set<WED_Thing *>& problem_children);
 
 // Top level commands for WED.
-int		WED_CanExportPack(IResolver * resolver, string& ioname);
+int		WED_CanExportPack(IResolver * resolver, std::string& ioname);
 void	WED_DoExportPack(WED_Document * resolver, WED_MapPane * pane);
 
 #endif /* WED_SceneryPackExport_H */

@@ -28,9 +28,9 @@
 
 	ISelection - THEORY OF OPERATION
 
-	This is an abstract object-based selection set.  The selection can be teted per object
-	or copied out to either a vector or set.  (These are provided to give clients whichever
-	format is more useful.  We expect vector to be more memory efficient, particularly since
+	This is an abstract object-based selection std::set.  The selection can be teted per object
+	or copied out to either a std::vector or std::set.  (These are provided to give clients whichever
+	format is more useful.  We expect std::vector to be more memory efficient, particularly since
 	the selection knows the size of the block up-front.)
 
 */
@@ -58,21 +58,21 @@ public:
 	virtual		void			Toggle(ISelectable * who)=0;
 	virtual		void			Insert(ISelectable * who)=0;
 
-	virtual		void			Insert(const set<ISelectable*>& sel)=0;
-	virtual		void			Insert(const set<ISelectable*>::const_iterator& begin, const set<ISelectable*>::const_iterator& end)=0;
+	virtual		void			Insert(const std::set<ISelectable*>& sel)=0;
+	virtual		void			Insert(const std::set<ISelectable*>::const_iterator& begin, const std::set<ISelectable*>::const_iterator& end)=0;
 
-	virtual		void			Insert(const vector<ISelectable*>& sel)=0;
-	virtual		void			Insert(const vector<ISelectable*>::const_iterator& begin, const vector<ISelectable*>::const_iterator& end)=0;
+	virtual		void			Insert(const std::vector<ISelectable*>& sel)=0;
+	virtual		void			Insert(const std::vector<ISelectable*>::const_iterator& begin, const std::vector<ISelectable*>::const_iterator& end)=0;
 	virtual		void			Erase (ISelectable * who)=0;
 
 	virtual		int				GetSelectionCount(void) const=0;
-	virtual		void			GetSelectionSet(set<ISelectable *>& sel) const=0;
-	virtual		void			GetSelectionVector(vector<ISelectable *>& sel) const=0;
+	virtual		void			GetSelectionSet(std::set<ISelectable *>& sel) const=0;
+	virtual		void			GetSelectionVector(std::vector<ISelectable *>& sel) const=0;
 	virtual		ISelectable *	GetNthSelection(int n) const=0;
 
-	// Iterate the selection until our func returns true for at least one item.  Return true if ANY objs passed.  Returns false for the empty set.  (None passed)
+	// Iterate the selection until our func returns true for at least one item.  Return true if ANY objs passed.  Returns false for the empty std::set.  (None passed)
 	virtual		int				IterateSelectionOr(int (* func)(ISelectable * who, void * ref), void * ref) const=0;
-	// Iterate the selection as long as our func returns true.  Return true if they ALL passed.  Returns true for the empty set.  (None failed)
+	// Iterate the selection as long as our func returns true.  Return true if they ALL passed.  Returns true for the empty std::set.  (None failed)
 	virtual		int				IterateSelectionAnd(int (* func)(ISelectable * who, void * ref), void * ref) const=0;
 
 };

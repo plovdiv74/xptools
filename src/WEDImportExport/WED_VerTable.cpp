@@ -31,7 +31,7 @@ const int kDefCols[7] = { 110, 100, 110, 120,   120, 110, 110 };
 const char * kHeaders[7] = { "Scenery ID", "Parent ID", "User Name", "Status",
 							"Date Uploaded", "Artist Comments", "Moderator Comments" };
 
-string ChooseStatus(const VerInfo_t & info)
+std::string ChooseStatus(const VerInfo_t & info)
 {
 	if(info.isRecommended == true)
 	{
@@ -40,11 +40,11 @@ string ChooseStatus(const VerInfo_t & info)
 	else return info.status;
 }
 
-string ChooseDate(const VerInfo_t & info)
+std::string ChooseDate(const VerInfo_t & info)
 {	
 	//Dates come in the format YYYY-MM-DDTHH:MM:SS.000Z, which we'll be shortening to YY-MM-DD HH:MM:SS
 	//The total length is 24
-	string s = info.dateAccepted.substr(2,info.dateAccepted.size()-7);//cut of the .000Z
+	std::string s = info.dateAccepted.substr(2,info.dateAccepted.size()-7);//cut of the .000Z
 	s[8] = ' ';//Cut out the T
 	return s;
 }
@@ -65,7 +65,7 @@ WED_VerTable::~WED_VerTable()
 
 	
 void	WED_VerTable::SetFilter(
-						const string&				new_filter)
+						const std::string&				new_filter)
 {
 	mFilter = new_filter;
 	resort();
@@ -77,7 +77,7 @@ void	WED_VerTable::VerVectorChanged(void)
 }
 			
 void	WED_VerTable::GetSelection(
-						set<int>&					out_selection)
+						std::set<int>&					out_selection)
 {
 	out_selection = mSelected;
 }
@@ -140,10 +140,10 @@ void	WED_VerTable::GetCellContent(
 
 	switch(cell_x) {
 	case 0:
-		the_content.text_val = to_string(mVers->at(ver_id).sceneryId);
+		the_content.text_val = std::to_string(mVers->at(ver_id).sceneryId);
 		break;
 	case 1:
-		the_content.text_val = to_string(mVers->at(ver_id).parentId);
+		the_content.text_val = std::to_string(mVers->at(ver_id).parentId);
 		break;
 	case 2:		
 		the_content.text_val = mVers->at(ver_id).userName;
@@ -260,8 +260,8 @@ struct sort_by_ver {
 
 	bool operator()(int x, int y) const {
 		
-		string xs;
-		string ys;
+		std::string xs;
+		std::string ys;
 		//Select the strings to compare based on the sort column chosen
 		switch(sort_column_)
 		{
@@ -309,14 +309,14 @@ struct sort_by_ver {
 
 void		WED_VerTable::resort(void)
 {
-	vector<string>	filters;
+	std::vector<std::string>	filters;
 	tokenize_string_func(mFilter.begin(),mFilter.end(),back_inserter(filters),::isspace);
 
 	mSorted.clear();
 	for(int i = 0; i < mVers->size(); ++i)
 	{
-		string idStr = to_string(mVers->at(i).sceneryId);
-		string parentIdStr = to_string(mVers->at(i).parentId);
+		std::string idStr = std::to_string(mVers->at(i).sceneryId);
+		std::string parentIdStr = std::to_string(mVers->at(i).parentId);
 	
 		if (filters.empty() || 
 				filter_match(idStr, filters.begin(),filters.end())		||

@@ -42,7 +42,7 @@ WED_LibraryPane::WED_LibraryPane(GUI_Commander * commander, WED_LibraryMgr * mgr
 	mScroller->Show();
 	mScroller->SetSticky(1,1,1,1);
 
-	//Library Pane's TextTable's provider is set to be the Library List Adapter
+	//Library Pane's TextTable's provider is std::set to be the Library List Adapter
 	mTextTable.SetProvider(&mLibraryList);
 	
 	mTextTable.SetGeometry(&mLibraryList);

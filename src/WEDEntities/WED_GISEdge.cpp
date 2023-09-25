@@ -403,7 +403,7 @@ IGISPoint *	WED_GISEdge::SplitEdge(const Point2& p, double dist)  // MM: add arg
 	WED_Thing * p2 = GetNthSource(1);
 	np->SetParent(p1->GetParent(), p1->GetMyPosition()+1);
 
-	string name;
+	std::string name;
 	GetName(name);
 	np->SetName(name + "_split");
 
@@ -425,7 +425,7 @@ IGISPoint *	WED_GISEdge::SplitEdge(const Point2& p, double dist)  // MM: add arg
 	//printf("WED_SplitEdge this, me2 children %d %d, nr_side %d, hit %d ns %d\n", this->CountChildren(), me2->CountChildren(), nearest_side, hit_point, ns);
 	if(ns > 1)              // delete existing ShapePoints that are on the abandoned side of the intersection
 	{
-		set<WED_Thing *> obsolete_nodes;
+		std::set<WED_Thing *> obsolete_nodes;
 		for(int i = 0; i < ns-1; i++)
 		{
 			if(i < nearest_side || i == (hit_point - 1))

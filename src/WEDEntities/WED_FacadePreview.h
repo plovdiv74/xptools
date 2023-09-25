@@ -53,8 +53,8 @@ typedef unsigned char 	xbyt;
 // The += operator concatenates in a spelling and updates widths.
  
 struct UTL_spelling_t {
-	vector<xbyt>					indices;
-	vector<xflt>					widths ;
+	std::vector<xbyt>					indices;
+	std::vector<xflt>					widths ;
 	xflt							total  ;
 	UTL_spelling_t() { total = 0.0f; }
 	
@@ -109,7 +109,7 @@ struct REN_facade_wall_filter_t {
 };
 
 struct REN_facade_wall_filters_t {
-	vector<REN_facade_wall_filter_t>	filters;
+	std::vector<REN_facade_wall_filter_t>	filters;
 	bool	is_ok(xflt len, xflt rel_hdg) const;
 };
 
@@ -120,22 +120,22 @@ struct REN_facade_template_t {
 //		asset_freq	freq;		
 	};
 	struct mesh {
-		vector<xflt> 	xyz;
-		vector<xflt>	nml;
-		vector<xflt> 	uv;
-		vector<xint>	idx;
+		std::vector<xflt> 	xyz;
+		std::vector<xflt>	nml;
+		std::vector<xflt> 	uv;
+		std::vector<xint>	idx;
 		int				idx_start, idx_cnt;
 		int				mesh_start;
 	};
 
-	vector<obj>			objs;
-	vector<mesh>		meshes;		// Each mesh within this template.
+	std::vector<obj>			objs;
+	std::vector<mesh>		meshes;		// Each mesh within this template.
 	xflt				bounds[3];
 };
 
 
 struct REN_facade_wall_t : public REN_facade_wall_filters_t {
-	vector<UTL_spelling_t>			spellings;
+	std::vector<UTL_spelling_t>			spellings;
 };
 
 struct REN_facade_roof_t {
@@ -146,18 +146,18 @@ struct REN_facade_roof_t {
 		xint		obj;
 //		asset_freq	freq;
 	};
-	vector<robj>			roof_objs;
+	std::vector<robj>			roof_objs;
 	REN_facade_roof_t(xflt h=0.0) : roof_height(h), two_sided(xfals) { }
 };	
 
 struct REN_facade_floor_t {
-	string							name;          // not really usedfor anything
-	vector<REN_facade_template_t>	templates;
-//	vector<REN_facade_template_t>	templates_curved;
+	std::string							name;          // not really usedfor anything
+	std::vector<REN_facade_template_t>	templates;
+//	std::vector<REN_facade_template_t>	templates_curved;
 //	vector<xint>					groups;		// sorted list of group IDs used by ANY piece of ANY wall.  Used to plan iteration around the floor multiple times.
 	xint							roof_surface;
-	vector<REN_facade_wall_t>		walls;
-	vector<REN_facade_roof_t>		roofs;
+	std::vector<REN_facade_wall_t>		walls;
+	std::vector<REN_facade_roof_t>		roofs;
 	inline xflt						max_roof_height(void) const { return roofs.empty() ? 0.0 : roofs.back().roof_height; }
 };
 
@@ -174,11 +174,11 @@ struct	FacadeWall_t { // : public REN_facade_wall_filters_t {
 	float				basement;
 	double			roof_slope;
 	
-	vector<pair<float, float> >		s_panels;
+	std::vector<std::pair<float, float> >		s_panels;
 	int								left;
 	int								center;
 	int								right;
-	vector<pair<float, float> >		t_floors;
+	std::vector<std::pair<float, float> >		t_floors;
 	int								bottom;
 	int								middle;
 	int								top;
@@ -198,15 +198,15 @@ struct tower_t
 			for(int i = 0; i < 3; ++i)
 				base_xzr[i] = towr_xzr[i] = 0.0;
 		}
-		string			base_obj;			// OBJ to be used
-		string			towr_obj;			// tower object - can be empty range if base-only scraper -- it happens!
+		std::string			base_obj;			// OBJ to be used
+		std::string			towr_obj;			// tower object - can be empty range if base-only scraper -- it happens!
 		xflt			base_xzr[3];
 		xflt			towr_xzr[3];
-		vector<float>	pins;
+		std::vector<float>	pins;
 	};
 
 //	vector<obj_ref>				assets;
-	vector<tower_t>		choices;
+	std::vector<tower_t>		choices;
 	xflt				min_agl;			// range of AGL where this scraper rule applies
 	xflt				max_agl;
 	xflt				step_agl;		// Step from min AGL up for height
@@ -216,9 +216,9 @@ struct tower_t
 struct	REN_FacadeLOD_t {
 
 	bool					tex_correct_slope;
-	vector<FacadeWall_t>	walls;
-	vector<double>			roof_s;
-	vector<double>			roof_t;
+	std::vector<FacadeWall_t>	walls;
+	std::vector<double>			roof_s;
+	std::vector<double>			roof_t;
 	float					roof_st[4];
 	float					roof_ab[4];
 	bool					has_roof;
@@ -231,9 +231,9 @@ struct	REN_FacadeLOD_t {
 /**********************/
 
 
-void draw_facade(ITexMgr * tman, WED_ResourceMgr * rman, const string& vpath, const fac_info_t& info, const Polygon2& footprint, const vector<int>& choices, 
+void draw_facade(ITexMgr * tman, WED_ResourceMgr * rman, const std::string& vpath, const fac_info_t& info, const Polygon2& footprint, const std::vector<int>& choices, 
 	double fac_height, GUI_GraphState * g, bool want_thinWalls, double ppm_for_culling = 100);
 	
-void height_desc_for_facade(const fac_info_t& info, string& h_decription);
+void height_desc_for_facade(const fac_info_t& info, std::string& h_decription);
 
 #endif

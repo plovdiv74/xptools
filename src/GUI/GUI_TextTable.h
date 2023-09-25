@@ -46,8 +46,8 @@ public:
 
 	GUI_TextTable - THEORY OF OPERATION
 
-	The text table classes provide a basic set of behavior for tables and their headers for dealing
-	with text data.  They have a further set of plugin behaviors that provide the text content,
+	The text table classes provide a basic std::set of behavior for tables and their headers for dealing
+	with text data.  They have a further std::set of plugin behaviors that provide the text content,
 	and a series of structs that are used to transfer that content.
 
 */
@@ -60,16 +60,16 @@ enum GUI_CellContentType {
 								// GET					SET
 	gui_Cell_None,
 	gui_Cell_Disclose,			// n/a - this is used as an internal symbol for disclosure tris
-	gui_Cell_EditText,			// string&string		string
-	gui_Cell_FileText,			// string&string		string
-	gui_Cell_TaxiText,			// string				string
-	gui_Cell_RoadType,          // string&int			int
+	gui_Cell_EditText,			// std::string&std::string		std::string
+	gui_Cell_FileText,			// std::string&std::string		std::string
+	gui_Cell_TaxiText,			// std::string				std::string
+	gui_Cell_RoadType,          // std::string&int			int
 	gui_Cell_CheckBox,			// int val				int val
-	gui_Cell_Integer,			// string&int val		int val
-	gui_Cell_Double,			// string&double val	double val
-	gui_Cell_Enum,				// string&int			string&int
-	gui_Cell_EnumSet,			// string val&int set	int set, int
-	gui_Cell_LineEnumSet		// string val&int set	int set, int
+	gui_Cell_Integer,			// std::string&int val		int val
+	gui_Cell_Double,			// std::string&double val	double val
+	gui_Cell_Enum,				// std::string&int			std::string&int
+	gui_Cell_EnumSet,			// std::string val&int std::set	int std::set, int
+	gui_Cell_LineEnumSet		// std::string val&int std::set	int std::set, int
 };
 
 enum GUI_BoolIcon {
@@ -94,13 +94,13 @@ struct	GUI_CellContent {
 	int						indent_level;
 
 	//Contents of the cell
-	string					text_val;		// Only one of these is used - which one depends on the cell content type!
+	std::string					text_val;		// Only one of these is used - which one depends on the cell content type!
 	int						int_val;
 	double					double_val;
-	set<int>				int_set_val;
+	std::set<int>				int_set_val;
 	GUI_BoolIcon			bool_val;		// for get only - to pick check type!
 	int						bool_partial;	// for checks - if we are on but our parent is off...
-	int						string_is_resource;	// the string is actually the resource name of the PNG image to draw
+	int						string_is_resource;	// the std::string is actually the resource name of the PNG image to draw
 
 #if DEV
 	//Prints a cell's information to the console window, by default it prints only important stuff
@@ -140,7 +140,7 @@ struct	GUI_CellContent {
 			case gui_Cell_Double: printf("*content_type: gui_Cell_Double \n"); break;
 			case gui_Cell_Enum: printf("*content_type: gui_Cell_Enum \n"); break;
 			case gui_Cell_EnumSet: printf("*content_type: gui_Cell_EnumSet \n"); break;
-			//for(set<int>::iterator iter=int_set_val.begin();iter != int_set_val.end(); ++iter)
+			//for(std::set<int>::iterator iter=int_set_val.begin();iter != int_set_val.end(); ++iter)
 			//{
 
 			//}
@@ -168,14 +168,14 @@ struct	GUI_CellContent {
 };
 
 struct GUI_HeaderContent {
-	string					title;
+	std::string					title;
 	int						is_selected;
 
 	int						can_resize;
 	int						can_select;
 };
 
-typedef	map<int, pair<string, bool> >	GUI_EnumDictionary;	// For each enum: what it is, can we pick it?
+typedef	std::map<int, std::pair<std::string, bool> >	GUI_EnumDictionary;	// For each enum: what it is, can we pick it?
 
 class	GUI_TextTableProvider {
 public:
@@ -331,7 +331,7 @@ public:
 	virtual	void		CellMouseDrag(int cell_bounds[4], int cell_x, int cell_y, int mouse_x, int mouse_y, int button									  );
 	virtual	void		CellMouseUp  (int cell_bounds[4], int cell_x, int cell_y, int mouse_x, int mouse_y, int button									  );
 	virtual	int			CellGetCursor(int cell_bounds[4], int cell_x, int cell_y, int mouse_x, int mouse_y												  );
-	virtual	int			CellGetHelpTip(int cell_bounds[4], int cell_x, int cell_y, int mouse_x, int mouse_y, string& tip								  );
+	virtual	int			CellGetHelpTip(int cell_bounds[4], int cell_x, int cell_y, int mouse_x, int mouse_y, std::string& tip								  );
 	virtual	GUI_DragOperation	CellDragEnter	(int cell_bounds[4], int cell_x, int cell_y, int mouse_x, int mouse_y, GUI_DragData * drag, GUI_DragOperation allowed, GUI_DragOperation recommended);
 	virtual	GUI_DragOperation	CellDragWithin	(int cell_bounds[4], int cell_x, int cell_y, int mouse_x, int mouse_y, GUI_DragData * drag, GUI_DragOperation allowed, GUI_DragOperation recommended);
 	virtual	void				CellDragLeave	(int cell_bounds[4], int cell_x, int cell_y);
@@ -372,7 +372,7 @@ private:
 			GUI_DragPart	GetCellDragPart(int cell_bounds[4], int x, int y, int vertical);
 //			bool			HasEdit() { return mSignField != NULL || mTextField != NULL || mLineField != NULL; }
 			bool			HasEdit() { return mTextField != NULL || mEditor != NULL; }
-			int 			CreateMenuFromDict(vector<GUI_MenuItem_t>& items, vector<int>& enum_vals, GUI_EnumDictionary& dict);
+			int 			CreateMenuFromDict(std::vector<GUI_MenuItem_t>& items, std::vector<int>& enum_vals, GUI_EnumDictionary& dict);
 
 	GUI_TextTableProvider * mContent;
 	int						mClickCellX;
@@ -421,7 +421,7 @@ private:
 
 	int						mFont;
 
-	string					mImage;
+	std::string					mImage;
 	int						mAlternate;
 
 };
@@ -446,7 +446,7 @@ public:
 	virtual	void		HeadMouseDrag(int cell_bounds[4], int cell_x, int mouse_x, int mouse_y, int button									  );
 	virtual	void		HeadMouseUp  (int cell_bounds[4], int cell_x, int mouse_x, int mouse_y, int button									  );
 	virtual	int			HeadGetCursor(int cell_bounds[4], int cell_x, int mouse_x, int mouse_y												  );
-	virtual	int			HeadGetHelpTip(int cell_bounds[4], int cell_x, int mouse_x, int mouse_y, string& tip								  );
+	virtual	int			HeadGetHelpTip(int cell_bounds[4], int cell_x, int mouse_x, int mouse_y, std::string& tip								  );
 
 private:
 	GUI_TextTableHeaderProvider *	mContent;
@@ -454,7 +454,7 @@ private:
 	int								mCellResize;
 	int								mLastX;
 
-	string							mImage;
+	std::string							mImage;
 
 	float					mColorGridlines[4];
 	float					mColorText[4];
@@ -479,7 +479,7 @@ public:
 	virtual	void		SideMouseDrag(int cell_bounds[4], int cell_y, int mouse_x, int mouse_y, int button									   );
 	virtual	void		SideMouseUp  (int cell_bounds[4], int cell_y, int mouse_x, int mouse_y, int button									   );
 	virtual	int			SideGetCursor(int cell_bounds[4], int cell_y, int mouse_x, int mouse_y												   );
-	virtual	int			SideGetHelpTip(int cell_bounds[4], int cell_y, int mouse_x, int mouse_y, string& tip								   );
+	virtual	int			SideGetHelpTip(int cell_bounds[4], int cell_y, int mouse_x, int mouse_y, std::string& tip								   );
 
 private:
 	GUI_TextTableHeaderProvider *	mContent;
@@ -487,7 +487,7 @@ private:
 	int								mCellResize;
 	int								mLastY;
 
-	string							mImage;
+	std::string							mImage;
 
 	float					mColorGridlines[4];
 	float					mColorText[4];

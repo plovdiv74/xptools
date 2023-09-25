@@ -62,7 +62,7 @@ static int int_seedrand(int low, int high, int seed)
 }
 
 void	UTL_pick_spelling(
-						const vector<UTL_spelling_t>& 	spellings,
+						const std::vector<UTL_spelling_t>& 	spellings,
 						xflt							len,
 						UTL_spelling_t&					out_choice,
 						xint							seed)
@@ -105,10 +105,10 @@ void	UTL_pick_spelling(
 //void print_wall(const REN_facade_wall_t& w)
 //{
 //	printf("%f %f %f %f\n", w.min_width,w.max_width, w.min_heading,w.max_heading);
-//	for(vector<UTL_spelling_t>::const_iterator s = w.spellings.begin(); s != w.spellings.end(); ++s)
+//	for(std::vector<UTL_spelling_t>::const_iterator s = w.spellings.begin(); s != w.spellings.end(); ++s)
 //	{
 //		printf("%zd ",distance(w.spellings.begin(),s));
-//		for(vector<xbyt>::const_iterator b = s->indices.begin(); b != s->indices.end(); ++b)
+//		for(std::vector<xbyt>::const_iterator b = s->indices.begin(); b != s->indices.end(); ++b)
 //			printf(" %d", *b);
 //		printf("\n");
 //	}	
@@ -132,7 +132,7 @@ bool	REN_facade_wall_filter_t::is_ok(xflt len, xflt rel_hdg) const
 
 bool	REN_facade_wall_filters_t::is_ok(xflt len, xflt rel_hdg) const
 {
-	for(vector<REN_facade_wall_filter_t>::const_iterator i = filters.begin(); i != filters.end(); ++i)
+	for(std::vector<REN_facade_wall_filter_t>::const_iterator i = filters.begin(); i != filters.end(); ++i)
 		if(i->is_ok(len,rel_hdg))
 			return true;
 	return false;
@@ -186,7 +186,7 @@ static	float	BuildOnePanel(      // return width of this section
 						const FacadeWall_t& fac,
 						const Segment3& inBase,    // segment of facade polygon
 						const Segment3& inRoof,    // same, but 
-						const Vector3&	inUp,       // up vector
+						const Vector3&	inUp,       // up std::vector
 						int				left,		   // Panel indices
 						int				bottom,		// And floor indices
 						int				right,
@@ -247,7 +247,7 @@ static	float	BuildOnePanel(      // return width of this section
 	if(use_roof)
 	{
 		// If we have a roof, we may have stretching and deforming of the UV horizontal coordinate.
-		// Use the bottom of the panel as a 'basis' vector.  Reproject all coordinates along it and
+		// Use the bottom of the panel as a 'basis' std::vector.  Reproject all coordinates along it and
 		// reinterp the U coords to span it.  This will 'pull in' the bottom or top, depending on whether
 		// the vertex pulls out or in.
 		xflt u_basis[3];
@@ -357,7 +357,7 @@ static double BuildOneFacade(                    // that is one wall for one seg
 	// STEP 2: figure out the spacing along the facade as fractions of the segment.
 	// sum up the "length" of the panel in pixels.
 	double	total_panel_width = 0.0;
-	vector<double>	act_panel_s;		// This is the s coord of the right side of the panel as we render
+	std::vector<double>	act_panel_s;		// This is the s coord of the right side of the panel as we render
 	act_panel_s.push_back(0.0);
 	for (n = 0; n < left_c; ++n) {
 		act_panel_s.push_back(total_panel_width + fac.s_panels[n].second - fac.s_panels[n].first);
@@ -376,7 +376,7 @@ static double BuildOneFacade(                    // that is one wall for one seg
 	act_panel_s[act_panel_s.size()-1] = 1.0;	// Hack - make sure right edge doesn't lose a tiny bit...that way we'll line up right.
 	
 	// STEP 3: figure out the heights of each part of the building
-	vector<double>	act_floor_t;
+	std::vector<double>	act_floor_t;
 	act_floor_t.push_back(-fac.basement);
 	double	total_floor_height = -fac.basement;
 	for (n = 0; n < bottom_c; ++n) {
@@ -604,12 +604,12 @@ static void DrawQuad(float * coords, float * texes)
 	}
 }
 
-void height_desc_for_facade(const fac_info_t& info, string& h_decription)
+void height_desc_for_facade(const fac_info_t& info, std::string& h_decription)
 {
 	char c[64];
 	if(info.is_new)
 	{
-		vector<int> heights;
+		std::vector<int> heights;
 		for(const auto& f : info.floors)
 			if(f.roofs.size())
 			{
@@ -638,15 +638,15 @@ void height_desc_for_facade(const fac_info_t& info, string& h_decription)
 					}
 					else
 					{
-						if(is_range) h_decription += to_string(last_height);
+						if(is_range) h_decription += std::to_string(last_height);
 						if(last_height >= 0)	h_decription += ", ";
-						h_decription += to_string(this_height);
+						h_decription += std::to_string(this_height);
 						is_range = false;
 					}
 				}
 				last_height = this_height;
 			}
-			if(is_range) h_decription += to_string(last_height);
+			if(is_range) h_decription += std::to_string(last_height);
 			 h_decription += "m";
 		}
 		else if(info.floors.size() && info.floors.front().templates.size())
@@ -802,7 +802,7 @@ struct obj {
 	float	x,y,z,r;
 };
 
-void draw_facade(ITexMgr * tman, WED_ResourceMgr * rman, const string& vpath, const fac_info_t& info, const Polygon2& footprint, const vector<int>& choices,
+void draw_facade(ITexMgr * tman, WED_ResourceMgr * rman, const std::string& vpath, const fac_info_t& info, const Polygon2& footprint, const std::vector<int>& choices,
 	double fac_height, GUI_GraphState * g, bool want_thinWalls, double ppm_for_culling)
 {
 	if(rman)
@@ -897,7 +897,7 @@ void draw_facade(ITexMgr * tman, WED_ResourceMgr * rman, const string& vpath, co
 		if(info.walls.empty())	return;
 		
 		int floors = get_floors_for_height(info, fac_height);
-		vector<float> insets;
+		std::vector<float> insets;
 		insets.reserve(footprint.size());
 		
 		if(want_thinWalls)                            // Todo: Still render sloped roof segments
@@ -978,8 +978,8 @@ void draw_facade(ITexMgr * tman, WED_ResourceMgr * rman, const string& vpath, co
 
 		if (info.idx_vbo == 0)
 		{
-			vector<GLushort> idx;
-			vector<GLfloat> vert;
+			std::vector<GLushort> idx;
+			std::vector<GLfloat> vert;
 			for (const auto& f : info.floors)
 				for (const auto& t : f.templates)
 				{
@@ -989,8 +989,8 @@ void draw_facade(ITexMgr * tman, WED_ResourceMgr * rman, const string& vpath, co
 						const_cast<int&>(m.idx_cnt) = m.idx.size();
 						for (auto i : m.idx)
 							idx.push_back(i);
-						const_cast<vector<int>&>(m.idx).clear();          // release RAM since its now in VRAM
-						const_cast<vector<int>&>(m.idx).shrink_to_fit();
+						const_cast<std::vector<int>&>(m.idx).clear();          // release RAM since its now in VRAM
+						const_cast<std::vector<int>&>(m.idx).shrink_to_fit();
 						const_cast<int&>(m.mesh_start) = vert.size();
 						int ni = m.xyz.size() / 3;
 						for (int ind = 0; ind < ni; ++ind)
@@ -1018,7 +1018,7 @@ void draw_facade(ITexMgr * tman, WED_ResourceMgr * rman, const string& vpath, co
 			const_cast<unsigned int&>(info.idx_vbo) = vbo[1];
 		}
 
-		static vector<GLfloat> vbuf; // for speed - so its not re-allocated for each facade draw
+		static std::vector<GLfloat> vbuf; // for speed - so its not re-allocated for each facade draw
 #define NUM_VBO 2
 		static GLuint sbo[NUM_VBO];
 		static int pingpong(-1);
@@ -1283,7 +1283,7 @@ void draw_facade(ITexMgr * tman, WED_ResourceMgr * rman, const string& vpath, co
 				dev_assert(x <= ab_use[3]);	
 //				dev_assert(ab.ymax() <= ab_use[3]);	
 
-				vector<Point2> new_pts;
+				std::vector<Point2> new_pts;
 				new_pts.reserve(roof_pts.size()*2);
 				for(const auto& p : roof_pts)
 				{
@@ -1291,7 +1291,7 @@ void draw_facade(ITexMgr * tman, WED_ResourceMgr * rman, const string& vpath, co
 					new_pts.push_back(Point2(interp(ab_use[0], info.roof_st[0], ab_use[2], info.roof_st[2], dirVec.dot(Vector2(p))  + dirDot ),
 					                         interp(ab_use[1], info.roof_st[1], ab_use[3], info.roof_st[3], perpVec.dot(Vector2(p)) + perpDot)));
 				}
-				glPolygon2(new_pts, true, vector<int>(), true, roof_height);
+				glPolygon2(new_pts, true, std::vector<int>(), true, roof_height);
 			}
 			else if(!info.noroofmesh)  // type 2 facades
 			{
@@ -1325,7 +1325,7 @@ void draw_facade(ITexMgr * tman, WED_ResourceMgr * rman, const string& vpath, co
 				if (want_thinWalls && bestFloor->roofs.size() > 1) xtra_roofs = bestFloor->roofs.size() - 1;
 				do
 				{
-					vector<Point2> new_pts; new_pts.reserve(roof_pts.size()*2);
+					std::vector<Point2> new_pts; new_pts.reserve(roof_pts.size()*2);
 					for(const auto& p: roof_pts)
 					{
 						new_pts.push_back(p);
@@ -1336,7 +1336,7 @@ void draw_facade(ITexMgr * tman, WED_ResourceMgr * rman, const string& vpath, co
 						glDisable(GL_CULL_FACE);
 					else
 						glEnable(GL_CULL_FACE);
-					glPolygon2(new_pts, true, vector<int>(), true, roof_height);
+					glPolygon2(new_pts, true, std::vector<int>(), true, roof_height);
 					
 					xtra_roofs--;
 					if(xtra_roofs >= 0)

@@ -31,7 +31,7 @@
 /*
 	Polygon tricks and notes:
 
-	Polygon_2 and Polygon_with_holes_2 are just "dumb" containers - you can push any set of points into them
+	Polygon_2 and Polygon_with_holes_2 are just "dumb" containers - you can push any std::set of points into them
 	and not worry about the consequences.
 
 	Polygon_set_2 is topological - when you add points and holes, you can use join and difference to hint
@@ -39,15 +39,15 @@
 
 	Conversions:
 
-	- To convert a map (or part of a map) to a polygon, simply set "contained" on each face. (If you set the
+	- To convert a map (or part of a map) to a polygon, simply std::set "contained" on each face. (If you std::set the
 	  unbounded face to be contained, you get an unbounded polygon with holes.)  Then construct a new
 	  Polygon_set_2 with the map as the constructor.  The polygon_set_2 will be simpler than the map if
 	  there are adjacent contained or not contained faces.
 
-	- To convert a polygon set to a map, simply set the meta data on its internal arrangement, then use that
-	  arrangement.  The most typical way to do this is to set the meta data, then use "overlay" or "merge"
+	- To convert a polygon std::set to a map, simply std::set the meta data on its internal arrangement, then use that
+	  arrangement.  The most typical way to do this is to std::set the meta data, then use "overlay" or "merge"
 	  to put the new polygons somewhere.  WARNING: Most polygon_set_2 processing operations consolidate and
-	  simplify the underlying map.  So it is highly recommended that you set the meta data immediately before
+	  simplify the underlying map.  So it is highly recommended that you std::set the meta data immediately before
 	  using the underlying map!
 
 
@@ -377,8 +377,8 @@ typedef Traits_2::Curve_2						Curve_2;
 /*
 	Our arrangement has a bunch of special tricks:
 
-	1.	Because we are constructing based on the GPS traits, each face has "contained" to specify if the "face" is IN a set of polygons..if it is,
-		then we can convert to a polygon set.  Similarly, we can get a map from a set of polygons.
+	1.	Because we are constructing based on the GPS traits, each face has "contained" to specify if the "face" is IN a std::set of polygons..if it is,
+		then we can convert to a polygon std::set.  Similarly, we can get a map from a std::set of polygons.
 
 	2.	We have GIS data on each of the face, vertex, and half-edge data.
 
@@ -436,12 +436,12 @@ typedef Arrangement_2		Pmwx;
 
 /*
 	Polygon_set_2 is a class that provides polygon boolean operations, using an arrangement to do the merge-cut operations.  Because it uses an
-	arragement we can make some very fast conversions from a map to a polygon set and back.  For example, we could:
+	arragement we can make some very fast conversions from a map to a polygon std::set and back.  For example, we could:
 
 	- Build a bunch of polygons, then use overlay to dump the results directly into a map.
-	- Get our map as a set of polygons.
+	- Get our map as a std::set of polygons.
 
-	NOTE: if we are going to construct a polygon set from an arrangement, we must set the "contained" property on all faces!!
+	NOTE: if we are going to construct a polygon std::set from an arrangement, we must std::set the "contained" property on all faces!!
 */
 
 
@@ -597,7 +597,7 @@ static void	InsetPolygon_2(
 		if (incoming_n < 0)	incoming_n = last_vertex;
 
 		/* We are going through vertex by vertex and determining the point(s) added
-		 * by each pair of sides.  incoming is the first side and outgoing is the second
+		 * by each std::pair of sides.  incoming is the first side and outgoing is the second
 		 * in a CCW rotation.  There are 5 special cases:
 		 *
 		 * (1) The first point in a non-ring is determined only by the second side.

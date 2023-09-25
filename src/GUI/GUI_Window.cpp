@@ -46,7 +46,7 @@
 #endif
 
 
-static set<GUI_Window *>	sWindows;
+static std::set<GUI_Window *>	sWindows;
 
 #if APL
 inline int Client2OGL_X(int x, void* w) { return x; }
@@ -118,11 +118,11 @@ int GUI_Window::handle(int e )
 					break;
 				}
 
-				string txt;
+				std::string txt;
 				if( this->InternalGetHelpTip(x,y,this->mTipBounds,txt ) && !txt.empty())
 				{
 					//TODO:mroe , this is a workaround for margin_width not settable before 10301
-					string tip_txt = "   " + txt + "   ";
+					std::string tip_txt = "   " + txt + "   ";
 					this->copy_tooltip(tip_txt.c_str());
 					Fl_Tooltip::enter(this);
 					mTipIsActive = true;
@@ -621,7 +621,7 @@ GUI_Window::GUI_Window(const char * inTitle, int inAttributes, const int inBound
 	XWinGL::GetBounds(mBounds+2,mBounds+3);
 #if IBM
 	if(sWindows.empty())
-		mBounds[3] -= 20;  // aproximate menu height, only for very first window - which is created before a menu is set
+		mBounds[3] -= 20;  // aproximate menu height, only for very first window - which is created before a menu is std::set
 #endif
 	sWindows.insert(this);
 	memset(mMouseFocusPane,0,sizeof(mMouseFocusPane));
@@ -800,7 +800,7 @@ void			GUI_Window::GLReshaped(int inWidth, int inHeight)
 		oldBounds[2] != mBounds[2] ||
 		oldBounds[3] != mBounds[3])
 	{
-		for (vector<GUI_Pane *>::iterator c = mChildren.begin(); c != mChildren.end(); ++c)
+		for (std::vector<GUI_Pane *>::iterator c = mChildren.begin(); c != mChildren.end(); ++c)
 			(*c)->ParentResized(oldBounds, mBounds);
 #if 1 // !LIN
 			Refresh();
@@ -863,7 +863,7 @@ void		GUI_Window::SetBounds(int x1, int y1, int x2, int y2)
 	SetBounds(b);
 }
 
-void		GUI_Window::SetDescriptor(const string& inDesc)
+void		GUI_Window::SetDescriptor(const std::string& inDesc)
 {
 	mDesc = inDesc;
 	XWinGL::SetTitle(inDesc.c_str());
@@ -1178,7 +1178,7 @@ int			GUI_Window::KeyPressed(uint32_t inKey, long inMsg, long inParam1, long inP
 
 void		GUI_Window::Activate(int active)
 {
-	string d;
+	std::string d;
 	GetDescriptor(d);
 	if (active && !this->IsFocusedChain())
 	{
@@ -1359,9 +1359,9 @@ GUI_DragOperation	GUI_Window::DoDragAndDrop(
 	DebugAssert(fetch_func == NULL);
 	#if APL
 
-		vector<string> types;
+		std::vector<std::string> types;
 		GUI_GetMacNativeDragTypeList(types);
-		vector<const char *> raw(types.size());
+		std::vector<const char *> raw(types.size());
 		for(int i = 0; i < types.size(); ++i)
 		{
 			raw[i] = types[i].c_str();
@@ -1459,7 +1459,7 @@ LRESULT CALLBACK GUI_Window::SubclassFunc(HWND hWnd, UINT message, WPARAM wParam
 				NMHDR * hdr = (NMHDR *) lParam;
 				NMTTDISPINFOW * di = (NMTTDISPINFOW *) lParam;
 				TOOLINFOW ti;
-				string tip;
+				std::string tip;
 				int has_tip;
 				RECT cl;
 				switch(hdr->code) {
@@ -1520,11 +1520,11 @@ LRESULT CALLBACK GUI_Window::SubclassFunc(HWND hWnd, UINT message, WPARAM wParam
 }
 
 	struct CmdEval_t {
-		string	new_name;
+		std::string	new_name;
 		int		enabled;
 		int		checked;
 	};
-	typedef map<int, CmdEval_t>	CmdMap_t;
+	typedef std::map<int, CmdEval_t>	CmdMap_t;
 
 static void FindCmdsRecursive(HMENU menu, CmdMap_t& io_map)
 {
@@ -1558,11 +1558,11 @@ static void ApplyCmdsRecursive(HMENU menu, const CmdMap_t& io_map)
 		mif.cch = sizeof(buf);
 		mif.dwTypeData = buf;
 		GetMenuItemInfoA(menu, n, true, &mif);
-		string suffix;
+		std::string suffix;
 		if (mif.fType == MFT_STRING)
 		{
-			string old_name(buf);
-			string::size_type tab = old_name.find('\t');
+			std::string old_name(buf);
+			std::string::size_type tab = old_name.find('\t');
 			if (tab != old_name.npos)
 				suffix = old_name.substr(tab);
 		}
@@ -1575,7 +1575,7 @@ static void ApplyCmdsRecursive(HMENU menu, const CmdMap_t& io_map)
 			{
 				mif.fMask = iter->second.new_name.empty() ? MIIM_STATE : (MIIM_TYPE | MIIM_STATE);
 				mif.fType = MFT_STRING;
-				string total_name;
+				std::string total_name;
 				if (!iter->second.new_name.empty())
 				{
 					total_name = iter->second.new_name + suffix;
@@ -1605,7 +1605,7 @@ void GUI_Window::EnableMenusWin(void)
 	for(CmdMap_t::iterator cmd = cmds.begin(); cmd != cmds.end(); ++cmd)
 		cmd->second.enabled = me->GetRootForCommander()->DispatchCanHandleCommand(cmd->first,cmd->second.new_name,cmd->second.checked);
 
-	for (set<GUI_Window *>::iterator iter = sWindows.begin(); iter != sWindows.end(); ++iter)
+	for (std::set<GUI_Window *>::iterator iter = sWindows.begin(); iter != sWindows.end(); ++iter)
 	{
 		GUI_Window * who = *iter;
 		ApplyCmdsRecursive(GetMenu(who->mWindow),cmds);
@@ -1624,7 +1624,7 @@ void				GUI_Window::GotCommandHack(int command)
 }
 
 
-int			GUI_Window::CalcHelpTip(int x, int y, int bounds[4], string& msg)
+int			GUI_Window::CalcHelpTip(int x, int y, int bounds[4], std::string& msg)
 {
 	x = Client2OGL_X(x, mWindow);
 	y = Client2OGL_Y(y, mWindow);

@@ -777,7 +777,7 @@ Pmwx::Vertex_handle apply_type_change_reverse(Pmwx::Halfedge_handle he, int new_
 }
 
 
-void apply_y_rules(Pmwx::Halfedge_handle trunk, Pmwx::Halfedge_handle left, Pmwx::Halfedge_handle right, set<Pmwx::Vertex_handle>& changed)
+void apply_y_rules(Pmwx::Halfedge_handle trunk, Pmwx::Halfedge_handle left, Pmwx::Halfedge_handle right, std::set<Pmwx::Vertex_handle>& changed)
 {
 	int tr = trunk->data().mSegments.front().mRepType;
 	int lr = left->data().mSegments.front().mRepType;
@@ -822,7 +822,7 @@ void apply_y_rules(Pmwx::Halfedge_handle trunk, Pmwx::Halfedge_handle left, Pmwx
 //	}
 //}
 //
-void check_junction_highways(Pmwx::Vertex_handle v, set<Pmwx::Vertex_handle>& changed)
+void check_junction_highways(Pmwx::Vertex_handle v, std::set<Pmwx::Vertex_handle>& changed)
 {
 	map<int, vector<Pmwx::Halfedge_handle> > junc;
 	int t = levelize_junction(v,junc);
@@ -1037,7 +1037,7 @@ void repair_network(Pmwx& io_map, bool verbose)
 	// We are going to save any junctions that had a crash...do not even TRY to fix them until
 	// we have fixed all discontinuous junctions..otherwise we might not see the whole
 	// contiguous on ramp.
-	list<Pmwx::Vertex_handle> crsh_starts;
+	std::list<Pmwx::Vertex_handle> crsh_starts;
 
 	for(Pmwx::Vertex_iterator v = io_map.vertices_begin(); v != io_map.vertices_end(); ++v)
 	#if OPENGL_MAP && DEV
@@ -1057,14 +1057,14 @@ void repair_network(Pmwx& io_map, bool verbose)
 		}
 	}
 
-	multimap<double, list<Pmwx::Halfedge_handle> >	crshs;
+	multimap<double, std::list<Pmwx::Halfedge_handle> >	crshs;
 
 	// Now: crash collection: run along each 'crash' vertex and collect the entire contiguous road
 	// in both directions and stash it by length.
 
-	for(list<Pmwx::Vertex_handle>::iterator v = crsh_starts.begin(); v != crsh_starts.end(); ++v)
+	for(std::list<Pmwx::Vertex_handle>::iterator v = crsh_starts.begin(); v != crsh_starts.end(); ++v)
 	{
-		set<Pmwx::Halfedge_handle>	processed;
+		std::set<Pmwx::Halfedge_handle>	processed;
 
 		Pmwx::Halfedge_handle opp;
 		Pmwx::Halfedge_around_vertex_circulator circ,stop;
@@ -1076,11 +1076,11 @@ void repair_network(Pmwx& io_map, bool verbose)
 				opp = next_contig(circ);
 				if (opp != Pmwx::Halfedge_handle())
 				{
-					list<Pmwx::Halfedge_handle> k;
+					std::list<Pmwx::Halfedge_handle> k;
 					processed.insert(circ);
 					processed.insert(opp);
 					double len = collect_contig<matches_any>(circ, k);
-					crshs.insert(multimap<double,list<Pmwx::Halfedge_handle> >::value_type(len,k));
+					crshs.insert(multimap<double,std::list<Pmwx::Halfedge_handle> >::value_type(len,k));
 				}
 			}
 			if(!circ->twin()->data().mSegments.empty())
@@ -1089,11 +1089,11 @@ void repair_network(Pmwx& io_map, bool verbose)
 				opp = prev_contig(circ->twin());
 				if (opp != Pmwx::Halfedge_handle())
 				{
-					list<Pmwx::Halfedge_handle> k;
+					std::list<Pmwx::Halfedge_handle> k;
 					processed.insert(circ->twin());
 					processed.insert(opp);
 					double len = collect_contig<matches_any>(circ->twin(), k);
-					crshs.insert(multimap<double,list<Pmwx::Halfedge_handle> >::value_type(len,k));
+					crshs.insert(multimap<double,std::list<Pmwx::Halfedge_handle> >::value_type(len,k));
 				}
 			}
 		} while(++circ != stop);
@@ -1102,14 +1102,14 @@ void repair_network(Pmwx& io_map, bool verbose)
 
 	}
 
-	// Now starting with the shortest crashed segments, try them in both uniform directions and set the whole
+	// Now starting with the shortest crashed segments, try them in both uniform directions and std::set the whole
 	// contiguous road to the direction that minimizes the fubar-ness of the end vertices.  Note that we have
 	// to re-optimize the end vertices based on direction....we may have missed the best 'fit' since we were
 	// going the wrong way.
 
-	for(multimap<double,list<Pmwx::Halfedge_handle> >::iterator k = crshs.begin(); k != crshs.end(); ++k)
+	for(multimap<double,std::list<Pmwx::Halfedge_handle> >::iterator k = crshs.begin(); k != crshs.end(); ++k)
 	{
-//		for(list<Pmwx::Halfedge_handle>::iterator r = k->second.begin(); r != k->second.end(); ++r)
+//		for(std::list<Pmwx::Halfedge_handle>::iterator r = k->second.begin(); r != k->second.end(); ++r)
 //			debug_mesh_line(cgal2ben((*r)->source()->point()),cgal2ben((*r)->target()->point()),1,0,0,0,1,0);
 		set_forward(k->second);
 		int score_f1 = optimize_one_junction(k->second.front()->source());
@@ -1137,7 +1137,7 @@ void repair_network(Pmwx& io_map, bool verbose)
 	// 3. we can do nothing.
 	// We always take option 1 if we can, but we only subdivide when the ground-level junction is draped.  The assumption is
 	// that if the road is graded at ground level, we can just run a bridge right out of the grading.
-	list<Pmwx::Halfedge_handle>		need_split;
+	std::list<Pmwx::Halfedge_handle>		need_split;
 
 	for(Pmwx::Edge_iterator e = io_map.edges_begin(); e != io_map.edges_end(); ++e)
 	if(he_has_any_roads(e))
@@ -1217,7 +1217,7 @@ void repair_network(Pmwx& io_map, bool verbose)
 			}
 		}
 	}
-	for(list<Pmwx::Halfedge_handle>::iterator s = need_split.begin(); s != need_split.end(); ++s)
+	for(std::list<Pmwx::Halfedge_handle>::iterator s = need_split.begin(); s != need_split.end(); ++s)
 	{
 		GISNetworkSegmentVector rv = (*s)->data().mSegments;
 		DebugAssert(rv.size() == 1);
@@ -1255,16 +1255,16 @@ void repair_network(Pmwx& io_map, bool verbose)
 	if(e->data().mMark)
 	{
 		Pmwx::Halfedge_handle he = get_he_with_roads(e);
-		list<Pmwx::Halfedge_handle>	strand;
+		std::list<Pmwx::Halfedge_handle>	strand;
 		double len = collect_contig<matches_street>(he, strand);
 
-		for(list<Pmwx::Halfedge_handle>::iterator r = strand.begin(); r != strand.end(); ++r)
+		for(std::list<Pmwx::Halfedge_handle>::iterator r = strand.begin(); r != strand.end(); ++r)
 		{
 			(*r)->data().mMark = false;
 			(*r)->twin()->data().mMark = false;
 		}
 		
-		list<Pmwx::Halfedge_handle>::iterator s = strand.begin(), e, l;
+		std::list<Pmwx::Halfedge_handle>::iterator s = strand.begin(), e, l;
 		while(s != strand.end())
 		{
 			while(s != strand.end() && get_he_is_on_ground(*s)) ++s;
@@ -1287,7 +1287,7 @@ void repair_network(Pmwx& io_map, bool verbose)
 			if(rs != rl)
 			{
 				int cr = 0, cl = 0;
-				for(list<Pmwx::Halfedge_handle>::iterator i = s; i != e; ++i)
+				for(std::list<Pmwx::Halfedge_handle>::iterator i = s; i != e; ++i)
 				{
 					int ri = get_he_rep_type(*i);
 					if(ri == rs) ++cr;
@@ -1298,7 +1298,7 @@ void repair_network(Pmwx& io_map, bool verbose)
 				
 				// assign rs to all in between
 				++s;
-				for(list<Pmwx::Halfedge_handle>::iterator i = s; i != l; ++i)
+				for(std::list<Pmwx::Halfedge_handle>::iterator i = s; i != l; ++i)
 				{
 					if(get_he_rep_type(*i) == rs)
 					{
@@ -1322,14 +1322,14 @@ void repair_network(Pmwx& io_map, bool verbose)
 
 	// FORK CONTROL/CHANGE CONTROL.  First: run fork control over every vertex once.
 
-	set<Pmwx::Vertex_handle>	trial, done, retry;
+	std::set<Pmwx::Vertex_handle>	trial, done, retry;
 
 	for(Pmwx::Vertex_handle v = io_map.vertices_begin(); v != io_map.vertices_end(); ++v)
 	{
 		check_junction_highways(v,trial);
 	}
 
-	// Now, some set of additional vertices may need to be RE-evaluated.  We keep a 'done' queue to avoid
+	// Now, some std::set of additional vertices may need to be RE-evaluated.  We keep a 'done' queue to avoid
 	// infinite loops, but we get at least two looks at every vertex.
 
 	while(!trial.empty())
@@ -1338,7 +1338,7 @@ void repair_network(Pmwx& io_map, bool verbose)
 		trial.erase(trial.begin());
 		done.insert(v);
 		check_junction_highways(v,retry);
-		for(set<Pmwx::Vertex_handle>::iterator i = retry.begin(); i != retry.end(); ++i)
+		for(std::set<Pmwx::Vertex_handle>::iterator i = retry.begin(); i != retry.end(); ++i)
 			if(done.count(*i) == 0)
 			{
 				trial.insert(*i);
@@ -1373,10 +1373,10 @@ void repair_network(Pmwx& io_map, bool verbose)
 	if(e->data().mMark)
 	{
 		Pmwx::Halfedge_handle he = get_he_with_roads(e);
-		list<Pmwx::Halfedge_handle>	strand;
+		std::list<Pmwx::Halfedge_handle>	strand;
 		double len = collect_contig<matches_limited_access>(he, strand);
 		vector<int>	rep_types;
-		for(list<Pmwx::Halfedge_handle>::iterator r = strand.begin(); r != strand.end(); ++r)
+		for(std::list<Pmwx::Halfedge_handle>::iterator r = strand.begin(); r != strand.end(); ++r)
 		{
 			(*r)->data().mMark = false;
 			(*r)->twin()->data().mMark = false;
@@ -1401,7 +1401,7 @@ void repair_network(Pmwx& io_map, bool verbose)
 			int rf = 0;
 			int rb = rep_types.size()-1;
 			double df = 0.0, db = 0.0;
-			list<Pmwx::Halfedge_handle>::iterator	head = strand.begin(), tail = strand.end();
+			std::list<Pmwx::Halfedge_handle>::iterator	head = strand.begin(), tail = strand.end();
 
 			while(head != tail)
 			{
@@ -1427,7 +1427,7 @@ void repair_network(Pmwx& io_map, bool verbose)
 			}
 
 			if(rb != rm || rf != rm || db == 0.0 || df == 0.0)
-			for(list<Pmwx::Halfedge_handle>::iterator r = strand.begin(); r != strand.end(); ++r)
+			for(std::list<Pmwx::Halfedge_handle>::iterator r = strand.begin(); r != strand.end(); ++r)
 			{
 //				debug_mesh_line(cgal2ben((*r)->source()->point()),cgal2ben((*r)->target()->point()),0,0,1,1,0,0);
 			}
@@ -1435,7 +1435,7 @@ void repair_network(Pmwx& io_map, bool verbose)
 	}
 
 	/* Level crossings... */
-	set<Pmwx::Vertex_handle>	verts;
+	std::set<Pmwx::Vertex_handle>	verts;
 	for(Pmwx::Vertex_handle v = io_map.vertices_begin(); v != io_map.vertices_end(); ++v)	
 	{	
 		map<int, vector<Pmwx::Halfedge_handle> > junc;
@@ -1461,7 +1461,7 @@ void repair_network(Pmwx& io_map, bool verbose)
 		}
 	}
 	
-	set<Pmwx::Vertex_handle> all_level_crossings(verts);
+	std::set<Pmwx::Vertex_handle> all_level_crossings(verts);
 	
 	while(!verts.empty())
 	{
@@ -1547,7 +1547,7 @@ void MarkFunkyRoadIssues(Pmwx& ioMap)
 	int total_hplug = 0;
 	int total_mid_change = 0;
 	int total_mid_change_size = 0;
-	map<pair<int,int>, int> histo;
+	map<std::pair<int,int>, int> histo;
 	
 	map<vector<int>,int>	total_histo_feat[5], total_histo_rep[5];
 	
@@ -1612,7 +1612,7 @@ void MarkFunkyRoadIssues(Pmwx& ioMap)
 				if(v1.dot(v2) > 0.7 || v1.dot(v2) < -0.7)				
 				if(r1 != r2 && get_he_street(l->second[0]) && get_he_street(l->second[1]))
 				{
-					pair<int,int> offender(r1,r2);
+					std::pair<int,int> offender(r1,r2);
 					if(offender.first > offender.second)
 						swap(offender.first,offender.second);
 					histo[offender]++;
@@ -1638,7 +1638,7 @@ void MarkFunkyRoadIssues(Pmwx& ioMap)
 		
 	}
 	
-	multimap<int,pair<int,int> > rhisto;
+	multimap<int,std::pair<int,int> > rhisto;
 	multimap<int,vector<int> >	feat_histo[5], rep_histo[5];
 	int totals[5];
 	int total_fubar = reverse_histo(histo, rhisto);
@@ -1647,12 +1647,12 @@ void MarkFunkyRoadIssues(Pmwx& ioMap)
 		totals[n] = reverse_histo(total_histo_feat[n], feat_histo[n]);
 					reverse_histo(total_histo_rep[n], rep_histo[n]);
 	}
-	for(map<pair<int,int>, int>::iterator i = histo.begin(); i != histo.end(); ++i)
-	rhisto.insert(multimap<int,pair<int,int> >::value_type(i->second,i->first));
+	for(map<std::pair<int,int>, int>::iterator i = histo.begin(); i != histo.end(); ++i)
+	rhisto.insert(multimap<int,std::pair<int,int> >::value_type(i->second,i->first));
 	
 	printf("Bad: %d, highway plugs: %d, mid-seg changes :%d (%d with size change).\n", total_bad, total_hplug, total_mid_change, total_mid_change_size);
 	printf("Degree 2 locals with low corner.\n");
-	for(multimap<int,pair<int, int> >::iterator r = rhisto.begin(); r != rhisto.end(); ++r)
+	for(multimap<int,std::pair<int, int> >::iterator r = rhisto.begin(); r != rhisto.end(); ++r)
 		printf("%d: %s/%s\n", r->first,FetchTokenString(r->second.first),FetchTokenString(r->second.second));
 		
 	for(int n = 0; n < 5; ++n)

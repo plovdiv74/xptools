@@ -176,11 +176,11 @@ int		WED_PropertyPane::MouseMove(int x, int y)
 void	WED_PropertyPane::FromPrefs(IDocPrefs * prefs,int id)
 {
 	char buf[256];
-	string key = "PropertyPane";
+	std::string key = "PropertyPane";
 	sprintf(buf,"%d/Closed",id);
 	key += buf;
 
-	set<int> mClosedList;
+	std::set<int> mClosedList;
 	prefs->ReadIntSetPref(key.c_str(),mClosedList);
 	mPropertyTable.SetClosed(mClosedList);
 }
@@ -188,11 +188,11 @@ void	WED_PropertyPane::FromPrefs(IDocPrefs * prefs,int id)
 void	WED_PropertyPane::ToPrefs(IDocPrefs * prefs,int id)
 {
 	char buf[256];
-	string key = "PropertyPane";
+	std::string key = "PropertyPane";
 	sprintf(buf,"%d/Closed",id);
 	key += buf;
 
-	set<int> mClosedList;
+	std::set<int> mClosedList;
 	mPropertyTable.GetClosed(mClosedList);
 	prefs->WriteIntSetPref(key.c_str(), mClosedList);
 }

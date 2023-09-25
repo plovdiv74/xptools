@@ -51,7 +51,7 @@ public:
 		
 private:
 
-	string	mImage;
+	std::string	mImage;
 	int		mPackArea[4];
 
 };
