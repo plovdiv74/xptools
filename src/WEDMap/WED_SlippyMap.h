@@ -30,7 +30,7 @@ class	WED_file_cache_request;
 #include "GUI_Timer.h"
 #include "WED_MapLayer.h"
 
-enum yCoord_t { yNone, yNormal, yYahoo, yOSGeo };
+enum yCoord_t { yNone, yNormal, yYahoo, yOSGeo, yBing };
 
 class	WED_SlippyMap : public WED_MapLayer, public GUI_Timer {
 public:

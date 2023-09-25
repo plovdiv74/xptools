@@ -16,6 +16,7 @@ callgrind.out.*
 *.moc.cpp
 *.swp
 Uninstall/
+.vs/
 
 #kDiff files
 *.orig

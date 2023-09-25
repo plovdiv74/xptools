@@ -1736,6 +1736,9 @@
     <ClInclude Include="..\..\src\WEDWindows\WED_ConvertCommands.h">
       <Filter>WEDWindows</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\WEDMap\WED_QuadkeyTileSystem.h">
+      <Filter>WEDMap</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\src\WEDResources\about.png">

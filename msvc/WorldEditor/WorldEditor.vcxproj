@@ -531,6 +531,7 @@
     <ClInclude Include="..\..\src\WEDMap\WED_NavaidLayer.h" />
     <ClInclude Include="..\..\src\WEDMap\WED_PerspectiveCamera.h" />
     <ClInclude Include="..\..\src\WEDMap\WED_PreviewLayer.h" />
+    <ClInclude Include="..\..\src\WEDMap\WED_QuadkeyTileSystem.h" />
     <ClInclude Include="..\..\src\WEDMap\WED_SlippyMap.h" />
     <ClInclude Include="..\..\src\WEDMap\WED_StructureLayer.h" />
     <ClInclude Include="..\..\src\WEDMap\WED_TerrainLayer.h" />

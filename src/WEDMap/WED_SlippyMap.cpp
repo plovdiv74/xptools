@@ -30,6 +30,7 @@
 #include "WED_Url.h"
 #include "WED_Globals.h"
 #include "WED_DrawUtils.h"
+#include "WED_QuadkeyTileSystem.h"
 #include "MathUtils.h"
 #include "BitmapUtils.h"
 #include "PlatformUtils.h"
@@ -55,7 +56,7 @@
 #define SHOW_DEBUG_INFO 0
 
 #define MIN_ZOOM  12        // stop displaying slippys at all below this level
-#define MAX_ZOOM  17        // for custom mode maps (predefined maps have their own limits below)
+#define MAX_ZOOM  18        // for custom mode maps (predefined maps have their own limits below)
 
 #define TILE_FACTOR 0.8     // save tiles by zooming in a bit later than at 1:1 pixel ratio.
 							// Since zoom goes by 1.2x steps - it matters little w.r.t "sharpness"
@@ -245,23 +246,43 @@ void	WED_SlippyMap::DrawVisualization(bool inCurrent, GUI_GraphState * g)
 			}
 #endif
 			int yTransformed;
+			string quadkey;
 			switch(y_coordinate_math)
 			{
 				case yYahoo: yTransformed = (1 << (z-1)) - 1 - y; break;
 				case yOSGeo: yTransformed = (1 << z) - 1 - y; break;
+				case yBing: quadkey = QuadkeyTileSystem::TileXYToQuadKey(x, y, z);
 				default: yTransformed = y;
 			}
+			char url[200];
+			char dir[200];
 #if IBM
-			char url[200]; _sprintf_p(url, 200, url_printf_fmt.c_str(), x, yTransformed, z);
-			char dir[200]; _sprintf_p(dir, 200, dir_printf_fmt.c_str(), x, yTransformed, z);
+			if (y_coordinate_math == yBing)
+			{
+				_sprintf_p(url, 200, url_printf_fmt.c_str(), quadkey.c_str());
+				_sprintf_p(dir, 200, dir_printf_fmt.c_str(), quadkey.c_str());
+			}
+			else
+			{
+				_sprintf_p(url, 200, url_printf_fmt.c_str(), x, yTransformed, z);
+				_sprintf_p(dir, 200, dir_printf_fmt.c_str(), x, yTransformed, z);
+			}
 #else
-			char url[200]; snprintf(url, 200, url_printf_fmt.c_str(), x, yTransformed, z);
-			char dir[200]; snprintf(dir, 200, dir_printf_fmt.c_str(), x, yTransformed, z);  // make sure ALL args are referenced in the format string
+			if (y_coordinate_math == yBing)
+			{
+				_sprintf_p(url, 200, url_printf_fmt.c_str(), quadkey.c_str());
+				_sprintf_p(dir, 200, dir_printf_fmt.c_str(), quadkey.c_str());
+			}
+			else
+			{
+				snprintf(url, 200, url_printf_fmt.c_str(), x, yTransformed, z);
+				snprintf(dir, 200, dir_printf_fmt.c_str(), x, yTransformed, z);  // make sure ALL args are referenced in the format string
+			}
 #endif
 			string folder_prefix(dir); folder_prefix.erase(folder_prefix.find_last_of(DIR_STR));
 
 			//The potential place the tile could appear on disk, were it to be downloaded or have been downloaded
-			string potential_path = gFileCache.url_to_cache_path(WED_file_cache_request(cache_domain_osm_tile, folder_prefix , url));
+			string potential_path = gFileCache.url_to_cache_path(WED_file_cache_request(cache_domain_osm_tile, folder_prefix , url, dir));
 
 			if (m_cache.count(potential_path))
 			{
@@ -293,7 +314,7 @@ void	WED_SlippyMap::DrawVisualization(bool inCurrent, GUI_GraphState * g)
 			}
 			else if(m_cache_request == NULL)
 			{
-				m_cache_request = new WED_file_cache_request(cache_domain_osm_tile, folder_prefix, url);
+				m_cache_request = new WED_file_cache_request(cache_domain_osm_tile, folder_prefix, url, dir);
 			}
 		}
 	}
@@ -478,6 +499,17 @@ void	WED_SlippyMap::SetMode(int mode)
 		mMapMode = mode;
 		SetVisible(1);
 	}
+	else if (replace_token(url_printf_fmt, "${quadkey}", "%s"))
+	{
+		y_coordinate_math = yBing;
+
+		const auto start{url_printf_fmt.find("//")+2};
+		dir_printf_fmt = url_printf_fmt.substr(start, url_printf_fmt.rfind('?') - start);
+		replace(dir_printf_fmt.begin(), dir_printf_fmt.end(), '/', DIR_CHAR);
+
+		mMapMode = mode;
+		SetVisible(1);
+	}
 	else
 	{
 		mMapMode = 0;
@@ -490,3 +522,4 @@ int		WED_SlippyMap::GetMode(void)
 {
 	return mMapMode;
 }
+

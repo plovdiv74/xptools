@@ -38,10 +38,12 @@ WED_file_cache_request::WED_file_cache_request()
 {
 }
 
-WED_file_cache_request::WED_file_cache_request(CACHE_domain domain, const string & folder_prefix, const string & url)
+WED_file_cache_request::WED_file_cache_request(CACHE_domain domain, const string & folder_prefix, const string & url,
+	const string & dir)
 	: in_domain(domain),
 	  in_folder_prefix(folder_prefix),
-	  in_url(url)
+	  in_url(url),
+	  in_dir(dir)
 {
 }
 
@@ -508,7 +510,7 @@ string WED_FileCache::file_in_cache(const WED_file_cache_request & req)
 
 string WED_FileCache::url_to_cache_path(const WED_file_cache_request & req)
 {
-	return CACHE_folder + DIR_STR + req.in_folder_prefix + DIR_STR + FILE_get_file_name(req.in_url);
+	return CACHE_folder + DIR_STR + req.in_folder_prefix + DIR_STR + FILE_get_file_name(req.in_dir);
 }
 
 vector<string> WED_FileCache::get_files_available(CACHE_domain domain, string folder_prefix)
