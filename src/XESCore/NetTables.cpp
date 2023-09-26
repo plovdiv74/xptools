@@ -34,7 +34,7 @@ Feature2RepInfoTable			gFeature2Rep;
 ForkRuleTable					gForkRules;
 ChangeRuleTable					gChangeRules;
 BridgeInfoTable					gBridgeInfo;
-map<int,int>					gTwinRules;
+std::map<int,int>					gTwinRules;
 
 LevelCrossingTable				gLevelCrossings;
 
@@ -44,7 +44,7 @@ RoadCountryTable				gRoadCountry;
 std::set<int>						gPromotedZoningSet;
 
 
-bool	RoadGeneralProps(const vector<string>& tokens, void * ref)
+bool	RoadGeneralProps(const std::vector<std::string>& tokens, void * ref)
 {
 	int				feature_type;
 	NetFeatureInfo	info;
@@ -60,7 +60,7 @@ bool	RoadGeneralProps(const vector<string>& tokens, void * ref)
 	return true;
 }
 
-bool	ReadRoadSpecificProps(const vector<string>& tokens, void * ref)
+bool	ReadRoadSpecificProps(const std::vector<std::string>& tokens, void * ref)
 {
 	int rep_type;
 	NetRepInfo	info;
@@ -91,7 +91,7 @@ bool	ReadRoadSpecificProps(const vector<string>& tokens, void * ref)
 	return true;
 }
 
-bool	ReadRoadPick(const vector<string>& tokens, void * ref)
+bool	ReadRoadPick(const std::vector<std::string>& tokens, void * ref)
 {
 	Feature2RepInfo	info;
 	int				feature_type;
@@ -109,7 +109,7 @@ bool	ReadRoadPick(const vector<string>& tokens, void * ref)
 	return true;
 }
 
-bool	ReadRoadPromoteZoning(const vector<string>& tokens, void * ref)
+bool	ReadRoadPromoteZoning(const std::vector<std::string>& tokens, void * ref)
 {
 	gPromotedZoningSet.clear();
 	if(TokenizeLine(tokens," S",&gPromotedZoningSet) != 2)
@@ -117,7 +117,7 @@ bool	ReadRoadPromoteZoning(const vector<string>& tokens, void * ref)
 	return true;
 }
 
-bool	ReadLevelCrossing(const vector<string>& tokens, void * ref)
+bool	ReadLevelCrossing(const std::vector<std::string>& tokens, void * ref)
 {
 	int t1, t2;
 	if(TokenizeLine(tokens," ee", &t1, &t2) != 3)
@@ -126,7 +126,7 @@ bool	ReadLevelCrossing(const vector<string>& tokens, void * ref)
 	return true;
 }
 
-bool	ReadRoadCountry(const vector<string>& tokens, void * ref)
+bool	ReadRoadCountry(const std::vector<std::string>& tokens, void * ref)
 {
 	int src, dst;
 	if(TokenizeLine(tokens, " ee", &src, &dst) != 3) return false;
@@ -135,7 +135,7 @@ bool	ReadRoadCountry(const vector<string>& tokens, void * ref)
 	return true;
 }
 
-bool	ReadRoadPromote(const vector<string>& tokens, void * ref)
+bool	ReadRoadPromote(const std::vector<std::string>& tokens, void * ref)
 {
 	int	rt;
 	ZoningPromote	p;
@@ -146,7 +146,7 @@ bool	ReadRoadPromote(const vector<string>& tokens, void * ref)
 	return true;
 }
 
-bool	ReadForkRule(const vector<string>& tokens, void * ref)
+bool	ReadForkRule(const std::vector<std::string>& tokens, void * ref)
 {
 	ForkRule r;
 	if(TokenizeLine(tokens," eeeeee",
@@ -162,7 +162,7 @@ bool	ReadForkRule(const vector<string>& tokens, void * ref)
 				
 }
 
-bool	ReadChangeRule(const vector<string>& tokens, void * ref)
+bool	ReadChangeRule(const std::vector<std::string>& tokens, void * ref)
 {
 	ChangeRule r;
 	if(TokenizeLine(tokens," eeee",
@@ -176,7 +176,7 @@ bool	ReadChangeRule(const vector<string>& tokens, void * ref)
 }
 
 
-bool	ReadRoadBridge(const vector<string>& tokens, void * ref)
+bool	ReadRoadBridge(const std::vector<std::string>& tokens, void * ref)
 {
 	BridgeInfo	info;
 
@@ -203,7 +203,7 @@ bool	ReadRoadBridge(const vector<string>& tokens, void * ref)
 	return true;
 }
 
-bool ReadTwinRule(const vector<string>& tokens, void * ref)
+bool ReadTwinRule(const std::vector<std::string>& tokens, void * ref)
 {
 	int type_1, type_2;
 	if(TokenizeLine(tokens, " ee",&type_1,&type_2) != 3) return false;
@@ -269,7 +269,7 @@ bool	IsOneway(int rep_type)
 
 bool	IsTwinRoads(int rep_type1, int rep_type2)
 {
-	map<int,int>::iterator i = gTwinRules.find(rep_type1);
+	std::map<int,int>::iterator i = gTwinRules.find(rep_type1);
 	return i != gTwinRules.end() && i->second == rep_type2;
 }
 

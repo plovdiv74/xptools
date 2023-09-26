@@ -33,7 +33,7 @@ enum {
 	rf_Select_PointFeatures
 };
 
-typedef	pair<Pmwx::Face_handle, int>	PointFeatureSelection;
+typedef	std::pair<Pmwx::Face_handle, int>	PointFeatureSelection;
 
 namespace std {
 template <>
@@ -49,10 +49,10 @@ struct less<PointFeatureSelection> : binary_function<PointFeatureSelection, Poin
 
 extern int							gSelectionMode;
 
-extern set<Pmwx::Face_handle>		gFaceSelection;
-extern set<Pmwx::Halfedge_handle>	gEdgeSelection;
-extern set<Pmwx::Vertex_handle>		gVertexSelection;
-extern set<PointFeatureSelection>	gPointFeatureSelection;
+extern std::set<Pmwx::Face_handle>		gFaceSelection;
+extern std::set<Pmwx::Halfedge_handle>	gEdgeSelection;
+extern std::set<Pmwx::Vertex_handle>		gVertexSelection;
+extern std::set<PointFeatureSelection>	gPointFeatureSelection;
 
 // Selection commands
 

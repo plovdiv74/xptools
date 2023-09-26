@@ -434,7 +434,7 @@ inline bool within_box(const Point2& p1, const Point2& p2, double d)
 	return false;
 }
 
-typedef multiset<Net_JunctionInfo_t *, sort_by_y>	y_sorted_set;
+typedef std::multiset<Net_JunctionInfo_t *, sort_by_y>	y_sorted_set;
 
 void	MergeNearJunctions(Net_JunctionInfoSet& juncs, Net_ChainInfoSet& chains, double dist)
 {
@@ -573,8 +573,8 @@ void	BuildNetworkTopology(Pmwx& inMap, CDT& /*inMesh*/, Net_JunctionInfoSet& out
 	outJunctions.clear();
 	outChains.clear();
 
-	typedef	map<Pmwx::Vertex *, Net_JunctionInfo_t*>		JunctionTableType;
-	typedef	map<Pmwx::Halfedge_handle, Net_ChainInfo_t*>	ChainTableType;
+	typedef	std::map<Pmwx::Vertex *, Net_JunctionInfo_t*>		JunctionTableType;
+	typedef	std::map<Pmwx::Halfedge_handle, Net_ChainInfo_t*>	ChainTableType;
 	JunctionTableType										junctionTable;
 
 	CDT::Face_handle	f;

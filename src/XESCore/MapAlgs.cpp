@@ -1806,7 +1806,7 @@ float	GetParamAverage(const Pmwx::Face_handle f, const DEMGeo& dem, float * outM
 		return DEM_NO_DATA;
 }
 
-int	GetParamHistogram(const Pmwx::Face_handle f, const DEMGeo& dem, map<float, int>& outHistogram)
+int	GetParamHistogram(const Pmwx::Face_handle f, const DEMGeo& dem, std::map<float, int>& outHistogram)
 {
 	PolyRasterizer<double>	rast;
 	int count = 0;
@@ -1932,7 +1932,7 @@ void DumpMapStats(const Pmwx& ioMap)
 	printf("Map has %zd faces / %zd edges / %zd vertices\n",
 		   ioMap.number_of_faces(), ioMap.number_of_edges(), ioMap.number_of_vertices());
 
-	map<size_t, size_t> edge_histogram;
+	std::map<size_t, size_t> edge_histogram;
 
 	for (auto itFace = ioMap.faces_begin(); itFace != ioMap.faces_end(); itFace++)
 	{
@@ -2027,7 +2027,7 @@ void debug_he_dir(Halfedge_handle he, Pmwx * pmwx)
 
 struct UpdatePmwx : public Visitor_base<Simplify_polylines_2>
 {
-	map<Point_2, Pmwx::Vertex_handle> *		vertex_lookup_table;
+	std::map<Point_2, Pmwx::Vertex_handle> *		vertex_lookup_table;
 	Pmwx *									pmwx;
 
 	virtual void OnSelected( Vertex_handle const& v2, boost::optional<double> const& cost, unsigned initial_count, unsigned current_count) const
@@ -2036,7 +2036,7 @@ struct UpdatePmwx : public Visitor_base<Simplify_polylines_2>
 
 	virtual void OnRemoving(Vertex_handle v1, Vertex_handle v2, Vertex_handle v3) const
 	{
-		map<Point_2, Pmwx::Vertex_handle>::iterator i = vertex_lookup_table->find(v2->point());
+		std::map<Point_2, Pmwx::Vertex_handle>::iterator i = vertex_lookup_table->find(v2->point());
 		DebugAssert(i != vertex_lookup_table->end());
 		
 		Pmwx::Vertex_handle dead = i->second;
@@ -2178,7 +2178,7 @@ void MapSimplify(Pmwx& pmwx, double metric)
 	Pmwx::Vertex_iterator v;
 	Pmwx::Face_iterator f;
 	
-	map<Point_2, Pmwx::Vertex_handle>		vertex_lookup_table;
+	std::map<Point_2, Pmwx::Vertex_handle>		vertex_lookup_table;
 	
 
 	for(e = pmwx.halfedges_begin(); e != pmwx.halfedges_end(); ++e)
@@ -2250,7 +2250,7 @@ void MapSimplify(Pmwx& pmwx, double metric)
 	if(v->degree() > 0)
 	{
 		DebugAssert(vertex_lookup_table.count(v->point()) == 0);
-		vertex_lookup_table.insert(map<Point_2,Pmwx::Vertex_handle>::value_type(v->point(), v));
+		vertex_lookup_table.insert(std::map<Point_2,Pmwx::Vertex_handle>::value_type(v->point(), v));
 	}
 	
 	CGAL::Polyline_simplification_2::Stop_below_cost_threshold stop(metric*metric);
@@ -2396,8 +2396,8 @@ int MapDesliver(Pmwx& pmwx, double metric, ProgressFunc func)
 		{
 			std::set<Pmwx::Halfedge_handle>	my_edges;
 			FindEdgesForFace<Pmwx>(f,my_edges);
-			map<int,int>	road_lu_count;
-			map<int,int>	other_lu_count;
+			std::map<int,int>	road_lu_count;
+			std::map<int,int>	other_lu_count;
 			bool matches_something = false;
 			for(std::set<Pmwx::Halfedge_handle>::iterator e = my_edges.begin(); e != my_edges.end(); ++e)
 			if(!(*e)->twin()->face()->is_unbounded())
@@ -2759,7 +2759,7 @@ Pmwx::Face_handle containing_face(Pmwx::Ccb_halfedge_circulator circ)
 	return ret;
 }
 
-tuple<int, int> RemoveIslands(Pmwx& io_map, double max_area)
+std::tuple<int, int> RemoveIslands(Pmwx& io_map, double max_area)
 {
 	int islands_removed = 0, islands = 0;
 	for (auto f = io_map.faces_begin(); f != io_map.faces_end(); ++f)

@@ -99,25 +99,25 @@ struct shape_import_data {
 };
 
 struct shape_pattern_t {
-	vector<string>		columns;
-	vector<int>			dbf_id;
-	vector<string>		values;
+	std::vector<std::string>		columns;
+	std::vector<int>			dbf_id;
+	std::vector<std::string>		values;
 	int					feature = 0;
 };
-typedef vector<shape_pattern_t> shape_pattern_vector;
+typedef std::vector<shape_pattern_t> shape_pattern_vector;
 
 struct import_column_t {
-	string				col_name;			// this is the name of the col in the shape file.
+	std::string				col_name;			// this is the name of the col in the shape file.
 	int					dbf_id = -1;
 	const int			rf_key;				// This is the enum to key off of for RF.
 };
-typedef vector<import_column_t>	import_column_vector;
+typedef std::vector<import_column_t>	import_column_vector;
 
 static import_column_vector	sImportColumns;
 static shape_pattern_vector	sShapeRules;
 static shape_pattern_vector sLineReverse;
 static shape_pattern_vector sLineBridge;
-static string				sLayerTag;
+static std::string				sLayerTag;
 static int					sLayerID;
 
 
@@ -178,9 +178,9 @@ inline void DEBUG_POLYGON(const Polygon_2& p, const Point3& c1, const Point3& c2
 */
 
 // SPECIAL CHARS:
-// *			Match any empty string
+// *			Match any empty std::string
 // -			Match null
-// !-			Match any non-null (including empty string)
+// !-			Match any non-null (including empty std::string)
 static int want_this_thing(DBFHandle db, int shape_id, const shape_pattern_vector& rules, int * value)
 {
 	for(const auto & rule : rules)
@@ -219,7 +219,7 @@ static int want_this_thing(DBFHandle db, int shape_id, const shape_pattern_vecto
 	return 0;
 }
 
-static bool ShapeLineImporter(const vector<string>& inTokenLine, void * inRef)
+static bool ShapeLineImporter(const std::vector<std::string>& inTokenLine, void * inRef)
 {
 	if(inTokenLine[0] == "COLUMN")
 	{
@@ -236,7 +236,7 @@ static bool ShapeLineImporter(const vector<string>& inTokenLine, void * inRef)
 	}
 	if(inTokenLine[0] == "PROJ")
 	{
-		vector<char*> args;
+		std::vector<char*> args;
 		for(int n = 1; n < inTokenLine.size(); ++n)
 			args.push_back(const_cast<char*>(inTokenLine[n].c_str()));
 		if(sProj) pj_free(sProj);
@@ -262,7 +262,7 @@ static bool ShapeLineImporter(const vector<string>& inTokenLine, void * inRef)
 		else
 			pat.feature = 1;
 
-		string::const_iterator e, s = inTokenLine[1].begin();
+		std::string::const_iterator e, s = inTokenLine[1].begin();
 		while(s != inTokenLine[1].end())
 		{
 			e=s;
@@ -318,8 +318,8 @@ public:
 
 	typedef	std::set<int>	Prop_t;
 
-	const vector<int> *					curve_feature = nullptr;
-	const vector<shape_import_data> *	feature_map = nullptr;
+	const std::vector<int> *					curve_feature = nullptr;
+	const std::vector<shape_import_data> *	feature_map = nullptr;
 
 	void initialize_properties(Prop_t& io_properties) override
 	{
@@ -536,13 +536,13 @@ bool	ReadShapeFile(const char * in_file, Pmwx& io_map, shp_Flags flags, const ch
 //		}
 //	}
 
-	if((flags & shp_Overlay) == 0)	// If we are not overlaying or err checking, nuke the map now.  In _some_ modes (road curve insert,
-		io_map.clear();								// one-by-one burn in) we are going to work on the final map, so this is needed.
+	if((flags & shp_Overlay) == 0)	// If we are not overlaying or err checking, nuke the std::map now.  In _some_ modes (road curve insert,
+		io_map.clear();								// one-by-one burn in) we are going to work on the final std::map, so this is needed.
 
-	vector<Curve_2>							curves;
+	std::vector<Curve_2>							curves;
 	// Curve_2 -> feature_map index
-	vector<int>							curve_feature;
-	vector<tuple<boost::optional<double>,boost::optional<double>>> curve_elevation;
+	std::vector<int>							curve_feature;
+	std::vector<std::tuple<boost::optional<double>,boost::optional<double>>> curve_elevation;
 
 	int feat = NO_VALUE;
 	if(flags & shp_Mode_Simple)
@@ -591,8 +591,8 @@ bool	ReadShapeFile(const char * in_file, Pmwx& io_map, shp_Flags flags, const ch
 
 	PROGRESS_START(inFunc, 0, 1, "Reading shape file...")
 
-	vector<shape_import_data>	feature_map;
-	vector<int>					feature_rev, 
+	std::vector<shape_import_data>	feature_map;
+	std::vector<int>					feature_rev, 
 								feature_lay;
 	feature_map.resize(entity_count,shape_import_data(NO_VALUE));
 	feature_rev.resize(entity_count,0);
@@ -631,7 +631,7 @@ bool	ReadShapeFile(const char * in_file, Pmwx& io_map, shp_Flags flags, const ch
 				{
 					int start_idx = obj->panPartStart[part];
 					int stop_idx = ((part+1) == obj->nParts) ? obj->nVertices : obj->panPartStart[part+1];
-					vector<Point2>	p;
+					std::vector<Point2>	p;
 					for (int i = start_idx; i < stop_idx; ++i)
 					{
 						Point2 pt(obj->padfX[i],obj->padfY[i]);
@@ -642,7 +642,7 @@ bool	ReadShapeFile(const char * in_file, Pmwx& io_map, shp_Flags flags, const ch
 							p.push_back(pt);
 						}
 					}
-					vector<Point2> reduced;
+					std::vector<Point2> reduced;
 					swap(p,reduced);
 
 					/*
@@ -699,7 +699,7 @@ bool	ReadShapeFile(const char * in_file, Pmwx& io_map, shp_Flags flags, const ch
 				{
 					int start_idx = obj->panPartStart[part];
 					int stop_idx = ((part+1) == obj->nParts) ? obj->nVertices : obj->panPartStart[part+1];
-					vector<tuple<Point_2, boost::optional<double>>> p;
+					std::vector<std::tuple<Point_2, boost::optional<double>>> p;
 					for (int i = start_idx; i < stop_idx; ++i)
 					{
 						Point_2 pt(obj->padfX[i],obj->padfY[i]);
@@ -818,7 +818,7 @@ bool	ReadShapeFile(const char * in_file, Pmwx& io_map, shp_Flags flags, const ch
 	if(flags & shp_ErrCheck)
 	{
 		Traits_2			tr;
-		vector<Point_2>		errs;
+		std::vector<Point_2>		errs;
 		CGAL::compute_intersection_points(curves.begin(), curves.end()-4, back_inserter(errs), false, tr);
 		if(!errs.empty())
 		{
@@ -856,7 +856,7 @@ bool	ReadShapeFile(const char * in_file, Pmwx& io_map, shp_Flags flags, const ch
 			visitor.Visit(targ);
 
 			int count = 0;
-			// map: crop last!  Otherwise closed polygons "leak" into open area...we are NOT clever enough
+			// std::map: crop last!  Otherwise closed polygons "leak" into open area...we are NOT clever enough
 			// to tag the open area by membership, so BFS first.
 			if(flags & shp_Use_Crop)
 			{
@@ -1114,8 +1114,8 @@ bool	RasterShapeFile(
 		dem = DEM_NO_DATA;
 	}
 
-	map<int, PolyRasterizer<double> >	rasterizers;
-	map<int, vector<Segment2> >			edges;
+	std::map<int, PolyRasterizer<double> >	rasterizers;
+	std::map<int, std::vector<Segment2> >			edges;
 
 	int feat = NO_VALUE;
 	if(flags & shp_Mode_Simple)
@@ -1135,15 +1135,15 @@ bool	RasterShapeFile(
 		}
 
 		for(shape_pattern_vector::iterator r = sShapeRules.begin(); r != sShapeRules.end(); ++r)
-		for(vector<string>::iterator c = r->columns.begin(); c != r->columns.end(); ++c)
+		for(std::vector<std::string>::iterator c = r->columns.begin(); c != r->columns.end(); ++c)
 			r->dbf_id.push_back(DBFGetFieldIndex(db,c->c_str()));
 
 		for(shape_pattern_vector::iterator r = sLineReverse.begin(); r != sLineReverse.end(); ++r)
-		for(vector<string>::iterator c = r->columns.begin(); c != r->columns.end(); ++c)
+		for(std::vector<std::string>::iterator c = r->columns.begin(); c != r->columns.end(); ++c)
 			r->dbf_id.push_back(DBFGetFieldIndex(db,c->c_str()));
 
 		for(shape_pattern_vector::iterator r = sLineBridge.begin(); r != sLineBridge.end(); ++r)
-		for(vector<string>::iterator c = r->columns.begin(); c != r->columns.end(); ++c)
+		for(std::vector<std::string>::iterator c = r->columns.begin(); c != r->columns.end(); ++c)
 			r->dbf_id.push_back(DBFGetFieldIndex(db,c->c_str()));
 
 
@@ -1194,7 +1194,7 @@ bool	RasterShapeFile(
 						p.erase(p.end()-1);
 
 					PolyRasterizer<double>& rasterizer(rasterizers[feat]);
-					vector<Segment2>& edge_list(edges[feat]);
+					std::vector<Segment2>& edge_list(edges[feat]);
 
 					if(p.size() > 2)
 					{
@@ -1240,9 +1240,9 @@ bool	RasterShapeFile(
 	SHPClose(file);
 	if(db)	DBFClose(db);
 
-	for(map<int, vector<Segment2> >::iterator edge_list = edges.begin(); edge_list != edges.end(); ++edge_list)
+	for(std::map<int, std::vector<Segment2> >::iterator edge_list = edges.begin(); edge_list != edges.end(); ++edge_list)
 	{
-		for(vector<Segment2>::iterator e = edge_list->second.begin(); e != edge_list->second.end(); ++e)
+		for(std::vector<Segment2>::iterator e = edge_list->second.begin(); e != edge_list->second.end(); ++e)
 		{
 			double count = ceil(sqrt(e->squared_length())) * 4.0;
 			
@@ -1264,7 +1264,7 @@ bool	RasterShapeFile(
 		}
 	}
 
-	for(map<int, PolyRasterizer<double> >::iterator r = rasterizers.begin(); r != rasterizers.end(); ++r)
+	for(std::map<int, PolyRasterizer<double> >::iterator r = rasterizers.begin(); r != rasterizers.end(); ++r)
 	{
 		r->second.SortMasters();
 		int x, y = 0;
@@ -1423,7 +1423,7 @@ bool	ReadShapeFile(
 				Face_handle f = io_map.non_const_handle(ff);
 				f->data().mPolyObjs.push_back(np);
 	#if DEV
-				for(vector<Polygon2>::iterator p = np.mShape.begin(); p != np.mShape.end(); ++p)
+				for(std::vector<Polygon2>::iterator p = np.mShape.begin(); p != np.mShape.end(); ++p)
 				{
 					for(Polygon2::const_side_iterator pp = p->sides_begin(); pp != p->sides_end(); ++pp)
 					{
@@ -1438,7 +1438,7 @@ bool	ReadShapeFile(
 			else
 			{
 	#if DEV
-				for(vector<Polygon2>::iterator p = np.mShape.begin(); p != np.mShape.end(); ++p)
+				for(std::vector<Polygon2>::iterator p = np.mShape.begin(); p != np.mShape.end(); ++p)
 				{
 					for(Polygon2::const_side_iterator pp = p->sides_begin(); pp != p->sides_end(); ++pp)
 					{
@@ -1463,8 +1463,8 @@ bool	ReadShapeFile(
 
 static int accum_ccb(
 					Pmwx::Ccb_halfedge_circulator	circ,
-					vector<double>&					x,
-					vector<double>&					y)
+					std::vector<double>&					x,
+					std::vector<double>&					y)
 {
 	int ret = x.size();
 	Pmwx::Ccb_halfedge_circulator stop = circ;
@@ -1521,8 +1521,8 @@ bool	WriteShapefile(
 		if(!f->is_unbounded())
 		if((terrain_type == -1 && f->data().mTerrainType != NO_VALUE) || f->data().mTerrainType == terrain_type)
 		{
-			vector<double>	v_x, v_y;
-			vector<int>		offsets;
+			std::vector<double>	v_x, v_y;
+			std::vector<int>		offsets;
 
 			int s = accum_ccb(f->outer_ccb(), v_x,v_y);
 			offsets.push_back(s);

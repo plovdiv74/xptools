@@ -100,7 +100,7 @@ inline bool matches_street(Pmwx::Halfedge_handle he1, Pmwx::Halfedge_handle he2)
 // the directed road.  We store the entire junction as a map of integer level numbers to vector levels.  This is a "levelized" junction.
 
 // Decompose a junction in to levels
-inline int levelize_junction(Pmwx::Vertex_handle v, map<int,vector<Pmwx::Halfedge_handle> >& out_junc);
+inline int levelize_junction(Pmwx::Vertex_handle v, std::map<int,std::vector<Pmwx::Halfedge_handle> >& out_junc);
 // Is this a highway level (e.g. only highways and ramps?)
 inline bool	is_level_highway     (const vector<Pmwx::Halfedge_handle>& l);
 // Does this level contain highways and non-highways mixed together?
@@ -470,7 +470,7 @@ inline void set_reverse(std::list<Pmwx::Halfedge_handle>& flow)
 	}	
 }
 	
-inline int levelize_junction(Pmwx::Vertex_handle v, map<int,vector<Pmwx::Halfedge_handle> >& out_junc)
+inline int levelize_junction(Pmwx::Vertex_handle v, std::map<int,vector<Pmwx::Halfedge_handle> >& out_junc)
 {
 	int ret = 0;
 	out_junc.clear();

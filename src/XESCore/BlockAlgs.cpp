@@ -312,7 +312,7 @@ void	do_insert_into_block(
 
 void clean_block(Block_2& block, bool merge_faces, bool merge_colinear)
 {
-	vector<Block_2::Halfedge_handle> kill;
+	std::vector<Block_2::Halfedge_handle> kill;
 	if(merge_faces)
 	for(Block_2::Edge_iterator eig = block.edges_begin(); eig != block.edges_end(); ++eig)
 		if(eig->face()->data().usage == eig->twin()->face()->data().usage &&
@@ -326,7 +326,7 @@ void clean_block(Block_2& block, bool merge_faces, bool merge_colinear)
 //	for(Block_2::Face_handle f = block.faces_begin(); f != block.faces_end(); ++f)
 //		printf("%d/%s\n",f->data().usage, FetchTokenString(f->data().feature));
 
-	for(vector<Block_2::Halfedge_handle>::iterator k = kill.begin(); k != kill.end(); ++k)
+	for(std::vector<Block_2::Halfedge_handle>::iterator k = kill.begin(); k != kill.end(); ++k)
 		block.remove_edge(*k);
 
 	if(merge_colinear)
@@ -386,7 +386,7 @@ void simplify_block(Block_2& io_block, double max_err)
 // 2. It does an intentionally bad job when there are a huge number of sides
 //    since such high-count polygons aren't sane AGB candidates.
 // 3. It ALWAYS returns some answer, no matter how goofy the polygon.
-void find_major_axis(vector<block_pt>&	pts,
+void find_major_axis(std::vector<block_pt>&	pts,
 				Segment2 *			out_segment,
 				Vector2 *			out_major,
 				Vector2 *			out_minor,
@@ -547,7 +547,7 @@ bool	within_err_metric(Pmwx::Halfedge_handle h1, Pmwx::Halfedge_handle h2, const
 
 bool	build_convex_polygon(
 				Pmwx::Ccb_halfedge_circulator									ccb,
-				vector<std::pair<Pmwx::Halfedge_handle, Pmwx::Halfedge_handle> >&	sides,
+				std::vector<std::pair<Pmwx::Halfedge_handle, Pmwx::Halfedge_handle> >&	sides,
 				const CoordTranslator2&											trans,
 				Polygon2&														metric_bounds,
 				double															max_err_mtrs,
@@ -603,7 +603,7 @@ bool	build_convex_polygon(
 	
 	int i, j, k;
 	
-	vector<Segment2>	msides;
+	std::vector<Segment2>	msides;
 	for(i = 0; i < sides.size(); ++i)
 	{
 		j = (i + 1) % sides.size();		
@@ -612,7 +612,7 @@ bool	build_convex_polygon(
 						trans.Forward(cgal2ben(sides[i].first->source()->point())),
 						trans.Forward(cgal2ben(sides[i].second->target()->point()))));						
 	}	
-	vector<Segment2>	debug(msides);
+	std::vector<Segment2>	debug(msides);
 	for(i = 0; i < sides.size(); ++i)
 	{
 		j = (i + 1) % sides.size();		

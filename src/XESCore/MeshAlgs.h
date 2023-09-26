@@ -66,7 +66,7 @@ double	HeightWithinTri(CDT& inMesh, CDT::Face_handle tri, CDT::Point in);
 double	MeshHeightAtPoint(CDT& inMesh, double inLon, double inLat, int hint_id);
 void	Calc2ndDerivative(DEMGeo& ioDEM);
 int		CalcMeshError(CDT& mesh, DEMGeo& elev, float& out_min, float& out_max, float& out_ave, float& std_dev, ProgressFunc inFunc);
-int		CalcMeshTextures(CDT& inMesh, map<int, int>& out_lus);
+int		CalcMeshTextures(CDT& inMesh, std::map<int, int>& out_lus);
 
 
 // This routine is inline because we need a semi-global definition of what a "real" edge of the pmwx is.

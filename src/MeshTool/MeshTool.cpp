@@ -160,7 +160,7 @@ int	main(int argc, char * argv[])
 
 		char dump_f[24];
 		sprintf(dump_f,DIR_STR "%+03d%+04d",latlon_bucket(round(dem_elev.mSouth)),latlon_bucket(round(dem_elev.mWest)));
-		string dump_dir = string(argv[4]) + dump_f;
+		std::string dump_dir = std::string(argv[4]) + dump_f;
 		FILE_make_dir_exist(dump_dir.c_str());
 
 		FILE * script = fopen(argv[1], "r");

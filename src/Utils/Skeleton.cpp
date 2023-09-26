@@ -140,7 +140,7 @@ struct	SK_Vertex;
 struct	SK_Edge;
 struct	SK_Polygon;
 struct	SK_Event;
-typedef multimap<double, SK_Event *>		EventMap;
+typedef std::multimap<double, SK_Event *>		EventMap;
 static bool	SK_SafeIntersect(SK_Edge * plane1, SK_Edge * plane2, const Point3& common_corner, double t, Point3& cross);
 static bool	SK_SafeIntersect(SK_Edge * plane1, SK_Edge * plane2, const Point3& common_corner, Line3& cross);
 static bool	SK_SafeIntersect2(SK_Edge * plane1, SK_Edge * plane2, SK_Edge * plane3, const Point3& common_corner, Point3& cross);
@@ -299,7 +299,7 @@ bool	SK_CloserToLine(const Line2& line1, const Line2& line2, const Point2& split
 
 
 // First of all, ORDERED comparison.
-// It turns out that the intersection of 2 or 3 planes depends oon the order of args to the math
+// It turns out that the intersection of 2 or 3 planes depends on the order of args to the math
 // routine!! This is because the result is a sum of stuff and the summation causes rounding errors,
 // whose magnitude depends on who gets rounded first.
 //

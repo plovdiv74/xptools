@@ -669,7 +669,7 @@ struct	approx_t {
 	possible_approx_t *		merge_right;	// we are merged out, we can "find" ourselves.
 };
 
-typedef multimap<double, possible_approx_t *>	possible_approx_q;
+typedef std::multimap<double, possible_approx_t *>	possible_approx_q;
 
 struct	possible_approx_t {
 	approx_t *					left;

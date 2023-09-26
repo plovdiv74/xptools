@@ -60,17 +60,17 @@ static CDT					sMesh;
 static AptVector			sApts;
 static AptIndex				sAptIndex;
 static double				sBounds[4];
-static string				g_qmid_prefix;
+static std::string				g_qmid_prefix;
 
 static int					sMakeDDS = 0;
 
 static Pmwx *							the_map = NULL;
 static int								layer_type = NO_VALUE;
 static Polygon_2						ring, the_hole;
-static vector<Polygon_2>				holes;
-static vector<Polygon_with_holes_2>		layer;
+static std::vector<Polygon_2>				holes;
+static std::vector<Polygon_with_holes_2>		layer;
 static Polygon_set_2					layer_mask;
-static vector<X_monotone_curve_2>		net;
+static std::vector<X_monotone_curve_2>		net;
 static int								zlimit=0,zmin=30000,zmax=-2000;
 static MT_Error_f						err_f=NULL;
 static int								net_type=NO_VALUE;
@@ -545,7 +545,7 @@ void MT_OrthoPhoto(
 					double		 proj_t[4],
 					int			 back_with_water)
 {
-	string tname(terrain_name);
+	std::string tname(terrain_name);
 	if(back_with_water == 2)
 		tname += "_soft";
 	if(back_with_water == 1)
@@ -639,6 +639,7 @@ void MT_GeoTiff(const char * fname, int back_with_water)
 	{
 		if (sMakeDDS)
 		{
+#if USE_TIF
 			ImageInfo rgba;
 			if(!CreateBitmapFromTIF(fname,&rgba))
 			{
@@ -655,6 +656,7 @@ void MT_GeoTiff(const char * fname, int back_with_water)
 				}
 				DestroyBitmap(&rgba);
 			}
+#endif	// USE_TIF
 		}
 	} else {
 		ImageInfo comp;

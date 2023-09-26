@@ -56,9 +56,9 @@ extern	int					gMapNorth;
 extern AptVector			gApts;
 extern AptIndex				gAptIndex;
 
-extern vector<pair<Point2,Point3> >					gMeshPoints;
-extern vector<pair<Point2,Point3> >					gMeshLines;
-extern vector<pair<Bezier2,pair<Point3, Point3> > >	gMeshBeziers;
+extern std::vector<std::pair<Point2,Point3> >					gMeshPoints;
+extern std::vector<std::pair<Point2,Point3> >					gMeshLines;
+extern std::vector<std::pair<Bezier2,std::pair<Point3, Point3> > >	gMeshBeziers;
 
 #if OPENGL_MAP
 extern PmwxIndex_t			gMapIndex;

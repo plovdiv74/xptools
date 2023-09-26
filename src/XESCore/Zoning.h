@@ -41,7 +41,7 @@ struct LandClassInfo_t {
 	float		veg_density;
 };	
 
-typedef hash_map<int, LandClassInfo_t>	LandClassInfoTable;
+typedef std::hash_map<int, LandClassInfo_t>	LandClassInfoTable;
 extern LandClassInfoTable gLandClassInfo;
 
 /************************************************************************************************
@@ -102,9 +102,9 @@ struct LandFillRule_t {
 	int			terrain;
 };
 
-typedef vector<ZoningRule_t>	ZoningRuleTable;
-typedef map<int, ZoningInfo_t>	ZoningInfoTable;
-typedef vector<LandFillRule_t>	LandFillRuleTable;
+typedef std::vector<ZoningRule_t>	ZoningRuleTable;
+typedef std::map<int, ZoningInfo_t>	ZoningInfoTable;
+typedef std::vector<LandFillRule_t>	LandFillRuleTable;
 extern ZoningRuleTable				gZoningRules;
 extern ZoningInfoTable				gZoningInfo;
 extern LandFillRuleTable			gLandFillRules;

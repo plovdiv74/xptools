@@ -49,7 +49,7 @@
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <AdditionalIncludeDirectories>..\..\src\lzma19\C;..\..\SDK\libtess2\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\src\WEDCore;..\..\src\lzma19\C;..\..\SDK\libtess2\Include;..\..\msvc_libs\shapelib-1.3.0;..\..\..\3rd_party\CGAL-5.6\include;..\..\..\3rd_party\boost_1_82_0;..\..\src\RenderFarmUI;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -64,7 +64,7 @@
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <AdditionalIncludeDirectories>..\..\src\lzma19\C;..\..\SDK\libtess2\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\src\WEDCore;..\..\src\lzma19\C;..\..\SDK\libtess2\Include;..\..\msvc_libs\shapelib-1.3.0;..\..\..\3rd_party\CGAL-5.6\include;..\..\..\3rd_party\boost_1_82_0;..\..\src\RenderFarmUI;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

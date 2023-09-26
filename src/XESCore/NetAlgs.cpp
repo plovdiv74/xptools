@@ -88,7 +88,7 @@ static bool is_veg(CDT::Face_handle f)
 	for(int n = 0; n < 3; ++n)
 	{
 		CDT::Vertex_handle v = f->vertex(n);
-		for(hash_map<int,float>::iterator b = v->info().border_blend.begin(); b != v->info().border_blend.end(); ++b)
+		for(std::hash_map<int,float>::iterator b = v->info().border_blend.begin(); b != v->info().border_blend.end(); ++b)
 		if(b->second > 0.5)
 		if(f->info().terrain_border.count(b->first))
 		if(LowerPriorityNaturalTerrain(lu, b->first))
@@ -482,7 +482,7 @@ void	CalcRoadTypes(Pmwx& ioMap, const DEMGeo& inElevation, const DEMGeo& inUrban
 
 int score_for_junction(Pmwx::Vertex_handle v)
 {
-	map<int,vector<Pmwx::Halfedge_handle> >	junc;
+	std::map<int,std::vector<Pmwx::Halfedge_handle> >	junc;
 	int total = levelize_junction(v,junc);
 
 	int score = 0;
@@ -497,7 +497,7 @@ int score_for_junction(Pmwx::Vertex_handle v)
 
 	vector<Pmwx::Halfedge_handle>::iterator r;
 
-	for(map<int,vector<Pmwx::Halfedge_handle> >::iterator l = junc.begin(); l != junc.end(); ++l)
+	for(std::map<int,std::vector<Pmwx::Halfedge_handle> >::iterator l = junc.begin(); l != junc.end(); ++l)
 	{
 		if(l->first == 0)
 		{
@@ -824,10 +824,10 @@ void apply_y_rules(Pmwx::Halfedge_handle trunk, Pmwx::Halfedge_handle left, Pmwx
 //
 void check_junction_highways(Pmwx::Vertex_handle v, std::set<Pmwx::Vertex_handle>& changed)
 {
-	map<int, vector<Pmwx::Halfedge_handle> > junc;
+	std::map<int, std::vector<Pmwx::Halfedge_handle> > junc;
 	int t = levelize_junction(v,junc);
 	if(t >= 3)
-	for(map<int, vector<Pmwx::Halfedge_handle> >::iterator l = junc.begin(); l != junc.end(); ++l)
+	for(std::map<int, std::vector<Pmwx::Halfedge_handle> >::iterator l = junc.begin(); l != junc.end(); ++l)
 	{
 		if(is_level_highway_y(v,l->second) && is_level_highway(l->second))
 		{
@@ -1057,7 +1057,7 @@ void repair_network(Pmwx& io_map, bool verbose)
 		}
 	}
 
-	multimap<double, std::list<Pmwx::Halfedge_handle> >	crshs;
+	std::multimap<double, std::list<Pmwx::Halfedge_handle> >	crshs;
 
 	// Now: crash collection: run along each 'crash' vertex and collect the entire contiguous road
 	// in both directions and stash it by length.
@@ -1080,7 +1080,7 @@ void repair_network(Pmwx& io_map, bool verbose)
 					processed.insert(circ);
 					processed.insert(opp);
 					double len = collect_contig<matches_any>(circ, k);
-					crshs.insert(multimap<double,std::list<Pmwx::Halfedge_handle> >::value_type(len,k));
+					crshs.insert(std::multimap<double,std::list<Pmwx::Halfedge_handle> >::value_type(len,k));
 				}
 			}
 			if(!circ->twin()->data().mSegments.empty())
@@ -1093,7 +1093,7 @@ void repair_network(Pmwx& io_map, bool verbose)
 					processed.insert(circ->twin());
 					processed.insert(opp);
 					double len = collect_contig<matches_any>(circ->twin(), k);
-					crshs.insert(multimap<double,std::list<Pmwx::Halfedge_handle> >::value_type(len,k));
+					crshs.insert(std::multimap<double,std::list<Pmwx::Halfedge_handle> >::value_type(len,k));
 				}
 			}
 		} while(++circ != stop);
@@ -1107,7 +1107,7 @@ void repair_network(Pmwx& io_map, bool verbose)
 	// to re-optimize the end vertices based on direction....we may have missed the best 'fit' since we were
 	// going the wrong way.
 
-	for(multimap<double,std::list<Pmwx::Halfedge_handle> >::iterator k = crshs.begin(); k != crshs.end(); ++k)
+	for(std::multimap<double,std::list<Pmwx::Halfedge_handle> >::iterator k = crshs.begin(); k != crshs.end(); ++k)
 	{
 //		for(std::list<Pmwx::Halfedge_handle>::iterator r = k->second.begin(); r != k->second.end(); ++r)
 //			debug_mesh_line(cgal2ben((*r)->source()->point()),cgal2ben((*r)->target()->point()),1,0,0,0,1,0);
@@ -1142,7 +1142,7 @@ void repair_network(Pmwx& io_map, bool verbose)
 	for(Pmwx::Edge_iterator e = io_map.edges_begin(); e != io_map.edges_end(); ++e)
 	if(he_has_any_roads(e))
 	{
-		map<int,vector<Pmwx::Halfedge_handle> > over, gnd;
+		std::map<int,std::vector<Pmwx::Halfedge_handle> > over, gnd;
 
 		double l1 = get_he_level_at(e,e->source());
 		double l2 = get_he_level_at(e,e->target());
@@ -1438,7 +1438,7 @@ void repair_network(Pmwx& io_map, bool verbose)
 	std::set<Pmwx::Vertex_handle>	verts;
 	for(Pmwx::Vertex_handle v = io_map.vertices_begin(); v != io_map.vertices_end(); ++v)	
 	{	
-		map<int, vector<Pmwx::Halfedge_handle> > junc;
+		std::map<int, std::vector<Pmwx::Halfedge_handle> > junc;
 		int t = levelize_junction(v,junc);
 		if(t > 0 && junc.count(0))
 		{
@@ -1468,7 +1468,7 @@ void repair_network(Pmwx& io_map, bool verbose)
 		Vertex_handle v = *verts.begin();
 		verts.erase(verts.begin());
 		
-		map<int, vector<Pmwx::Halfedge_handle> > junc;
+		std::map<int, std::vector<Pmwx::Halfedge_handle> > junc;
 		int t = levelize_junction(v,junc);
 		if(t > 0 && junc.count(0))
 		{
@@ -1547,9 +1547,9 @@ void MarkFunkyRoadIssues(Pmwx& ioMap)
 	int total_hplug = 0;
 	int total_mid_change = 0;
 	int total_mid_change_size = 0;
-	map<std::pair<int,int>, int> histo;
+	std::map<std::pair<int,int>, int> histo;
 	
-	map<vector<int>,int>	total_histo_feat[5], total_histo_rep[5];
+	std::map<std::vector<int>,int>	total_histo_feat[5], total_histo_rep[5];
 	
 	for(Pmwx::Vertex_handle v = ioMap.vertices_begin(); v != ioMap.vertices_end(); ++v)
 	if(!v->is_isolated())
@@ -1569,12 +1569,12 @@ void MarkFunkyRoadIssues(Pmwx& ioMap)
 			#endif
 			++total_hplug;
 		}
-		map<int,vector<Pmwx::Halfedge_handle> > ljunc;
+		std::map<int,std::vector<Pmwx::Halfedge_handle> > ljunc;
 		levelize_junction(v,ljunc);
-		for(map<int,vector<Pmwx::Halfedge_handle> >::iterator l = ljunc.begin(); l != ljunc.end(); ++l)
+		for(std::map<int,std::vector<Pmwx::Halfedge_handle> >::iterator l = ljunc.begin(); l != ljunc.end(); ++l)
 		{
-			vector<int> feat, rep;
-			for(vector<Pmwx::Halfedge_handle>::iterator he = l->second.begin(); he != l->second.end(); ++he)
+			std::vector<int> feat, rep;
+			for(std::vector<Pmwx::Halfedge_handle>::iterator he = l->second.begin(); he != l->second.end(); ++he)
 			{
 				int rt = get_he_rep_type(*he);
 				int ft = get_he_feat_type(*he);
@@ -1638,8 +1638,8 @@ void MarkFunkyRoadIssues(Pmwx& ioMap)
 		
 	}
 	
-	multimap<int,std::pair<int,int> > rhisto;
-	multimap<int,vector<int> >	feat_histo[5], rep_histo[5];
+	std::multimap<int,std::pair<int,int> > rhisto;
+	std::multimap<int,std::vector<int> >	feat_histo[5], rep_histo[5];
 	int totals[5];
 	int total_fubar = reverse_histo(histo, rhisto);
 	for(int n = 0; n <5; ++n)
@@ -1647,12 +1647,12 @@ void MarkFunkyRoadIssues(Pmwx& ioMap)
 		totals[n] = reverse_histo(total_histo_feat[n], feat_histo[n]);
 					reverse_histo(total_histo_rep[n], rep_histo[n]);
 	}
-	for(map<std::pair<int,int>, int>::iterator i = histo.begin(); i != histo.end(); ++i)
-	rhisto.insert(multimap<int,std::pair<int,int> >::value_type(i->second,i->first));
+	for(std::map<std::pair<int,int>, int>::iterator i = histo.begin(); i != histo.end(); ++i)
+	rhisto.insert(std::multimap<int,std::pair<int,int> >::value_type(i->second,i->first));
 	
 	printf("Bad: %d, highway plugs: %d, mid-seg changes :%d (%d with size change).\n", total_bad, total_hplug, total_mid_change, total_mid_change_size);
 	printf("Degree 2 locals with low corner.\n");
-	for(multimap<int,std::pair<int, int> >::iterator r = rhisto.begin(); r != rhisto.end(); ++r)
+	for(std::multimap<int,std::pair<int, int> >::iterator r = rhisto.begin(); r != rhisto.end(); ++r)
 		printf("%d: %s/%s\n", r->first,FetchTokenString(r->second.first),FetchTokenString(r->second.second));
 		
 	for(int n = 0; n < 5; ++n)
@@ -1663,20 +1663,20 @@ void MarkFunkyRoadIssues(Pmwx& ioMap)
 		if(cutoff < 5) cutoff = 5;
 		
 		printf("Total junction histo: feature type (at least %d)...\n", cutoff);
-		for(multimap<int,vector<int> >::iterator f = feat_histo[n].begin(); f != feat_histo[n].end(); ++f)
+		for(std::multimap<int,std::vector<int> >::iterator f = feat_histo[n].begin(); f != feat_histo[n].end(); ++f)
 		if(f->first >= cutoff)
 		{
 			printf("%d:",f->first);
-			for(vector<int>::iterator t = f->second.begin(); t != f->second.end(); ++t)
+			for(std::vector<int>::iterator t = f->second.begin(); t != f->second.end(); ++t)
 				printf(" %s", FetchTokenString(*t));
 			printf("\n");
 		}
 		printf("Total junction histo: rep type (at least %d)...\n", cutoff);
-		for(multimap<int,vector<int> >::iterator f = rep_histo[n].begin(); f != rep_histo[n].end(); ++f)
+		for(std::multimap<int,std::vector<int> >::iterator f = rep_histo[n].begin(); f != rep_histo[n].end(); ++f)
 		if(f->first >= cutoff)
 		{
 			printf("%d:",f->first);
-			for(vector<int>::iterator t = f->second.begin(); t != f->second.end(); ++t)
+			for(std::vector<int>::iterator t = f->second.begin(); t != f->second.end(); ++t)
 				printf(" %s", FetchTokenString(*t));
 			printf("\n");
 		}

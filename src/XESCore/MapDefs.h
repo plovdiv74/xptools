@@ -91,7 +91,7 @@
  * A param map is a mapping of enumerated properties to their values.
  * Params are applied to all areas and are used to control land class
  * instantiation. */
-typedef	map<int, double>	GISParamMap;
+typedef	std::map<int, double>	GISParamMap;
 
 /* GISPointFeature_t
  *
@@ -102,7 +102,7 @@ typedef	map<int, double>	GISParamMap;
  *
  */
 struct	GISPointFeature_t;
-typedef vector<GISPointFeature_t>	GISPointFeatureVector;
+typedef std::vector<GISPointFeature_t>	GISPointFeatureVector;
 
 /* GISPolygonFeature_t
  *
@@ -115,7 +115,7 @@ typedef vector<GISPointFeature_t>	GISPointFeatureVector;
  *
  */
 struct GISPolygonFeature_t;
-typedef vector<GISPolygonFeature_t>	GISPolygonFeatureVector;
+typedef std::vector<GISPolygonFeature_t>	GISPolygonFeatureVector;
 
 /* GISAreaFeature_t
  *
@@ -133,21 +133,21 @@ struct GISAreaFeature_t;
  * Derived tells whether this object was added by automatic
  * generation or by the user. */
 struct	GISObjPlacement_t;
-typedef vector<GISObjPlacement_t>	GISObjPlacementVector;
+typedef std::vector<GISObjPlacement_t>	GISObjPlacementVector;
 
 /* GISPolyObjPlacement_t
  *
  * A single placement of a prototype by its polygon and height.
  * Derived info is saved just like a normal object. */
 struct	GISPolyObjPlacement_t;
-typedef vector<GISPolyObjPlacement_t>	GISPolyObjPlacementVector;
+typedef std::vector<GISPolyObjPlacement_t>	GISPolyObjPlacementVector;
 
 /* GISNetworkSegment_t
  *
  * A single road or other item along a network.  Each end has a height
  * stored in terms of levels from the network definition. */
 struct	GISNetworkSegment_t;
-typedef vector<GISNetworkSegment_t>		GISNetworkSegmentVector;
+typedef std::vector<GISNetworkSegment_t>		GISNetworkSegmentVector;
 
 /* GISPointFeature_t
  *
@@ -216,7 +216,7 @@ public:
 struct	GISPolyObjPlacement_t {
 public:
 	int					mRepType;
-	vector<Polygon2>	mShape;
+	std::vector<Polygon2>	mShape;
 //	Point_2				mLocation;	// Nominal center - used primarily for debugging!
 	unsigned short		mParam;
 	bool				mDerived;

@@ -59,7 +59,7 @@ template <typename T>
 class	UTL_interval {
 public:
 
-	typedef pair<T,T>	interval;
+	typedef std::pair<T,T>	interval;
 
 	UTL_interval();
 	UTL_interval(const UTL_interval& rhs);
@@ -221,14 +221,14 @@ template <typename T>
 class UTL_interval<T>::const_iterator {
 public:
 	typedef const_iterator						self;
-	typedef	pair<T,T>							value_type;
+	typedef	std::pair<T,T>							value_type;
 	typedef const value_type&					reference;
 	typedef const value_type*					pointer;
 
 private:	
 	value_type									cache;
 	int											n;
-	const vector<T> *							src;
+	const std::vector<T> *							src;
 	
 public:
 

@@ -178,8 +178,8 @@ bool	ReadRawHGT(DEMGeo& inMap, const char * inFileName)
 {
 	int	lat, lon;
 	char ns, ew;
-	string	fname(inFileName);
-	string::size_type p = fname.find_last_of(":\\/");
+	std::string	fname(inFileName);
+	std::string::size_type p = fname.find_last_of(":\\/");
 	if (p != fname.npos) fname = fname.substr(p+1);
 	if (sscanf(fname.c_str(), "%c%d%c%d", &ns, &lat, &ew, &lon) == 4)
 	{
@@ -222,8 +222,8 @@ bool	ReadRawBIL(DEMGeo& inMap, const char * inFileName, int bounds[4])
 {
 	int	lat, lon;
 	char ns, ew;
-	string	fname(inFileName);
-	string::size_type p = fname.find_last_of(":\\/");
+	std::string	fname(inFileName);
+	std::string::size_type p = fname.find_last_of(":\\/");
 	if (bounds == NULL)
 	{
 		if (p != fname.npos) fname = fname.substr(p+1);
@@ -296,8 +296,8 @@ bool	ReadRawBIL(DEMGeo& inMap, const char * inFileName, int bounds[4])
 
 bool	WriteRawHGT(const DEMGeo& dem, const char * inFileName, bool want_zip)
 {
-	string	sname(inFileName);
-	string::size_type p = sname.rfind(DIR_CHAR);
+	std::string	sname(inFileName);
+	std::string::size_type p = sname.rfind(DIR_CHAR);
 	if (p != sname.npos)
 		sname.erase(0, p+1);
 	sname.erase(sname.length()-4);
@@ -338,8 +338,8 @@ bool	ReadFloatHGT(DEMGeo& inMap, const char * inFileName)
 {
 	int	lat, lon;
 	char ns, ew;
-	string	fname(inFileName);
-	string::size_type p = fname.find_last_of(":\\/");
+	std::string	fname(inFileName);
+	std::string::size_type p = fname.find_last_of(":\\/");
 	if (p != fname.npos) fname = fname.substr(p+1);
 	if (sscanf(fname.c_str(), "%c%d%c%d", &ns, &lat, &ew, &lon) == 4)
 	{
@@ -393,8 +393,8 @@ bool	ReadShortOz(DEMGeo& inMap, const char * inFileName)
 {
 	int	lat, lon;
 	char ns, ew;
-	string	fname(inFileName);
-	string::size_type p = fname.find_last_of(":\\/");
+	std::string	fname(inFileName);
+	std::string::size_type p = fname.find_last_of(":\\/");
 	if (p != fname.npos) fname = fname.substr(p+1);
 	if (sscanf(fname.c_str(), "%c%d%c%d", &ns, &lat, &ew, &lon) == 4)
 	{
@@ -639,7 +639,7 @@ bool	ExtractUSGSNaturalFile(DEMGeo& inMap, const char * inFileName)
 
 	const char * b = MemFile_GetBegin(fi);
 	const char * s, * e;
-	s=b    ;    e=b+ 40;	trim_down(&s, &e);	string	fname(s,e);
+	s=b    ;    e=b+ 40;	trim_down(&s, &e);	std::string	fname(s,e);
 	s=b+156;	e=b+162;	int geo = parse_field_int(&s, e);
 	s=b+528;	e=b+534;	int hunits = parse_field_int(&s, e);
 	s=b+534;	e=b+540;	int vunits = parse_field_int(&s, e);
@@ -674,7 +674,7 @@ bool	ExtractUSGSNaturalFile(DEMGeo& inMap, const char * inFileName)
 		if (p >= MemFile_GetEnd(fi)) { printf("ERROR: out of files bounds.\n"); goto bail; }
 		s=p    ;	e=p+ 12;	oy = parse_field_int(&s,e)-1; ox = parse_field_int(&s,e)-1;
 		s=p +12;	e=p+ 24;	count = parse_field_int(&s,e); k = parse_field_int(&s,e);
-		s=p +72;	e=p+ 96;	trim_down(&s,&e);		string datum(s,e);
+		s=p +72;	e=p+ 96;	trim_down(&s,&e);		std::string datum(s,e);
 
 		if (k != 1) { printf("ERROR, expect 1 count inside profiles.\n"); goto bail; }
 
@@ -1440,10 +1440,10 @@ bail:
 	return false;
 }
 
-void	ReadHDR(const string& in_real_file, DEMSpec& io_header, bool force_area)
+void	ReadHDR(const std::string& in_real_file, DEMSpec& io_header, bool force_area)
 {
-	string fname(in_real_file);
-	string::size_type p = fname.rfind('.');
+	std::string fname(in_real_file);
+	std::string::size_type p = fname.rfind('.');
 	if(p != fname.npos) fname.erase(p);
 	fname += ".hdr";
 
@@ -1521,7 +1521,7 @@ void	ReadHDR(const string& in_real_file, DEMSpec& io_header, bool force_area)
 		}
 		else if(MFS_string_match_no_case(&s,"byteorder",false))
 		{
-			string token;
+			std::string token;
 			MFS_string(&s, &token);
 			char t = token.empty() ? 0 : token[0];
 			switch(t) {
@@ -1569,9 +1569,9 @@ void	ReadHDR(const string& in_real_file, DEMSpec& io_header, bool force_area)
 
 #pragma mark -
 
-static vector<int> *		sTranslateMap = NULL;
+static std::vector<int> *		sTranslateMap = NULL;
 
-static 	bool	DEMLineImporter(const vector<string>& inTokenLine, void * inRef)
+static 	bool	DEMLineImporter(const vector<std::string>& inTokenLine, void * inRef)
 {
 	if (inTokenLine.size() != 3)
 	{
@@ -1604,9 +1604,9 @@ static 	bool	DEMLineImporter(const vector<string>& inTokenLine, void * inRef)
 }
 
 bool	LoadTranslationFile(const char * 		inFileName,
-						vector<int>& 			outForwardMap,
-						hash_map<int, int> * 	outReverseMap,
-						vector<char> *			outCLUT)
+						std::vector<int>& 			outForwardMap,
+						std::hash_map<int, int> * 	outReverseMap,
+						std::vector<char> *			outCLUT)
 {
 	static bool	first_time = true;
 	if (first_time)
@@ -1666,14 +1666,14 @@ bool	TranslateDEMForward(DEMGeo& ioDem, const vector<int>& inForwardMap)
 	return ret;
 }
 
-bool	TranslateDEMReverse(DEMGeo& ioDem, const hash_map<int, int>& inReverseMap)
+bool	TranslateDEMReverse(DEMGeo& ioDem, const std::hash_map<int, int>& inReverseMap)
 {
 	bool	ret = true;
 	for (int x = 0; x < ioDem.mWidth; ++x)
 	for (int y = 0; y < ioDem.mHeight;++y)
 	{
 		int v = ioDem(x,y);
-		hash_map<int,int>::const_iterator i = inReverseMap.find(v);
+		std::hash_map<int,int>::const_iterator i = inReverseMap.find(v);
 		if (i == inReverseMap.end())
 		{
 			ioDem(x,y)=DEM_NO_DATA;
@@ -1693,7 +1693,7 @@ bool	TranslateDEM(DEMGeo& ioDEM, const char * inFileName)
 	return true;
 }
 
-bool	WriteNormalWithHeight(const string& out_file, const DEMGeo& elev, const DEMGeo& nx, const DEMGeo& ny, const DEMGeo& nz)
+bool	WriteNormalWithHeight(const std::string& out_file, const DEMGeo& elev, const DEMGeo& nx, const DEMGeo& ny, const DEMGeo& nz)
 {
 	ImageInfo	image;
 	if(CreateNewBitmap(elev.mWidth,elev.mHeight, 4, &image))

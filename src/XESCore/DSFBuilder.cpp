@@ -348,7 +348,7 @@ struct	edge_wrapper {
 };
 #endif
 
-HASH_MAP_NAMESPACE_START
+//HASH_MAP_NAMESPACE_START
 #if 0 // MSC
 template<> inline
 size_t hash_value<edge_wrapper>(const edge_wrapper& key)
@@ -362,7 +362,7 @@ struct hash_edge {
 	size_t operator()(const KeyType& key) const { return (size_t) &*key.first + (size_t) key.second; }
 };
 #endif
-HASH_MAP_NAMESPACE_END
+//HASH_MAP_NAMESPACE_END
 
 
 // Given a beach edge, fetch the beach-type coords.  last means use the target rather than src pt.
@@ -888,11 +888,11 @@ int	has_beach(const CDT::Edge& inEdge, const CDT& inMesh, int& kind, const DEMGe
 }
 
 #if MSC
-typedef hash_map<CDT::Edge,CDT::Edge>	edge_hash_map;
-typedef hash_map<CDT::Edge, int>			edge_info_map;
+typedef std::hash_map<CDT::Edge,CDT::Edge>	edge_hash_map;
+typedef std::hash_map<CDT::Edge, int>			edge_info_map;
 #else
-typedef hash_map<CDT::Edge, CDT::Edge, hash_edge> edge_hash_map;
-typedef hash_map<CDT::Edge, int, hash_edge> edge_info_map;
+typedef std::hash_map<CDT::Edge, CDT::Edge, hash_edge> edge_hash_map;
+typedef std::hash_map<CDT::Edge, int, hash_edge> edge_info_map;
 #endif
 
 void FixBeachContinuity(
@@ -946,7 +946,7 @@ void FixBeachContinuity(
 		} while (retry);
 	}
 }
-bool StripSoft(string& n)
+bool StripSoft(std::string& n)
 {
 	if(n.size() > 5 && n.substr(n.size()-5) == "_soft")
 	{
@@ -962,7 +962,7 @@ bool StripSoft(string& n)
 }
 
 
-string		get_terrain_name(int composite)
+std::string		get_terrain_name(int composite)
 {
 	if (composite == terrain_Water)
 #if PHONE
@@ -976,16 +976,16 @@ string		get_terrain_name(int composite)
 		{
 			if(IsCustomOverWaterAny(composite))
 			{
-				string n=FetchTokenString(composite);
+				std::string n=FetchTokenString(composite);
 				StripSoft(n);
 				return n;
 			}
 			return FetchTokenString(composite);
 		} else
 #if PHONE
-			return string(FetchTokenString(composite)) + ".ter";
+			return std::string(FetchTokenString(composite)) + ".ter";
 #else
-			return string("lib/g10/") + FetchTokenString(composite) + ".ter";
+			return std::string("lib/g10/") + FetchTokenString(composite) + ".ter";
 #endif
 	}
 
@@ -1069,12 +1069,12 @@ bool is_airport_edge(const CDT::Edge& e, int& apt_type)
 struct dsf_airport_edge_info_t {
 	int				line_def;
 	int				closed;
-	vector<Point2>	path;
+	std::vector<Point2>	path;
 };
 
 class edge_path_builder {
 public:
-	edge_path_builder(vector<dsf_airport_edge_info_t>& ring_container) :
+	edge_path_builder(std::vector<dsf_airport_edge_info_t>& ring_container) :
 		m_rings(ring_container),
 		m_cur_color(k_colors),
 		m_stop_color(k_colors) { }
@@ -1128,7 +1128,7 @@ private:
 	const float * m_stop_color;
 
 	dsf_airport_edge_info_t *			m_current = nullptr;
-	vector<dsf_airport_edge_info_t>&	m_rings;
+	std::vector<dsf_airport_edge_info_t>&	m_rings;
 
 };
 
@@ -1139,14 +1139,14 @@ const float edge_path_builder::k_colors[] = {
 		0,1,1,
 		0,0,1 };
 
-void make_airport_rings(CDT& mesh,vector<dsf_airport_edge_info_t>& out_rings)
+void make_airport_rings(CDT& mesh,std::vector<dsf_airport_edge_info_t>& out_rings)
 {
 	struct apt_ring_info {
 		CDT::Edge	next;
 		int			type;
 		bool		dsf_edge;
 	};
-	hash_map<CDT::Edge, apt_ring_info, hash_edge>	links;
+	std::hash_map<CDT::Edge, apt_ring_info, hash_edge>	links;
 	std::set<CDT::Edge>									border_links;
 
 	for (auto fi = mesh.finite_faces_begin(); fi != mesh.finite_faces_end(); ++fi)
@@ -1235,7 +1235,7 @@ static int IsAliased(int lu)
 		return terrain_Water;
 	if (IsCustomOverWaterSoft(lu))
 	{
-		string  rn(FetchTokenString(lu));
+		std::string  rn(FetchTokenString(lu));
 		if(!StripSoft(rn)) return NO_VALUE;
 
 		int lup = LookupToken(rn.c_str());
@@ -1288,7 +1288,7 @@ struct beach_splitter {
 
 		if(!m_has_origin)
 		{
-			m_origin_pt = make_pair(l,st);
+			m_origin_pt = std::make_pair(l,st);
 			m_has_origin = true;
 		}
 		const double TOO_BIG_BEACH = 1.0 / 16.0;
@@ -1313,7 +1313,7 @@ struct beach_splitter {
 		}
 
 		m_bounds += l;
-		m_path.push_back(make_pair(l,st));
+		m_path.push_back(std::make_pair(l,st));
 
 	}
 
@@ -1394,10 +1394,10 @@ std::set<int>					sLoResLU[PATCH_DIM_LO * PATCH_DIM_LO];
 		CDT::Face_handle				f;
 		CDT::Vertex_handle				avert;
 		CDT::Finite_vertices_iterator	vert;
-		map<int, int, SortByLULayer>::iterator 		lu_ranked;
-		map<int, int>::iterator 		lu;
-		map<int, int>::iterator 		obdef;
-		map<int, int, ObjPrio>::iterator obdef_prio;
+		std::map<int, int, SortByLULayer>::iterator 		lu_ranked;
+		std::map<int, int>::iterator 		lu;
+		std::map<int, int>::iterator 		obdef;
+		std::map<int, int, ObjPrio>::iterator obdef_prio;
 		std::set<int>::iterator				border_lu;
 		bool							is_water, is_overlay;
 		std::list<CDT::Face_handle>::iterator nf;
@@ -1417,11 +1417,11 @@ std::set<int>					sLoResLU[PATCH_DIM_LO * PATCH_DIM_LO];
 		Net_ChainInfoSet::iterator 		ci;
 		vector<Point2>::iterator		shapePoint;
 
-		map<int, int, SortByLULayer>landuses;			// This is a map from DSF to layer, used to start a patch and generally get organized.  Sorting is specialized to be by LU layering from config file.
-		map<int, int>				landuses_reversed;	// This is a map from DSF layer to land-use, used to write out DSF layers in order.
-		map<int, int>				objects_reversed;
-		map<int, int>	facades,	facades_reversed;
-		map<int, int, ObjPrio>		objects;
+		std::map<int, int, SortByLULayer>landuses;			// This is a map from DSF to layer, used to start a patch and generally get organized.  Sorting is specialized to be by LU layering from config file.
+		std::map<int, int>				landuses_reversed;	// This is a map from DSF layer to land-use, used to write out DSF layers in order.
+		std::map<int, int>				objects_reversed;
+		std::map<int, int>	facades,	facades_reversed;
+		std::map<int, int, ObjPrio>		objects;
 
 		char	prop_buf[256];
 
@@ -1565,31 +1565,31 @@ std::set<int>					sLoResLU[PATCH_DIM_LO * PATCH_DIM_LO];
 		// and also any borders we need.
 		sHiResTris[(int) x + (int) y * PATCH_DIM_HI].push_back(fi);
 		DebugAssert(fi->info().terrain != -1);
-		landuses.insert(map<int, int, SortByLULayer>::value_type(fi->info().terrain,0));
+		landuses.insert(std::map<int, int, SortByLULayer>::value_type(fi->info().terrain,0));
 		// special case: maybe the hard variant is never used?  In that case, make sure to accum it here or we'll never export that land use.
 		if(IsAliased(fi->info().terrain))
-			landuses.insert(map<int, int, SortByLULayer>::value_type(IsAliased(fi->info().terrain),0));
+			landuses.insert(std::map<int, int, SortByLULayer>::value_type(IsAliased(fi->info().terrain),0));
 		sHiResLU[(int) x + (int) y * PATCH_DIM_HI].insert(fi->info().terrain);
 
 
 		if(IsCustomOverWaterHard(fi->info().terrain))
 		{
 			// Over water, but maintain hard physics.  So we need to put ourselves in the visual layer, and make sure there is water for aliasing.
-			landuses.insert(map<int, int, SortByLULayer>::value_type(terrain_Water,0));
-			landuses.insert(map<int, int, SortByLULayer>::value_type(terrain_VisualWater,0));
+			landuses.insert(std::map<int, int, SortByLULayer>::value_type(terrain_Water,0));
+			landuses.insert(std::map<int, int, SortByLULayer>::value_type(terrain_VisualWater,0));
 			sHiResLU[(int) x + (int) y * PATCH_DIM_HI].insert(terrain_VisualWater);
 		}
 		if(IsCustomOverWaterSoft(fi->info().terrain))
 		{
 			// Over water soft - put us in the water layer.
-			landuses.insert(map<int, int, SortByLULayer>::value_type(terrain_Water,0));
+			landuses.insert(std::map<int, int, SortByLULayer>::value_type(terrain_Water,0));
 			sHiResLU[(int) x + (int) y * PATCH_DIM_HI].insert(terrain_Water);
 		}
 
 		for (border_lu = fi->info().terrain_border.begin(); border_lu != fi->info().terrain_border.end(); ++border_lu)
 		{
 			sHiResBO[(int) x + (int) y * PATCH_DIM_HI].insert(*border_lu);
-			landuses.insert(map<int, int, SortByLULayer>::value_type(*border_lu,0));
+			landuses.insert(std::map<int, int, SortByLULayer>::value_type(*border_lu,0));
 			DebugAssert(*border_lu != -1);
 		}
 	}
@@ -1902,7 +1902,7 @@ std::set<int>					sLoResLU[PATCH_DIM_LO * PATCH_DIM_LO];
 	if(writer1)
 	for (lu = landuses_reversed.begin(); lu != landuses_reversed.end(); ++lu)
 	{
-		string def = get_terrain_name(lu->second);
+		std::string def = get_terrain_name(lu->second);
 		cbs.AcceptTerrainDef_f(def.c_str(), writer1);
 	}
 
@@ -2086,12 +2086,12 @@ std::set<int>					sLoResLU[PATCH_DIM_LO * PATCH_DIM_LO];
 	if (!pf->is_unbounded())
 	{
 		for (pointObj = pf->data().mObjs.begin(); pointObj != pf->data().mObjs.end(); ++pointObj)
-			objects.insert(map<int, int, ObjPrio>::value_type(pointObj->mRepType, 0));
+			objects.insert(std::map<int, int, ObjPrio>::value_type(pointObj->mRepType, 0));
 		for (polyObj = pf->data().mPolyObjs.begin(); polyObj != pf->data().mPolyObjs.end(); ++polyObj)
-			facades.insert(map<int, int>::value_type(polyObj->mRepType, 0));
+			facades.insert(std::map<int, int>::value_type(polyObj->mRepType, 0));
 		for (auto& e : apt_edges)
 		{
-			facades.insert(make_pair(e.line_def,0));
+			facades.insert(std::make_pair(e.line_def,0));
 		}
 	}
 
@@ -2210,7 +2210,7 @@ std::set<int>					sLoResLU[PATCH_DIM_LO * PATCH_DIM_LO];
 	{
 		Assert(obdef->second != NO_VALUE);
 		Assert(obdef->second != DEM_NO_DATA);
-		string objName = FetchTokenString(obdef->second);
+		std::string objName = FetchTokenString(obdef->second);
 		if(objName.find('.') == objName.npos)
 		{
 			objName = gObjLibPrefix + objName + ".obj";
@@ -2223,7 +2223,7 @@ std::set<int>					sLoResLU[PATCH_DIM_LO * PATCH_DIM_LO];
 	{
 		Assert(obdef->second != NO_VALUE);
 		Assert(obdef->second != DEM_NO_DATA);
-		string facName = FetchTokenString(obdef->second);
+		std::string facName = FetchTokenString(obdef->second);
 
 		if(facName.find('.') == facName.npos)
 		{

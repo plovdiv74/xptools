@@ -247,12 +247,12 @@ void	FillPolygonGaps(Polygon_set_2& ioPolygon, double dist)
 		while (stop != ++circ);
 	}
 
-	typedef multimap<double, std::pair<Vertex_handle,Vertex_handle > >		seg_queue_t;
+	typedef std::multimap<double, std::pair<Vertex_handle,Vertex_handle > >		seg_queue_t;
 	seg_queue_t															seg_queue;
 
 	int ctr=0;
-	for(vector<Vertex_handle>::iterator v1 = vertices.begin(); v1 != vertices.end(); ++v1)
-	for(vector<Vertex_handle>::iterator v2 = v1; v2 != vertices.end(); ++v2)
+	for(std::vector<Vertex_handle>::iterator v1 = vertices.begin(); v1 != vertices.end(); ++v1)
+	for(std::vector<Vertex_handle>::iterator v2 = v1; v2 != vertices.end(); ++v2)
 	if(v1 != v2)
 	if(*v1 != *v2)
 	{
@@ -513,10 +513,10 @@ void	SimplifyPolygonMaxMove(Polygon_set_2& ioPolygon, double max_err)
 
 // Make a polygon simpel as follows:
 // Insert all edges into an arrangement.  Whatever area is bounded is considered "in" the new polygon.
-void MakePolygonSimple(const Polygon_2& inPolygon, vector<Polygon_2>& out_simple_polygons)
+void MakePolygonSimple(const Polygon_2& inPolygon, std::vector<Polygon_2>& out_simple_polygons)
 {
 	Pmwx	pmap;
-	vector<Curve_2>	curves;
+	std::vector<Curve_2>	curves;
 	curves.reserve(inPolygon.size());
 	for(int n = 0; n < inPolygon.size(); ++n)
 	if(inPolygon.edge(n).source() != inPolygon.edge(n).target())

@@ -215,20 +215,20 @@ void	GetAptPolygons(
 	{
 		Point2	ends[2] = { r->ends.p1, r->ends.p2 };
 		Quad_2to4(ends, r->width_mtr, corners);
-		reverse(corners,corners+4);
+		std::reverse(corners,corners+4);
 		windings.push_back(Polygon2(corners,corners+4));
 	}
 	for(AptSealaneVector::const_iterator s = who->sealanes.begin(); s != who->sealanes.end(); ++s)
 	{
 		Point2	ends[2] = { s->ends.p1, s->ends.p2 };
 		Quad_2to4(ends, s->width_mtr, corners);
-		reverse(corners,corners+4);
+		std::reverse(corners,corners+4);
 		windings.push_back(Polygon2(corners,corners+4));
 	}
 	for(AptHelipadVector::const_iterator h = who->helipads.begin(); h != who->helipads.end(); ++h)
 	{
 		Quad_1to4(h->location, h->heading, h->length_mtr, h->width_mtr, corners);
-		reverse(corners,corners+4);
+		std::reverse(corners,corners+4);
 		windings.push_back(Polygon2(corners,corners+4));
 	}
 	for(AptTaxiwayVector::const_iterator t = who->taxiways.begin(); t != who->taxiways.end(); ++t)
@@ -296,24 +296,24 @@ void apt_make_map_from_polygons(
 	// polygons that are twisted by taking their entire contained area.  The end reuslt is just "stuff we can
 	// drive on."
 
-	for(vector<Polygon2>::const_iterator e = pavement.begin(); e != pavement.end(); /* intentional */)
+	for(std::vector<Polygon2>::const_iterator e = pavement.begin(); e != pavement.end(); /* intentional */)
 	{
-		vector<Polygon2>::const_iterator h(e);			// points to the next ccw outer boundary.
+		std::vector<Polygon2>::const_iterator h(e);			// points to the next ccw outer boundary.
 			++h;
 		while(h != pavement.end() && !h->is_ccw())
 			++h;
 
 		Polygon_set_2	pav;
-		vector<Polygon_2>	outer;
+		std::vector<Polygon_2>	outer;
 		convert_polygon_cleanup(*e, outer);
 		pav.join(outer.begin(),outer.end());
 
 		++e;
 		while(e != h)
 		{
-			vector<Polygon_2>	hole;
+			std::vector<Polygon_2>	hole;
 			convert_polygon_cleanup(*e, hole);
-			for(vector<Polygon_2>::iterator he = hole.begin(); he != hole.end(); ++he)
+			for(std::vector<Polygon_2>::iterator he = hole.begin(); he != hole.end(); ++he)
 			{
 				pav.difference(*he);
 			}
@@ -336,7 +336,7 @@ void apt_make_cut_map(Polygon_set_2& in_area, Pmwx& out_map, double cut_x, doubl
 	double max_x =-9.9e9;
 	double max_y =-9.9e9;
 
-	vector<Curve_2>		cuts;
+	std::vector<Curve_2>		cuts;
 
 	for(Pmwx::Hole_iterator h = out_map.unbounded_face()->holes_begin(); h != out_map.unbounded_face()->holes_end(); ++h)
 	{
@@ -430,7 +430,7 @@ std::pair<Point2, int>	AptPolygonIterator::operator*(void) const
 		return std::pair<Point2,int>(i->ctrl, p);
 	default:
 		DebugAssert(!"Should not be here.");
-		return make_pair(Point2(),0);
+		return std::make_pair(Point2(),0);
 	}
 }
 

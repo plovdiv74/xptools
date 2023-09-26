@@ -77,15 +77,15 @@
 
 #define HEAVY_BEACH_DEBUGGING 	DEV && OPENGL_MAP && 0
 
-typedef multimap<float, void *, greater<float> >			FaceQueue;	// YUCK - hard cast to avoid snarky problems with forward decls
-typedef multimap<double, void *>							VertexQueue;
+typedef std::multimap<float, void *, std::greater<float> >			FaceQueue;	// YUCK - hard cast to avoid snarky problems with forward decls
+typedef std::multimap<double, void *>							VertexQueue;
 
 struct	MeshVertexInfo {
 
 	double					height{};				// Height of mesh at this vertex.
 	double					wave_height{1.0};		// ratio of vegetation to terrain at this vertex.
 	float					normal[3]{};			// Normal - X,Y,Z in OGL coords(!)
-	hash_map<int, float>	border_blend;			// blend level for a border of this layer at this triangle!
+	std::hash_map<int, float>	border_blend;			// blend level for a border of this layer at this triangle!
 	bool					edge_of_the_world{};	// Vertex touches the outside of the degree
 	bool					explicit_height{};		// Vertex has non DEM elevation source.
 	
@@ -205,7 +205,7 @@ typedef	CGAL::Constrained_Delaunay_triangulation_2<FastKernel, TDS, CGAL::Exact_
 class CDT : public CDTBase {
 public:
 
-	typedef hash_map<int, Face_handle>	HintMap;
+	typedef std::hash_map<int, Face_handle>	HintMap;
 
 	static	int			gen_cache_key(void);
 			Face_handle locate_cache(const Point& p, Locate_type& lt, int& li, int cache_key) const;

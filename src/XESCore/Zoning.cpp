@@ -61,14 +61,14 @@ PointRuleTable				gPointRules;
 LandClassInfoTable			gLandClassInfo;
 LandFillRuleTable			gLandFillRules;
 
-inline int RegisterAGResource(const string& r)
+inline int RegisterAGResource(const std::string& r)
 {
 	if (r == "NO_VALUE") return NO_VALUE;
-	string res = "lib/g10/autogen/" + r;
+	std::string res = "lib/g10/autogen/" + r;
 	return LookupTokenCreate(res.c_str());
 }
 
-static bool ReadLandClassRule(const vector<string>& tokens, void * ref)
+static bool ReadLandClassRule(const std::vector<std::string>& tokens, void * ref)
 {
 	LandClassInfo_t info;
 	int lc;
@@ -83,12 +83,12 @@ static bool ReadLandClassRule(const vector<string>& tokens, void * ref)
 	return true;
 }
 
-static bool ReadEdgeRule(const vector<string>& tokens, void * ref)
+static bool ReadEdgeRule(const std::vector<std::string>& tokens, void * ref)
 {
 	EdgeRule_t e;
 	std::set<int>	zoning_list;
 	std::set<int>	road_list;
-	string res_id;
+	std::string res_id;
 	if(TokenizeLine(tokens," SiffSsf",&zoning_list, &e.variant, &e.height_min, &e.height_max, &road_list, &res_id, &e.width) != 8) return false;
 	e.resource_id = RegisterAGResource(res_id);
 	for(std::set<int>::iterator z = zoning_list.begin(); z != zoning_list.end(); ++z)
@@ -104,10 +104,10 @@ static bool ReadEdgeRule(const vector<string>& tokens, void * ref)
 	return true;
 }
 
-static bool ReadPointFillRule(const vector<string>& tokens, void * ref)
+static bool ReadPointFillRule(const std::vector<std::string>& tokens, void * ref)
 {
 	PointRule_t r;
-	string fac_rd, fac_ant, fac_free;
+	std::string fac_rd, fac_ant, fac_free;
 	if(TokenizeLine(tokens," eeffffffsffffsffffs",
 			&r.zoning,&r.feature,&r.height_min,&r.height_max,
 			&r.width_rd,&r.depth_rd,&r.x_width_rd, &r.x_depth_rd,&fac_rd,
@@ -124,7 +124,7 @@ static bool ReadPointFillRule(const vector<string>& tokens, void * ref)
 	return true;
 }
 
-static bool ReadFacadeRule(const vector<string>& tokens, void * ref)
+static bool ReadFacadeRule(const std::vector<std::string>& tokens, void * ref)
 {
 	if(tokens[0] == "FACADE_SPELLING")
 	{
@@ -140,7 +140,7 @@ static bool ReadFacadeRule(const vector<string>& tokens, void * ref)
 
 	else if(tokens[0] == "FACADE_TILE")
 	{
-		string fac_front, fac_back;
+		std::string fac_front, fac_back;
 		FacadeChoice_t c;
 		if(TokenizeLine(tokens," ffffss",&c.width, &c.height_min, &c.height_max, &c.depth_unused, &fac_front, &fac_back) != 7)
 			return false;
@@ -166,10 +166,10 @@ static void		pick_n(vector<float>& choices, int count, vector<float>& picks)
 	}
 }
 */
-static bool ReadFillRule(const vector<string>& tokens, void * ref)
+static bool ReadFillRule(const std::vector<std::string>& tokens, void * ref)
 {
 	FillRule_t r;
-	string agb, fac, ags, fil;
+	std::string agb, fac, ags, fil;
 	if(TokenizeLine(tokens, " eii"
 							"fffff"
 							"ffffff"
@@ -228,7 +228,7 @@ static bool ReadFillRule(const vector<string>& tokens, void * ref)
 	return true;
 }
 
-static bool ReadZoningInfo(const vector<string>& tokens, void * ref)
+static bool ReadZoningInfo(const std::vector<std::string>& tokens, void * ref)
 {
 	ZoningInfo_t	info;
 	int				zoning;
@@ -246,7 +246,7 @@ static bool ReadZoningInfo(const vector<string>& tokens, void * ref)
 	return true;
 }
 
-static bool	ReadZoningRule(const vector<string>& tokens, void * ref)
+static bool	ReadZoningRule(const std::vector<std::string>& tokens, void * ref)
 {
 	ZoningRule_t	r;
 	if(TokenizeLine(tokens," effffffffffffffiiefefiiiiiifffffffSSe",
@@ -291,7 +291,7 @@ static bool	ReadZoningRule(const vector<string>& tokens, void * ref)
 	return true;
 }
 
-static bool ReadLandFillRule(const vector<string>& tokens, void * ref)
+static bool ReadLandFillRule(const std::vector<std::string>& tokens, void * ref)
 {
 	LandFillRule_t r;
 	if(TokenizeLine(tokens," Sie",&r.required_zoning,&r.color, &r.terrain) != 4)
@@ -328,7 +328,7 @@ void LoadZoningRules(rf_region inRegion)
 	for(FacadeSpellingTable::iterator sp = gFacadeSpellings.begin(); sp != gFacadeSpellings.end(); ++sp)
 	{
 		sp->width_real = 0.0;
-		for(vector<FacadeChoice_t>::iterator fc = sp->facs.begin(); fc != sp->facs.end(); ++fc)
+		for(std::vector<FacadeChoice_t>::iterator fc = sp->facs.begin(); fc != sp->facs.end(); ++fc)
 		{
 			sp->width_real += fc->width;
 		}
@@ -635,7 +635,7 @@ static void ZoneOneFace(
 	y = SetupRasterizerForDEM(face, inLanduse, r);
 	r.StartScanline(y);
 	float count = 0, total_forest = 0, total_urban = 0, total_park = 0;
-	map<int, int>		histo;
+	std::map<int, int>		histo;
 
 	while (!r.DoneScan())
 	{
@@ -713,11 +713,11 @@ static void ZoneOneFace(
 	if(face->number_of_holes() == 0)
 		kill_antennas(ioMap,face,  ((total_urban / count) > 0.75) ? 35.0 : 20.0);
 
-	multimap<int, int, greater<int> > histo2;
-	for(map<int,int>::iterator i = histo.begin(); i != histo.end(); ++i)
-		histo2.insert(multimap<int,int, greater<int> >::value_type(i->second,i->first));
+	std::multimap<int, int, std::greater<int> > histo2;
+	for(std::map<int,int>::iterator i = histo.begin(); i != histo.end(); ++i)
+		histo2.insert(std::multimap<int,int, std::greater<int> >::value_type(i->second,i->first));
 
-	multimap<int, int, greater<int> >::iterator i = histo2.begin();
+	std::multimap<int, int, std::greater<int> >::iterator i = histo2.begin();
 	if(histo2.size() > 0)
 	{
 		face->data().mParams[af_Cat1] = i->second;
@@ -1463,7 +1463,7 @@ inline int MIN_NOVALUE(int a, int b)
 
 struct EdgeNode_t;
 
-typedef multimap<float, EdgeNode_t *, greater<float> >	EdgeQ;
+typedef std::multimap<float, EdgeNode_t *, std::greater<float> >	EdgeQ;
 
 struct	FaceNode_t {
 
@@ -1586,8 +1586,8 @@ void			FaceGraph_t::merge(FaceNode_t * f1, FaceNode_t * f2, std::list<EdgeNode_t
 
 	f1->bounds += f2->bounds;
 
-	map<FaceNode_t *, EdgeNode_t *>						neighbors;
-	map<FaceNode_t *, EdgeNode_t *>::iterator			ni;
+	std::map<FaceNode_t *, EdgeNode_t *>						neighbors;
+	std::map<FaceNode_t *, EdgeNode_t *>::iterator			ni;
 	std::list<EdgeNode_t *>::iterator ei;
 	EdgeNode_t * en;
 	FaceNode_t * fn;
@@ -1788,7 +1788,7 @@ void	ColorFaces(std::set<Face_handle>&	io_faces)
 		std::set<Face_handle>::iterator				f, ff;
 		FaceNode_t *							fn;
 		EdgeNode_t *							en;
-		map<Face_handle, FaceNode_t *>			face_mapping;
+		std::map<Face_handle, FaceNode_t *>			face_mapping;
 
 	/* First: build our graph structure */
 	for(f = io_faces.begin(); f != io_faces.end(); ++f)
@@ -1892,7 +1892,7 @@ void	ColorFaces(std::set<Face_handle>&	io_faces)
 
 	int highest = 0, total = 0, over_4 = 0;
 
-	multimap<int, FaceNode_t *, greater<int> >		nodes_by_degree;
+	std::multimap<int, FaceNode_t *, std::greater<int> >		nodes_by_degree;
 
 	for(en = graph.edges; en; en = en->next)
 	{
@@ -1910,11 +1910,11 @@ void	ColorFaces(std::set<Face_handle>&	io_faces)
 //		for(std::set<Halfedge_handle>::iterator e = edges.begin(); e != edges.end(); ++e)
 //			debug_mesh_line(cgal2ben((*e)->source()->point()),cgal2ben((*e)->target()->point()),1,0,0,0,1,0);
 
-		nodes_by_degree.insert(multimap<int, FaceNode_t *, greater<int> >::value_type(fn->edges.size(),fn));
+		nodes_by_degree.insert(std::multimap<int, FaceNode_t *, std::greater<int> >::value_type(fn->edges.size(),fn));
 
 	}
 
-	for(multimap<int, FaceNode_t *, greater<int> >::iterator i = nodes_by_degree.begin(); i != nodes_by_degree.end(); ++i)
+	for(std::multimap<int, FaceNode_t *, std::greater<int> >::iterator i = nodes_by_degree.begin(); i != nodes_by_degree.end(); ++i)
 	{
 		std::set<int> used;
 		i->second->color = 0;

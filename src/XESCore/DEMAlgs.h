@@ -72,8 +72,8 @@ void	DEMMakeFFT(const DEMGeo& inDEM, vector<DEMGeo>& outFFT);
 void	FFTMakeDEM(const vector<DEMGeo>& inFFT, DEMGeo& outDEM);
 
 /* Histogram calculations */
-int		DEMMakeHistogram(const DEMGeo& inDEM, map<float, int>& histo, int x1, int y1, int x2, int y2);
-float	HistogramGetPercentile(const map<float, int>& histo, int total_samples, float percentile);
+int		DEMMakeHistogram(const DEMGeo& inDEM, std::map<float, int>& histo, int x1, int y1, int x2, int y2);
+float	HistogramGetPercentile(const std::map<float, int>& histo, int total_samples, float percentile);
 void	DEMMakeDifferential(const DEMGeo& inSrc, DEMGeo& dst);
 
 void	CalcSlopeParams(DEMGeoMap& ioDEMs, bool force, ProgressFunc inProg);
@@ -94,7 +94,7 @@ float	IntegLine(const DEMGeo& dem, double x1, double y1, double x2, double y2, i
 /* WATERSHED GUNK */
 
 void	NeighborHisto(const DEMGeo& input, DEMGeo& output, int semi_distance);
-void	Watershed(DEMGeo& input, DEMGeo& output, vector<DEMGeo::address> * out_watersheds);
+void	Watershed(DEMGeo& input, DEMGeo& output, std::vector<DEMGeo::address> * out_watersheds);
 void	FindWatersheds(DEMGeo& ws, vector<DEMGeo::address>& out_sheds);
 void	MergeMMU(DEMGeo& ws, vector<DEMGeo::address>& io_sheds, int min_mmu_size);
 void	VerifySheds(const DEMGeo& ws, vector<DEMGeo::address>& seeds);

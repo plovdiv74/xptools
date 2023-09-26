@@ -35,8 +35,8 @@ void WriteMesh(FILE * fi, CDT& mesh, int inAtomID, ProgressFunc func)
 	StAtomWriter	meshAtom(fi, inAtomID);
 
 	// These maps assign numbers to all entities in the mesh.
-	map<TDS::Vertex_handle, int>	V;
-	map<TDS::Face_handle, int>		F;
+	std::map<TDS::Vertex_handle, int>	V;
+	std::map<TDS::Face_handle, int>		F;
 	TDS::Face_iterator				ib;
 	TDS::Vertex_iterator			vit;
 
@@ -107,9 +107,9 @@ void WriteMesh(FILE * fi, CDT& mesh, int inAtomID, ProgressFunc func)
 	// Reverse the vertex and face tables...
 	vector<TDS::Vertex_handle>	VT(vnum);
 	vector<TDS::Face_handle>	FT(fnum);
-	for (map<TDS::Vertex_handle, int>::iterator viter = V.begin(); viter != V.end(); ++viter)
+	for (std::map<TDS::Vertex_handle, int>::iterator viter = V.begin(); viter != V.end(); ++viter)
 		VT[viter->second] = viter->first;
-	for (map<TDS::Face_handle, int>::iterator fiter = F.begin(); fiter != F.end(); ++fiter)
+	for (std::map<TDS::Face_handle, int>::iterator fiter = F.begin(); fiter != F.end(); ++fiter)
 		FT[fiter->second] = fiter->first;
 
 
@@ -131,7 +131,7 @@ void WriteMesh(FILE * fi, CDT& mesh, int inAtomID, ProgressFunc func)
 			writer2.WriteFloat(VT[j]->info().normal[2]);
 
 			writer2.WriteInt(VT[j]->info().border_blend.size());
-			for (hash_map<int,float>::iterator bb = VT[j]->info().border_blend.begin();
+			for (std::hash_map<int,float>::iterator bb = VT[j]->info().border_blend.begin();
 				bb != VT[j]->info().border_blend.end(); ++bb)
 			{
 				writer2.WriteInt(bb->first);

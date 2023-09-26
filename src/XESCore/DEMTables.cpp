@@ -56,14 +56,14 @@ TexProjTable					gTexProj;
 //static std::set<int>			sForests;
 
 // Maps airport land class to airport border line class for airport terrain
-static map<int,int>			sAirports;
+static std::map<int,int>			sAirports;
 
-string	gNaturalTerrainFile;
-string	gLanduseTransFile;
-string	gReplacementClimate;
-string 	gReplacementRoads;
+std::string	gNaturalTerrainFile;
+std::string	gLanduseTransFile;
+std::string	gReplacementClimate;
+std::string 	gReplacementRoads;
 
-static map<string,CliffInfo_t>		sCliffs;
+static std::map<std::string,CliffInfo_t>		sCliffs;
 
 #define R_VARY 0
 
@@ -77,32 +77,32 @@ inline double cosdeg(double deg)
 	return cos(deg * DEG_TO_RAD);
 }
 
-static string	MakeLit(const string& inName)
+static std::string	MakeLit(const std::string& inName)
 {
-	string lit(inName);
+	std::string lit(inName);
 	lit.insert(lit.length() - 4, "_LIT");
 	return lit;
 }
 
-static string	MakeCompo(const string& inName)
+static std::string	MakeCompo(const std::string& inName)
 {
-	string lit(inName);
+	std::string lit(inName);
 	lit.insert(lit.length() - 4, "2");
 	return lit;
 }
 
-void MakeRVariant(string& io_string)
+void MakeRVariant(std::string& io_string)
 {
 	io_string.insert(io_string.length()-4,"_R");
 }
 
 
-static	bool	LowerCheckName(string& ioName)
+static	bool	LowerCheckName(std::string& ioName)
 {
-	string::size_type dir_char = ioName.find_last_of("\\/:");
+	std::string::size_type dir_char = ioName.find_last_of("\\/:");
 	if (dir_char == ioName.npos) dir_char = 0;
 	else						 dir_char++;
-	for (string::size_type n = dir_char; n < ioName.length(); ++n)
+	for (std::string::size_type n = dir_char; n < ioName.length(); ++n)
 		ioName[n] = tolower(ioName[n]);
 	if ((ioName.size() - dir_char) > 27)
 	{
@@ -112,7 +112,7 @@ static	bool	LowerCheckName(string& ioName)
 	return true;
 }
 
-bool	ReadEnumColor(const vector<string>& tokens, void * ref)
+bool	ReadEnumColor(const vector<std::string>& tokens, void * ref)
 {
 	RGBColor_t	col;
 	if (tokens.size() != 3 || !TokenizeColor(tokens[2], col))
@@ -129,7 +129,7 @@ bool	ReadEnumColor(const vector<string>& tokens, void * ref)
 	return true;
 }
 
-bool	ReadEnumBand(const vector<string>& tokens, void * ref)
+bool	ReadEnumBand(const vector<std::string>& tokens, void * ref)
 {
 	int				dem_key;
 	float 			band_key;
@@ -150,7 +150,7 @@ bool	ReadEnumBand(const vector<string>& tokens, void * ref)
 
 }
 
-bool	ReadEnumDEM(const vector<string>& tokens, void * ref)
+bool	ReadEnumDEM(const vector<std::string>& tokens, void * ref)
 {
 	int	dem;
 	if (TokenizeLine(tokens, " e", &dem) != 2) return false;
@@ -158,7 +158,7 @@ bool	ReadEnumDEM(const vector<string>& tokens, void * ref)
 	return true;
 }
 
-bool	ReadBeachInfo(const vector<string>& tokens, void * ref)
+bool	ReadBeachInfo(const vector<std::string>& tokens, void * ref)
 {
 	BeachInfo_t	info;
 
@@ -224,7 +224,7 @@ static void 	AddRuleInfoPair(NaturalTerrainRule_t& rule, NaturalTerrainInfo_t& i
 	gNaturalTerrainRules.push_back(rule);
 }
 
-bool HandleFlags(const vector<string>& tokens, void * ref)
+bool HandleFlags(const vector<std::string>& tokens, void * ref)
 {
 	if(tokens[0] == "TERRAIN_IS_CITY")
 	{
@@ -238,13 +238,13 @@ bool HandleFlags(const vector<string>& tokens, void * ref)
 	}
 	return false;
 }
-bool	ReadNewTerrainInfo(const vector<string>& tokens, void * ref)
+bool	ReadNewTerrainInfo(const vector<std::string>& tokens, void * ref)
 {
 	if(tokens[0] == "TERRAIN_RULE")
 	{
 		std::set<int>	lu_set;
-		string		lu_set_string;
-		string		zone_string;
+		std::string		lu_set_string;
+		std::string		zone_string;
 		NaturalTerrainRule_t	rule;
 		if(TokenizeLine(tokens," esseeeffffffffffiffffffe",
 			&rule.terrain, &zone_string, &lu_set_string, 
@@ -346,7 +346,7 @@ bool	ReadNewTerrainInfo(const vector<string>& tokens, void * ref)
 	else if(tokens[0] == "CLIFF_INFO")
 	{
 		CliffInfo_t info;
-		string	id;
+		std::string	id;
 		if(TokenizeLine(tokens," sPPffffss",
 			&id,
 			&info.hill_res,
@@ -371,7 +371,7 @@ bool	ReadNewTerrainInfo(const vector<string>& tokens, void * ref)
 
 	else if(tokens[0] == "REGIONALIZATION")
 	{
-		// REGIONALIZATION prefix string
+		// REGIONALIZATION prefix std::string
 		Regionalization_t r;
 		if(TokenizeLine(tokens," ss",&r.variant_prefix,&r.region_png) != 3)
 			return false;
@@ -393,7 +393,7 @@ bool	ReadNewTerrainInfo(const vector<string>& tokens, void * ref)
 		int		has_lit;
 		int		ter_name;
 		int		has_compo;
-		string	shader_mode;
+		std::string	shader_mode;
 
 		NaturalTerrainInfo_t	info;
 //		info.is_city = s_is_city;
@@ -424,7 +424,7 @@ bool	ReadNewTerrainInfo(const vector<string>& tokens, void * ref)
 		}
 
 		info.regionalization = -1;
-		string ter_string(FetchTokenString(ter_name));
+		std::string ter_string(FetchTokenString(ter_name));
 		for(int r = 0; r < gRegionalizations.size(); ++r)
 		{
 			if(ter_string.size() >= gRegionalizations[r].variant_prefix.size() &&
@@ -459,7 +459,7 @@ bool	ReadNewTerrainInfo(const vector<string>& tokens, void * ref)
 		else	if(shader_mode == "COMPOSITE")	info.shader = shader_composite;
 		else	{ fprintf(stderr,"Illegal shader: %s.\n",shader_mode.c_str()); return false; }
 		
-		string id;
+		std::string id;
 		switch(info.shader) {
 		case shader_slope:
 		case shader_slope2:
@@ -506,7 +506,7 @@ bool	ReadNewTerrainInfo(const vector<string>& tokens, void * ref)
 }
 
 #if OLD_SERGIO_RULES
-bool	ReadNaturalTerrainInfo(const vector<string>& tokens, void * ref)
+bool	ReadNaturalTerrainInfo(const vector<std::string>& tokens, void * ref)
 {
 	NaturalTerrainInfo_t	info;
 	NaturalTerrainRule_t	rule;
@@ -514,7 +514,7 @@ bool	ReadNaturalTerrainInfo(const vector<string>& tokens, void * ref)
 //	info.is_city = s_is_city;
 //	info.is_forest = s_is_forest;
 	int						forest_type;	// no longer used
-	string					ter_name, tex_name, proj;
+	std::string					ter_name, tex_name, proj;
 
 	int						has_lit = 0;;
 	int						auto_vary;									// 0 = none. 1 = 4 variations, all fake. 2 = 4 variations, 2 & 2. 3 = 4 variations for HEADING.
@@ -728,7 +728,7 @@ bool	ReadNaturalTerrainInfo(const vector<string>& tokens, void * ref)
 	if (proj == "EW")	info.proj_angle = proj_EastWest;
 	if (proj == "HDG")	auto_vary = 3;
 
-	string::size_type nstart = tex_name.find_last_of("\\/:");
+	std::string::size_type nstart = tex_name.find_last_of("\\/:");
 	if (nstart == tex_name.npos)	nstart = 0; else nstart++;
 	if (tex_name.size()-nstart > 31)
 		printf("WARNING: base tex %s too long.\n", tex_name.c_str());
@@ -775,7 +775,7 @@ bool	ReadNaturalTerrainInfo(const vector<string>& tokens, void * ref)
 //		rule.variant = 0;			// Auto case - we don't use a variant-selector!
 //		rule.related = -1;			// Auto case - we don't need related.
 
-		string rep_name = ter_name;
+		std::string rep_name = ter_name;
 		if(auto_vary > 0) rep_name += "_av";
 
 		LowerCheckName(rep_name);
@@ -825,12 +825,12 @@ bool	ReadNaturalTerrainInfo(const vector<string>& tokens, void * ref)
 			rule.variant = rep + 4;
 			info.map_rgb.rgb[2] += ((float) rep / 80.0);
 
-			string rep_name = ter_name;
+			std::string rep_name = ter_name;
 			rep_name += ('0' + rep);
 			LowerCheckName(rep_name);
 			rule.name = LookupTokenCreate(rep_name.c_str());
 
-			string tex_vari = tex_name;
+			std::string tex_vari = tex_name;
 			tex_vari.erase(tex_vari.size()-4);
 			tex_vari += ".dds";
 			info.base_tex = tex_vari;
@@ -853,7 +853,7 @@ bool	ReadNaturalTerrainInfo(const vector<string>& tokens, void * ref)
 }
 #endif
 
-static bool HandleTranslate(const vector<string>& inTokenLine, void * inRef)
+static bool HandleTranslate(const vector<std::string>& inTokenLine, void * inRef)
 {
 	int e1, e2;
 	if (TokenizeLine(inTokenLine, " ee", &e1, &e2) == 3)
@@ -865,7 +865,7 @@ static bool HandleTranslate(const vector<string>& inTokenLine, void * inRef)
 
 
 /*
-bool	ReadPromoteTerrainInfo(const vector<string>& tokens, void * ref)
+bool	ReadPromoteTerrainInfo(const vector<std::string>& tokens, void * ref)
 {
 	std::pair<int, int> key;
 	int			   value;
@@ -881,7 +881,7 @@ bool	ReadPromoteTerrainInfo(const vector<string>& tokens, void * ref)
 */
 
 /*
-bool	ReadManTerrainInfo(const vector<string>& tokens, void * ref)
+bool	ReadManTerrainInfo(const vector<std::string>& tokens, void * ref)
 {
 	ManTerrainInfo_t	info;
 	int					key;
@@ -956,11 +956,11 @@ void	LoadDEMTables(void)
 		//	nominal derived lin name:	terrain10/apt_vcld_dry.ter
 		//	export path in TER of LIN:	lib/g10/terrain10/apt_vcld_dry.ter
 		
-		string tname = FetchTokenString(gNaturalTerrainRules[n].name);
-		string prefix = "terrain10/apt_";
-		string::size_type p = tname.find(prefix);
+		std::string tname = FetchTokenString(gNaturalTerrainRules[n].name);
+		std::string prefix = "terrain10/apt_";
+		std::string::size_type p = tname.find(prefix);
 		Assert(p != tname.npos);
-		string lname = "lib/g10/terrain10/apt_border_";
+		std::string lname = "lib/g10/terrain10/apt_border_";
 		lname += tname.substr(prefix.size());
 		lname += ".lin";
 		int line_type = LookupTokenCreate(lname.c_str());

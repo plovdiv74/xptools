@@ -189,7 +189,7 @@ void MapSimplify(Pmwx& pmwx, double metric);
 int MapDesliver(Pmwx& pmwx, double metric, ProgressFunc func);
 
 int RemoveOutsets(Pmwx& io_map, double max_size, double max_area);
-tuple<int, int> RemoveIslands(Pmwx& io_map, double max_area);
+std::tuple<int, int> RemoveIslands(Pmwx& io_map, double max_area);
 int KillWetAntennaRoads(Pmwx& io_map);
 int LandFillStrandedRoads(Pmwx& io_map, double dist_lo, double dist_hi);
 
@@ -257,7 +257,7 @@ double	GetMapEdgeLengthMeters(const Halfedge_handle e);
  *
  */
 float	GetParamAverage(const Face_handle f, const DEMGeo& dem, float * outMin, float * outMax);
-int		GetParamHistogram(const Face_handle f, const DEMGeo& dem, map<float, int>& outHistogram);
+int		GetParamHistogram(const Face_handle f, const DEMGeo& dem, std::map<float, int>& outHistogram);
 
 
 // Move these to some kind of DEM-map interaction file

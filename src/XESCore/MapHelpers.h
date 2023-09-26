@@ -449,7 +449,7 @@ public:
 	void simplify(Arr& io_block, double max_err, const Traits& tr=Traits(), ProgressFunc=NULL);
 
 private:
-	typedef	map<typename Arr::Halfedge_handle, std::list<Point2> >		Error_map;
+	typedef	std::map<typename Arr::Halfedge_handle, std::list<Point2> >		Error_map;
 	typedef pqueue<double, typename Arr::Vertex_handle>				Remove_Queue;
 
 	// Given a vertex, how much error do we pick up by removing it?  Also, return the two half-edges pointing to the vertex.

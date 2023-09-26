@@ -308,7 +308,7 @@ inline void FindNextNorth(CDT& ioMesh, CDT::Face_handle& ioFace, int& index, boo
 struct	mesh_match_vertex_t {
 	Point_2					loc;			// Location in master
 	double					height;			// Height in master
-	hash_map<int, float>	blending;		// List of borders and blends in master
+	std::hash_map<int, float>	blending;		// List of borders and blends in master
 	CDT::Vertex_handle		buddy;			// Vertex on slave that is matched to it
 };
 
@@ -320,8 +320,8 @@ struct	mesh_match_edge_t {
 };
 
 struct	mesh_match_t {
-	vector<mesh_match_vertex_t>	vertices;
-	vector<mesh_match_edge_t>	edges;
+	std::vector<mesh_match_vertex_t>	vertices;
+	std::vector<mesh_match_edge_t>	edges;
 };
 
 inline bool MATCH(const char * big, const char * msmall)
@@ -397,7 +397,7 @@ inline void AddZeroMixIfNeeded(CDT::Face_handle f, int layer)
 
 inline void ZapBorders(CDT::Vertex_handle v)
 {
-	for (hash_map<int, float>::iterator i = v->info().border_blend.begin(); i != v->info().border_blend.end(); ++i)
+	for (std::hash_map<int, float>::iterator i = v->info().border_blend.begin(); i != v->info().border_blend.end(); ++i)
 		i->second = 0.0;
 }
 
@@ -520,7 +520,7 @@ bail:
 
 // Given a point on the left edge of the top border or top edge of the right border, this fetches all border
 // points in order of distance from that origin.
-void	fetch_border(CDT& ioMesh, const Point_2& origin, map<double, CDT::Vertex_handle>& outPts, int side_num)
+void	fetch_border(CDT& ioMesh, const Point_2& origin, std::map<double, CDT::Vertex_handle>& outPts, int side_num)
 {
 	CDT::Vertex_handle sv = ioMesh.infinite_vertex();
 	CDT::Vertex_circulator stop, now;
@@ -560,7 +560,7 @@ void	fetch_border(CDT& ioMesh, const Point_2& origin, map<double, CDT::Vertex_ha
 
 void	match_border(CDT& ioMesh, mesh_match_t& ioBorder, int side_num)
 {
-	map<double, CDT::Vertex_handle>	slaves;					// Slave map, from relative border offset to the handle.  Allows for fast slave location.
+	std::map<double, CDT::Vertex_handle>	slaves;					// Slave map, from relative border offset to the handle.  Allows for fast slave location.
 	Point_2	origin = ioBorder.vertices.front().loc;			// Origin of our tile.
 
 	// Step 1.  Fetch the entire border from the mesh.
@@ -570,19 +570,19 @@ void	match_border(CDT& ioMesh, mesh_match_t& ioBorder, int side_num)
 
 	while (!slaves.empty())
 	{
-		multimap<double, std::pair<double, mesh_match_vertex_t *> >	nearest;	// This is a slave/master std::pair - slave is IDed by its offset.
+		std::multimap<double, std::pair<double, mesh_match_vertex_t *> >	nearest;	// This is a slave/master std::pair - slave is IDed by its offset.
 
 		// Go through each non-assigned vertex.
 		for (vector<mesh_match_vertex_t>::iterator pts = ioBorder.vertices.begin(); pts != ioBorder.vertices.end(); ++pts)
 		if (pts->buddy == CDT::Vertex_handle())
 		{
 			// Find the nearest slave for it by decreasing distance.
-			for (map<double, CDT::Vertex_handle>::iterator sl = slaves.begin(); sl != slaves.end(); ++sl)
+			for (std::map<double, CDT::Vertex_handle>::iterator sl = slaves.begin(); sl != slaves.end(); ++sl)
 			{
 				double myDist = (side_num == 0 || side_num == 2) ? (CGAL::to_double(pts->loc.y() - sl->second->point().y())) : (CGAL::to_double(pts->loc.x() - sl->second->point().x()));
 				if (myDist < 0.0) myDist = -myDist;
 				if(myDist < MAX_BORDER_MATCH)
-				nearest.insert(multimap<double, std::pair<double, mesh_match_vertex_t *> >::value_type(myDist, std::pair<double, mesh_match_vertex_t *>(sl->first, &*pts)));
+				nearest.insert(std::multimap<double, std::pair<double, mesh_match_vertex_t *> >::value_type(myDist, std::pair<double, mesh_match_vertex_t *>(sl->first, &*pts)));
 			}
 		}
 
@@ -1748,7 +1748,7 @@ void	TriangulateMesh(Pmwx& inMap, CDT& outMesh, DEMGeoMap& inDEMs, const char * 
 		char	fname_rgt[512];
 		char	fname_top[512];
 
-		string border_loc = mesh_folder;
+		std::string border_loc = mesh_folder;
 
 		make_cache_file_path(border_loc.c_str(),deriv.mWest-1, deriv.mSouth,"border",fname_lef);
 		make_cache_file_path(border_loc.c_str(),deriv.mWest+1, deriv.mSouth,"border",fname_rgt);
@@ -1937,7 +1937,7 @@ void	TriangulateMesh(Pmwx& inMap, CDT& outMesh, DEMGeoMap& inDEMs, const char * 
 		};
 #endif
 
-		map<Point_2, boost::optional<double>> splits_needed;
+		std::map<Point_2, boost::optional<double>> splits_needed;
 		for (CDT::Finite_faces_iterator f = outMesh.finite_faces_begin(); f != outMesh.finite_faces_end(); ++f)
 		{
 			if(!tri_is_cliff(outMesh, f)) continue;
@@ -2155,7 +2155,7 @@ float enum_sample_tri(DEMGeo& d, double x0, double y0, double x1, double y1, dou
 	y = intmax2(floor(pr.masters.front().y1), 0);
 
 	
-	hash_map<int,int>	histo;
+	std::hash_map<int,int>	histo;
 	
 	while(!pr.DoneScan())
 	{
@@ -2173,7 +2173,7 @@ float enum_sample_tri(DEMGeo& d, double x0, double y0, double x1, double y1, dou
 	}
 	if(histo.empty())
 		return d.xy_nearest(center_x,center_y);
-	hash_map<int,int>::iterator l, best, town;
+	std::hash_map<int,int>::iterator l, best, town;
 	best = histo.begin();
 	town = histo.end();
 	for(l = histo.begin(); l !=histo.end(); ++l)
@@ -2467,7 +2467,7 @@ void	AssignLandusesToMesh(	DEMGeoMap& inDEMs,
 			if(IsAirportTerrain(lu))
 			{
 				std::set<CDT::Face_handle> tris;
-				map<int, double>	area_to_lu;
+				std::map<int, double>	area_to_lu;
 				double best_a = -1.0f;
 				int best_lu = NO_VALUE;
 	
@@ -2614,7 +2614,7 @@ void	AssignLandusesToMesh(	DEMGeoMap& inDEMs,
 				{
 					lowest = circ->info().terrain;
 					if(!IsCustom(lowest))					
-					for (hash_map<int, float>::iterator bl = gMatchBorders[b].vertices[n].blending.begin(); bl != gMatchBorders[b].vertices[n].blending.end(); ++bl)
+					for (std::hash_map<int, float>::iterator bl = gMatchBorders[b].vertices[n].blending.begin(); bl != gMatchBorders[b].vertices[n].blending.end(); ++bl)
 					if(!IsCustom(bl->first))
 					if (bl->second > 0.0)
 					if (LowerPriorityNaturalTerrain(bl->first, lowest))
@@ -2635,7 +2635,7 @@ void	AssignLandusesToMesh(	DEMGeoMap& inDEMs,
 		circ = stop = ioMesh.incident_faces(*rebased_vert);
 		do {
 			if (!ioMesh.is_infinite(circ))
-			for (hash_map<int, float>::iterator bl = (*rebased_vert)->info().border_blend.begin(); bl != (*rebased_vert)->info().border_blend.end(); ++bl)
+			for (std::hash_map<int, float>::iterator bl = (*rebased_vert)->info().border_blend.begin(); bl != (*rebased_vert)->info().border_blend.end(); ++bl)
 			if (bl->second > 0.0)
 				AddZeroMixIfNeeded(circ, bl->first);
 			++circ;
@@ -2770,7 +2770,7 @@ void	AssignLandusesToMesh(	DEMGeoMap& inDEMs,
 	// this border into a previously rendered file, so a hard stop is better than a cutoff.
 	for(b=0;b<4;++b)
 	for (n = 0; n < gMatchBorders[b].vertices.size(); ++n)
-	for (hash_map<int, float>::iterator blev = gMatchBorders[b].vertices[n].buddy->info().border_blend.begin(); blev != gMatchBorders[b].vertices[n].buddy->info().border_blend.end(); ++blev)
+	for (std::hash_map<int, float>::iterator blev = gMatchBorders[b].vertices[n].buddy->info().border_blend.begin(); blev != gMatchBorders[b].vertices[n].buddy->info().border_blend.end(); ++blev)
 		blev->second = 0.0;
 
 	// Now we are going to go in and add borders on our slave edges from junk coming in on the left.  We have ALREADY
@@ -2888,7 +2888,7 @@ void	AssignLandusesToMesh(	DEMGeoMap& inDEMs,
 		double	north = inElevation.mNorth;
 		char	fname[512];
 
-		string border_loc = mesh_folder;
+		std::string border_loc = mesh_folder;
 
 		make_cache_file_path(border_loc.c_str(),west, south,"border",fname);
 
@@ -2919,8 +2919,8 @@ void	AssignLandusesToMesh(	DEMGeoMap& inDEMs,
 					CGAL::to_double(f->vertex(i)->point().y()),
 					CGAL::to_double(f->vertex(i)->info().height));
 
-				hash_map<int, float>	borders;
-				for (hash_map<int, float>::iterator hfi = f->vertex(i)->info().border_blend.begin(); hfi != f->vertex(i)->info().border_blend.end(); ++hfi)
+				std::hash_map<int, float>	borders;
+				for (std::hash_map<int, float>::iterator hfi = f->vertex(i)->info().border_blend.begin(); hfi != f->vertex(i)->info().border_blend.end(); ++hfi)
 				if (hfi->second > 0.0)
 					borders[hfi->first] = max(borders[hfi->first], hfi->second);
 				circ = circstop = ioMesh.incident_faces(f->vertex(i));
@@ -2933,7 +2933,7 @@ void	AssignLandusesToMesh(	DEMGeoMap& inDEMs,
 				} while (circ != circstop);
 
 				fprintf(border, "VBC %llu\n", (unsigned long long)borders.size());
-				for (hash_map<int, float>::iterator hfi = borders.begin(); hfi != borders.end(); ++hfi)
+				for (std::hash_map<int, float>::iterator hfi = borders.begin(); hfi != borders.end(); ++hfi)
 					fprintf(border, "VB %f %s\n", hfi->second, FetchTokenString(hfi->first));
 
 				if(b == 1 || b == 3)				FindNextEast(ioMesh, f, i, b==1);
@@ -2952,7 +2952,7 @@ void	AssignLandusesToMesh(	DEMGeoMap& inDEMs,
 					CGAL::to_double(f->vertex(i)->point().y()),
 					CGAL::to_double(f->vertex(i)->info().height));
 			fprintf(border, "VBC %llu\n", (unsigned long long)f->vertex(i)->info().border_blend.size());
-			for (hash_map<int, float>::iterator hfi = f->vertex(i)->info().border_blend.begin(); hfi != f->vertex(i)->info().border_blend.end(); ++hfi)
+			for (std::hash_map<int, float>::iterator hfi = f->vertex(i)->info().border_blend.begin(); hfi != f->vertex(i)->info().border_blend.end(); ++hfi)
 				fprintf(border, "VB %f %s\n", hfi->second, FetchTokenString(hfi->first));
 		}
 
@@ -3319,7 +3319,7 @@ int	CalcMeshError(CDT& mesh, DEMGeo& elev, float& out_min, float& out_max, float
 	return ctr;
 }
 
-int	CalcMeshTextures(CDT& inMesh, map<int, int>& out_lus)
+int	CalcMeshTextures(CDT& inMesh, std::map<int, int>& out_lus)
 {
 	out_lus.clear();
 	int total = 0;

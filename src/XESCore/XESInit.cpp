@@ -28,9 +28,9 @@
 #include "ForestTables.h"
 #include "Zoning.h"
 
-static bool HandleVocab(const vector<string>& inTokenLine, void * inRef)
+static bool HandleVocab(const std::vector<std::string>& inTokenLine, void * inRef)
 {
-	string	token;
+	std::string	token;
 	if (TokenizeLine(inTokenLine," s", &token)==2)
 	{
 		if (LookupToken(token.c_str()) == -1)
@@ -62,7 +62,7 @@ void	XESInit(rf_region inRegion, bool want_forests)
 
 	if (old_mark != new_mark)
 	{
-		string vocab_path = FindConfigFile("vocab.txt");
+		std::string vocab_path = FindConfigFile("vocab.txt");
 		FILE * vocab = fopen(vocab_path.c_str(), "a");
 		if (vocab)
 		{

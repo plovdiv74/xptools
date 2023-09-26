@@ -54,7 +54,7 @@ public:
 
 	typedef	T							value_type;
 	typedef Bbox2						key_type;
-	typedef	pair<key_type,value_type>	item_type;
+	typedef	std::pair<key_type,value_type>	item_type;
 
 	RTree2() : root(NULL) { }
 	~RTree2() { if(root) delete root; }
@@ -78,7 +78,7 @@ private:
 	template <typename O>
 	void	query_value_recursive(node * node, const Bbox2& where, O out);
 	
-	node *	insert_range(int level, typename vector<item_type>::iterator begin, typename  vector<item_type>::iterator end);
+	node *	insert_range(int level, typename std::vector<item_type>::iterator begin, typename  std::vector<item_type>::iterator end);
 
 	struct	item_compare_x {
 		bool operator()(const item_type& lhs, const item_type& rhs) const {
