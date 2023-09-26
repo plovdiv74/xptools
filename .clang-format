@@ -1,2 +1,10 @@
-DisableFormat: true
-SortIncludes: false
+﻿---
+BasedOnStyle: Microsoft
+AccessModifierOffset: '-4'
+ColumnLimit: '120'
+PointerAlignment: Left
+SortIncludes: 'false'
+TabWidth: '4'
+UseTab: Never
+
+...
