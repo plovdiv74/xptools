@@ -26,15 +26,16 @@
 
 #include "WED_GISComposite.h"
 
-class	WED_Group : public WED_GISComposite {
+class WED_Group : public WED_GISComposite
+{
 
-DECLARE_PERSISTENT(WED_Group)
+    DECLARE_PERSISTENT(WED_Group)
 
 public:
-
-	virtual const char *	HumanReadableType(void) const { return "Group"; }
-
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Group";
+    }
 };
-
 
 #endif /* WED_GROUP_H */

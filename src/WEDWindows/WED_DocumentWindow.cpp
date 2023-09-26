@@ -65,658 +65,970 @@
 #include "WED_Server.h"
 #endif
 
-#define ONE_BIG_GRADIENT 0   // define his if wanting a single gradient for map + both sidepanes
+#define ONE_BIG_GRADIENT 0 // define his if wanting a single gradient for map + both sidepanes
 
 namespace
 {
-	template<class T>
-	WED_Thing * CreateThing(WED_Archive * parent)
-	{
-		return T::CreateTyped(parent);
-	}
-}
-
-int kDefaultDocSize[4] = { 0, 0, 1024, 768 };
-
-WED_DocumentWindow::WED_DocumentWindow(
-	 		const char * 	inTitle,
-	 		GUI_Commander * inCommander,
-	 		WED_Document *	inDocument) :
-	GUI_Window(inTitle, xwin_style_resizable|xwin_style_visible|xwin_style_fullscreen, kDefaultDocSize, inCommander),
-	mAutoOpen(0),
-	mDocument(inDocument)
+template <class T> WED_Thing* CreateThing(WED_Archive* parent)
 {
-	#if LIN
-	//XWin::mMenuOffset = 20;
-	#endif
+    return T::CreateTyped(parent);
+}
+} // namespace
 
-	GUI_Window::SetDescriptor(mDocument->GetFilePath());
-	XWin::SetFilePath(mDocument->GetFilePath().c_str(),false);
-	mDocument->AddListener(this);
-	mDocument->GetArchive()->AddListener(this);
+int kDefaultDocSize[4] = {0, 0, 1024, 768};
 
-//	WED_Thing * root = SAFE_CAST(WED_Thing,mDocument->GetArchive()->Fetch(1));
-//	WED_Select * s = SAFE_CAST(WED_Select,root->GetNamedChild("selection"));
-//	DebugAssert(root);
-//	DebugAssert(s);
+WED_DocumentWindow::WED_DocumentWindow(const char* inTitle, GUI_Commander* inCommander, WED_Document* inDocument)
+    : GUI_Window(inTitle, xwin_style_resizable | xwin_style_visible | xwin_style_fullscreen, kDefaultDocSize,
+                 inCommander),
+      mAutoOpen(0), mDocument(inDocument)
+{
+#if LIN
+// XWin::mMenuOffset = 20;
+#endif
 
-	GUI_Packer * packer = new GUI_Packer;
-	packer->SetParent(this);
-	packer->SetSticky(1,1,1,1);
-	packer->Show();
-	int		splitter_b[4];
-	GUI_Pane::GetBounds(splitter_b);
-	packer->SetBounds(splitter_b);
+    GUI_Window::SetDescriptor(mDocument->GetFilePath());
+    XWin::SetFilePath(mDocument->GetFilePath().c_str(), false);
+    mDocument->AddListener(this);
+    mDocument->GetArchive()->AddListener(this);
 
-	/****************************************************************************************************************************************************************
-	 * MAP VIEW
-	****************************************************************************************************************************************************************/
+    //	WED_Thing * root = SAFE_CAST(WED_Thing,mDocument->GetArchive()->Fetch(1));
+    //	WED_Select * s = SAFE_CAST(WED_Select,root->GetNamedChild("selection"));
+    //	DebugAssert(root);
+    //	DebugAssert(s);
 
-//	int		splitter_b[4];
-	//BEWARE! HORIZONTAL IS VERTICAL AND VERTICAL IS HORIZONTAL!
-	mMainSplitter  = new GUI_Splitter(gui_Split_Horizontal);
-	mMainSplitter2 = new GUI_Splitter(gui_Split_Horizontal);
+    GUI_Packer* packer = new GUI_Packer;
+    packer->SetParent(this);
+    packer->SetSticky(1, 1, 1, 1);
+    packer->Show();
+    int splitter_b[4];
+    GUI_Pane::GetBounds(splitter_b);
+    packer->SetBounds(splitter_b);
+
+    /****************************************************************************************************************************************************************
+     * MAP VIEW
+     ****************************************************************************************************************************************************************/
+
+    //	int		splitter_b[4];
+    // BEWARE! HORIZONTAL IS VERTICAL AND VERTICAL IS HORIZONTAL!
+    mMainSplitter = new GUI_Splitter(gui_Split_Horizontal);
+    mMainSplitter2 = new GUI_Splitter(gui_Split_Horizontal);
 #if ONE_BIG_GRADIENT
-	mMainSplitter->SetImage ("gradient.png");
+    mMainSplitter->SetImage("gradient.png");
 #else
-	mMainSplitter->SetImage1("gradient.png");
+    mMainSplitter->SetImage1("gradient.png");
 #endif
-	mMainSplitter->SetParent(packer);
-	mMainSplitter->Show();
-//	GUI_Pane::GetBounds(splitter_b);
-//	mMainSplitter->SetBounds(splitter_b);
-	mMainSplitter->SetSticky(1,1,1,1);
+    mMainSplitter->SetParent(packer);
+    mMainSplitter->Show();
+    //	GUI_Pane::GetBounds(splitter_b);
+    //	mMainSplitter->SetBounds(splitter_b);
+    mMainSplitter->SetSticky(1, 1, 1, 1);
 
-	/****************************************************************************************************************************************************************
-	 * LIBRARY-SIDE
-	****************************************************************************************************************************************************************/
+    /****************************************************************************************************************************************************************
+     * LIBRARY-SIDE
+     ****************************************************************************************************************************************************************/
 
-	mLibSplitter = new GUI_Splitter(gui_Split_Vertical);
+    mLibSplitter = new GUI_Splitter(gui_Split_Vertical);
 #if ONE_BIG_GRADIENT == 0
-		mLibSplitter->SetImage1("gradient.png");
-		mLibSplitter->SetImage2("gradient.png");
+    mLibSplitter->SetImage1("gradient.png");
+    mLibSplitter->SetImage2("gradient.png");
 #endif
-	mLibSplitter->SetParent(mMainSplitter);
-	mLibSplitter->Show();
-	GUI_Pane::GetBounds(splitter_b);
-	mLibSplitter->SetBounds(splitter_b);
-	mLibSplitter->SetSticky(1,1,0,1);
+    mLibSplitter->SetParent(mMainSplitter);
+    mLibSplitter->Show();
+    GUI_Pane::GetBounds(splitter_b);
+    mLibSplitter->SetBounds(splitter_b);
+    mLibSplitter->SetSticky(1, 1, 0, 1);
 
-	WED_LibraryPreviewPane * libprev = new WED_LibraryPreviewPane(this, mDocument->GetResourceMgr(), WED_GetTexMgr(mDocument));
-	libprev->SetParent(mLibSplitter);
-	libprev->Show();
-	libprev->SetSticky(1,1,1,0);
+    WED_LibraryPreviewPane* libprev =
+        new WED_LibraryPreviewPane(this, mDocument->GetResourceMgr(), WED_GetTexMgr(mDocument));
+    libprev->SetParent(mLibSplitter);
+    libprev->Show();
+    libprev->SetSticky(1, 1, 1, 0);
 
-	WED_LibraryPane * lib = new WED_LibraryPane(this, inDocument->GetLibrary());
-	lib->SetParent(mLibSplitter);
-	lib->Show();
-	lib->SetSticky(1,1,1,1);
+    WED_LibraryPane* lib = new WED_LibraryPane(this, inDocument->GetLibrary());
+    lib->SetParent(mLibSplitter);
+    lib->Show();
+    lib->SetSticky(1, 1, 1, 1);
 
-	/****************************************************************************************************************************************************************
-	 * DA MAP
-	****************************************************************************************************************************************************************/
+    /****************************************************************************************************************************************************************
+     * DA MAP
+     ****************************************************************************************************************************************************************/
 
-	mMainSplitter2->SetParent(mMainSplitter);
-	mMainSplitter2->Show();
-	mMainSplitter2->SetSticky(1,1,1,1);
+    mMainSplitter2->SetParent(mMainSplitter);
+    mMainSplitter2->Show();
+    mMainSplitter2->SetSticky(1, 1, 1, 1);
 
+    double lb[4];
+    mDocument->GetBounds(lb);
+    mMapPane = new WED_MapPane(this, lb, inDocument, inDocument->GetArchive(), lib->GetAdapter());
+    lib->GetAdapter()->SetMap(mMapPane, libprev);
+    mMapPane->SetParent(mMainSplitter2);
+    mMapPane->Show();
+    mMapPane->SetSticky(1, 1, 1, 1);
 
-	double	lb[4];
-	mDocument->GetBounds(lb);
-	mMapPane = new WED_MapPane(this, lb, inDocument,inDocument->GetArchive(),lib->GetAdapter());
-	lib->GetAdapter()->SetMap(mMapPane, libprev);
-	mMapPane->SetParent(mMainSplitter2);
-	mMapPane->Show();
-	mMapPane->SetSticky(1,1,1,1);
+    GUI_Pane* top_bar = mMapPane->GetTopBar();
+    top_bar->SetParent(packer);
+    top_bar->Show();
+    packer->PackPane(top_bar, gui_Pack_Top);
+    top_bar->SetSticky(1, 0, 1, 1);
+    packer->PackPane(mMainSplitter, gui_Pack_Center);
 
-	GUI_Pane * top_bar = mMapPane->GetTopBar();
-	top_bar->SetParent(packer);
-	top_bar->Show();
-	packer->PackPane(top_bar, gui_Pack_Top);
-	top_bar->SetSticky(1,0,1,1);
-	packer->PackPane(mMainSplitter, gui_Pack_Center);
+    /****************************************************************************************************************************************************************
+     * PROPERTY-SIDE
+     ****************************************************************************************************************************************************************/
 
+    // --------------- Splitter and tabs ---------------
 
-	/****************************************************************************************************************************************************************
-	 * PROPERTY-SIDE
-	****************************************************************************************************************************************************************/
+    mPropSplitter = new GUI_Splitter(gui_Split_Vertical);
+#if ONE_BIG_GRADIENT == 0
+    mPropSplitter->SetImage1("gradient.png");
+    mPropSplitter->SetImage2("gradient.png");
+#endif
+    mPropSplitter->SetParent(mMainSplitter2);
+    mPropSplitter->Show();
+    GUI_Pane::GetBounds(splitter_b);
+    mPropSplitter->SetBounds(splitter_b);
+    mPropSplitter->SetSticky(0, 1, 1, 1);
 
-	// --------------- Splitter and tabs ---------------
+    GUI_TabPane* prop_tabs = new GUI_TabPane(this);
+    prop_tabs->SetParent(mPropSplitter);
+    prop_tabs->Show();
+    prop_tabs->SetSticky(1, 1, 1, 0.5);
+    prop_tabs->SetTextColor(WED_Color_RGBA(wed_Tabs_Text));
+    prop_tabs->AddListener(mMapPane);
 
-	mPropSplitter = new GUI_Splitter(gui_Split_Vertical);
-	#if ONE_BIG_GRADIENT == 0
-		mPropSplitter->SetImage1("gradient.png");
-		mPropSplitter->SetImage2("gradient.png");
-	#endif
-	mPropSplitter->SetParent(mMainSplitter2);
-	mPropSplitter->Show();
-	GUI_Pane::GetBounds(splitter_b);
-	mPropSplitter->SetBounds(splitter_b);
-	mPropSplitter->SetSticky(0,1,1,1);
+    // --------------- Selection ---------------
 
-	GUI_TabPane * prop_tabs = new GUI_TabPane(this);
-	prop_tabs->SetParent(mPropSplitter);
-	prop_tabs->Show();
-	prop_tabs->SetSticky(1,1,1,0.5);
-	prop_tabs->SetTextColor(WED_Color_RGBA(wed_Tabs_Text));
-	prop_tabs->AddListener(mMapPane);
+    static const char* sel_t[] = {"Name", "Type", NULL};
+    static int sel_w[] = {120, 120};
 
-	// --------------- Selection ---------------
+    WED_PropertyPane* prop_pane1 = new WED_PropertyPane(prop_tabs->GetPaneOwner(), inDocument, sel_t, sel_w,
+                                                        inDocument->GetArchive(), propPane_Selection, 0);
+    prop_tabs->AddPane(prop_pane1, "Selection");
 
-	static const char * sel_t[] = { "Name", "Type", NULL };
-	static		 int	sel_w[] = { 120, 120 };
+    // --------------- Pavement Tab Mode ---------------
 
-	WED_PropertyPane * prop_pane1 = new WED_PropertyPane(prop_tabs->GetPaneOwner(), inDocument, sel_t, sel_w,inDocument->GetArchive(), propPane_Selection, 0);
-	prop_tabs->AddPane(prop_pane1, "Selection");
+    WED_PropertyPane* prop_pane2 = new WED_PropertyPane(prop_tabs->GetPaneOwner(), inDocument, sel_t, sel_w,
+                                                        inDocument->GetArchive(), propPane_Selection, 0);
+    prop_tabs->AddPane(prop_pane2, "Pavement");
 
-	// --------------- Pavement Tab Mode ---------------
+    // --------------- ATC Taxi + Flow ---------------
 
-	WED_PropertyPane * prop_pane2 = new WED_PropertyPane(prop_tabs->GetPaneOwner(), inDocument, sel_t, sel_w,inDocument->GetArchive(), propPane_Selection, 0);
-	prop_tabs->AddPane(prop_pane2, "Pavement");
+    WED_PropertyPane* prop_pane3 = new WED_PropertyPane(prop_tabs->GetPaneOwner(), inDocument, sel_t, sel_w,
+                                                        inDocument->GetArchive(), propPane_Selection, 0);
+    prop_tabs->AddPane(prop_pane3, "Taxi+Routes");
 
-	// --------------- ATC Taxi + Flow ---------------
+    // --------------- Lights and Markings ---------------
 
-	WED_PropertyPane * prop_pane3 = new WED_PropertyPane(prop_tabs->GetPaneOwner(), inDocument, sel_t, sel_w,inDocument->GetArchive(), propPane_Selection, 0);
-	prop_tabs->AddPane(prop_pane3, "Taxi+Routes");
+    WED_PropertyPane* prop_pane4 = new WED_PropertyPane(prop_tabs->GetPaneOwner(), inDocument, sel_t, sel_w,
+                                                        inDocument->GetArchive(), propPane_Selection, 0);
+    prop_tabs->AddPane(prop_pane4, "Lights+Marking");
 
-	// --------------- Lights and Markings ---------------
+    // ---------------- 3D Mode ---------------------
 
-	WED_PropertyPane * prop_pane4 = new WED_PropertyPane(prop_tabs->GetPaneOwner(), inDocument, sel_t, sel_w,inDocument->GetArchive(), propPane_Selection, 0);
-	prop_tabs->AddPane(prop_pane4, "Lights+Marking");
+    WED_PropertyPane* prop_pane5 = new WED_PropertyPane(prop_tabs->GetPaneOwner(), inDocument, sel_t, sel_w,
+                                                        inDocument->GetArchive(), propPane_Selection, 0);
+    prop_tabs->AddPane(prop_pane5, "3D+Objects");
 
-	// ---------------- 3D Mode ---------------------
+    // ---------------- Exclusions ------------------
 
-	WED_PropertyPane * prop_pane5 = new WED_PropertyPane(prop_tabs->GetPaneOwner(), inDocument, sel_t, sel_w,inDocument->GetArchive(), propPane_Selection, 0);
-	prop_tabs->AddPane(prop_pane5, "3D+Objects");
+    WED_PropertyPane* prop_pane6 = new WED_PropertyPane(prop_tabs->GetPaneOwner(), inDocument, sel_t, sel_w,
+                                                        inDocument->GetArchive(), propPane_Selection, 0);
+    prop_tabs->AddPane(prop_pane6, "Exclusion+Boundary");
 
-	// ---------------- Exclusions ------------------
+    // ---------------- TCE -------------
+    mTCEPane = new WED_TCEPane(this, inDocument, inDocument->GetArchive());
+    prop_tabs->AddPane(mTCEPane, "Texture");
 
-	WED_PropertyPane * prop_pane6 = new WED_PropertyPane(prop_tabs->GetPaneOwner(), inDocument, sel_t, sel_w,inDocument->GetArchive(), propPane_Selection, 0);
-	prop_tabs->AddPane(prop_pane6, "Exclusion+Boundary");
+    // --------------- Hierarchy  View ---------------
 
-	// ---------------- TCE -------------
-	mTCEPane = new WED_TCEPane(this, inDocument,inDocument->GetArchive());
-	prop_tabs->AddPane(mTCEPane, "Texture");
+    static const char* titles[] = {"Locked", "Hidden", "Name", 0};
+    static int widths[] = {30, 30, 200};
 
-	// --------------- Hierarchy  View ---------------
+    mPropPane = new WED_PropertyPane(this, inDocument, titles, widths, inDocument->GetArchive(), propPane_Hierarchy, 0);
+    mPropPane->SetParent(mPropSplitter);
+    mPropPane->Show();
+    mPropPane->SetSticky(1, 0.5, 1, 1);
 
-	static const char * titles[] =  { "Locked", "Hidden", "Name", 0 };
-	static int widths[] =			{ 30,		30,		200		};
+    /****************************************************************************************************************************************************************
+     * MAP PREVIEW WINDOW
+     ****************************************************************************************************************************************************************/
 
-	mPropPane = new WED_PropertyPane(this, inDocument, titles, widths,inDocument->GetArchive(), propPane_Hierarchy, 0);
-	mPropPane->SetParent(mPropSplitter);
-	mPropPane->Show();
-	mPropPane->SetSticky(1,0.5,1,1);
+    mMapPreviewWindow = new WED_MapPreviewWindow(this, mDocument);
+    mMapPreviewPane = mMapPreviewWindow->MapPreviewPane();
 
-	/****************************************************************************************************************************************************************
-	 * MAP PREVIEW WINDOW
-	****************************************************************************************************************************************************************/
+    /****************************************************************************************************************************************************************
+     * FINAL CLEANUP
+     ****************************************************************************************************************************************************************/
 
-	mMapPreviewWindow = new WED_MapPreviewWindow(this, mDocument);
-	mMapPreviewPane = mMapPreviewWindow->MapPreviewPane();
+    int xy[2];
+    int zw[2];
+    XWin::GetBounds(zw, zw + 1);
+    XWin::GetWindowLoc(xy, xy + 1);
 
-	/****************************************************************************************************************************************************************
-	 * FINAL CLEANUP
-	****************************************************************************************************************************************************************/
-
-	int xy[2];
-	int zw[2];
-	XWin::GetBounds(zw,zw+1);
-	XWin::GetWindowLoc(xy,xy+1);
-
-	LOG_MSG("I/Doc opening new scenery window, initial win xy %d %d wh %d %d\n", xy[0], xy[1], zw[0], zw[1]);
+    LOG_MSG("I/Doc opening new scenery window, initial win xy %d %d wh %d %d\n", xy[0], xy[1], zw[0], zw[1]);
 #if APL
-	int ret[4];
-	float scal = XWin::GetRetinaBounds(ret);
-	LOG_MSG("I/Doc OSX backingScaleFactor %6.3f      fbuf xy %d %d wh %d %d\n", scal, ret[0], ret[1], ret[2]-ret[0], ret[3]-ret[1]);
+    int ret[4];
+    float scal = XWin::GetRetinaBounds(ret);
+    LOG_MSG("I/Doc OSX backingScaleFactor %6.3f      fbuf xy %d %d wh %d %d\n", scal, ret[0], ret[1], ret[2] - ret[0],
+            ret[3] - ret[1]);
 #endif
-	xy[0] = inDocument->ReadIntPref("window/x_loc",xy[0]);
-	xy[1] = inDocument->ReadIntPref("window/y_loc",xy[1]);
-	zw[0] = inDocument->ReadIntPref("window/width",zw[0]);
-	zw[1] = inDocument->ReadIntPref("window/height",zw[1]);
+    xy[0] = inDocument->ReadIntPref("window/x_loc", xy[0]);
+    xy[1] = inDocument->ReadIntPref("window/y_loc", xy[1]);
+    zw[0] = inDocument->ReadIntPref("window/width", zw[0]);
+    zw[1] = inDocument->ReadIntPref("window/height", zw[1]);
 
-	LOG_MSG("I/Doc size from prefs xy %d %d wh %d %d\n", xy[0], xy[1], zw[0], zw[1]);
+    LOG_MSG("I/Doc size from prefs xy %d %d wh %d %d\n", xy[0], xy[1], zw[0], zw[1]);
 
-	SetBoundsSafe(xy[0], xy[1], xy[0] + zw[0], xy[1] + zw[1]);
+    SetBoundsSafe(xy[0], xy[1], xy[0] + zw[0], xy[1] + zw[1]);
 
-	int main_split = inDocument->ReadIntPref("window/main_split",zw[0] / 5);
-	int main_split2 = inDocument->ReadIntPref("window/main_split2",zw[0] * 2 / 3);
-	int prop_split = inDocument->ReadIntPref("window/prop_split",zw[1] / 2);
-	int prev_split = inDocument->ReadIntPref("window/prev_split",zw[1] / 3);
+    int main_split = inDocument->ReadIntPref("window/main_split", zw[0] / 5);
+    int main_split2 = inDocument->ReadIntPref("window/main_split2", zw[0] * 2 / 3);
+    int prop_split = inDocument->ReadIntPref("window/prop_split", zw[1] / 2);
+    int prev_split = inDocument->ReadIntPref("window/prev_split", zw[1] / 3);
 
+    mMainSplitter->AlignContentsAt(main_split);
+    mMainSplitter2->AlignContentsAt(main_split2);
+    mPropSplitter->AlignContentsAt(prop_split);
+    mLibSplitter->AlignContentsAt(prev_split);
+    mMapPane->ZoomShowAll();
 
-	mMainSplitter->AlignContentsAt(main_split);
-	mMainSplitter2->AlignContentsAt(main_split2);
-	mPropSplitter->AlignContentsAt(prop_split);
-	mLibSplitter->AlignContentsAt(prev_split);
-	mMapPane->ZoomShowAll();
-
-
-	mMapPane->FromPrefs(inDocument);
-	mMapPreviewWindow->FromPrefs(inDocument);
-	mMapPreviewPane->FromPrefs(inDocument);
-	mPropPane->FromPrefs(inDocument,0);
-	// doc/use_feet and doc/InfoDMS are global only preferences now, not read from each document any more
+    mMapPane->FromPrefs(inDocument);
+    mMapPreviewWindow->FromPrefs(inDocument);
+    mMapPreviewPane->FromPrefs(inDocument);
+    mPropPane->FromPrefs(inDocument, 0);
+    // doc/use_feet and doc/InfoDMS are global only preferences now, not read from each document any more
 #if TYLER_MODE == 11
-	gExportTarget = wet_xplane_1130;
+    gExportTarget = wet_xplane_1130;
 #elif TYLER_MODE
-	gExportTarget = wet_latest_xplane;
+    gExportTarget = wet_latest_xplane;
 #else
-	gExportTarget = (WED_Export_Target) inDocument->ReadIntPref("doc/export_target",gExportTarget);
+    gExportTarget = (WED_Export_Target)inDocument->ReadIntPref("doc/export_target", gExportTarget);
 #endif
 
-	int wedXMLversion = inDocument->ReadIntPref("doc/xml_compatibility",0);
-	int wedTHISversion[4] = { WED_VERSION_BIN };
-	if(wedTHISversion[0] * 100 + wedTHISversion[1] < wedXMLversion)
-	{
-		std::string msg("Warning: This earth.wed.xml was written by a WED version newer than this, some content may get corrupted or may make this version crash.\nUse WED ");
-		msg += std::to_string(wedXMLversion / 100) + "." + std::to_string(wedXMLversion % 100) + " or newer to read or edit this file.";
-		DoUserAlert(msg.c_str());
-	}
+    int wedXMLversion = inDocument->ReadIntPref("doc/xml_compatibility", 0);
+    int wedTHISversion[4] = {WED_VERSION_BIN};
+    if (wedTHISversion[0] * 100 + wedTHISversion[1] < wedXMLversion)
+    {
+        std::string msg("Warning: This earth.wed.xml was written by a WED version newer than this, some content may "
+                        "get corrupted or may make this version crash.\nUse WED ");
+        msg += std::to_string(wedXMLversion / 100) + "." + std::to_string(wedXMLversion % 100) +
+               " or newer to read or edit this file.";
+        DoUserAlert(msg.c_str());
+    }
 
-	//#if DEV
-	//	PrintDebugInfo(0);
-	//#endif
+    // #if DEV
+    //	PrintDebugInfo(0);
+    // #endif
 }
 
 WED_DocumentWindow::~WED_DocumentWindow()
 {
-	delete mMapPreviewWindow;
+    delete mMapPreviewWindow;
 }
 
-int	WED_DocumentWindow::HandleKeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFlags)
+int WED_DocumentWindow::HandleKeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFlags)
 {
-	if ( mMapPane->Map_KeyPress(inKey, inVK, inFlags)) return 1;
-	if ((inKey == GUI_KEY_BACK || inKey == GUI_KEY_DELETE ) && (inFlags & gui_DownFlag))
-	if (WED_CanClear(mDocument)) { DispatchHandleCommand(gui_Clear); return 1; }	// run through dispatcher to make sure we call the appropriate hooks!
-	return 0;
+    if (mMapPane->Map_KeyPress(inKey, inVK, inFlags))
+        return 1;
+    if ((inKey == GUI_KEY_BACK || inKey == GUI_KEY_DELETE) && (inFlags & gui_DownFlag))
+        if (WED_CanClear(mDocument))
+        {
+            DispatchHandleCommand(gui_Clear);
+            return 1;
+        } // run through dispatcher to make sure we call the appropriate hooks!
+    return 0;
 }
 
-int	WED_DocumentWindow::HandleCommand(int command)
+int WED_DocumentWindow::HandleCommand(int command)
 {
-	WED_UndoMgr * um = mDocument->GetUndoMgr();
+    WED_UndoMgr* um = mDocument->GetUndoMgr();
 
-	//--Add Meta Data Sub Menu-----------------
-	if(command > wed_AddMetaDataBegin && command < wed_AddMetaDataEnd)
-	{
-		WED_DoAddMetaData(mDocument, command);
-		return 1;
-	}
-	//------------------------------------------//
+    //--Add Meta Data Sub Menu-----------------
+    if (command > wed_AddMetaDataBegin && command < wed_AddMetaDataEnd)
+    {
+        WED_DoAddMetaData(mDocument, command);
+        return 1;
+    }
+    //------------------------------------------//
 
-	switch(command) {
-	case wed_RestorePanes:
-		{
-			int zw[2];
-			XWin::GetBounds(zw,zw+1);
-			int main_split = zw[0] / 5;
-			int main_split2 = zw[0] * 2 / 3;
-			int prop_split = zw[1] / 2;
-			int prev_split = zw[1] / 3;
+    switch (command)
+    {
+    case wed_RestorePanes: {
+        int zw[2];
+        XWin::GetBounds(zw, zw + 1);
+        int main_split = zw[0] / 5;
+        int main_split2 = zw[0] * 2 / 3;
+        int prop_split = zw[1] / 2;
+        int prev_split = zw[1] / 3;
 
-			mMainSplitter->AlignContentsAt(main_split);
-			mMainSplitter2->AlignContentsAt(main_split2);
-			mPropSplitter->AlignContentsAt(prop_split);
-			mLibSplitter->AlignContentsAt(prev_split);
-		}
-		return 1;
-	case wed_TogglePreviewWindow:
-		if (mMapPreviewWindow->IsVisible())
-			mMapPreviewWindow->Hide();
-		else
-			mMapPreviewWindow->Show();
-		return 1;
-	case wed_ShowMapAreaInPreviewWindow:
-		mMapPreviewPane->DisplayExtent(mMapPane->GetMapVisibleBounds(), 1.0);
-		return 1;
-	case wed_CenterMapOnPreviewCamera:
-		mMapPane->CenterOnPoint(mMapPreviewPane->CameraPositionLL());
-		return 1;
-	case wed_autoOpenLibPane:
-		if (mAutoOpen == 0)
-		{
-			mAutoOpen = mMainSplitter->GetSplitPoint();
-			int aproxTabsWidth = 100 + gFontSize * 15;
-			mMainSplitter->AlignContentsAt(aproxTabsWidth);
-		}
-		return 1;
-	case wed_autoOpenPropPane:
-		if (mAutoOpen == 0)
-		{
-			int w,h;
-			XWin::GetBounds(&w, &h);
-			mAutoOpen = mMainSplitter2->GetSplitPoint() - w;
-			int aproxTabsWidth = 100 + gFontSize * 28;
-			mMainSplitter2->AlignContentsAt(w - aproxTabsWidth);
-		}
-		return 1;
-	case wed_autoClosePane:
-		if (mAutoOpen > 0)
-		{
-			mMainSplitter->AlignContentsAt(mAutoOpen);
-			mAutoOpen = 0;
-		}
-		else if (mAutoOpen < 0)
-		{
-			int w,h;
-			XWin::GetBounds(&w, &h);
-			mMainSplitter2->AlignContentsAt(w + mAutoOpen);
-			mAutoOpen = 0;
-		}
-		return 1;
-	case gui_Undo:	if (um->HasUndo()) { um->Undo(); return 1; }	break;
-	case gui_Redo:	if (um->HasRedo()) { um->Redo(); return 1; }	break;
-	case gui_Clear:		WED_DoClear(mDocument); return 1;
-	case wed_Crop:		WED_DoCrop(mDocument); return 1;
-	case wed_Merge:		WED_DoMerge(mDocument); return 1;
-	case wed_Split:		WED_DoSplit(mDocument); return 1;
-	case wed_Align:		WED_DoAlign(mDocument); return 1;
-	case wed_MatchBezierHandles:	WED_DoMatchBezierHandles(mDocument); return 1;
-	case wed_Orthogonalize:	WED_DoOrthogonalize(mDocument); return 1;
-	case wed_RegularPoly:	WED_DoMakeRegularPoly(mDocument); return 1;
-	case wed_Reverse:	WED_DoReverse(mDocument); return 1;
-	case wed_Rotate:	WED_DoRotate(mDocument); return 1;
-	case gui_Duplicate:	WED_DoDuplicate(mDocument, true); return 1;
-	case wed_CopyToAirport:	WED_DoCopyToAirport(mDocument);  mMapPane->ZoomShowSel(2.0); return 1;
-	case wed_Group:		WED_DoGroup(mDocument); return 1;
-	case wed_Ungroup:	WED_DoUngroup(mDocument); return 1;
-	case wed_ConvertToPolygon:	WED_DoConvertTo(mDocument, &CreateThing<WED_PolygonPlacement>);	return 1;
-	case wed_ConvertToTaxiway:	WED_DoConvertTo(mDocument, &CreateThing<WED_Taxiway>);	return 1;
-	case wed_ConvertToTaxiline:	WED_DoConvertTo(mDocument, &CreateThing<WED_AirportChain>);	return 1;
-	case wed_ConvertToLine:		WED_DoConvertTo(mDocument, &CreateThing<WED_LinePlacement>);	return 1;
-	case wed_ConvertToString:	WED_DoConvertTo(mDocument, &CreateThing<WED_StringPlacement>);	return 1;
-	case wed_ConvertToForest:	WED_DoConvertToForest(mDocument); return 1;
+        mMainSplitter->AlignContentsAt(main_split);
+        mMainSplitter2->AlignContentsAt(main_split2);
+        mPropSplitter->AlignContentsAt(prop_split);
+        mLibSplitter->AlignContentsAt(prev_split);
+    }
+        return 1;
+    case wed_TogglePreviewWindow:
+        if (mMapPreviewWindow->IsVisible())
+            mMapPreviewWindow->Hide();
+        else
+            mMapPreviewWindow->Show();
+        return 1;
+    case wed_ShowMapAreaInPreviewWindow:
+        mMapPreviewPane->DisplayExtent(mMapPane->GetMapVisibleBounds(), 1.0);
+        return 1;
+    case wed_CenterMapOnPreviewCamera:
+        mMapPane->CenterOnPoint(mMapPreviewPane->CameraPositionLL());
+        return 1;
+    case wed_autoOpenLibPane:
+        if (mAutoOpen == 0)
+        {
+            mAutoOpen = mMainSplitter->GetSplitPoint();
+            int aproxTabsWidth = 100 + gFontSize * 15;
+            mMainSplitter->AlignContentsAt(aproxTabsWidth);
+        }
+        return 1;
+    case wed_autoOpenPropPane:
+        if (mAutoOpen == 0)
+        {
+            int w, h;
+            XWin::GetBounds(&w, &h);
+            mAutoOpen = mMainSplitter2->GetSplitPoint() - w;
+            int aproxTabsWidth = 100 + gFontSize * 28;
+            mMainSplitter2->AlignContentsAt(w - aproxTabsWidth);
+        }
+        return 1;
+    case wed_autoClosePane:
+        if (mAutoOpen > 0)
+        {
+            mMainSplitter->AlignContentsAt(mAutoOpen);
+            mAutoOpen = 0;
+        }
+        else if (mAutoOpen < 0)
+        {
+            int w, h;
+            XWin::GetBounds(&w, &h);
+            mMainSplitter2->AlignContentsAt(w + mAutoOpen);
+            mAutoOpen = 0;
+        }
+        return 1;
+    case gui_Undo:
+        if (um->HasUndo())
+        {
+            um->Undo();
+            return 1;
+        }
+        break;
+    case gui_Redo:
+        if (um->HasRedo())
+        {
+            um->Redo();
+            return 1;
+        }
+        break;
+    case gui_Clear:
+        WED_DoClear(mDocument);
+        return 1;
+    case wed_Crop:
+        WED_DoCrop(mDocument);
+        return 1;
+    case wed_Merge:
+        WED_DoMerge(mDocument);
+        return 1;
+    case wed_Split:
+        WED_DoSplit(mDocument);
+        return 1;
+    case wed_Align:
+        WED_DoAlign(mDocument);
+        return 1;
+    case wed_MatchBezierHandles:
+        WED_DoMatchBezierHandles(mDocument);
+        return 1;
+    case wed_Orthogonalize:
+        WED_DoOrthogonalize(mDocument);
+        return 1;
+    case wed_RegularPoly:
+        WED_DoMakeRegularPoly(mDocument);
+        return 1;
+    case wed_Reverse:
+        WED_DoReverse(mDocument);
+        return 1;
+    case wed_Rotate:
+        WED_DoRotate(mDocument);
+        return 1;
+    case gui_Duplicate:
+        WED_DoDuplicate(mDocument, true);
+        return 1;
+    case wed_CopyToAirport:
+        WED_DoCopyToAirport(mDocument);
+        mMapPane->ZoomShowSel(2.0);
+        return 1;
+    case wed_Group:
+        WED_DoGroup(mDocument);
+        return 1;
+    case wed_Ungroup:
+        WED_DoUngroup(mDocument);
+        return 1;
+    case wed_ConvertToPolygon:
+        WED_DoConvertTo(mDocument, &CreateThing<WED_PolygonPlacement>);
+        return 1;
+    case wed_ConvertToTaxiway:
+        WED_DoConvertTo(mDocument, &CreateThing<WED_Taxiway>);
+        return 1;
+    case wed_ConvertToTaxiline:
+        WED_DoConvertTo(mDocument, &CreateThing<WED_AirportChain>);
+        return 1;
+    case wed_ConvertToLine:
+        WED_DoConvertTo(mDocument, &CreateThing<WED_LinePlacement>);
+        return 1;
+    case wed_ConvertToString:
+        WED_DoConvertTo(mDocument, &CreateThing<WED_StringPlacement>);
+        return 1;
+    case wed_ConvertToForest:
+        WED_DoConvertToForest(mDocument);
+        return 1;
 
-	case wed_MoveFirst:	WED_DoReorder(mDocument,-1,1);	return 1;
-	case wed_MovePrev:	WED_DoReorder(mDocument,-1,0);	return 1;
-	case wed_MoveNext:	WED_DoReorder(mDocument, 1,0);	return 1;
-	case wed_MoveLast:	WED_DoReorder(mDocument, 1,1);	return 1;
-	case wed_BreakApartAgps: WED_DoBreakApartAgps(mDocument); return 1;
-	case wed_ReplaceVehicleObj:  WED_DoReplaceVehicleObj(mDocument); return 1;
-	case wed_AddATCFreq:WED_DoMakeNewATCFreq(mDocument); return 1;
-	case wed_AddATCFlow: WED_DoMakeNewATCFlow(mDocument); return 1;
-	case wed_AddATCRunwayUse:WED_DoMakeNewATCRunwayUse(mDocument); return 1;
-	case wed_AddATCTimeRule: WED_DoMakeNewATCTimeRule(mDocument); return 1;
-	case wed_AddATCWindRule: WED_DoMakeNewATCWindRule(mDocument); return 1;
-	case wed_UpgradeRamps:	WED_UpgradeRampStarts(mDocument);	return 1;
-	case wed_UpgradeJetways: WED_UpgradeJetways(mDocument);	return 1;
-	case wed_AgePavement: WED_AgePavement(mDocument);	return 1;
-	case wed_MowGrass:	WED_MowGrass(mDocument);	return 1;
-	// wed_EdgePavement,
-	// wed_MowGrass,
-	case wed_AlignApt:	WED_AlignAirports(mDocument);	return 1;
-	case wed_CreateApt:	WED_DoMakeNewAirport(mDocument); return 1;
-	case wed_EditApt:	WED_DoSetCurrentAirport(mDocument); return 1;
-	case gui_Close:		mDocument->TryClose();	return 1;
-	case gui_Save:		mDocument->Save(); return 1;
+    case wed_MoveFirst:
+        WED_DoReorder(mDocument, -1, 1);
+        return 1;
+    case wed_MovePrev:
+        WED_DoReorder(mDocument, -1, 0);
+        return 1;
+    case wed_MoveNext:
+        WED_DoReorder(mDocument, 1, 0);
+        return 1;
+    case wed_MoveLast:
+        WED_DoReorder(mDocument, 1, 1);
+        return 1;
+    case wed_BreakApartAgps:
+        WED_DoBreakApartAgps(mDocument);
+        return 1;
+    case wed_ReplaceVehicleObj:
+        WED_DoReplaceVehicleObj(mDocument);
+        return 1;
+    case wed_AddATCFreq:
+        WED_DoMakeNewATCFreq(mDocument);
+        return 1;
+    case wed_AddATCFlow:
+        WED_DoMakeNewATCFlow(mDocument);
+        return 1;
+    case wed_AddATCRunwayUse:
+        WED_DoMakeNewATCRunwayUse(mDocument);
+        return 1;
+    case wed_AddATCTimeRule:
+        WED_DoMakeNewATCTimeRule(mDocument);
+        return 1;
+    case wed_AddATCWindRule:
+        WED_DoMakeNewATCWindRule(mDocument);
+        return 1;
+    case wed_UpgradeRamps:
+        WED_UpgradeRampStarts(mDocument);
+        return 1;
+    case wed_UpgradeJetways:
+        WED_UpgradeJetways(mDocument);
+        return 1;
+    case wed_AgePavement:
+        WED_AgePavement(mDocument);
+        return 1;
+    case wed_MowGrass:
+        WED_MowGrass(mDocument);
+        return 1;
+    // wed_EdgePavement,
+    // wed_MowGrass,
+    case wed_AlignApt:
+        WED_AlignAirports(mDocument);
+        return 1;
+    case wed_CreateApt:
+        WED_DoMakeNewAirport(mDocument);
+        return 1;
+    case wed_EditApt:
+        WED_DoSetCurrentAirport(mDocument);
+        return 1;
+    case gui_Close:
+        mDocument->TryClose();
+        return 1;
+    case gui_Save:
+        mDocument->Save();
+        return 1;
 
-	case gui_Revert:	mDocument->Revert();	return 1;
+    case gui_Revert:
+        mDocument->Revert();
+        return 1;
 
-	case gui_SelectAll:		WED_DoSelectAll(mDocument);		return 1;
-	case gui_SelectNone:	WED_DoSelectNone(mDocument);		return 1;
-	case wed_SelectParent:	WED_DoSelectParent(mDocument);		return 1;
-	case wed_SelectChild:	WED_DoSelectChildren(mDocument);	return 1;
-	case wed_SelectVertex:	WED_DoSelectVertices(mDocument);	return 1;
-	case wed_SelectPoly:	WED_DoSelectPolygon(mDocument);	return 1;
-	case wed_SelectConnected:WED_DoSelectConnected(mDocument);	return 1;
+    case gui_SelectAll:
+        WED_DoSelectAll(mDocument);
+        return 1;
+    case gui_SelectNone:
+        WED_DoSelectNone(mDocument);
+        return 1;
+    case wed_SelectParent:
+        WED_DoSelectParent(mDocument);
+        return 1;
+    case wed_SelectChild:
+        WED_DoSelectChildren(mDocument);
+        return 1;
+    case wed_SelectVertex:
+        WED_DoSelectVertices(mDocument);
+        return 1;
+    case wed_SelectPoly:
+        WED_DoSelectPolygon(mDocument);
+        return 1;
+    case wed_SelectConnected:
+        WED_DoSelectConnected(mDocument);
+        return 1;
 
-	case wed_SelectZeroLength:	if(!WED_DoSelectZeroLength(mDocument))		DoUserAlert("Your project has no zero-length ATC routing lines.");	return 1;
-	case wed_SelectDoubles:		if(!WED_DoSelectDoubles(mDocument))			DoUserAlert("Your project has no doubled ATC routing nodes.");	return 1;
-	case wed_SelectCrossing:	if(!WED_DoSelectCrossing(mDocument))		DoUserAlert("Your project has no crossed ATC routing lines.");	return 1;
+    case wed_SelectZeroLength:
+        if (!WED_DoSelectZeroLength(mDocument))
+            DoUserAlert("Your project has no zero-length ATC routing lines.");
+        return 1;
+    case wed_SelectDoubles:
+        if (!WED_DoSelectDoubles(mDocument))
+            DoUserAlert("Your project has no doubled ATC routing nodes.");
+        return 1;
+    case wed_SelectCrossing:
+        if (!WED_DoSelectCrossing(mDocument))
+            DoUserAlert("Your project has no crossed ATC routing lines.");
+        return 1;
 
-	case wed_SelectLocalObjects:		WED_DoSelectLocalObjects(mDocument); return 1;
-	case wed_SelectLibraryObjects:		WED_DoSelectLibraryObjects(mDocument); return 1;
-	case wed_SelectDefaultObjects:		WED_DoSelectDefaultObjects(mDocument); return 1;
-	case wed_SelectThirdPartyObjects:	WED_DoSelectThirdPartyObjects(mDocument); return 1;
-	case wed_SelectMissingObjects:		WED_DoSelectMissingObjects(mDocument); return 1;
+    case wed_SelectLocalObjects:
+        WED_DoSelectLocalObjects(mDocument);
+        return 1;
+    case wed_SelectLibraryObjects:
+        WED_DoSelectLibraryObjects(mDocument);
+        return 1;
+    case wed_SelectDefaultObjects:
+        WED_DoSelectDefaultObjects(mDocument);
+        return 1;
+    case wed_SelectThirdPartyObjects:
+        WED_DoSelectThirdPartyObjects(mDocument);
+        return 1;
+    case wed_SelectMissingObjects:
+        WED_DoSelectMissingObjects(mDocument);
+        return 1;
 
-	case wed_UpdateMetadata:     WED_DoUpdateMetadata(mDocument); return 1;
-	case wed_ExportApt:		WED_DoExportApt(mDocument, mMapPane); return 1;
-	case wed_ExportPack:	WED_DoExportPack(mDocument, mMapPane); return 1;
+    case wed_UpdateMetadata:
+        WED_DoUpdateMetadata(mDocument);
+        return 1;
+    case wed_ExportApt:
+        WED_DoExportApt(mDocument, mMapPane);
+        return 1;
+    case wed_ExportPack:
+        WED_DoExportPack(mDocument, mMapPane);
+        return 1;
 #if HAS_GATEWAY
-	case wed_ExportToGateway:		WED_DoExportToGateway(mDocument); return 1;
+    case wed_ExportToGateway:
+        WED_DoExportToGateway(mDocument);
+        return 1;
 #endif
-	case wed_ImportApt:		WED_DoImportApt(mDocument,mDocument->GetArchive(), mMapPane); return 1;
-	case wed_ImportDSF:		WED_DoImportDSF(mDocument); return 1;
+    case wed_ImportApt:
+        WED_DoImportApt(mDocument, mDocument->GetArchive(), mMapPane);
+        return 1;
+    case wed_ImportDSF:
+        WED_DoImportDSF(mDocument);
+        return 1;
 #if ROAD_EDITING
-	case wed_ImportRoads:	WED_DoImportRoads(mDocument); return 1;
+    case wed_ImportRoads:
+        WED_DoImportRoads(mDocument);
+        return 1;
 #endif
-	case wed_ImportOrtho:
-		mMapPane->Map_HandleCommand(command);
-		return 1;
+    case wed_ImportOrtho:
+        mMapPane->Map_HandleCommand(command);
+        return 1;
 #if HAS_GATEWAY
-	case wed_ImportGateway: WED_DoImportFromGateway(mDocument, mMapPane); return 1;
+    case wed_ImportGateway:
+        WED_DoImportFromGateway(mDocument, mMapPane);
+        return 1;
 #endif
 #if GATEWAY_IMPORT_FEATURES
-	case wed_ImportGatewayExtract:	WED_DoImportDSFText(mDocument); return 1;
+    case wed_ImportGatewayExtract:
+        WED_DoImportDSFText(mDocument);
+        return 1;
 #endif
-	case wed_Validate:		if (WED_ValidateApt(mDocument, mMapPane) == validation_clean) DoUserAlert("Your layout is valid - no problems were found."); return 1;
+    case wed_Validate:
+        if (WED_ValidateApt(mDocument, mMapPane) == validation_clean)
+            DoUserAlert("Your layout is valid - no problems were found.");
+        return 1;
 
-	case wed_Export900:	 if (gExportTarget != wet_xplane_900) { gExportTarget = wet_xplane_900; mDocument->SetDirty(); Refresh(); } return 1;
-	case wed_Export1000: if (gExportTarget != wet_xplane_1000) { gExportTarget = wet_xplane_1000; mDocument->SetDirty(); Refresh(); } return 1;
-	case wed_Export1021: if (gExportTarget != wet_xplane_1021) { gExportTarget = wet_xplane_1021; mDocument->SetDirty(); Refresh(); } return 1;
-	case wed_Export1050: if (gExportTarget != wet_xplane_1050) { gExportTarget = wet_xplane_1050; mDocument->SetDirty(); Refresh(); } return 1;
-	case wed_Export1100: if (gExportTarget != wet_xplane_1100) { gExportTarget = wet_xplane_1100; mDocument->SetDirty(); Refresh(); } return 1;
-	case wed_Export1130: if (gExportTarget != wet_xplane_1130) { gExportTarget = wet_xplane_1130; mDocument->SetDirty(); Refresh(); } return 1;
-	case wed_Export1200: if (gExportTarget != wet_xplane_1200) { gExportTarget = wet_xplane_1200; mDocument->SetDirty(); Refresh(); } return 1;
-	case wed_ExportGateway:if (gExportTarget != wet_gateway) { gExportTarget = wet_gateway; mDocument->SetDirty(); Refresh(); } return 1;
+    case wed_Export900:
+        if (gExportTarget != wet_xplane_900)
+        {
+            gExportTarget = wet_xplane_900;
+            mDocument->SetDirty();
+            Refresh();
+        }
+        return 1;
+    case wed_Export1000:
+        if (gExportTarget != wet_xplane_1000)
+        {
+            gExportTarget = wet_xplane_1000;
+            mDocument->SetDirty();
+            Refresh();
+        }
+        return 1;
+    case wed_Export1021:
+        if (gExportTarget != wet_xplane_1021)
+        {
+            gExportTarget = wet_xplane_1021;
+            mDocument->SetDirty();
+            Refresh();
+        }
+        return 1;
+    case wed_Export1050:
+        if (gExportTarget != wet_xplane_1050)
+        {
+            gExportTarget = wet_xplane_1050;
+            mDocument->SetDirty();
+            Refresh();
+        }
+        return 1;
+    case wed_Export1100:
+        if (gExportTarget != wet_xplane_1100)
+        {
+            gExportTarget = wet_xplane_1100;
+            mDocument->SetDirty();
+            Refresh();
+        }
+        return 1;
+    case wed_Export1130:
+        if (gExportTarget != wet_xplane_1130)
+        {
+            gExportTarget = wet_xplane_1130;
+            mDocument->SetDirty();
+            Refresh();
+        }
+        return 1;
+    case wed_Export1200:
+        if (gExportTarget != wet_xplane_1200)
+        {
+            gExportTarget = wet_xplane_1200;
+            mDocument->SetDirty();
+            Refresh();
+        }
+        return 1;
+    case wed_ExportGateway:
+        if (gExportTarget != wet_gateway)
+        {
+            gExportTarget = wet_gateway;
+            mDocument->SetDirty();
+            Refresh();
+        }
+        return 1;
 
 #if WITHNWLINK
-	case wed_ToggleLiveView :
-		{
-			WED_Server * Serv = mDocument->GetServer();
-			if(Serv)
-			{
-				if	(Serv->IsStarted()) Serv->DoStop();
-				else					Serv->DoStart();
-			}
-		}
-		return 1;
+    case wed_ToggleLiveView: {
+        WED_Server* Serv = mDocument->GetServer();
+        if (Serv)
+        {
+            if (Serv->IsStarted())
+                Serv->DoStop();
+            else
+                Serv->DoStart();
+        }
+    }
+        return 1;
 #endif
-	default: return mMapPane->Map_HandleCommand(command);	break;
-	}
-	return 0;
+    default:
+        return mMapPane->Map_HandleCommand(command);
+        break;
+    }
+    return 0;
 }
 
-int	WED_DocumentWindow::CanHandleCommand(int command, std::string& ioName, int& ioCheck)
+int WED_DocumentWindow::CanHandleCommand(int command, std::string& ioName, int& ioCheck)
 {
-	WED_UndoMgr * um = mDocument->GetUndoMgr();
+    WED_UndoMgr* um = mDocument->GetUndoMgr();
 
-	//--Add Meta Data Sub Menu-----------------
-	if(command > wed_AddMetaDataBegin && command < wed_AddMetaDataEnd)
-	{
-		return WED_CanAddMetaData(mDocument, command);
-	}
-	//------------------------------------------//
+    //--Add Meta Data Sub Menu-----------------
+    if (command > wed_AddMetaDataBegin && command < wed_AddMetaDataEnd)
+    {
+        return WED_CanAddMetaData(mDocument, command);
+    }
+    //------------------------------------------//
 
-	switch(command) {
-	case wed_autoOpenLibPane:
-	case wed_autoOpenPropPane:
-	case wed_autoClosePane:
-	case wed_RestorePanes:	return 1;
-	case gui_Undo:		if (um->HasUndo())	{ ioName = um->GetUndoName();	return 1; }
-						else				{								return 0; }
-	case gui_Redo:		if (um->HasRedo())	{ ioName = um->GetRedoName();	return 1; }
-						else				{								return 0; }
-	case gui_Clear:		return	WED_CanClear(mDocument);
-	case wed_Crop:		return	WED_CanCrop(mDocument);
-	case wed_Merge:		return WED_CanMerge(mDocument);
-	case gui_Close:															return 1;
-	case wed_Split:		return WED_CanSplit(mDocument);
-	case wed_Align:		return WED_CanAlign(mDocument);
-	case wed_MatchBezierHandles:	return WED_CanMatchBezierHandles(mDocument);
-	case wed_Orthogonalize:	return WED_CanOrthogonalize(mDocument);
-	case wed_RegularPoly:	return WED_CanMakeRegularPoly(mDocument);
-	case wed_Reverse:	return WED_CanReverse(mDocument);
-	case wed_Rotate:	return WED_CanRotate(mDocument);
-    case wed_CopyToAirport: return WED_CanCopyToAirport(mDocument, ioName);
-	case gui_Duplicate:	return WED_CanDuplicate(mDocument);
-	case wed_Group:		return WED_CanGroup(mDocument);
-	case wed_Ungroup:	return WED_CanUngroup(mDocument);
-	case wed_ConvertToPolygon:	return WED_CanConvertTo(mDocument, WED_PolygonPlacement::sClass);
-	case wed_ConvertToTaxiway:	return WED_CanConvertTo(mDocument, WED_Taxiway::sClass);
-	case wed_ConvertToTaxiline:	return WED_CanConvertTo(mDocument, WED_AirportChain::sClass);
-	case wed_ConvertToLine:		return WED_CanConvertTo(mDocument, WED_LinePlacement::sClass);
-	case wed_ConvertToString:	return WED_CanConvertTo(mDocument, WED_StringPlacement::sClass);
-	case wed_ConvertToForest:	return WED_CanConvertTo(mDocument, WED_ForestPlacement::sClass);
+    switch (command)
+    {
+    case wed_autoOpenLibPane:
+    case wed_autoOpenPropPane:
+    case wed_autoClosePane:
+    case wed_RestorePanes:
+        return 1;
+    case gui_Undo:
+        if (um->HasUndo())
+        {
+            ioName = um->GetUndoName();
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
+    case gui_Redo:
+        if (um->HasRedo())
+        {
+            ioName = um->GetRedoName();
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
+    case gui_Clear:
+        return WED_CanClear(mDocument);
+    case wed_Crop:
+        return WED_CanCrop(mDocument);
+    case wed_Merge:
+        return WED_CanMerge(mDocument);
+    case gui_Close:
+        return 1;
+    case wed_Split:
+        return WED_CanSplit(mDocument);
+    case wed_Align:
+        return WED_CanAlign(mDocument);
+    case wed_MatchBezierHandles:
+        return WED_CanMatchBezierHandles(mDocument);
+    case wed_Orthogonalize:
+        return WED_CanOrthogonalize(mDocument);
+    case wed_RegularPoly:
+        return WED_CanMakeRegularPoly(mDocument);
+    case wed_Reverse:
+        return WED_CanReverse(mDocument);
+    case wed_Rotate:
+        return WED_CanRotate(mDocument);
+    case wed_CopyToAirport:
+        return WED_CanCopyToAirport(mDocument, ioName);
+    case gui_Duplicate:
+        return WED_CanDuplicate(mDocument);
+    case wed_Group:
+        return WED_CanGroup(mDocument);
+    case wed_Ungroup:
+        return WED_CanUngroup(mDocument);
+    case wed_ConvertToPolygon:
+        return WED_CanConvertTo(mDocument, WED_PolygonPlacement::sClass);
+    case wed_ConvertToTaxiway:
+        return WED_CanConvertTo(mDocument, WED_Taxiway::sClass);
+    case wed_ConvertToTaxiline:
+        return WED_CanConvertTo(mDocument, WED_AirportChain::sClass);
+    case wed_ConvertToLine:
+        return WED_CanConvertTo(mDocument, WED_LinePlacement::sClass);
+    case wed_ConvertToString:
+        return WED_CanConvertTo(mDocument, WED_StringPlacement::sClass);
+    case wed_ConvertToForest:
+        return WED_CanConvertTo(mDocument, WED_ForestPlacement::sClass);
 
-	case wed_TogglePreviewWindow:	ioCheck = mMapPreviewWindow->IsVisible(); return 1;
-	case wed_ShowMapAreaInPreviewWindow:	return 1;
-	case wed_CenterMapOnPreviewCamera:	return 1;
+    case wed_TogglePreviewWindow:
+        ioCheck = mMapPreviewWindow->IsVisible();
+        return 1;
+    case wed_ShowMapAreaInPreviewWindow:
+        return 1;
+    case wed_CenterMapOnPreviewCamera:
+        return 1;
 
-	case wed_AddATCFreq:return WED_CanMakeNewATCFreq(mDocument);
-	case wed_AddATCFlow:return WED_CanMakeNewATCFlow(mDocument);
-	case wed_AddATCRunwayUse:return WED_CanMakeNewATCRunwayUse(mDocument);
-	case wed_AddATCTimeRule: return WED_CanMakeNewATCTimeRule(mDocument);
-	case wed_AddATCWindRule: return WED_CanMakeNewATCWindRule(mDocument);
-	case wed_UpgradeRamps:	 return 1;
-	case wed_UpgradeJetways: return 1;
-	case wed_AgePavement:	 return 1;
-	case wed_EdgePavement:   return 0;    //  still Todo !!!!
-	case wed_MowGrass:       return 1;
+    case wed_AddATCFreq:
+        return WED_CanMakeNewATCFreq(mDocument);
+    case wed_AddATCFlow:
+        return WED_CanMakeNewATCFlow(mDocument);
+    case wed_AddATCRunwayUse:
+        return WED_CanMakeNewATCRunwayUse(mDocument);
+    case wed_AddATCTimeRule:
+        return WED_CanMakeNewATCTimeRule(mDocument);
+    case wed_AddATCWindRule:
+        return WED_CanMakeNewATCWindRule(mDocument);
+    case wed_UpgradeRamps:
+        return 1;
+    case wed_UpgradeJetways:
+        return 1;
+    case wed_AgePavement:
+        return 1;
+    case wed_EdgePavement:
+        return 0; //  still Todo !!!!
+    case wed_MowGrass:
+        return 1;
 
+    case wed_CreateApt:
+        return WED_CanMakeNewAirport(mDocument);
+    case wed_EditApt:
+        return WED_CanSetCurrentAirport(mDocument, ioName);
+    case wed_UpdateMetadata:
+        return WED_CanUpdateMetadata(mDocument);
+    case wed_MoveFirst:
+        return WED_CanReorder(mDocument, -1, 1);
+    case wed_MovePrev:
+        return WED_CanReorder(mDocument, -1, 0);
+    case wed_MoveNext:
+        return WED_CanReorder(mDocument, 1, 0);
+    case wed_MoveLast:
+        return WED_CanReorder(mDocument, 1, 1);
+    case wed_BreakApartAgps:
+        return WED_CanBreakApartAgps(mDocument);
+    case wed_ReplaceVehicleObj:
+        return WED_CanReplaceVehicleObj(WED_GetCurrentAirport(mDocument));
+    case gui_Save:
+        return mDocument->IsDirty();
+    case gui_Revert:
+        return mDocument->IsDirty() && mDocument->IsOnDisk();
 
-	case wed_CreateApt:	return WED_CanMakeNewAirport(mDocument);
-	case wed_EditApt:	return WED_CanSetCurrentAirport(mDocument, ioName);
-	case wed_UpdateMetadata:     return WED_CanUpdateMetadata(mDocument);
-	case wed_MoveFirst:	return WED_CanReorder(mDocument,-1,1);
-	case wed_MovePrev:	return WED_CanReorder(mDocument,-1,0);
-	case wed_MoveNext:	return WED_CanReorder(mDocument, 1,0);
-	case wed_MoveLast:	return WED_CanReorder(mDocument, 1,1);
-	case wed_BreakApartAgps: return WED_CanBreakApartAgps(mDocument);
-	case wed_ReplaceVehicleObj:  return WED_CanReplaceVehicleObj(WED_GetCurrentAirport(mDocument));
-	case gui_Save:		return mDocument->IsDirty();
-	case gui_Revert:	return mDocument->IsDirty() && mDocument->IsOnDisk();
+    case gui_SelectAll:
+        return WED_CanSelectAll(mDocument);
+    case gui_SelectNone:
+        return WED_CanSelectNone(mDocument);
+    case wed_SelectParent:
+        return WED_CanSelectParent(mDocument);
+    case wed_SelectChild:
+        return WED_CanSelectChildren(mDocument);
+    case wed_SelectVertex:
+        return WED_CanSelectVertices(mDocument);
+    case wed_SelectPoly:
+        return WED_CanSelectPolygon(mDocument);
+    case wed_SelectConnected:
+        return WED_CanSelectConnected(mDocument);
 
-	case gui_SelectAll:		return WED_CanSelectAll(mDocument);
-	case gui_SelectNone:	return WED_CanSelectNone(mDocument);
-	case wed_SelectParent:	return WED_CanSelectParent(mDocument);
-	case wed_SelectChild:	return WED_CanSelectChildren(mDocument);
-	case wed_SelectVertex:	return WED_CanSelectVertices(mDocument);
-	case wed_SelectPoly:	return WED_CanSelectPolygon(mDocument);
-	case wed_SelectConnected:	return WED_CanSelectConnected(mDocument);
+    case wed_SelectZeroLength:
+    case wed_SelectDoubles:
+    case wed_SelectCrossing:
+    case wed_SelectLocalObjects:
+    case wed_SelectLibraryObjects:
+    case wed_SelectDefaultObjects:
+    case wed_SelectThirdPartyObjects:
+    case wed_SelectMissingObjects:
+        return 1;
 
-	case wed_SelectZeroLength:
-	case wed_SelectDoubles:
-	case wed_SelectCrossing:
-	case wed_SelectLocalObjects:
-	case wed_SelectLibraryObjects:
-	case wed_SelectDefaultObjects:
-	case wed_SelectThirdPartyObjects:
-	case wed_SelectMissingObjects:	return 1;
-
-	case wed_ExportApt:		return WED_CanExportApt(mDocument);
-	case wed_ExportPack:	return WED_CanExportPack(mDocument, ioName);
+    case wed_ExportApt:
+        return WED_CanExportApt(mDocument);
+    case wed_ExportPack:
+        return WED_CanExportPack(mDocument, ioName);
 #if HAS_GATEWAY
-	case wed_ExportToGateway:	return WED_CanExportToGateway(mDocument);
+    case wed_ExportToGateway:
+        return WED_CanExportToGateway(mDocument);
 #endif
-	case wed_ImportApt:		return WED_CanImportApt(mDocument);
-	case wed_ImportDSF:		return WED_CanImportDSF(mDocument);
+    case wed_ImportApt:
+        return WED_CanImportApt(mDocument);
+    case wed_ImportDSF:
+        return WED_CanImportDSF(mDocument);
 #if ROAD_EDITING
-	case wed_ImportRoads:	return WED_CanImportRoads(mDocument);
+    case wed_ImportRoads:
+        return WED_CanImportRoads(mDocument);
 #endif
-	case wed_ImportOrtho:	return 1;
+    case wed_ImportOrtho:
+        return 1;
 #if HAS_GATEWAY
-	case wed_ImportGateway:	return WED_CanImportFromGateway(mDocument);
+    case wed_ImportGateway:
+        return WED_CanImportFromGateway(mDocument);
 #if GATEWAY_IMPORT_FEATURES
-	case wed_ImportGatewayExtract: return gModeratorMode || TYLER_MODE;
+    case wed_ImportGatewayExtract:
+        return gModeratorMode || TYLER_MODE;
 #endif
 #endif
-	case wed_Validate:		return 1;
+    case wed_Validate:
+        return 1;
 
-	case wed_Export900:	ioCheck = gExportTarget == wet_xplane_900;	return 1;
-	case wed_Export1000:ioCheck = gExportTarget == wet_xplane_1000;	return 1;
-	case wed_Export1021:ioCheck = gExportTarget == wet_xplane_1021;	return 1;
-	case wed_Export1050:ioCheck = gExportTarget == wet_xplane_1050;	return 1;
-	case wed_Export1100:ioCheck = gExportTarget == wet_xplane_1100;	return 1;
-	case wed_Export1130:ioCheck = gExportTarget == wet_xplane_1130;	return 1;
-	case wed_Export1200:ioCheck = gExportTarget == wet_xplane_1200;	return 1;
+    case wed_Export900:
+        ioCheck = gExportTarget == wet_xplane_900;
+        return 1;
+    case wed_Export1000:
+        ioCheck = gExportTarget == wet_xplane_1000;
+        return 1;
+    case wed_Export1021:
+        ioCheck = gExportTarget == wet_xplane_1021;
+        return 1;
+    case wed_Export1050:
+        ioCheck = gExportTarget == wet_xplane_1050;
+        return 1;
+    case wed_Export1100:
+        ioCheck = gExportTarget == wet_xplane_1100;
+        return 1;
+    case wed_Export1130:
+        ioCheck = gExportTarget == wet_xplane_1130;
+        return 1;
+    case wed_Export1200:
+        ioCheck = gExportTarget == wet_xplane_1200;
+        return 1;
 
-	case wed_ExportGateway:ioCheck = gExportTarget == wet_gateway;	return 1;
+    case wed_ExportGateway:
+        ioCheck = gExportTarget == wet_gateway;
+        return 1;
 
 #if WITHNWLINK
-	case wed_ToggleLiveView :
-		{
-			WED_Server * Serv = mDocument->GetServer();
-			if (Serv) {ioCheck = Serv->IsStarted(); return 1;}
-			ioCheck = false;
-		}
-		return 0;
+    case wed_ToggleLiveView: {
+        WED_Server* Serv = mDocument->GetServer();
+        if (Serv)
+        {
+            ioCheck = Serv->IsStarted();
+            return 1;
+        }
+        ioCheck = false;
+    }
+        return 0;
 #endif
-	default: return mMapPane->Map_CanHandleCommand(command, ioName, ioCheck);
-	}
+    default:
+        return mMapPane->Map_CanHandleCommand(command, ioName, ioCheck);
+    }
 }
 
-void	WED_DocumentWindow::ReceiveMessage(
-				GUI_Broadcaster *		inSrc,
-				intptr_t				inMsg,
-				intptr_t				inParam)
+void WED_DocumentWindow::ReceiveMessage(GUI_Broadcaster* inSrc, intptr_t inMsg, intptr_t inParam)
 {
-	if(inMsg == msg_DocumentDestroyed)
-		delete this;
-	else if(inMsg == msg_DocWillSave)
-	{
-		IDocPrefs * prefs = reinterpret_cast<IDocPrefs *>(inParam);
-		mMapPane->ToPrefs(prefs);
-		mMapPreviewPane->ToPrefs(prefs);
-		mMapPreviewWindow->ToPrefs(prefs);
-		mPropPane->ToPrefs(prefs,0);
+    if (inMsg == msg_DocumentDestroyed)
+        delete this;
+    else if (inMsg == msg_DocWillSave)
+    {
+        IDocPrefs* prefs = reinterpret_cast<IDocPrefs*>(inParam);
+        mMapPane->ToPrefs(prefs);
+        mMapPreviewPane->ToPrefs(prefs);
+        mMapPreviewWindow->ToPrefs(prefs);
+        mPropPane->ToPrefs(prefs, 0);
 
-		// not writing doc/use_feet any more. Its a global preference now.
-		prefs->WriteIntPref("doc/export_target",gExportTarget);
-		// minimum WED version expected to read this .xml correctly
-		// endcding: 100x WED major version + 1 x middle version number
-		//  8.33k freqs added in 2.0 are fine back to at least 1.5, saved with 3 decimal places ever since
-		//  WED 1.7 added new airport line marking styles
-		//  WED 2.3 added set_AGL commands
-		//  WED 2.5 added new export version, new runway/taxiway properties and enums
-//		if(docHas_SetAGL())
-			prefs->WriteIntPref("doc/xml_compatibility",205);
-//		else
-//			prefs->WriteIntPref("doc/xml_compatibility",107);
-		prefs->WriteIntPref("window/main_split",mMainSplitter->GetSplitPoint());
-		prefs->WriteIntPref("window/main_split2",mMainSplitter2->GetSplitPoint());
-		prefs->WriteIntPref("window/prop_split",mPropSplitter->GetSplitPoint());
-		prefs->WriteIntPref("window/prev_split",mLibSplitter->GetSplitPoint());
+        // not writing doc/use_feet any more. Its a global preference now.
+        prefs->WriteIntPref("doc/export_target", gExportTarget);
+        // minimum WED version expected to read this .xml correctly
+        // endcding: 100x WED major version + 1 x middle version number
+        //  8.33k freqs added in 2.0 are fine back to at least 1.5, saved with 3 decimal places ever since
+        //  WED 1.7 added new airport line marking styles
+        //  WED 2.3 added set_AGL commands
+        //  WED 2.5 added new export version, new runway/taxiway properties and enums
+        //		if(docHas_SetAGL())
+        prefs->WriteIntPref("doc/xml_compatibility", 205);
+        //		else
+        //			prefs->WriteIntPref("doc/xml_compatibility",107);
+        prefs->WriteIntPref("window/main_split", mMainSplitter->GetSplitPoint());
+        prefs->WriteIntPref("window/main_split2", mMainSplitter2->GetSplitPoint());
+        prefs->WriteIntPref("window/prop_split", mPropSplitter->GetSplitPoint());
+        prefs->WriteIntPref("window/prev_split", mLibSplitter->GetSplitPoint());
 
-		int xy[2];
-		int zw[2];
-		XWin::GetBounds(zw,zw+1);
-		XWin::GetWindowLoc(xy,xy+1);
+        int xy[2];
+        int zw[2];
+        XWin::GetBounds(zw, zw + 1);
+        XWin::GetWindowLoc(xy, xy + 1);
 
-		prefs->WriteIntPref("window/x_loc",xy[0]);
-		prefs->WriteIntPref("window/y_loc",xy[1]);
-		prefs->WriteIntPref("window/width",zw[0]);
-		prefs->WriteIntPref("window/height",zw[1]);
-		XWin::SetFilePath(NULL,false);
-	}
-	else if(inMsg == msg_DocLoaded)
-	{
-		IDocPrefs * prefs = reinterpret_cast<IDocPrefs *>(inParam);
-		mMapPane->FromPrefs(prefs);
-		mMapPreviewWindow->FromPrefs(prefs);
-		mMapPreviewPane->FromPrefs(prefs);
-		mPropPane->FromPrefs(prefs,0);
+        prefs->WriteIntPref("window/x_loc", xy[0]);
+        prefs->WriteIntPref("window/y_loc", xy[1]);
+        prefs->WriteIntPref("window/width", zw[0]);
+        prefs->WriteIntPref("window/height", zw[1]);
+        XWin::SetFilePath(NULL, false);
+    }
+    else if (inMsg == msg_DocLoaded)
+    {
+        IDocPrefs* prefs = reinterpret_cast<IDocPrefs*>(inParam);
+        mMapPane->FromPrefs(prefs);
+        mMapPreviewWindow->FromPrefs(prefs);
+        mMapPreviewPane->FromPrefs(prefs);
+        mPropPane->FromPrefs(prefs, 0);
 
-		// doc/use_feet and doc/InfoDMS are global only preferences now, not read from each document any more
-	#if TYLER_MODE == 11
-		gExportTarget = wet_xplane_1130;
-	#elif TYLER_MODE
-		gExportTarget = wet_latest_xplane;
-	#else
-		gExportTarget = (WED_Export_Target) mDocument->ReadIntPref("doc/export_target",gExportTarget);
-		if (gExportTarget > wet_latest_xplane && gExportTarget != wet_gateway)
-			gExportTarget = wet_latest_xplane;
-	#endif
-		XWin::SetFilePath(NULL,mDocument->IsDirty());
-	}
-	else if(inMsg == msg_ArchiveChanged)
-		XWin::SetFilePath(NULL,mDocument->IsDirty());
+        // doc/use_feet and doc/InfoDMS are global only preferences now, not read from each document any more
+#if TYLER_MODE == 11
+        gExportTarget = wet_xplane_1130;
+#elif TYLER_MODE
+        gExportTarget = wet_latest_xplane;
+#else
+        gExportTarget = (WED_Export_Target)mDocument->ReadIntPref("doc/export_target", gExportTarget);
+        if (gExportTarget > wet_latest_xplane && gExportTarget != wet_gateway)
+            gExportTarget = wet_latest_xplane;
+#endif
+        XWin::SetFilePath(NULL, mDocument->IsDirty());
+    }
+    else if (inMsg == msg_ArchiveChanged)
+        XWin::SetFilePath(NULL, mDocument->IsDirty());
 }
 
-bool	WED_DocumentWindow::Closed(void)
+bool WED_DocumentWindow::Closed(void)
 {
-	mDocument->TryClose();
-	return false;
+    mDocument->TryClose();
+    return false;
 }
-

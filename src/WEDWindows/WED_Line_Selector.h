@@ -30,44 +30,55 @@
 
 class GUI_GraphState;
 
-struct entry {
-	std::string	name;
-	bool	checked;
-	int		enu;
-	entry(const char * c = "") : name(c), checked(false), enu(-1) {}
+struct entry
+{
+    std::string name;
+    bool checked;
+    int enu;
+    entry(const char* c = "") : name(c), checked(false), enu(-1)
+    {
+    }
 };
 
-//class WED_Line_Selector : public GUI_Pane, public GUI_Commander {
-class WED_Line_Selector : public GUI_EditorInsert {
+// class WED_Line_Selector : public GUI_Pane, public GUI_Commander {
+class WED_Line_Selector : public GUI_EditorInsert
+{
 public:
-			WED_Line_Selector(GUI_Commander * parent, const GUI_EnumDictionary& dict);
+    WED_Line_Selector(GUI_Commander* parent, const GUI_EnumDictionary& dict);
 
-	void	Draw(GUI_GraphState * state) override;
+    void Draw(GUI_GraphState* state) override;
 
-	int		MouseDown(int x, int y, int button) override;
-	int		MouseMove(int x, int y) override;
+    int MouseDown(int x, int y, int button) override;
+    int MouseMove(int x, int y) override;
 
-	int		GetCursor(int x, int y) override { return gui_Cursor_Arrow; } // prevents cursor being affected by elements in underlyig windows
+    int GetCursor(int x, int y) override
+    {
+        return gui_Cursor_Arrow;
+    } // prevents cursor being affected by elements in underlyig windows
 
-	bool	SetData(const GUI_CellContent& c) override;
-	void	GetData(GUI_CellContent& c) override;
-	void	GetSizeHint(int * w, int * h) override;
+    bool SetData(const GUI_CellContent& c) override;
+    void GetData(GUI_CellContent& c) override;
+    void GetSizeHint(int* w, int* h) override;
 
 protected:
-
-	int		AcceptTakeFocus() override { return 1; }
-	int		AcceptLoseFocus(int force) override { return 1; }
-	int		HandleKeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFlags) override;
+    int AcceptTakeFocus() override
+    {
+        return 1;
+    }
+    int AcceptLoseFocus(int force) override
+    {
+        return 1;
+    }
+    int HandleKeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFlags) override;
 
 private:
-
 #define LINESEL_MAX_ROWS 40
-	entry			mDict[LINESEL_MAX_ROWS][2];
-	int				mColWidth[2];
+    entry mDict[LINESEL_MAX_ROWS][2];
+    int mColWidth[2];
 
-	int 			mChoice;
-	int				mR, mC;
-	int				mRows, mCols;
+    int mChoice;
+    int mR, mC;
+    int mRows, mCols;
 };
 
 #endif /* WED_Line_Selector_h */

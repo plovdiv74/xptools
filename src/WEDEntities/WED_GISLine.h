@@ -29,45 +29,44 @@
 
 /*
 
-	NOTE:  WED_GisLine has a constant number of points, so it does not cache its bounding box.  If we find that we have a performance problem
-	we can add this, but since the access time to find the real bounding box is a constant-multiple of the cache time, it seems unlikely
-	that caching is needed.  (Unlike a taxiway with 800 points.)
+    NOTE:  WED_GisLine has a constant number of points, so it does not cache its bounding box.  If we find that we have
+   a performance problem we can add this, but since the access time to find the real bounding box is a constant-multiple
+   of the cache time, it seems unlikely that caching is needed.  (Unlike a taxiway with 800 points.)
 
 */
 
-class	WED_GISLine : public WED_Entity, public virtual IGISLine {
+class WED_GISLine : public WED_Entity, public virtual IGISLine
+{
 
-DECLARE_INTERMEDIATE(WED_GISLine)
+    DECLARE_INTERMEDIATE(WED_GISLine)
 
 public:
+    // IGISEntity
+    virtual GISClass_t GetGISClass(void) const;
+    virtual const char* GetGISSubtype(void) const;
+    virtual bool HasLayer(GISLayer_t l) const;
+    virtual void GetBounds(GISLayer_t l, Bbox2& bounds) const;
+    virtual bool IntersectsBox(GISLayer_t l, const Bbox2& bounds) const;
+    virtual bool WithinBox(GISLayer_t l, const Bbox2& bounds) const;
+    virtual bool PtWithin(GISLayer_t l, const Point2& p) const;
+    virtual bool PtOnFrame(GISLayer_t l, const Point2& p, double dist) const;
+    virtual bool Cull(const Bbox2& bounds) const;
+    virtual void Rescale(GISLayer_t l, const Bbox2& old_bounds, const Bbox2& new_bounds);
+    virtual void Rotate(GISLayer_t l, const Point2& center, double angle);
+    // IGISPointSequence
+    virtual int GetNumPoints(void) const;
+    //	virtual	void				DeletePoint (int n)		 ;
+    virtual IGISPoint* SplitSide(const Point2& p, double dist);
+    virtual IGISPoint* GetNthPoint(int n) const;
+    virtual int GetNumSides(void) const;
+    virtual bool GetSide(GISLayer_t l, int n, Bezier2& b) const; // true for bezier
 
-	// IGISEntity
-	virtual	GISClass_t		GetGISClass		(void				 ) const;
-	virtual	const char *	GetGISSubtype	(void				 ) const;
-	virtual	bool			HasLayer		(GISLayer_t l		 ) const;
-	virtual	void			GetBounds		(GISLayer_t l,	    Bbox2&  bounds) const;
-	virtual	bool			IntersectsBox	(GISLayer_t l,const Bbox2&  bounds) const;
-	virtual	bool			WithinBox		(GISLayer_t l,const Bbox2&  bounds) const;
-	virtual bool			PtWithin		(GISLayer_t l,const Point2& p	 ) const;
-	virtual bool			PtOnFrame		(GISLayer_t l,const Point2& p, double dist) const;
-	virtual bool			Cull			(const Bbox2& bounds) const;
-	virtual	void			Rescale			(GISLayer_t l,const Bbox2& old_bounds,const Bbox2& new_bounds);
-	virtual	void			Rotate			(GISLayer_t l,const Point2& center, double angle);
-	// IGISPointSequence
-	virtual	int					GetNumPoints(void ) const;
-//	virtual	void				DeletePoint (int n)		 ;
-	virtual		  IGISPoint *	SplitSide   (const Point2& p, double dist);
-	virtual		  IGISPoint *	GetNthPoint (int n) const;
-	virtual	int					GetNumSides(void) const;
-	virtual	bool				GetSide  (GISLayer_t l,int n, Bezier2& b) const;	// true for bezier
-
-	virtual	bool				IsClosed(void) const;
-	//IGISLine
-	virtual		  IGISPoint *		GetSource(void)	const;
-	virtual		  IGISPoint *		GetTarget(void)	const;
-	virtual		  void				Reverse(GISLayer_t l);
-	virtual		  void				Shuffle(GISLayer_t l);
-
+    virtual bool IsClosed(void) const;
+    // IGISLine
+    virtual IGISPoint* GetSource(void) const;
+    virtual IGISPoint* GetTarget(void) const;
+    virtual void Reverse(GISLayer_t l);
+    virtual void Shuffle(GISLayer_t l);
 };
 
 #endif /* WED_GISLINE_H */

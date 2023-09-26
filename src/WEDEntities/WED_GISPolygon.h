@@ -29,54 +29,53 @@
 
 /*
 
-	WED_GISPolygon has no cache because:
+    WED_GISPolygon has no cache because:
 
-	- It has exactly one outer ring.
-	- Its bounding box is exactly the same as the outer ring.
+    - It has exactly one outer ring.
+    - Its bounding box is exactly the same as the outer ring.
 
-	Thus it can simply access the outer ring's bounding box in constant time.  If thist proves to be a performance problem we can copy
-	the cache out.
+    Thus it can simply access the outer ring's bounding box in constant time.  If thist proves to be a performance
+   problem we can copy the cache out.
 
 */
 
-class	WED_GISPolygon : public WED_Entity, public virtual IGISPolygon, public virtual IGISComposite {
+class WED_GISPolygon : public WED_Entity, public virtual IGISPolygon, public virtual IGISComposite
+{
 
-DECLARE_INTERMEDIATE(WED_GISPolygon)
+    DECLARE_INTERMEDIATE(WED_GISPolygon)
 
 public:
+    // IGISEntity
+    virtual GISClass_t GetGISClass(void) const;
+    virtual const char* GetGISSubtype(void) const;
+    virtual bool HasLayer(GISLayer_t l) const;
+    virtual void GetBounds(GISLayer_t l, Bbox2& bounds) const;
+    virtual bool IntersectsBox(GISLayer_t l, const Bbox2& bounds) const;
+    virtual bool WithinBox(GISLayer_t l, const Bbox2& bounds) const;
+    virtual bool PtWithin(GISLayer_t l, const Point2& p) const;
+    virtual bool PtOnFrame(GISLayer_t l, const Point2& p, double d) const;
+    virtual bool Cull(const Bbox2& bounds) const;
+    virtual void Rescale(GISLayer_t l, const Bbox2& old_bounds, const Bbox2& new_bounds);
+    virtual void Rotate(GISLayer_t l, const Point2& center, double angle);
+    // IGISPolygon
+    virtual IGISPointSequence* GetOuterRing(void) const;
+    virtual int GetNumHoles(void) const;
+    virtual IGISPointSequence* GetNthHole(int n) const;
 
-	// IGISEntity
-	virtual	GISClass_t		GetGISClass		(void				 ) const;
-	virtual	const char *	GetGISSubtype	(void				 ) const;
-	virtual	bool			HasLayer		(GISLayer_t l		 ) const;
-	virtual	void			GetBounds		(GISLayer_t l,	    Bbox2&  bounds) const;
-	virtual	bool			IntersectsBox	(GISLayer_t l,const Bbox2&  bounds) const;
-	virtual	bool			WithinBox		(GISLayer_t l,const Bbox2&  bounds) const;
-	virtual bool			PtWithin		(GISLayer_t l,const Point2& p	 ) const;
-	virtual bool			PtOnFrame		(GISLayer_t l,const Point2& p, double d) const;
-	virtual bool			Cull			(const Bbox2& bounds) const;
-	virtual	void			Rescale			(GISLayer_t l,const Bbox2& old_bounds,const Bbox2& new_bounds);
-	virtual	void			Rotate			(GISLayer_t l,const Point2& center, double angle);
-	// IGISPolygon
-	virtual			IGISPointSequence *		GetOuterRing(void )	const;
-	virtual			int						GetNumHoles (void ) const;
-	virtual			IGISPointSequence *		GetNthHole  (int n)	const;
+    virtual void DeleteHole(int n);
+    virtual void AddHole(IGISPointSequence* r);
+    virtual void Reverse(GISLayer_t l);
+    virtual void Shuffle(GISLayer_t l);
 
-	virtual			void	DeleteHole  (int n)					;
-	virtual			void	AddHole		(IGISPointSequence * r) ;
-	virtual			void	Reverse(GISLayer_t l);
-	virtual			void	Shuffle(GISLayer_t l);
+    // IGISComposite
+    virtual int GetNumEntities(void) const;
+    virtual IGISEntity* GetNthEntity(int n) const;
 
-	// IGISComposite
-	virtual	int				GetNumEntities(void ) const;
-	virtual	IGISEntity *	GetNthEntity  (int n) const;
-	
-						bool	Overlaps(GISLayer_t l, const Polygon2& inPolyNoHoles) const;        // a regular polygon, NOT having any holes. E.g. runway outlines
+    bool Overlaps(GISLayer_t l,
+                  const Polygon2& inPolyNoHoles) const; // a regular polygon, NOT having any holes. E.g. runway outlines
 protected:
-
-	// interior filled?  Normal answer is true!  But if false, we act like a container of rings, not a polygon.
-	virtual	bool			IsInteriorFilled(void) const=0;
-
+    // interior filled?  Normal answer is true!  But if false, we act like a container of rings, not a polygon.
+    virtual bool IsInteriorFilled(void) const = 0;
 };
 
 #endif /* WED_GISPOLYGON_H */

@@ -23,16 +23,15 @@
 
 #include "WED_TCEToolNew.h"
 
-
-WED_TCEToolNew::WED_TCEToolNew(const char * tname, GUI_Pane * h, WED_MapZoomerNew * z, IResolver * i) : WED_TCELayer(h, z, i), tool_name(tname)
+WED_TCEToolNew::WED_TCEToolNew(const char* tname, GUI_Pane* h, WED_MapZoomerNew* z, IResolver* i)
+    : WED_TCELayer(h, z, i), tool_name(tname)
 {
 }
 
 WED_TCEToolNew::~WED_TCEToolNew()
 {
 }
-const char *	WED_TCEToolNew::GetToolName(void) const
+const char* WED_TCEToolNew::GetToolName(void) const
 {
-	return tool_name.c_str();
+    return tool_name.c_str();
 }
-

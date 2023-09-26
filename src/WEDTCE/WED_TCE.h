@@ -24,71 +24,64 @@
 #ifndef WED_TCE_H
 #define WED_TCE_H
 
-class	WED_TCEToolNew;
-class	WED_TCELayer;
+class WED_TCEToolNew;
+class WED_TCELayer;
 #include "ITexMgr.h"
-class	IResolver;
-class	ISelection;
-class	IGISEntity;
-
+class IResolver;
+class ISelection;
+class IGISEntity;
 
 #include "GUI_Pane.h"
 #include "WED_MapZoomerNew.h"
 #include "GUI_Listener.h"
 #include <stdint.h>
 
-class WED_TCE : public GUI_Pane, public WED_MapZoomerNew, public GUI_Listener {
+class WED_TCE : public GUI_Pane, public WED_MapZoomerNew, public GUI_Listener
+{
 public:
+    WED_TCE(IResolver* in_resolver);
+    virtual ~WED_TCE();
 
-						 WED_TCE(IResolver * in_resolver);
-	virtual				~WED_TCE();
+    void SetTool(WED_TCEToolNew* tool);
+    void AddLayer(WED_TCELayer* layer);
 
-			void		SetTool(WED_TCEToolNew * tool);
-			void		AddLayer(WED_TCELayer * layer);
+    virtual void SetBounds(int x1, int y1, int x2, int y2);
+    virtual void SetBounds(int inBounds[4]);
 
-	virtual void		SetBounds(int x1, int y1, int x2, int y2);
-	virtual void		SetBounds(int inBounds[4]);
+    virtual void Draw(GUI_GraphState* state);
 
-	virtual	void		Draw(GUI_GraphState * state);
+    virtual int MouseDown(int x, int y, int button);
+    virtual void MouseDrag(int x, int y, int button);
+    virtual void MouseUp(int x, int y, int button);
+    virtual int MouseMove(int x, int y);
+    virtual int ScrollWheel(int x, int y, int dist, int axis);
 
-	virtual	int			MouseDown(int x, int y, int button);
-	virtual	void		MouseDrag(int x, int y, int button);
-	virtual	void		MouseUp  (int x, int y, int button);
-	virtual	int			MouseMove(int x, int y);
-	virtual	int			ScrollWheel(int x, int y, int dist, int axis);
+    virtual int HandleKeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFlags);
 
-	virtual	int			HandleKeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFlags);
-
-	virtual	void		ReceiveMessage(
-							GUI_Broadcaster *		inSrc,
-							intptr_t				inMsg,
-							intptr_t				inParam);
+    virtual void ReceiveMessage(GUI_Broadcaster* inSrc, intptr_t inMsg, intptr_t inParam);
 
 private:
+    IGISEntity* GetGISBase();
+    ISelection* GetSel();
 
-		IGISEntity *	GetGISBase();
-		ISelection *	GetSel();
+    TexRef mTex;
+    bool mKillAlpha;
+    bool mWrap;
 
-		TexRef			mTex;
-		bool			mKillAlpha;
-		bool			mWrap;
+    std::vector<WED_TCELayer*> mLayers;
+    WED_TCEToolNew* mTool;
+    IResolver* mResolver;
 
-	std::vector<WED_TCELayer *>			mLayers;
-	WED_TCEToolNew *				mTool;
-	IResolver *						mResolver;
+    int mIsToolClick;
+    int mX;
+    int mY;
 
-	int				mIsToolClick;
-	int				mX;
-	int				mY;
+    int mX_Orig;
+    int mY_Orig;
+    int mIsDownCount;
+    int mIsDownExtraCount;
 
-	int				mX_Orig;
-	int				mY_Orig;
-	int				mIsDownCount;
-	int				mIsDownExtraCount;
-
-	void	CalcBgknd(void);
-
+    void CalcBgknd(void);
 };
-
 
 #endif /* WED_TCE_H */

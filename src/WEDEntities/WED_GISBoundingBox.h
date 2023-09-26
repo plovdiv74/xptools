@@ -27,37 +27,35 @@
 #include "WED_Entity.h"
 #include "IGIS.h"
 
-class WED_GISBoundingBox : public WED_Entity, public virtual IGISBoundingBox, public virtual IGISQuad {
+class WED_GISBoundingBox : public WED_Entity, public virtual IGISBoundingBox, public virtual IGISQuad
+{
 
-DECLARE_INTERMEDIATE(WED_GISBoundingBox)
+    DECLARE_INTERMEDIATE(WED_GISBoundingBox)
 
 public:
+    // IGISEntity
+    virtual GISClass_t GetGISClass(void) const;
+    virtual const char* GetGISSubtype(void) const;
+    virtual bool HasLayer(GISLayer_t l) const;
+    virtual void GetBounds(GISLayer_t l, Bbox2& bounds) const;
+    virtual bool IntersectsBox(GISLayer_t l, const Bbox2& bounds) const;
+    virtual bool WithinBox(GISLayer_t l, const Bbox2& bounds) const;
+    virtual bool PtWithin(GISLayer_t l, const Point2& p) const;
+    virtual bool PtOnFrame(GISLayer_t l, const Point2& p, double d) const;
+    virtual bool Cull(const Bbox2& bounds) const;
+    virtual void Rescale(GISLayer_t l, const Bbox2& old_bounds, const Bbox2& new_bounds);
+    virtual void Rotate(GISLayer_t l, const Point2& center, double angle);
 
-	// IGISEntity
-	virtual	GISClass_t		GetGISClass		(void				 ) const;
-	virtual	const char *	GetGISSubtype	(void				 ) const;
-	virtual	bool			HasLayer		(GISLayer_t l		 ) const;
-	virtual	void			GetBounds		(GISLayer_t l,	   Bbox2&  bounds) const;
-	virtual	bool			IntersectsBox	(GISLayer_t l,const Bbox2&  bounds) const;
-	virtual	bool			WithinBox		(GISLayer_t l,const Bbox2&  bounds) const;
-	virtual bool			PtWithin		(GISLayer_t l,const Point2& p	 ) const;
-	virtual bool			PtOnFrame		(GISLayer_t l,const Point2& p, double d) const;
-	virtual bool			Cull			(const Bbox2& bounds) const;
-	virtual	void			Rescale			(GISLayer_t l,const Bbox2& old_bounds,const Bbox2& new_bounds);
-	virtual	void			Rotate			(GISLayer_t l,const Point2& center, double angle);
+    virtual IGISPoint* GetMin(void) const;
+    virtual IGISPoint* GetMax(void) const;
 
-	virtual			IGISPoint *				GetMin(void) const;
-	virtual			IGISPoint *				GetMax(void) const;
+    virtual void GetCorners(GISLayer_t l, Point2 corners[4]) const;
 
-	virtual	void	GetCorners(GISLayer_t l,Point2 corners[4]) const;
+    virtual void MoveCorner(GISLayer_t l, int corner, const Vector2& delta);
+    virtual void MoveSide(GISLayer_t l, int side, const Vector2& delta);
 
-	virtual	void	MoveCorner(GISLayer_t l,int corner, const Vector2& delta);
-	virtual	void	MoveSide(GISLayer_t l,int side, const Vector2& delta);
-
-	virtual	void	ResizeSide(GISLayer_t l,int side, const Vector2& delta, bool symetric);
-	virtual	void	ResizeCorner(GISLayer_t l,int side, const Vector2& delta, bool symetric);
-
-
+    virtual void ResizeSide(GISLayer_t l, int side, const Vector2& delta, bool symetric);
+    virtual void ResizeCorner(GISLayer_t l, int side, const Vector2& delta, bool symetric);
 };
 
 #endif /* WED_GISBoundingBox_H */

@@ -27,45 +27,42 @@
 #include <ole2.h>
 #include <shlobj.h>
 
-class	XWinFileReceiver {
+class XWinFileReceiver
+{
 public:
-
-	virtual	void	ReceiveFilesFromDrag(
-						const std::vector<std::string>& inFiles)=0;
-
+    virtual void ReceiveFilesFromDrag(const std::vector<std::string>& inFiles) = 0;
 };
 
-
-class CDropTarget : public IDropTarget {
+class CDropTarget : public IDropTarget
+{
 private:
-   ULONG m_cRefCount;
-   BOOL m_fAcceptFmt;
-   IDropTargetHelper *m_pDropTargetHelper;
+    ULONG m_cRefCount;
+    BOOL m_fAcceptFmt;
+    IDropTargetHelper* m_pDropTargetHelper;
 
-   XWinFileReceiver * m_ReceiverObj;
-   HWND 			  m_Window;
+    XWinFileReceiver* m_ReceiverObj;
+    HWND m_Window;
 
-   //Utility function to read type of drag from key state
-   BOOL QueryDrop(DWORD grfKeyState, LPDWORD pdwEffect);
-   void DisplayFileNames(HWND, HGLOBAL);
+    // Utility function to read type of drag from key state
+    BOOL QueryDrop(DWORD grfKeyState, LPDWORD pdwEffect);
+    void DisplayFileNames(HWND, HGLOBAL);
 
 public:
-   CDropTarget(void);
-   ~CDropTarget(void);
+    CDropTarget(void);
+    ~CDropTarget(void);
 
-   // IUnknown methods
-   STDMETHOD(QueryInterface)(REFIID, LPVOID*);
-   STDMETHOD_(ULONG, AddRef)(void);
-   STDMETHOD_(ULONG, Release)(void);
+    // IUnknown methods
+    STDMETHOD(QueryInterface)(REFIID, LPVOID*);
+    STDMETHOD_(ULONG, AddRef)(void);
+    STDMETHOD_(ULONG, Release)(void);
 
-   // IDropTarget methods
-   STDMETHOD(DragEnter)(LPDATAOBJECT, DWORD, POINTL, LPDWORD);
-   STDMETHOD(DragOver)(DWORD, POINTL, LPDWORD);
-   STDMETHOD(DragLeave)(void);
-   STDMETHOD(Drop)(LPDATAOBJECT, DWORD, POINTL, LPDWORD);
+    // IDropTarget methods
+    STDMETHOD(DragEnter)(LPDATAOBJECT, DWORD, POINTL, LPDWORD);
+    STDMETHOD(DragOver)(DWORD, POINTL, LPDWORD);
+    STDMETHOD(DragLeave)(void);
+    STDMETHOD(Drop)(LPDATAOBJECT, DWORD, POINTL, LPDWORD);
 
-   void	SetReceiver(XWinFileReceiver * inReceiver, HWND inWindow);
+    void SetReceiver(XWinFileReceiver* inReceiver, HWND inWindow);
 };
-
 
 #endif

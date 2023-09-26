@@ -28,50 +28,50 @@
 #include "WED_GISPoint_Heading.h"
 #include "WED_PropertyHelper.h"
 
+class WED_ObjPlacement : public WED_GISPoint_Heading, public IHasResource
+{
 
-class	WED_ObjPlacement : public WED_GISPoint_Heading, public IHasResource {
-
-DECLARE_PERSISTENT(WED_ObjPlacement)
+    DECLARE_PERSISTENT(WED_ObjPlacement)
 
 public:
+    virtual bool Cull(const Bbox2& b) const;
+    virtual void GetResource(std::string& r) const;
+    virtual void SetResource(const std::string& r);
+    virtual void SetHeading(double h);
+    virtual void Rotate(GISLayer_t l, const Point2& center, double angle);
 
-	virtual	bool		Cull(const Bbox2& b) const;
-	virtual void		GetResource(	  std::string& r) const;
-	virtual void		SetResource(const std::string& r);
-	virtual void		SetHeading(double h);
-	virtual	void		Rotate(GISLayer_t l,const Point2& center, double angle);
+    int HasCustomMSL(void) const;
+    double GetCustomMSL(void) const;
 
-			int			HasCustomMSL(void) const;
-			double		GetCustomMSL(void) const;
-			
-			void		SetCustomMSL(double msl,  bool is_AGL);
-			void		SetDefaultMSL(void);
-			double		GetTowerViewHgt(void);
+    void SetCustomMSL(double msl, bool is_AGL);
+    void SetDefaultMSL(void);
+    double GetTowerViewHgt(void);
 
-	virtual void		GetNthPropertyDict(int n, PropertyDict_t& dict) const;
-	virtual	void		GetNthPropertyDictItem(int n, int e, std::string& item) const;
-	virtual void		GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
+    virtual void GetNthPropertyDict(int n, PropertyDict_t& dict) const;
+    virtual void GetNthPropertyDictItem(int n, int e, std::string& item) const;
+    virtual void GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
 
-			void		SetShowLevel(int show_level);
-			int			GetShowLevel(void) const;
+    void SetShowLevel(int show_level);
+    int GetShowLevel(void) const;
 
-			// Visible radius in degrees of latitude / longitude. Only takes horizontal extent, not height into account.
-			double 		GetVisibleDeg(void) const;
-			// Visible radius in meters. Takes extent in all three spatial directions into account.
-			double		GetVisibleMeters(void) const;
+    // Visible radius in degrees of latitude / longitude. Only takes horizontal extent, not height into account.
+    double GetVisibleDeg(void) const;
+    // Visible radius in meters. Takes extent in all three spatial directions into account.
+    double GetVisibleMeters(void) const;
 
-	virtual const char *	HumanReadableType(void) const { return "Object"; }
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Object";
+    }
 
 private:
+    WED_PropIntEnum has_msl;
+    WED_PropDoubleTextMeters msl;
+    WED_PropStringText resource;
+    WED_PropIntEnum show_level;
 
-	WED_PropIntEnum				has_msl;
-	WED_PropDoubleTextMeters	msl;	
-	WED_PropStringText			resource;
-	WED_PropIntEnum				show_level;
-
-	mutable float				visibleWithinDeg;     // for culling in the map_view
-	mutable float				visibleWithinMeters;
+    mutable float visibleWithinDeg; // for culling in the map_view
+    mutable float visibleWithinMeters;
 };
-
 
 #endif

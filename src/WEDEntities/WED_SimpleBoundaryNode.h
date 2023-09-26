@@ -27,15 +27,16 @@
 #include "WED_GISPoint.h"
 // A trivial bezier point with no properties, usually used inside the rings of non-airport stuff.
 
-class WED_SimpleBoundaryNode : public WED_GISPoint {
+class WED_SimpleBoundaryNode : public WED_GISPoint
+{
 
-DECLARE_PERSISTENT(WED_SimpleBoundaryNode)
+    DECLARE_PERSISTENT(WED_SimpleBoundaryNode)
 
 public:
-
-	virtual const char *	HumanReadableType(void) const { return "Boundary Node"; }
-
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Boundary Node";
+    }
 };
-
 
 #endif /* WED_SimpleBoundaryNode_H */

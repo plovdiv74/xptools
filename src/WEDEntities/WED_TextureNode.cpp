@@ -26,9 +26,9 @@
 DEFINE_PERSISTENT(WED_TextureNode)
 TRIVIAL_COPY(WED_TextureNode, WED_GISPoint)
 
-WED_TextureNode::WED_TextureNode(WED_Archive * a, int i) : WED_GISPoint(a,i),
-	mS(this,PROP_Name("S",XML_Name("texture_node","s")),0.0,5,4),
-	mT(this,PROP_Name("T",XML_Name("texture_node","t")),0.0,5,4)
+WED_TextureNode::WED_TextureNode(WED_Archive* a, int i)
+    : WED_GISPoint(a, i), mS(this, PROP_Name("S", XML_Name("texture_node", "s")), 0.0, 5, 4),
+      mT(this, PROP_Name("T", XML_Name("texture_node", "t")), 0.0, 5, 4)
 {
 }
 
@@ -36,35 +36,38 @@ WED_TextureNode::~WED_TextureNode()
 {
 }
 
-bool		WED_TextureNode::HasLayer(GISLayer_t l) const
+bool WED_TextureNode::HasLayer(GISLayer_t l) const
 {
-	if(l == gis_UV) return true;
-	return WED_GISPoint::HasLayer(l);
+    if (l == gis_UV)
+        return true;
+    return WED_GISPoint::HasLayer(l);
 }
 
-
-void		WED_TextureNode::SetLocation(GISLayer_t l, const Point2& st)
+void WED_TextureNode::SetLocation(GISLayer_t l, const Point2& st)
 {
-	if(l == gis_UV)
-	{
-		if (st.x() != mS.value || st.y() != mT.value)
-		{
-			StateChanged();
-			mS = st.x();
-			mT = st.y();
-			CacheInval(cache_Spatial);
-			CacheBuild(cache_Spatial);			
-		}
-	} else
-		WED_GISPoint::SetLocation(l,st);
+    if (l == gis_UV)
+    {
+        if (st.x() != mS.value || st.y() != mT.value)
+        {
+            StateChanged();
+            mS = st.x();
+            mT = st.y();
+            CacheInval(cache_Spatial);
+            CacheBuild(cache_Spatial);
+        }
+    }
+    else
+        WED_GISPoint::SetLocation(l, st);
 }
 
-void		WED_TextureNode::GetLocation(GISLayer_t l,	   Point2& st) const
+void WED_TextureNode::GetLocation(GISLayer_t l, Point2& st) const
 {
-	if(l == gis_UV)
-	{
-		CacheBuild(cache_Spatial);
-		st.x_ = mS.value;
-		st.y_ = mT.value;
-	} else WED_GISPoint::GetLocation(l,st);
+    if (l == gis_UV)
+    {
+        CacheBuild(cache_Spatial);
+        st.x_ = mS.value;
+        st.y_ = mT.value;
+    }
+    else
+        WED_GISPoint::GetLocation(l, st);
 }

@@ -30,41 +30,41 @@
 using std::map;
 using std::vector;
 
-template <class T>
-struct lex_compare_vector {
+template <class T> struct lex_compare_vector
+{
 
-	bool operator()(const vector<T>& lhs, const vector<T>& rhs) const {
-		return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
-	}
+    bool operator()(const vector<T>& lhs, const vector<T>& rhs) const
+    {
+        return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+    }
 };
 
-class ObjPointPool {
+class ObjPointPool
+{
 public:
-	ObjPointPool();
-	~ObjPointPool();
+    ObjPointPool();
+    ~ObjPointPool();
 
-	void	clear(int depth);	// Set zero points and number of floats per pt
-	void	resize(int pts);	// Set a lot of pts
+    void clear(int depth); // Set zero points and number of floats per pt
+    void resize(int pts);  // Set a lot of pts
 
-	int		accumulate(const float pt[]);	// Add a pt, extend if needed
-	int		append(const float pt[]);		// Add a pt to the end
-	void	set(int n, float pt[]);			// Set an existing pt
+    int accumulate(const float pt[]); // Add a pt, extend if needed
+    int append(const float pt[]);     // Add a pt to the end
+    void set(int n, float pt[]);      // Set an existing pt
 
-	int		count(void) const;
-	float *	get(int index);
-	const float *	get(int index) const;
+    int count(void) const;
+    float* get(int index);
+    const float* get(int index) const;
 
-	void	get_minmax(float minCoords[3], float maxCoords[3]) const;
+    void get_minmax(float minCoords[3], float maxCoords[3]) const;
 
 private:
+    typedef std::vector<float> key_type;
+    typedef std::map<key_type, int, lex_compare_vector<float>> index_type;
 
-	typedef	std::vector<float>									key_type;
-	typedef std::map<key_type, int, lex_compare_vector<float> >	index_type;
-
-	std::vector<float>	mData;
-	index_type		mIndex;
-	int				mDepth;
-
+    std::vector<float> mData;
+    index_type mIndex;
+    int mDepth;
 };
 
 #endif

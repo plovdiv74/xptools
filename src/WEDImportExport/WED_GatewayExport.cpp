@@ -27,7 +27,8 @@
 
 #if HAS_GATEWAY
 
-// MSVC insanity: XWin must come in before ANY part of the IOperation interface or Ben's stupid #define to get file/line numbers on ops hoses the MS headers!
+// MSVC insanity: XWin must come in before ANY part of the IOperation interface or Ben's stupid #define to get file/line
+// numbers on ops hoses the MS headers!
 #include "GUI_FormWindow.h"
 #include "WED_MetaDataDefaults.h"
 #include "WED_Menus.h"
@@ -95,7 +96,7 @@
 // std::set this to 1 to write JSONs for multiple exports - for later examination
 #define SPLAT_CURL_IO 0
 
-#define ATC_FLOW_TAG       1
+#define ATC_FLOW_TAG 1
 #define ATC_TAXI_ROUTE_TAG 2
 #define ATC_GROUND_ROUTES_TAG 8
 #define ROADS_TAG 86
@@ -104,134 +105,136 @@ static std::string saved_uname;
 static std::string saved_passwd;
 static std::string saved_comment;
 
-enum {
-	gw_icao = 1,
-	gw_username,
-	gw_password,
-	gw_comments
+enum
+{
+    gw_icao = 1,
+    gw_username,
+    gw_password,
+    gw_comments
 };
 
-static bool is_of_class(WED_Thing * who, const char ** classes)
+static bool is_of_class(WED_Thing* who, const char** classes)
 {
-	while (*classes)
-	{
-		if (who->GetClass() == *classes)
-			return true;
-		++classes;
-	}
-	return false;
+    while (*classes)
+    {
+        if (who->GetClass() == *classes)
+            return true;
+        ++classes;
+    }
+    return false;
 }
 
-static bool has_any_of_class(WED_Thing * who, const char ** classes)
+static bool has_any_of_class(WED_Thing* who, const char** classes)
 {
-	if (is_of_class(who, classes))
-		return true;
-	int n, nn = who->CountChildren();
-	for (n = 0; n < nn; ++n)
-		if (has_any_of_class(who->GetNthChild(n), classes))
-			return true;
-	return false;
+    if (is_of_class(who, classes))
+        return true;
+    int n, nn = who->CountChildren();
+    for (n = 0; n < nn; ++n)
+        if (has_any_of_class(who->GetNthChild(n), classes))
+            return true;
+    return false;
 }
-
 
 // ATC classes - the entire flow hierarchy sits below WED_ATCFlow, so we only need that.
 // Nodes are auxilary to WED_TaxiRoute, so the taxi route covers all edges.
-const char * k_atc_flow_class[] = { WED_ATCFlow::sClass, 0 };
+const char* k_atc_flow_class[] = {WED_ATCFlow::sClass, 0};
 
 // In apt.dat, flow lines are 1100 and 1101
-static bool has_atc_flow(WED_Airport * who) { return has_any_of_class(who, k_atc_flow_class); }
+static bool has_atc_flow(WED_Airport* who)
+{
+    return has_any_of_class(who, k_atc_flow_class);
+}
 
-enum route_types {
-	aircraft_route,
-	truck_route,
-	};
+enum route_types
+{
+    aircraft_route,
+    truck_route,
+};
 
 static bool has_routes(WED_Airport* who, route_types type)
 {
-	std::vector<WED_TaxiRoute*> routes;
+    std::vector<WED_TaxiRoute*> routes;
 
-	if(type == truck_route)
-		CollectRecursive(who, back_inserter(routes), ThingNotHidden, [](WED_Thing* route)->bool { return static_cast<WED_TaxiRoute*>(route)->AllowTrucks(); }, WED_TaxiRoute::sClass);
-	else
-		CollectRecursive(who, back_inserter(routes), ThingNotHidden, [](WED_Thing* route)->bool { return static_cast<WED_TaxiRoute*>(route)->AllowAircraft(); }, WED_TaxiRoute::sClass);
+    if (type == truck_route)
+        CollectRecursive(
+            who, back_inserter(routes), ThingNotHidden,
+            [](WED_Thing* route) -> bool { return static_cast<WED_TaxiRoute*>(route)->AllowTrucks(); },
+            WED_TaxiRoute::sClass);
+    else
+        CollectRecursive(
+            who, back_inserter(routes), ThingNotHidden,
+            [](WED_Thing* route) -> bool { return static_cast<WED_TaxiRoute*>(route)->AllowAircraft(); },
+            WED_TaxiRoute::sClass);
 
-	return routes.size() > 0;
+    return routes.size() > 0;
 }
 
 static bool has_roads(WED_Airport* who)
 {
-	std::vector<WED_RoadEdge*> roads;
+    std::vector<WED_RoadEdge*> roads;
 
-	CollectRecursive(who, back_inserter(roads), ThingNotHidden, TakeAlways);
+    CollectRecursive(who, back_inserter(roads), ThingNotHidden, TakeAlways);
 
-	return roads.size() > 0;
+    return roads.size() > 0;
 }
 
 // We are intentionally IGNORING lin/pol/str and exclusion zones...this is 3-d in the 'user' sense
 // of the term, like, do things stick up.
-const char * k_3d_classes[] = {
-	WED_ObjPlacement::sClass,
-	WED_FacadePlacement::sClass,
-	WED_ForestPlacement::sClass,
-	WED_StringPlacement::sClass,
-	0
-};
+const char* k_3d_classes[] = {WED_ObjPlacement::sClass, WED_FacadePlacement::sClass, WED_ForestPlacement::sClass,
+                              WED_StringPlacement::sClass, 0};
 
-const char * k_dsf_classes[] = {
-	WED_ObjPlacement::sClass,
-	WED_FacadePlacement::sClass,
-	WED_ForestPlacement::sClass,
-	WED_ExclusionZone::sClass,
-	WED_DrapedOrthophoto::sClass,
-	WED_LinePlacement::sClass,
-	WED_StringPlacement::sClass,
-	WED_PolygonPlacement::sClass,
-	0
-};
+const char* k_dsf_classes[] = {WED_ObjPlacement::sClass,    WED_FacadePlacement::sClass,  WED_ForestPlacement::sClass,
+                               WED_ExclusionZone::sClass,   WED_DrapedOrthophoto::sClass, WED_LinePlacement::sClass,
+                               WED_StringPlacement::sClass, WED_PolygonPlacement::sClass, 0};
 
-bool GatewayExport_has_3d(WED_Airport * who) { return has_any_of_class(who, k_3d_classes); }
+bool GatewayExport_has_3d(WED_Airport* who)
+{
+    return has_any_of_class(who, k_3d_classes);
+}
 
-static bool has_dsf(WED_Airport * who) { return has_any_of_class(who, k_dsf_classes); }
+static bool has_dsf(WED_Airport* who)
+{
+    return has_any_of_class(who, k_dsf_classes);
+}
 
 //------------------------------------------------------------------------------------------------------------
 #pragma mark -
 //------------------------------------------------------------------------------------------------------------
 
+static const char cb64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static const char cd64[] = "|$$$}rstuvwxyz{$$$$$$$>?@ABCDEFGHIJKLMNOPQRSTUVW$$$$$$XYZ[\\]^_`abcdefghijklmnopq";
 
-static const char cb64[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-static const char cd64[]="|$$$}rstuvwxyz{$$$$$$$>?@ABCDEFGHIJKLMNOPQRSTUVW$$$$$$XYZ[\\]^_`abcdefghijklmnopq";
-
-static void encodeblock( unsigned char in[3], unsigned char out[4], int len )
+static void encodeblock(unsigned char in[3], unsigned char out[4], int len)
 {
-    out[0] = cb64[ in[0] >> 2 ];
-    out[1] = cb64[ ((in[0] & 0x03) << 4) | ((in[1] & 0xf0) >> 4) ];
-    out[2] = (unsigned char) (len > 1 ? cb64[ ((in[1] & 0x0f) << 2) | ((in[2] & 0xc0) >> 6) ] : '=');
-    out[3] = (unsigned char) (len > 2 ? cb64[ in[2] & 0x3f ] : '=');
+    out[0] = cb64[in[0] >> 2];
+    out[1] = cb64[((in[0] & 0x03) << 4) | ((in[1] & 0xf0) >> 4)];
+    out[2] = (unsigned char)(len > 1 ? cb64[((in[1] & 0x0f) << 2) | ((in[2] & 0xc0) >> 6)] : '=');
+    out[3] = (unsigned char)(len > 2 ? cb64[in[2] & 0x3f] : '=');
 }
 
 static int file_to_uu64(const std::string& path, std::string& enc)
 {
-	enc.clear();
-	FILE * fi = fopen(path.c_str(),"rb");
-	if(fi == NULL)
-		return errno;
+    enc.clear();
+    FILE* fi = fopen(path.c_str(), "rb");
+    if (fi == NULL)
+        return errno;
 
-	while(!feof(fi))
-	{
-		unsigned char buf[3];
-		int rd = fread(buf,1,3,fi);
-		if(rd <= 0)
-			break;
+    while (!feof(fi))
+    {
+        unsigned char buf[3];
+        int rd = fread(buf, 1, 3, fi);
+        if (rd <= 0)
+            break;
 
-		char out[5];
+        char out[5];
 
-		encodeblock(buf, (unsigned char *) out, rd);
-		out[4] = 0;
-		enc += out;
-	}
+        encodeblock(buf, (unsigned char*)out, rd);
+        out[4] = 0;
+        enc += out;
+    }
 
-	fclose(fi);
-	return 0;
+    fclose(fi);
+    return 0;
 }
 
 //------------------------------------------------------------------------------------------------------------
@@ -241,383 +244,382 @@ static int file_to_uu64(const std::string& path, std::string& enc)
 //--WED_GatewayExportDialog--------------------------------------------------
 enum expt_dialog_stage
 {
-	expt_dialog_download_airport_metadata,
-	expt_dialog_upload_to_gateway,
-	expt_dialog_done //Error or not
+    expt_dialog_download_airport_metadata,
+    expt_dialog_upload_to_gateway,
+    expt_dialog_done // Error or not
 };
 
-class	WED_GatewayExportDialog : public GUI_FormWindow, public GUI_Timer {
+class WED_GatewayExportDialog : public GUI_FormWindow, public GUI_Timer
+{
 public:
-	WED_GatewayExportDialog(WED_Airport * apt, WED_Document * resolver);
+    WED_GatewayExportDialog(WED_Airport* apt, WED_Document* resolver);
 
-	//When pressed, opens up the developer blog post about the Gateway
-	virtual void AuxiliaryAction();
+    // When pressed, opens up the developer blog post about the Gateway
+    virtual void AuxiliaryAction();
 
-	//When pressed, attempts to submit current airport to the gateway
-	virtual void Submit();
+    // When pressed, attempts to submit current airport to the gateway
+    virtual void Submit();
 
-	//When pressed, form window is closed
-	virtual void Cancel();
+    // When pressed, form window is closed
+    virtual void Cancel();
 
-	//Called each time WED's timer is fired, checks download progress
-	virtual	void TimerFired(void);
+    // Called each time WED's timer is fired, checks download progress
+    virtual void TimerFired(void);
 
-	static const std::string& GetAirportMetadataCSVPath();
+    static const std::string& GetAirportMetadataCSVPath();
 
 private:
+    // Used for downloading the airport metadata defaults
+    RAII_CurlHandle* mAirportMetadataCURLHandle;
 
-	//Used for downloading the airport metadata defaults
-	RAII_CurlHandle*        mAirportMetadataCURLHandle;
+    // The airport we are attempting to upload
+    WED_Airport* mApt;
 
-	//The airport we are attempting to upload
-	WED_Airport*			mApt;
+    // Where the airport metadata csv file was ultimately downloaded to
+    static std::string mAirportMetadataCSVPath;
 
-	//Where the airport metadata csv file was ultimately downloaded to
-	static std::string           mAirportMetadataCSVPath;
+    // Cache request for requesting airport metadata csv
+    WED_file_cache_request mCacheRequest;
 
-	//Cache request for requesting airport metadata csv
-	WED_file_cache_request  mCacheRequest;
+    // The handle used to download the airport metadata csv
+    curl_http_get_file* mCurl;
 
-	//The handle used to download the airport metadata csv
-	curl_http_get_file*     mCurl;
+    // The phase of the state in the dialog box
+    expt_dialog_stage mPhase;
+    WED_Document* mResolver;
 
-	//The phase of the state in the dialog box
-	expt_dialog_stage		mPhase;
-	WED_Document *			mResolver;
+    std::string mParID;
+    std::set<WED_Thing*> mProblemChildren;
 
-	std::string					mParID;
-	std::set<WED_Thing *>		mProblemChildren;
+    std::vector<char> mResponse;
 
-	std::vector<char>			mResponse;
-
-	void StartCSVDownload();
+    void StartCSVDownload();
 };
 
-//Static member definitions
+// Static member definitions
 std::string WED_GatewayExportDialog::mAirportMetadataCSVPath = "";
 
 const std::string& WED_GatewayExportDialog::GetAirportMetadataCSVPath()
 {
-	return mAirportMetadataCSVPath;
+    return mAirportMetadataCSVPath;
 }
 
-int WED_CanExportToGateway(IResolver * resolver)
+int WED_CanExportToGateway(IResolver* resolver)
 {
-	return 1;
+    return 1;
 #if BULK_SPLAT_IO
-//	ISelection * sel = WED_GetSelect(resolver);
-//	return sel->IterateSelectionAnd(Iterate_IsClass, (void *) WED_Airport::sClass);
+    //	ISelection * sel = WED_GetSelect(resolver);
+    //	return sel->IterateSelectionAnd(Iterate_IsClass, (void *) WED_Airport::sClass);
 
-	//#else
+    // #else
 #endif
 }
 
-void WED_DoExportToGateway(WED_Document * resolver)
+void WED_DoExportToGateway(WED_Document* resolver)
 {
-	#if BULK_SPLAT_IO
+#if BULK_SPLAT_IO
 
-		ISelection * sel = WED_GetSelect(resolver);
-		if(!sel->IterateSelectionAnd(Iterate_IsClass, (void *) WED_Airport::sClass))
-		{
-			DoUserAlert("Please select only airports to do a bulk JSON export.");
-			return;
-		}
+    ISelection* sel = WED_GetSelect(resolver);
+    if (!sel->IterateSelectionAnd(Iterate_IsClass, (void*)WED_Airport::sClass))
+    {
+        DoUserAlert("Please select only airports to do a bulk JSON export.");
+        return;
+    }
 
-		if(WED_HasSingleSelectionOfType(resolver, WED_Airport::sClass))
-		{
-			WED_Airport * apt = SAFE_CAST(WED_Airport,WED_HasSingleSelectionOfType(resolver, WED_Airport::sClass));
+    if (WED_HasSingleSelectionOfType(resolver, WED_Airport::sClass))
+    {
+        WED_Airport* apt = SAFE_CAST(WED_Airport, WED_HasSingleSelectionOfType(resolver, WED_Airport::sClass));
 
-			if(!apt)
-				return;
+        if (!apt)
+            return;
 
-			new WED_GatewayExportDialog(apt, resolver);
-		}
-		else
-		{
-			sel->IterateSelectionAnd(Iterate_JSON_One_Airport, resolver);
-		}
+        new WED_GatewayExportDialog(apt, resolver);
+    }
+    else
+    {
+        sel->IterateSelectionAnd(Iterate_JSON_One_Airport, resolver);
+    }
 
-	#else
-		if(WED_HasSingleSelectionOfType(resolver, WED_Airport::sClass) == NULL)
-		{
-			DoUserAlert("To export an airport to the X-Plane Scenery Gateway, please first select the airport in the hierarchy pane.");
-			return;
-		}
+#else
+    if (WED_HasSingleSelectionOfType(resolver, WED_Airport::sClass) == NULL)
+    {
+        DoUserAlert("To export an airport to the X-Plane Scenery Gateway, please first select the airport in the "
+                    "hierarchy pane.");
+        return;
+    }
 
-		WED_Airport * apt = SAFE_CAST(WED_Airport,WED_HasSingleSelectionOfType(resolver, WED_Airport::sClass));
+    WED_Airport* apt = SAFE_CAST(WED_Airport, WED_HasSingleSelectionOfType(resolver, WED_Airport::sClass));
 
-		if(!apt)
-			return;
+    if (!apt)
+        return;
 
-		new WED_GatewayExportDialog(apt, resolver);
+    new WED_GatewayExportDialog(apt, resolver);
 
-	#endif
+#endif
 }
 
-int Iterate_JSON_One_Airport(ISelectable * what, void * ref)
+int Iterate_JSON_One_Airport(ISelectable* what, void* ref)
 {
-	WED_Document * resolver = (WED_Document *) ref;
-	WED_Airport * apt = SAFE_CAST(WED_Airport,what);
-	if(!apt)
-		return 0;
-	WED_GatewayExportDialog * dlg = new WED_GatewayExportDialog(apt, resolver);
-	dlg->Submit();
-	#if !BULK_SPLAT_IO
-	dlg->Hide();
-	#endif
-	return 1;
+    WED_Document* resolver = (WED_Document*)ref;
+    WED_Airport* apt = SAFE_CAST(WED_Airport, what);
+    if (!apt)
+        return 0;
+    WED_GatewayExportDialog* dlg = new WED_GatewayExportDialog(apt, resolver);
+    dlg->Submit();
+#if !BULK_SPLAT_IO
+    dlg->Hide();
+#endif
+    return 1;
 }
 
 static std::string InterpretNetworkError(curl_http_get_file* curl)
 {
-	int err = curl->get_error();
-	bool bad_net = curl->is_net_fail();
+    int err = curl->get_error();
+    bool bad_net = curl->is_net_fail();
 
-	std::stringstream ss;
+    std::stringstream ss;
 
-	if(err <= CURL_LAST)
-	{
-		std::string msg = curl_easy_strerror((CURLcode) err);
-		ss << "Upload failed: " << msg << ". (" << err << ")";
+    if (err <= CURL_LAST)
+    {
+        std::string msg = curl_easy_strerror((CURLcode)err);
+        ss << "Upload failed: " << msg << ". (" << err << ")";
 
-		if(bad_net) ss << "\n(Please check your internet connectivity.)";
-	}
-	else if(err >= 100)
-	{
-		ss << "Upload failed.  The server returned error " << err << ".";
+        if (bad_net)
+            ss << "\n(Please check your internet connectivity.)";
+    }
+    else if (err >= 100)
+    {
+        ss << "Upload failed.  The server returned error " << err << ".";
 
-		std::vector<char>	errdat;
-		curl->get_error_data(errdat);
-		bool is_ok = !errdat.empty();
-		for(std::vector<char>::iterator i = errdat.begin(); i != errdat.end(); ++i)
-		if(!isprint(*i))
-		{
-			is_ok = false;
-			break;
-		}
+        std::vector<char> errdat;
+        curl->get_error_data(errdat);
+        bool is_ok = !errdat.empty();
+        for (std::vector<char>::iterator i = errdat.begin(); i != errdat.end(); ++i)
+            if (!isprint(*i))
+            {
+                is_ok = false;
+                break;
+            }
 
-		if(is_ok)
-		{
-			std::string errmsg = WordWrap(std::string(errdat.begin(),errdat.end()));
-			ss << "\n" << errmsg;
-		}
-	}
-	else
-	{
-		ss << "Upload failed due to unknown error: " << err << ".";
-	}
+        if (is_ok)
+        {
+            std::string errmsg = WordWrap(std::string(errdat.begin(), errdat.end()));
+            ss << "\n" << errmsg;
+        }
+    }
+    else
+    {
+        ss << "Upload failed due to unknown error: " << err << ".";
+    }
 
-	return ss.str();
+    return ss.str();
 }
 
-WED_GatewayExportDialog::WED_GatewayExportDialog(WED_Airport * apt, WED_Document * resolver) :
-	GUI_FormWindow(gApplication, "Airport Scenery Gateway", 500, 400),
-	mAirportMetadataCURLHandle(NULL),
-	mApt(apt),
-	mCurl(NULL),
-	mPhase(expt_dialog_download_airport_metadata),
-	mResolver(resolver)
+WED_GatewayExportDialog::WED_GatewayExportDialog(WED_Airport* apt, WED_Document* resolver)
+    : GUI_FormWindow(gApplication, "Airport Scenery Gateway", 500, 400), mAirportMetadataCURLHandle(NULL), mApt(apt),
+      mCurl(NULL), mPhase(expt_dialog_download_airport_metadata), mResolver(resolver)
 {
-	this->Reset("Learn More", "Upload", "Cancel", false);
+    this->Reset("Learn More", "Upload", "Cancel", false);
 
-	std::string icao, name;
-	apt->GetICAO(icao);
-	apt->GetName(name);
+    std::string icao, name;
+    apt->GetICAO(icao);
+    apt->GetName(name);
 
-	this->AddFieldNoEdit(gw_icao,icao,name);
-	this->AddField(gw_username,"User Name",saved_uname);
-	this->AddField(gw_password,"Password",saved_passwd,ft_password);
-	this->AddField(gw_comments,"Comments",saved_comment,ft_big);
+    this->AddFieldNoEdit(gw_icao, icao, name);
+    this->AddField(gw_username, "User Name", saved_uname);
+    this->AddField(gw_password, "Password", saved_passwd, ft_password);
+    this->AddField(gw_comments, "Comments", saved_comment, ft_big);
 
-	if(apt->GetSceneryID() >= 0)
-		mParID = std::to_string(apt->GetSceneryID());
-	else
-		mParID = "";
-	StartCSVDownload();
+    if (apt->GetSceneryID() >= 0)
+        mParID = std::to_string(apt->GetSceneryID());
+    else
+        mParID = "";
+    StartCSVDownload();
 }
 
 void WED_GatewayExportDialog::StartCSVDownload()
 {
-	mCacheRequest.in_domain = cache_domain_metadata_csv;
-	mCacheRequest.in_folder_prefix = "scenery_packs";
-	mCacheRequest.in_url = WED_URL_AIRPORT_METADATA_CSV;
+    mCacheRequest.in_domain = cache_domain_metadata_csv;
+    mCacheRequest.in_folder_prefix = "scenery_packs";
+    mCacheRequest.in_url = WED_URL_AIRPORT_METADATA_CSV;
 
-	Start(0.1);
+    Start(0.1);
 }
 
 void WED_GatewayExportDialog::Cancel()
 {
-	this->AsyncDestroy();
+    this->AsyncDestroy();
 }
 
 void WED_GatewayExportDialog::AuxiliaryAction()
 {
-	GUI_LaunchURL(WED_URL_UPLOAD_OK);
+    GUI_LaunchURL(WED_URL_UPLOAD_OK);
 }
-
 
 void WED_GatewayExportDialog::Submit()
 {
-	if(mPhase == expt_dialog_upload_to_gateway)
-	{
-		DebugAssert(mApt);
-		WED_Airport * apt = mApt;
-		mApt->StartOperation("Update metadata");
-		if(fill_in_airport_metadata_defaults(*mApt, mAirportMetadataCSVPath))
-			mApt->CommitOperation();
-		else
-			mApt->AbortOperation();
+    if (mPhase == expt_dialog_upload_to_gateway)
+    {
+        DebugAssert(mApt);
+        WED_Airport* apt = mApt;
+        mApt->StartOperation("Update metadata");
+        if (fill_in_airport_metadata_defaults(*mApt, mAirportMetadataCSVPath))
+            mApt->CommitOperation();
+        else
+            mApt->AbortOperation();
 
-		std::string apt_name = this->GetField(gw_icao);
-		std::string act_name;
-		apt->GetName(act_name);
-		DebugAssert(act_name == apt_name);
+        std::string apt_name = this->GetField(gw_icao);
+        std::string act_name;
+        apt->GetName(act_name);
+        DebugAssert(act_name == apt_name);
 
-		std::string comment = this->GetField(gw_comments);
+        std::string comment = this->GetField(gw_comments);
 
-//		std::string::size_type p = 0;
-//		while((p=comment.find("\r", p)) != comment.npos)
-//		{
-//			comment.insert(p+1,"\n");
-//			p += 2;
-//		}
+        //		std::string::size_type p = 0;
+        //		while((p=comment.find("\r", p)) != comment.npos)
+        //		{
+        //			comment.insert(p+1,"\n");
+        //			p += 2;
+        //		}
 
-		saved_comment = comment;
-		std::string uname = this->GetField(gw_username);
-		saved_uname = uname;
-		std::string pwd = this->GetField(gw_password);
-		saved_passwd = pwd;
-		std::string parid = mParID;
+        saved_comment = comment;
+        std::string uname = this->GetField(gw_username);
+        saved_uname = uname;
+        std::string pwd = this->GetField(gw_password);
+        saved_passwd = pwd;
+        std::string parid = mParID;
 
-		std::string icao;
-		apt->GetICAO(icao);
+        std::string icao;
+        apt->GetICAO(icao);
 
-		WED_Export_Target old_target = gExportTarget;
-		gExportTarget = wet_gateway;
+        WED_Export_Target old_target = gExportTarget;
+        gExportTarget = wet_gateway;
 
-		validation_result_t val_res = WED_ValidateApt(mResolver, NULL, apt, true); // suppress error dialog, as OSX can't handle nested modal windows
-		if(val_res == validation_warnings_only)
-		{
-			if(ConfirmMessage("Validation warnings exist. Continue to export to gateway ?", "Proceed", "Cancel"))
-				val_res = validation_clean;
-		}
-		else if(val_res == validation_errors)
-		{
-			DoUserAlert("Can not export to gateway due to validation errors.");
-		}
+        validation_result_t val_res = WED_ValidateApt(
+            mResolver, NULL, apt, true); // suppress error dialog, as OSX can't handle nested modal windows
+        if (val_res == validation_warnings_only)
+        {
+            if (ConfirmMessage("Validation warnings exist. Continue to export to gateway ?", "Proceed", "Cancel"))
+                val_res = validation_clean;
+        }
+        else if (val_res == validation_errors)
+        {
+            DoUserAlert("Can not export to gateway due to validation errors.");
+        }
 
-		if( val_res != validation_clean)
-		{
-			// gExportTarget = old_target;     // help users oblibious about their exportTarget settings - leave it at gateway
-			this->AsyncDestroy();   // save the user having to cancel the submission
-			return;
-		}
+        if (val_res != validation_clean)
+        {
+            // gExportTarget = old_target;     // help users oblibious about their exportTarget settings - leave it at
+            // gateway
+            this->AsyncDestroy(); // save the user having to cancel the submission
+            return;
+        }
 
-		ILibrarian * lib = WED_GetLibrarian(mResolver);
+        ILibrarian* lib = WED_GetLibrarian(mResolver);
 
-		std::string targ_folder("tempXXXXXX");
-		lib->LookupPath(targ_folder);
+        std::string targ_folder("tempXXXXXX");
+        lib->LookupPath(targ_folder);
 
-		if(!mkdtemp((char *) targ_folder.c_str()))    // its safe, as length will never change
-		{
-			gExportTarget = old_target;
-			return;
-		}
-		targ_folder += DIR_STR;
-//		printf("Dest: %s\n", targ_folder.c_str());
+        if (!mkdtemp((char*)targ_folder.c_str())) // its safe, as length will never change
+        {
+            gExportTarget = old_target;
+            return;
+        }
+        targ_folder += DIR_STR;
+        //		printf("Dest: %s\n", targ_folder.c_str());
 
-		std::string targ_folder_zip = icao + "_gateway_upload.zip";
-		lib->LookupPath(targ_folder_zip);
-		if(FILE_exists(targ_folder_zip.c_str()))
-		{
-			FILE_delete_file(targ_folder_zip.c_str(), false);
-		}
+        std::string targ_folder_zip = icao + "_gateway_upload.zip";
+        lib->LookupPath(targ_folder_zip);
+        if (FILE_exists(targ_folder_zip.c_str()))
+        {
+            FILE_delete_file(targ_folder_zip.c_str(), false);
+        }
 
-		if(has_dsf(apt))
-		if(DSF_ExportAirportOverlay(mResolver, apt, targ_folder, mProblemChildren))
-		{
-			// success.
-		}
+        if (has_dsf(apt))
+            if (DSF_ExportAirportOverlay(mResolver, apt, targ_folder, mProblemChildren))
+            {
+                // success.
+            }
 
-		std::string apt_path = targ_folder + icao + ".dat";
-		WED_AptExport(apt, apt_path.c_str(), false);
+        std::string apt_path = targ_folder + icao + ".dat";
+        WED_AptExport(apt, apt_path.c_str(), false);
 
-		std::string preview_folder = targ_folder + icao + "_Scenery_Pack" + DIR_STR;
-		std::string preview_zip = targ_folder + icao + "_Scenery_Pack.zip";
+        std::string preview_folder = targ_folder + icao + "_Scenery_Pack" + DIR_STR;
+        std::string preview_zip = targ_folder + icao + "_Scenery_Pack.zip";
 
-		gExportTarget = wet_latest_xplane;
+        gExportTarget = wet_latest_xplane;
 
-		WED_ExportPackToPath(apt, mResolver, preview_folder, mProblemChildren);
+        WED_ExportPackToPath(apt, mResolver, preview_folder, mProblemChildren);
 
-		FILE * readme = fopen((preview_folder+"README.txt").c_str(),"w");
-		if(readme)
-		{
-			fprintf(readme,"-------------------------------------------------------------------------------\n");
-			fprintf(readme, "%s (%s)\n", apt_name.c_str(), icao.c_str());
-			fprintf(readme,"-------------------------------------------------------------------------------\n\n");
-			fprintf(readme,"This scenery pack was downloaded from the X-Plane Scenery Gateway: \n");
-			fprintf(readme,"\n");
-			fprintf(readme,"    http://gateway.x-plane.com/\n");
-			fprintf(readme,"\n");
-			fprintf(readme,"Airport: %s (%s)\n\nUploaded by: %s.\n", apt_name.c_str(), icao.c_str(), uname.c_str());
-			fprintf(readme,"\n");
-			fprintf(readme,"Authors Comments:\n\n%s\n\n", comment.c_str());
-			fprintf(readme,"Installation Instructions:\n");
-			fprintf(readme,"\n");
-			fprintf(readme,"To install this scenery, drag this entire folder into X-Plane's Custom Scenery\n");
-			fprintf(readme,"folder and re-start X-Plane.\n");
-			fprintf(readme,"\n");
-			fprintf(readme,"The scenery packs shared via the X-Plane Scenery Gateway are free software; you\n");
-			fprintf(readme,"can redistribute it and/or modify it under the terms of the GNU General Public\n");
-			fprintf(readme,"License as published by the Free Software Foundation; either version 2 of the\n");
-			fprintf(readme,"License, or (at your option) any later version.  See the included COPYING file\n");
-			fprintf(readme,"for complete terms.\n");
-			fclose(readme);
-		}
+        FILE* readme = fopen((preview_folder + "README.txt").c_str(), "w");
+        if (readme)
+        {
+            fprintf(readme, "-------------------------------------------------------------------------------\n");
+            fprintf(readme, "%s (%s)\n", apt_name.c_str(), icao.c_str());
+            fprintf(readme, "-------------------------------------------------------------------------------\n\n");
+            fprintf(readme, "This scenery pack was downloaded from the X-Plane Scenery Gateway: \n");
+            fprintf(readme, "\n");
+            fprintf(readme, "    http://gateway.x-plane.com/\n");
+            fprintf(readme, "\n");
+            fprintf(readme, "Airport: %s (%s)\n\nUploaded by: %s.\n", apt_name.c_str(), icao.c_str(), uname.c_str());
+            fprintf(readme, "\n");
+            fprintf(readme, "Authors Comments:\n\n%s\n\n", comment.c_str());
+            fprintf(readme, "Installation Instructions:\n");
+            fprintf(readme, "\n");
+            fprintf(readme, "To install this scenery, drag this entire folder into X-Plane's Custom Scenery\n");
+            fprintf(readme, "folder and re-start X-Plane.\n");
+            fprintf(readme, "\n");
+            fprintf(readme, "The scenery packs shared via the X-Plane Scenery Gateway are free software; you\n");
+            fprintf(readme, "can redistribute it and/or modify it under the terms of the GNU General Public\n");
+            fprintf(readme, "License as published by the Free Software Foundation; either version 2 of the\n");
+            fprintf(readme, "License, or (at your option) any later version.  See the included COPYING file\n");
+            fprintf(readme, "for complete terms.\n");
+            fclose(readme);
+        }
 
-		FILE * gpl = fopen((preview_folder+"COPYING").c_str(),"w");
-		if(gpl)
-		{
-			GUI_Resource gpl_res = GUI_LoadResource("COPYING");
-			if(gpl_res)
-			{
-				const char * b = GUI_GetResourceBegin(gpl_res);
-				const char * e = GUI_GetResourceEnd(gpl_res);
+        FILE* gpl = fopen((preview_folder + "COPYING").c_str(), "w");
+        if (gpl)
+        {
+            GUI_Resource gpl_res = GUI_LoadResource("COPYING");
+            if (gpl_res)
+            {
+                const char* b = GUI_GetResourceBegin(gpl_res);
+                const char* e = GUI_GetResourceEnd(gpl_res);
 
-				fwrite(b,1,e-b,gpl);
+                fwrite(b, 1, e - b, gpl);
 
-				GUI_UnloadResource(gpl_res);
-				fclose(gpl);
-			}
-		}
+                GUI_UnloadResource(gpl_res);
+                fclose(gpl);
+            }
+        }
 
-		Assert(FILE_compress_dir(preview_folder, preview_zip, icao + "_Scenery_Pack/") == 0);
-//		FILE_compress_dir(preview_folder, preview_zip, icao + "_Scenery_Pack/");
-		FILE_delete_dir_recursive(preview_folder);
+        Assert(FILE_compress_dir(preview_folder, preview_zip, icao + "_Scenery_Pack/") == 0);
+        //		FILE_compress_dir(preview_folder, preview_zip, icao + "_Scenery_Pack/");
+        FILE_delete_dir_recursive(preview_folder);
 
-		Assert(FILE_compress_dir(targ_folder, targ_folder_zip, std::string()) == 0);
-		FILE_delete_dir_recursive(targ_folder);
+        Assert(FILE_compress_dir(targ_folder, targ_folder_zip, std::string()) == 0);
+        FILE_delete_dir_recursive(targ_folder);
 
-		std::string uu64;
-		file_to_uu64(targ_folder_zip, uu64);
-		#if !KEEP_UPLOAD_MASTER_ZIP
-		FILE_delete_file(targ_folder_zip.c_str(), false);
-		#endif
+        std::string uu64;
+        file_to_uu64(targ_folder_zip, uu64);
+#if !KEEP_UPLOAD_MASTER_ZIP
+        FILE_delete_file(targ_folder_zip.c_str(), false);
+#endif
 
-		Json::Value		scenery;
+        Json::Value scenery;
 
-		for(int key_enum = wed_AddMetaDataBegin + 1; key_enum < wed_AddMetaDataEnd; ++key_enum)
-		{
-			std::string key = META_KeyName(key_enum);
-			if(apt->ContainsMetaDataKey(key))
-			{
-				scenery["additionalMetadata"][key] = apt->GetMetaDataValue(key);
-			}
-		}
+        for (int key_enum = wed_AddMetaDataBegin + 1; key_enum < wed_AddMetaDataEnd; ++key_enum)
+        {
+            std::string key = META_KeyName(key_enum);
+            if (apt->ContainsMetaDataKey(key))
+            {
+                scenery["additionalMetadata"][key] = apt->GetMetaDataValue(key);
+            }
+        }
 
-		scenery["aptName"] = apt_name;
-		scenery["artistComments"] = comment;
-		scenery["clientVersion"] = WED_VERSION_NUMERIC;
+        scenery["aptName"] = apt_name;
+        scenery["artistComments"] = comment;
+        scenery["clientVersion"] = WED_VERSION_NUMERIC;
 
         Bbox2 apt_bounds;
         apt->GetBounds(gis_Geo, apt_bounds);
@@ -626,240 +628,243 @@ void WED_GatewayExportDialog::Submit()
         scenery["latitude"] = apt_centroid.y();
         scenery["longitude"] = apt_centroid.x();
 
-		std::string features;
-		if(has_atc_flow(apt))
-			features += "," + std::to_string(ATC_FLOW_TAG);
-		if(has_routes(apt, aircraft_route))
-			features += "," + std::to_string(ATC_TAXI_ROUTE_TAG);
-		if (has_routes(apt, truck_route))
-			features += "," + std::to_string(ATC_GROUND_ROUTES_TAG);
-		if (has_roads(apt))
-			features += "," + std::to_string(ROADS_TAG);
+        std::string features;
+        if (has_atc_flow(apt))
+            features += "," + std::to_string(ATC_FLOW_TAG);
+        if (has_routes(apt, aircraft_route))
+            features += "," + std::to_string(ATC_TAXI_ROUTE_TAG);
+        if (has_routes(apt, truck_route))
+            features += "," + std::to_string(ATC_GROUND_ROUTES_TAG);
+        if (has_roads(apt))
+            features += "," + std::to_string(ROADS_TAG);
 
-		if(!features.empty())                        // remove leading ","
-			features.erase(features.begin());
+        if (!features.empty()) // remove leading ","
+            features.erase(features.begin());
 
-		scenery["features"] = features;
-		scenery["validatedAgainst"] = gPackageMgr->GetXPversion();
-		scenery["icao"] = icao;
+        scenery["features"] = features;
+        scenery["validatedAgainst"] = gPackageMgr->GetXPversion();
+        scenery["icao"] = icao;
 
-		if(parid.empty())
-		{
-			scenery["parentId"] = Json::Value();
-		}
-		else
-		{
-			scenery["parentId"] = parid;
-		}
-		scenery["type"] = GatewayExport_has_3d(apt) ? "3D" : "2D";
+        if (parid.empty())
+        {
+            scenery["parentId"] = Json::Value();
+        }
+        else
+        {
+            scenery["parentId"] = parid;
+        }
+        scenery["type"] = GatewayExport_has_3d(apt) ? "3D" : "2D";
 
-		LOG_MSG("I/GWExp\n %s", scenery.toStyledString().c_str());
+        LOG_MSG("I/GWExp\n %s", scenery.toStyledString().c_str());
 
-		scenery["masterZipBlob"] = uu64;
-		scenery["password"] = pwd;
-		scenery["userId"] = uname;
+        scenery["masterZipBlob"] = uu64;
+        scenery["password"] = pwd;
+        scenery["userId"] = uname;
 
-		Json::Value req;
-		req["scenery"] = scenery;
+        Json::Value req;
+        req["scenery"] = scenery;
 
-		std::string reqstr=req.toStyledString();
+        std::string reqstr = req.toStyledString();
 
-//		printf("%s\n",reqstr.c_str());
+        //		printf("%s\n",reqstr.c_str());
 
-		#if BULK_SPLAT_IO || SPLAT_CURL_IO
-			// This code exists to service the initial upload of the gateway...
-			// it dumps out a JSON upload object for each airport.
-			std::string p = icao;
-			p + icao;
-			p += ".json";
-			lib->LookupPath(p);
-			FILE * fi = fopen(p.c_str(),"wb");
-			fprintf(fi,"%s", reqstr.c_str());
-			fclose(fi);
-		#endif
-		#if BULK_SPLAT_IO
-			delete this;
-			return;
-		#endif
+#if BULK_SPLAT_IO || SPLAT_CURL_IO
+        // This code exists to service the initial upload of the gateway...
+        // it dumps out a JSON upload object for each airport.
+        std::string p = icao;
+        p + icao;
+        p += ".json";
+        lib->LookupPath(p);
+        FILE* fi = fopen(p.c_str(), "wb");
+        fprintf(fi, "%s", reqstr.c_str());
+        fclose(fi);
+#endif
+#if BULK_SPLAT_IO
+        delete this;
+        return;
+#endif
 
-		mCurl = new curl_http_get_file(WED_get_GW_api_url() + "scenery", nullptr, &reqstr, &mResponse);
-		this->Reset("", "", "", false);
-		this->AddLabel("Uploading airport to Gateway.");
-		this->AddLabel("This could take up to one minute.");
-		gExportTarget = old_target;
-		Start(1.0);
-	}
-	else if(mPhase == expt_dialog_done)
-	{
-		this->AsyncDestroy();
-	}
+        mCurl = new curl_http_get_file(WED_get_GW_api_url() + "scenery", nullptr, &reqstr, &mResponse);
+        this->Reset("", "", "", false);
+        this->AddLabel("Uploading airport to Gateway.");
+        this->AddLabel("This could take up to one minute.");
+        gExportTarget = old_target;
+        Start(1.0);
+    }
+    else if (mPhase == expt_dialog_done)
+    {
+        this->AsyncDestroy();
+    }
 }
 
 void WED_GatewayExportDialog::TimerFired()
 {
 
-	if(mPhase == expt_dialog_download_airport_metadata)
-	{
-		WED_file_cache_response res = gFileCache.request_file(mCacheRequest);
-		if(res.out_status != cache_status_downloading)
-		{
-			Stop();
+    if (mPhase == expt_dialog_download_airport_metadata)
+    {
+        WED_file_cache_response res = gFileCache.request_file(mCacheRequest);
+        if (res.out_status != cache_status_downloading)
+        {
+            Stop();
 
-			if(res.out_status == cache_status_available)
-			{
-				WED_GatewayExportDialog::mAirportMetadataCSVPath = res.out_path;
-				mPhase = expt_dialog_upload_to_gateway;
+            if (res.out_status == cache_status_available)
+            {
+                WED_GatewayExportDialog::mAirportMetadataCSVPath = res.out_path;
+                mPhase = expt_dialog_upload_to_gateway;
 
-				std::string ver(gPackageMgr->GetXPversion());
-				if(ver.find('r') != ver.npos )
-					this->AddLabel("Airport metadata defaults have been downloaded succesfully.");
-				else
-				{
-					std::stringstream ss;
-					ss << "The selected X-Plane Folder contains an unreleased X-plane version " << ver << "\n";
-					ss << "This can cause validation to miss deprecated or unavailable items.\n \n";
-					ss << "All submissions are re-validated with the last officially released X-Plane version.";
-					this->AddLabel(ss.str().c_str());
-				}
-			}
-			else if(res.out_status == cache_status_error)
-			{
-				mPhase = expt_dialog_done;
-				this->AddLabel(InterpretNetworkError(&this->mAirportMetadataCURLHandle->get_curl_handle()));
-			}
-		}
-		return;
-	}
+                std::string ver(gPackageMgr->GetXPversion());
+                if (ver.find('r') != ver.npos)
+                    this->AddLabel("Airport metadata defaults have been downloaded succesfully.");
+                else
+                {
+                    std::stringstream ss;
+                    ss << "The selected X-Plane Folder contains an unreleased X-plane version " << ver << "\n";
+                    ss << "This can cause validation to miss deprecated or unavailable items.\n \n";
+                    ss << "All submissions are re-validated with the last officially released X-Plane version.";
+                    this->AddLabel(ss.str().c_str());
+                }
+            }
+            else if (res.out_status == cache_status_error)
+            {
+                mPhase = expt_dialog_done;
+                this->AddLabel(InterpretNetworkError(&this->mAirportMetadataCURLHandle->get_curl_handle()));
+            }
+        }
+        return;
+    }
 
-	if(mCurl != NULL && mPhase == expt_dialog_upload_to_gateway)
-	{
-		if(mCurl->is_done())
-		{
-			Stop();
+    if (mCurl != NULL && mPhase == expt_dialog_upload_to_gateway)
+    {
+        if (mCurl->is_done())
+        {
+            Stop();
 
-			std::string good_msg = "";
-			std::string bad_msg = "";
+            std::string good_msg = "";
+            std::string bad_msg = "";
 
-			mPhase = expt_dialog_done;
-			if(mCurl->is_ok())
-			{
-				char * start = &mResponse[0];
-				char * end = start + mResponse.size();
+            mPhase = expt_dialog_done;
+            if (mCurl->is_ok())
+            {
+                char* start = &mResponse[0];
+                char* end = start + mResponse.size();
 
-				Json::Reader reader;
-				Json::Value response;
+                Json::Reader reader;
+                Json::Value response;
 
-				if(reader.parse(start, end, response))
-				{
-					if(response.isMember("sceneryId"))
-					{
-						int new_id = response["sceneryId"].asInt();
-						mApt->StartOperation("Successful submition to gateway.");
-						mApt->SetSceneryID(new_id);
-						mApt->CommitOperation();
+                if (reader.parse(start, end, response))
+                {
+                    if (response.isMember("sceneryId"))
+                    {
+                        int new_id = response["sceneryId"].asInt();
+                        mApt->StartOperation("Successful submition to gateway.");
+                        mApt->SetSceneryID(new_id);
+                        mApt->CommitOperation();
 
-						good_msg = "Your airport has been successfully uploaded and will be visible to all users on\nthe gateway once a moderator approves it.";
-					}
-					else
-					{
-						bad_msg = "I was not able to confirm that your scenery was uploaded.\n(No scenery ID was returned.)";
-					}
-				}
-				else
-				{
-					bad_msg = "I was not able to confirm that your scenery was uploaded.\n(JSON was malformed.)";
-				}
-			}
-			else
-			{
-				bad_msg = InterpretNetworkError(mCurl);
-			}
+                        good_msg = "Your airport has been successfully uploaded and will be visible to all users "
+                                   "on\nthe gateway once a moderator approves it.";
+                    }
+                    else
+                    {
+                        bad_msg =
+                            "I was not able to confirm that your scenery was uploaded.\n(No scenery ID was returned.)";
+                    }
+                }
+                else
+                {
+                    bad_msg = "I was not able to confirm that your scenery was uploaded.\n(JSON was malformed.)";
+                }
+            }
+            else
+            {
+                bad_msg = InterpretNetworkError(mCurl);
+            }
 
-			if(!good_msg.empty())
-			{
-				LOG_MSG("I/GWExp %s", good_msg.c_str());
-				this->Reset("Learn More", "OK","", true);
-				this->AddLabel(good_msg);
-			}
-			else
-			{
-				LOG_MSG("E/GWExp %s", bad_msg.c_str());
-				this->Reset("", "","Cancel", true);
-				this->AddLabel(bad_msg);
-			}
+            if (!good_msg.empty())
+            {
+                LOG_MSG("I/GWExp %s", good_msg.c_str());
+                this->Reset("Learn More", "OK", "", true);
+                this->AddLabel(good_msg);
+            }
+            else
+            {
+                LOG_MSG("E/GWExp %s", bad_msg.c_str());
+                this->Reset("", "", "Cancel", true);
+                this->AddLabel(bad_msg);
+            }
 
-			delete mCurl;
-			mCurl = NULL;
+            delete mCurl;
+            mCurl = NULL;
 
-		//	FILE * json = fopen("/Users/bsupnik/Desktop/json.txt","w");
-		//	fprintf(json,"%s",reqstr.c_str());
-		//	fclose(json);
+            //	FILE * json = fopen("/Users/bsupnik/Desktop/json.txt","w");
+            //	fprintf(json,"%s",reqstr.c_str());
+            //	fclose(json);
 
-			if(!mProblemChildren.empty())
-			{
-				DoUserAlert("One or more objects could not exported - check for self intersecting polygons and closed-ring facades crossing DFS boundaries.");
-				ISelection * sel = WED_GetSelect(mResolver);
-				(*mProblemChildren.begin())->StartOperation("Select broken items.");
-				sel->Clear();
-				for(std::set<WED_Thing*>::iterator p = mProblemChildren.begin(); p != mProblemChildren.end(); ++p)
-					sel->Insert(*p);
-				(*mProblemChildren.begin())->CommitOperation();
-			}
-		}
-	}
+            if (!mProblemChildren.empty())
+            {
+                DoUserAlert("One or more objects could not exported - check for self intersecting polygons and "
+                            "closed-ring facades crossing DFS boundaries.");
+                ISelection* sel = WED_GetSelect(mResolver);
+                (*mProblemChildren.begin())->StartOperation("Select broken items.");
+                sel->Clear();
+                for (std::set<WED_Thing*>::iterator p = mProblemChildren.begin(); p != mProblemChildren.end(); ++p)
+                    sel->Insert(*p);
+                (*mProblemChildren.begin())->CommitOperation();
+            }
+        }
+    }
 }
 
-bool Enforce_MetaDataGuiLabel(WED_Airport * apt)
+bool Enforce_MetaDataGuiLabel(WED_Airport* apt)
 {
-	std::string has3D(GatewayExport_has_3d(apt) ? "3D" : "2D");
-	std::string name;
-	apt->GetName(name);
-	bool changed_meta = false;
-	std::string old_meta;
+    std::string has3D(GatewayExport_has_3d(apt) ? "3D" : "2D");
+    std::string name;
+    apt->GetName(name);
+    bool changed_meta = false;
+    std::string old_meta;
 
-	if (!apt->ContainsMetaDataKey(wed_AddMetaDataLGuiLabel))
-		changed_meta = true;
-	else
-		old_meta = apt->GetMetaDataValue(wed_AddMetaDataLGuiLabel);
+    if (!apt->ContainsMetaDataKey(wed_AddMetaDataLGuiLabel))
+        changed_meta = true;
+    else
+        old_meta = apt->GetMetaDataValue(wed_AddMetaDataLGuiLabel);
 
-	apt->AddMetaDataKey(META_KeyName(wed_AddMetaDataLGuiLabel), has3D);
+    apt->AddMetaDataKey(META_KeyName(wed_AddMetaDataLGuiLabel), has3D);
 
-	if(old_meta != apt->GetMetaDataValue(wed_AddMetaDataLGuiLabel))
-		changed_meta = true;
+    if (old_meta != apt->GetMetaDataValue(wed_AddMetaDataLGuiLabel))
+        changed_meta = true;
 
-	return changed_meta;
+    return changed_meta;
 }
 
-bool EnforceRecursive_MetaDataGuiLabel(WED_Thing * thing)
+bool EnforceRecursive_MetaDataGuiLabel(WED_Thing* thing)
 {
-	WED_Entity * ent = dynamic_cast<WED_Entity *>(thing);
-	if (!ent || ent->GetHidden())
-		return false;
+    WED_Entity* ent = dynamic_cast<WED_Entity*>(thing);
+    if (!ent || ent->GetHidden())
+        return false;
 
-	WED_Airport * apt = dynamic_cast<WED_Airport *>(thing);
-	if (apt)
-	{
-		return Enforce_MetaDataGuiLabel(apt);
-	}
+    WED_Airport* apt = dynamic_cast<WED_Airport*>(thing);
+    if (apt)
+    {
+        return Enforce_MetaDataGuiLabel(apt);
+    }
 
-	bool changedMeta = false;
-	if (thing->GetClass() == WED_Group::sClass)
-	{
-		int cc = thing->CountChildren();
-		for (int c = 0; c < cc; ++c)
-		{
-			WED_Thing * child = thing->GetNthChild(c);
-			changedMeta |= EnforceRecursive_MetaDataGuiLabel(child);
-		}
-	}
-	return changedMeta;
+    bool changedMeta = false;
+    if (thing->GetClass() == WED_Group::sClass)
+    {
+        int cc = thing->CountChildren();
+        for (int c = 0; c < cc; ++c)
+        {
+            WED_Thing* child = thing->GetNthChild(c);
+            changedMeta |= EnforceRecursive_MetaDataGuiLabel(child);
+        }
+    }
+    return changedMeta;
 }
 
 const std::string WED_get_GW_api_url()
 {
-	std::string url(gApplication->args.get_value("--gateway_api_url"));
-	if(url.empty())
-		url = WED_URL_GATEWAY "apiv1/";
-	return url;
+    std::string url(gApplication->args.get_value("--gateway_api_url"));
+    if (url.empty())
+        url = WED_URL_GATEWAY "apiv1/";
+    return url;
 }
 #endif /* HAS_GATEWAY */

@@ -6,28 +6,29 @@
 
 #undef INFINITE
 
-const int INFINITE = INT_MAX; //Don't worry, by 2038 an AI will have instantly rewritten WED in Haskell during a code interview.
+const int INFINITE =
+    INT_MAX; // Don't worry, by 2038 an AI will have instantly rewritten WED in Haskell during a code interview.
 const int MINUTE = 60;
 const int HOUR = MINUTE * 60;
-const int DAY  = HOUR * 24;
+const int DAY = HOUR * 24;
 const int WEEK = DAY * 7;
 
 const CACHE_domain_policy k_domain_policies[] = {
 
-	// age,          client,  server cooldown
-	{ (MINUTE * 10), (MINUTE), (MINUTE) }, //none
-	{ (DAY)        , (MINUTE), (MINUTE) }, //metadata_csv
-	{ (HOUR),        (MINUTE), (MINUTE) }, //airports_json
-	{ (MINUTE * 10), (MINUTE), (MINUTE) }, //airports_versions_json
-	{ (4*WEEK),      (MINUTE), (MINUTE) }, //scenery_pack
-	{ (4*WEEK),      (MINUTE), (MINUTE) }, //osm_tile
+    // age,          client,  server cooldown
+    {(MINUTE * 10), (MINUTE), (MINUTE)}, // none
+    {(DAY), (MINUTE), (MINUTE)},         // metadata_csv
+    {(HOUR), (MINUTE), (MINUTE)},        // airports_json
+    {(MINUTE * 10), (MINUTE), (MINUTE)}, // airports_versions_json
+    {(4 * WEEK), (MINUTE), (MINUTE)},    // scenery_pack
+    {(4 * WEEK), (MINUTE), (MINUTE)},    // osm_tile
 #if DEV
-	{0,0,0} //debug
+    {0, 0, 0} // debug
 #endif
 };
 
 CACHE_domain_policy GetDomainPolicy(CACHE_domain domain)
 {
-	DebugAssert(domain >= cache_domain_none && domain < cache_domain_end);
-	return k_domain_policies[domain];
+    DebugAssert(domain >= cache_domain_none && domain < cache_domain_end);
+    return k_domain_policies[domain];
 }

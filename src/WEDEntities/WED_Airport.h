@@ -27,91 +27,90 @@
 #include "WED_GISComposite.h"
 #include <vector>
 
-struct	AptInfo_t;
+struct AptInfo_t;
 
-class	WED_Airport : public WED_GISComposite {
+class WED_Airport : public WED_GISComposite
+{
 
-DECLARE_PERSISTENT(WED_Airport)
+    DECLARE_PERSISTENT(WED_Airport)
 
 public:
+    void GetICAO(std::string& icao) const;
+    int GetAirportType(void) const;
+    int GetSceneryID(void) const;
 
-	void		GetICAO(std::string& icao) const;
-	int			GetAirportType(void) const;
-	int			GetSceneryID(void) const;
-	
-	void		SetSceneryID(int new_id);
-	void		SetAirportType(int airport_type);
-	void		SetICAO(const std::string& icao);
+    void SetSceneryID(int new_id);
+    void SetAirportType(int airport_type);
+    void SetICAO(const std::string& icao);
 
-	typedef std::pair<std::string,std::string> meta_data_entry;
+    typedef std::pair<std::string, std::string> meta_data_entry;
 
-	//--Meta Data API-------------------------------
-	//Adds a Meta Data Key. Collision is a replace value
-	void		AddMetaDataKey(const std::string& key, const std::string& value);
-	
-	//Edits a given Meta Data key's value. Non-existant keys are ignored
-	void		EditMetaDataKey(const std::string& key, const std::string& value);
-	
-	//Removes a key/value std::pair
-	//void		RemoveMetaDataKey(const std::string& key);
-	
-	//Returns true if meta_data_vec_map contains the key
-	bool		ContainsMetaDataKey(const std::string& key) const;
-	bool		ContainsMetaDataKey(int meta_data_enum) const;
+    //--Meta Data API-------------------------------
+    // Adds a Meta Data Key. Collision is a replace value
+    void AddMetaDataKey(const std::string& key, const std::string& value);
 
-	//Gets the size of the Meta Data Vector
-	int			CountMetaDataKeys();
+    // Edits a given Meta Data key's value. Non-existant keys are ignored
+    void EditMetaDataKey(const std::string& key, const std::string& value);
 
-	//Returns the key's value, key MUST be in the metadata std::vector already
-	std::string		GetMetaDataValue(const std::string& key) const;
-	std::string		GetMetaDataValue(int meta_data_enum) const;
-	//----------------------------------------------
+    // Removes a key/value std::pair
+    // void		RemoveMetaDataKey(const std::string& key);
 
-	void		Import(const AptInfo_t& info, void (* print_func)(void *, const char *, ...), void * ref);
-	void		Export(		 AptInfo_t& info) const;
+    // Returns true if meta_data_vec_map contains the key
+    bool ContainsMetaDataKey(const std::string& key) const;
+    bool ContainsMetaDataKey(int meta_data_enum) const;
 
-	// IPropertyObject
-	int			FindProperty(const char * in_prop) const;
-	int			CountProperties(void) const;
-	void		GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
+    // Gets the size of the Meta Data Vector
+    int CountMetaDataKeys();
 
-	void		GetNthPropertyDict(int n, PropertyDict_t& dict) const;
-	void		GetNthPropertyDictItem(int n, int e, std::string& item) const;
-	
-	void		GetNthProperty(int n, PropertyVal_t& val) const;
-	void		SetNthProperty(int n, const PropertyVal_t& val);
-	void		DeleteNthProperty(int n);
+    // Returns the key's value, key MUST be in the metadata std::vector already
+    std::string GetMetaDataValue(const std::string& key) const;
+    std::string GetMetaDataValue(int meta_data_enum) const;
+    //----------------------------------------------
 
-	//WED_Persistant, for Undo/Redo
-	virtual	bool 			ReadFrom(IOReader * reader);
-	virtual	void 			WriteTo(IOWriter * writer);
+    void Import(const AptInfo_t& info, void (*print_func)(void*, const char*, ...), void* ref);
+    void Export(AptInfo_t& info) const;
 
-	//WED_Thing
-	virtual void			AddExtraXML(WED_XMLElement * obj);
-	
-	//IOperation
-	virtual void		StartElement(
-								WED_XMLReader * reader,
-								const XML_Char *	name,
-								const XML_Char **	atts);
-	/*virtual	void		EndElement(void);
-	virtual	void		PopHandler(void);*/
+    // IPropertyObject
+    int FindProperty(const char* in_prop) const;
+    int CountProperties(void) const;
+    void GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
 
-	virtual const char *	HumanReadableType(void) const { return "Airport"; }
+    void GetNthPropertyDict(int n, PropertyDict_t& dict) const;
+    void GetNthPropertyDictItem(int n, int e, std::string& item) const;
+
+    void GetNthProperty(int n, PropertyVal_t& val) const;
+    void SetNthProperty(int n, const PropertyVal_t& val);
+    void DeleteNthProperty(int n);
+
+    // WED_Persistant, for Undo/Redo
+    virtual bool ReadFrom(IOReader* reader);
+    virtual void WriteTo(IOWriter* writer);
+
+    // WED_Thing
+    virtual void AddExtraXML(WED_XMLElement* obj);
+
+    // IOperation
+    virtual void StartElement(WED_XMLReader* reader, const XML_Char* name, const XML_Char** atts);
+    /*virtual	void		EndElement(void);
+    virtual	void		PopHandler(void);*/
+
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Airport";
+    }
 
 private:
+    WED_PropIntEnum airport_type;
+    WED_PropDoubleTextMeters elevation;
+    WED_PropBoolText has_atc;
+    WED_PropStringText icao;
+    WED_PropBoolText always_flatten;
+    WED_PropBoolText drive_on_left;
+    WED_PropIntText scenery_id;
 
-	WED_PropIntEnum				airport_type;
-	WED_PropDoubleTextMeters	elevation;
-	WED_PropBoolText			has_atc;
-	WED_PropStringText			icao;
-	WED_PropBoolText			always_flatten;
-	WED_PropBoolText			drive_on_left;
-	WED_PropIntText				scenery_id;
-	
-	//A std::vector of meta data key,value entrys, all synthetic properties
-	//Due to the way it is stored in XML, keys are not allowed to contain commas
-	std::vector<meta_data_entry>	meta_data_vec_map;
+    // A std::vector of meta data key,value entrys, all synthetic properties
+    // Due to the way it is stored in XML, keys are not allowed to contain commas
+    std::vector<meta_data_entry> meta_data_vec_map;
 };
 
 #endif /* WED_AIRPORT_H */

@@ -26,81 +26,70 @@
 
 #include "WED_CreateToolBase.h"
 
-enum CreatePoint_t {
-	create_Beacon = 0,
-	create_Sign,
-	create_Helipad,
-	create_Lights,
-	create_RampStart,
-	create_TowerViewpoint,
-	create_Windsock,
-	create_Object,
-	create_TruckParking,
-	create_TruckDestination
+enum CreatePoint_t
+{
+    create_Beacon = 0,
+    create_Sign,
+    create_Helipad,
+    create_Lights,
+    create_RampStart,
+    create_TowerViewpoint,
+    create_Windsock,
+    create_Object,
+    create_TruckParking,
+    create_TruckDestination
 };
 
-class WED_CreatePointTool : public WED_CreateToolBase {
+class WED_CreatePointTool : public WED_CreateToolBase
+{
 public:
+    WED_CreatePointTool(const char* tool_name, GUI_Pane* host, WED_MapZoomerNew* zoomer, IResolver* resolver,
+                        WED_Archive* archive, CreatePoint_t tool_type);
+    virtual ~WED_CreatePointTool();
 
-						 WED_CreatePointTool(
-									const char *		tool_name,
-									GUI_Pane *			host,
-									WED_MapZoomerNew *	zoomer,
-									IResolver *			resolver,
-									WED_Archive *		archive,
-									CreatePoint_t		tool_type);
-	virtual				~WED_CreatePointTool();
+    void SetResource(const std::string& r);
 
-			void				SetResource(const std::string& r);
+    // WED_MapToolNew
+    virtual const char* GetStatusText(void);
 
-	// WED_MapToolNew
-	virtual	const char *		GetStatusText(void);
+    // From IPropertyObject to customize sign text
+    virtual void GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
+    virtual void GetNthProperty(int n, PropertyVal_t& val) const;
+    virtual void SetNthProperty(int n, const PropertyVal_t& val);
 
-	// From IPropertyObject to customize sign text
-	virtual void		GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
-	virtual void		GetNthProperty(int n, PropertyVal_t& val) const;
-	virtual void		SetNthProperty(int n, const PropertyVal_t& val);
-	
 protected:
+    WED_PropIntEnum beacon_kind;
+    WED_PropIntEnum sign_style;
+    WED_PropIntEnum sign_height;
+    WED_PropIntEnum heli_surface;
+    WED_PropIntEnum heli_markings;
+    WED_PropIntEnum heli_shoulder;
+    WED_PropDoubleText heli_roughness;
+    WED_PropIntEnum heli_edgelights;
+    WED_PropIntEnum light_kind;
+    WED_PropDoubleText light_angle;
+    WED_PropDoubleText tower_height;
+    WED_PropBoolText windsock_lit;
+    WED_PropStringText resource;
+    WED_PropIntEnum show_level;
+    WED_PropDoubleText min_hdg;
+    WED_PropDoubleText max_hdg;
+    WED_PropIntEnum ramp_type;
+    WED_PropIntEnumBitfield equip_type;
+    WED_PropIntEnum width;
+    WED_PropIntEnum ramp_op_type;
+    WED_PropStringText airlines;
+    WED_PropStringText sign_text;
+    WED_PropIntEnum truck_type;
+    WED_PropIntText baggage_car_count;
+    WED_PropIntEnumSet truck_types;
 
-		WED_PropIntEnum			beacon_kind;
-		WED_PropIntEnum			sign_style;
-		WED_PropIntEnum			sign_height;
-		WED_PropIntEnum			heli_surface;
-		WED_PropIntEnum			heli_markings;
-		WED_PropIntEnum			heli_shoulder;
-		WED_PropDoubleText		heli_roughness;
-		WED_PropIntEnum			heli_edgelights;
-		WED_PropIntEnum			light_kind;
-		WED_PropDoubleText		light_angle;
-		WED_PropDoubleText		tower_height;
-		WED_PropBoolText		windsock_lit;
-		WED_PropStringText		resource;
-		WED_PropIntEnum			show_level;
-		WED_PropDoubleText		min_hdg;
-		WED_PropDoubleText		max_hdg;
-		WED_PropIntEnum			ramp_type;
-		WED_PropIntEnumBitfield	equip_type;
-		WED_PropIntEnum			width;
-		WED_PropIntEnum			ramp_op_type;
-		WED_PropStringText		airlines;
-		WED_PropStringText		sign_text;
-		WED_PropIntEnum			truck_type;
-		WED_PropIntText			baggage_car_count;
-		WED_PropIntEnumSet		truck_types;
+    virtual void AcceptPath(const std::vector<Point2>& pts, const std::vector<Point2>& dirs_lo,
+                            const std::vector<Point2>& dirs_hi, const std::vector<int> has_dirs,
+                            const std::vector<int> has_split, int closed);
+    virtual bool CanCreateNow(void);
 
-	virtual	void		AcceptPath(
-							const std::vector<Point2>&	pts,
-							const std::vector<Point2>&	dirs_lo,
-							const std::vector<Point2>&	dirs_hi,
-							const std::vector<int>		has_dirs,
-							const std::vector<int>		has_split,
-							int						closed);
-	virtual	bool		CanCreateNow(void);
-
-		CreatePoint_t	mType;
-
-
+    CreatePoint_t mType;
 };
 
 #endif /* WED_CreatePointTool_H */

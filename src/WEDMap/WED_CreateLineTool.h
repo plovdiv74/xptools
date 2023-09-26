@@ -26,56 +26,45 @@
 
 #include "WED_CreateToolBase.h"
 
-enum CreateLine_t {
-	create_Runway = 0,
-	create_Sealane
+enum CreateLine_t
+{
+    create_Runway = 0,
+    create_Sealane
 };
 
-class WED_CreateLineTool : public WED_CreateToolBase {
+class WED_CreateLineTool : public WED_CreateToolBase
+{
 public:
+    WED_CreateLineTool(const char* tool_name, GUI_Pane* host, WED_MapZoomerNew* zoomer, IResolver* resolver,
+                       WED_Archive* archive, CreateLine_t tool_type);
+    virtual ~WED_CreateLineTool();
 
-						 WED_CreateLineTool(
-									const char *		tool_name,
-									GUI_Pane *			host,
-									WED_MapZoomerNew *	zoomer,
-									IResolver *			resolver,
-									WED_Archive *		archive,
-									CreateLine_t		tool_type);
-	virtual				~WED_CreateLineTool();
+    // WED_MapToolNew
+    virtual const char* GetStatusText(void);
 
-	// WED_MapToolNew
-	virtual	const char *		GetStatusText(void);
-
-	virtual	void		GetNthPropertyDict(int n, PropertyDict_t& dict) const;	
+    virtual void GetNthPropertyDict(int n, PropertyDict_t& dict) const;
 
 protected:
+    WED_PropIntEnum rwy_surface;
+    WED_PropIntEnum rwy_shoulder;
+    WED_PropDoubleText rwy_roughness;
+    WED_PropBoolText rwy_center_lites;
+    WED_PropIntEnum rwy_edge_lights;
+    WED_PropBoolText rwy_remaining_signs;
 
-		WED_PropIntEnum				rwy_surface;
-		WED_PropIntEnum				rwy_shoulder;
-		WED_PropDoubleText			rwy_roughness;
-		WED_PropBoolText			rwy_center_lites;
-		WED_PropIntEnum				rwy_edge_lights;
-		WED_PropBoolText			rwy_remaining_signs;
+    WED_PropIntEnum rwy_markings;
+    WED_PropIntEnum rwy_app_lights;
+    WED_PropBoolText rwy_tdzl;
+    WED_PropIntEnum rwy_reil;
 
-		WED_PropIntEnum				rwy_markings;
-		WED_PropIntEnum				rwy_app_lights;
-		WED_PropBoolText			rwy_tdzl;
-		WED_PropIntEnum				rwy_reil;
+    WED_PropBoolText sea_buoys;
 
-		WED_PropBoolText			sea_buoys;
+    virtual void AcceptPath(const std::vector<Point2>& pts, const std::vector<Point2>& dirs_lo,
+                            const std::vector<Point2>& dirs_hi, const std::vector<int> has_dirs,
+                            const std::vector<int> has_split, int closed);
+    virtual bool CanCreateNow(void);
 
-	virtual	void		AcceptPath(
-							const std::vector<Point2>&	pts,
-							const std::vector<Point2>&	dirs_lo,
-							const std::vector<Point2>&	dirs_hi,
-							const std::vector<int>		has_dirs,
-							const std::vector<int>		has_split,
-							int						closed);
-	virtual	bool		CanCreateNow(void);
-
-		CreateLine_t	mType;
-
-
+    CreateLine_t mType;
 };
 
 #endif /* WED_CreateLineTool_H */

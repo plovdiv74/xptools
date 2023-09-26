@@ -27,33 +27,32 @@
 #include "GUI_Pane.h"
 #include "GUI_Broadcaster.h"
 
-class GUI_Control : public GUI_Pane, public GUI_Broadcaster {
+class GUI_Control : public GUI_Pane, public GUI_Broadcaster
+{
 public:
+    GUI_Control();
+    virtual ~GUI_Control();
 
-			 		 GUI_Control();
-	virtual			~GUI_Control();
+    void SetMsg(intptr_t msg, intptr_t param);
+    float GetValue(void) const;
+    float GetMin(void) const;
+    float GetMax(void) const;
+    float GetPageSize(void) const;
 
-			void	SetMsg(intptr_t msg, intptr_t param);
-			float	GetValue(void) const;
-			float	GetMin(void) const;
-			float	GetMax(void) const;
-			float	GetPageSize(void) const;
+    virtual void SetValue(float inValue);
+    virtual void SetMin(float inMin);
+    virtual void SetMax(float inMax);
+    virtual void SetPageSize(float inPageSize);
 
-	virtual	void	SetValue(float inValue);
-	virtual	void	SetMin(float inMin);
-	virtual	void	SetMax(float inMax);
-	virtual	void	SetPageSize(float inPageSize);
-
-	// Overrides from GUI_Pane.
+    // Overrides from GUI_Pane.
 
 private:
-
-		float		mValue;
-		float		mMin;
-		float		mMax;
-		float		mPageSize;
-		intptr_t	mMsg;
-		intptr_t	mParam;
+    float mValue;
+    float mMin;
+    float mMax;
+    float mPageSize;
+    intptr_t mMsg;
+    intptr_t mParam;
 };
 
 #endif /* GUI_CONTROL_H */

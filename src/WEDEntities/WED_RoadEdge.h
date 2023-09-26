@@ -31,49 +31,75 @@
 
 struct road_info_t;
 
-class WED_RoadEdge : public WED_GISEdge, public IHasResource {
+class WED_RoadEdge : public WED_GISEdge, public IHasResource
+{
 
-DECLARE_PERSISTENT(WED_RoadEdge)
+    DECLARE_PERSISTENT(WED_RoadEdge)
 
 public:
+    int GetStartLayer(void) const
+    {
+        return start_layer.value;
+    }
+    void SetStartLayer(int l)
+    {
+        start_layer = l;
+    }
+    int GetEndLayer(void) const
+    {
+        return end_layer.value;
+    }
+    void SetEndLayer(int l)
+    {
+        end_layer = l;
+    }
+    int GetSubtype(void) const
+    {
+        return subtype.value;
+    }
+    void SetSubtype(int s)
+    {
+        subtype = s;
+    }
+    bool IsValidSubtype(void) const;
+    bool HasWires(void) const;
+    std::pair<double, double> GetWidth(void) const;
 
-	int				GetStartLayer(void) const { return start_layer.value; }
-	void			SetStartLayer(int l) { start_layer = l; }
-	int				GetEndLayer(void) const { return end_layer.value; }
-	void			SetEndLayer(int l) { end_layer = l; }
-	int				GetSubtype(void) const { return subtype.value; }
-	void			SetSubtype(int s) { subtype = s; }
-	bool			IsValidSubtype(void) const;
-	bool			HasWires(void) const;
-	std::pair<double, double> GetWidth(void) const;
+    void GetResource(std::string& r) const
+    {
+        r = resource.value;
+    }
+    void SetResource(const std::string& r)
+    {
+        resource = r;
+    }
 
-	void			GetResource(std::string& r) const { r = resource.value; }
-	void			SetResource(const std::string& r) { resource = r; }
+    bool IsOneway(void) const;
 
-	bool			IsOneway(void) const;
+    const char* HumanReadableType(void) const
+    {
+        return "Road";
+    }
 
-	const char *	HumanReadableType(void) const { return "Road"; }
-
-	void			GetNthProperty(int n, PropertyVal_t& val) const;
-	void			SetNthProperty(int n, const PropertyVal_t& val);
-	void			GetNthPropertyDict(int n, PropertyDict_t& dict) const;
-	void			GetNthPropertyDictItem(int n, int e, std::string& item) const;
-	void			GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
-
+    void GetNthProperty(int n, PropertyVal_t& val) const;
+    void SetNthProperty(int n, const PropertyVal_t& val);
+    void GetNthPropertyDict(int n, PropertyDict_t& dict) const;
+    void GetNthPropertyDictItem(int n, int e, std::string& item) const;
+    void GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
 
 protected:
-
-	bool			CanBeCurved() const { return true; }
+    bool CanBeCurved() const
+    {
+        return true;
+    }
 
 private:
+    const road_info_t* get_valid_road_info(void) const;
 
-	const road_info_t * 	get_valid_road_info(void) const;
-
-	WED_PropStringText		resource;
-	WED_PropIntText			start_layer;
-	WED_PropIntText			end_layer;
-	WED_PropIntText			subtype;
-
+    WED_PropStringText resource;
+    WED_PropIntText start_layer;
+    WED_PropIntText end_layer;
+    WED_PropIntText subtype;
 };
 
 #endif

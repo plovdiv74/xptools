@@ -27,42 +27,43 @@
 #include "IHasResource.h"
 #include "WED_GISChain.h"
 
-class WED_LinePlacement : public WED_GISChain, public IHasResource {
+class WED_LinePlacement : public WED_GISChain, public IHasResource
+{
 
-DECLARE_PERSISTENT(WED_LinePlacement)
+    DECLARE_PERSISTENT(WED_LinePlacement)
 
 public:
+    virtual bool IsClosed(void) const;
+    void SetClosed(int closure);
 
-	virtual	bool			IsClosed	(void	) const	;
-			void			SetClosed(int closure);
+    virtual void GetResource(std::string& r) const;
+    virtual void SetResource(const std::string& r);
 
-	virtual void			GetResource(	  std::string& r) const;
-	virtual void			SetResource(const std::string& r);
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Line";
+    }
 
-	virtual const char *	HumanReadableType(void) const { return "Line"; }
+    // IPropertyObject
+    int FindProperty(const char* in_prop) const;
+    int CountProperties(void) const;
+    void GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
 
-	// IPropertyObject
-	int			FindProperty(const char * in_prop) const;
-	int			CountProperties(void) const;
-	void		GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
+    void GetNthPropertyDict(int n, PropertyDict_t& dict) const;
+    void GetNthPropertyDictItem(int n, int e, std::string& item) const;
 
-	void		GetNthPropertyDict(int n, PropertyDict_t& dict) const;
-	void		GetNthPropertyDictItem(int n, int e, std::string& item) const;
-
-	void		GetNthProperty(int n, PropertyVal_t& val) const;
-	void		SetNthProperty(int n, const PropertyVal_t& val);
+    void GetNthProperty(int n, PropertyVal_t& val) const;
+    void SetNthProperty(int n, const PropertyVal_t& val);
 
 protected:
-
-	virtual	bool			IsJustPoints(void) const { return false; }
+    virtual bool IsJustPoints(void) const
+    {
+        return false;
+    }
 
 private:
-
-	WED_PropBoolText		closed;
-	WED_PropStringText		resource;
-
+    WED_PropBoolText closed;
+    WED_PropStringText resource;
 };
-
-
 
 #endif /* WED_LinePlacement_H */

@@ -26,18 +26,16 @@
 
 #include "WED_MapLayer.h"
 
-class	WED_MapBkgnd : public WED_MapLayer {
+class WED_MapBkgnd : public WED_MapLayer
+{
 public:
+    WED_MapBkgnd(GUI_Pane* host, WED_MapZoomerNew* zoomer, IResolver* resolver);
+    virtual ~WED_MapBkgnd();
 
-						 WED_MapBkgnd(GUI_Pane * host, WED_MapZoomerNew * zoomer, IResolver * resolver);
-	virtual				~WED_MapBkgnd();
+    virtual void DrawVisualization(bool inCurrent, GUI_GraphState* g);
+    virtual void DrawStructure(bool inCurrent, GUI_GraphState* g);
 
-	virtual	void		DrawVisualization(bool inCurrent, GUI_GraphState * g);
-	virtual	void		DrawStructure	 (bool inCurrent, GUI_GraphState * g);
-
-	virtual	void		GetCaps(bool& draw_ent_v, bool& draw_ent_s, bool& cares_about_sel, bool& wants_clicks);
-
+    virtual void GetCaps(bool& draw_ent_v, bool& draw_ent_s, bool& cares_about_sel, bool& wants_clicks);
 };
-
 
 #endif

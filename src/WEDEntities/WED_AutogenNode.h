@@ -26,27 +26,28 @@
 
 #include "WED_GISPoint.h"
 
-class WED_AutogenNode : public WED_GISPoint {
+class WED_AutogenNode : public WED_GISPoint
+{
 
-DECLARE_PERSISTENT(WED_AutogenNode)
+    DECLARE_PERSISTENT(WED_AutogenNode)
 
 public:
+    virtual bool HasLayer(GISLayer_t layer) const;
 
-	virtual	bool	HasLayer           (GISLayer_t layer            ) const;
+    virtual void GetLocation(GISLayer_t l, Point2& p) const;
 
-	virtual	void	GetLocation		   (GISLayer_t l,      Point2& p) const;
+    bool GetSpawning(void) const;
+    void SetSpawning(bool sp);
 
-			bool	GetSpawning(void) const;
-			void	SetSpawning(bool sp);
+    virtual void GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
 
-	virtual void	GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
-
-	virtual const char *	HumanReadableType(void) const { return "Autogen Node"; }
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Autogen Node";
+    }
 
 private:
-
-	WED_PropBoolText	spawning;
+    WED_PropBoolText spawning;
 };
-
 
 #endif /* WED_AutogenNode_H */

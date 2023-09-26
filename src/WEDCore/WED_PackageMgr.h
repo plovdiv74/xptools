@@ -28,64 +28,63 @@
 
 struct WED_PackageInfo;
 
-class WED_PackageMgr : public GUI_Broadcaster {
+class WED_PackageMgr : public GUI_Broadcaster
+{
 public:
+    WED_PackageMgr(const char* in_xplane_folder);
+    ~WED_PackageMgr();
 
- 	 WED_PackageMgr(const char *		in_xplane_folder);
-	~WED_PackageMgr();
+    bool HasSystemFolder(void) const;
+    bool GetXPlaneFolder(std::string& root) const;
+    bool SetXPlaneFolder(const std::string& root);
 
-	bool		HasSystemFolder(void) const;
-	bool		GetXPlaneFolder(std::string& root) const;
-	bool		SetXPlaneFolder(const std::string& root);
+    void GetRecentName(std::string& name) const;
+    void SetRecentName(const std::string& name);
 
-	void		GetRecentName(std::string& name) const;
-	void		SetRecentName(const std::string& name);
+    int CountCustomPackages(void) const;
+    std::pair<int, int> GlobalPackages(void) const;
 
-	int			CountCustomPackages(void) const;
-	std::pair<int, int>	GlobalPackages(void) const;
+    int CountPackages(void) const;
+    void GetNthPackageName(int n, std::string& package) const;
+    /*Get the a package's path by passing in a number and the name of said package,
+    changes the std::string passed in into the real physical filepath.*/
+    void GetNthPackagePath(int n, std::string& package) const;
 
-	int			CountPackages(void) const;
-	void		GetNthPackageName(int n, std::string& package) const;
-	/*Get the a package's path by passing in a number and the name of said package,
-	changes the std::string passed in into the real physical filepath.*/
-	void		GetNthPackagePath(int n, std::string& package) const;
-	
-	bool		IsPackageDefault(int n) const;		  // library is a LR default Library, i.e. not Global or Custom Scenery
-	bool		HasPublicItems(int n) const;          // library has at least one public item declared in it
-	
-	// functions only effective on custom packages
-	bool		HasXML(int n) const;                  // includes earth.wed.xml
-	bool		HasAPT(int n) const;                  // includes apt.dat
-	bool		IsDisabled(int n) const;              // marked as disabled in the scenerypacks.ini
-	bool		HasLibrary(int n) const;          	  // includes library.txt
-	void		AddPublicItems(int n);
-	void		RenameCustomPackage(int n, const std::string& new_name);
-	int			CreateNewCustomPackage(void);
-	
-	void		Rescan(bool alwaysBroadcast = false);
+    bool IsPackageDefault(int n) const; // library is a LR default Library, i.e. not Global or Custom Scenery
+    bool HasPublicItems(int n) const;   // library has at least one public item declared in it
 
-	std::string		ComputePath(const std::string& package, const std::string& rel_file) const;
-	std::string		ReducePath(const std::string& package, const std::string& full_file) const;
+    // functions only effective on custom packages
+    bool HasXML(int n) const;     // includes earth.wed.xml
+    bool HasAPT(int n) const;     // includes apt.dat
+    bool IsDisabled(int n) const; // marked as disabled in the scenerypacks.ini
+    bool HasLibrary(int n) const; // includes library.txt
+    void AddPublicItems(int n);
+    void RenameCustomPackage(int n, const std::string& new_name);
+    int CreateNewCustomPackage(void);
 
-	const char * GetXPversion() const;                           // report apparent XP installation version by looking at Log.txt
-	bool		IsSameXPVersion( const std::string& version) const;
+    void Rescan(bool alwaysBroadcast = false);
+
+    std::string ComputePath(const std::string& package, const std::string& rel_file) const;
+    std::string ReducePath(const std::string& package, const std::string& full_file) const;
+
+    const char* GetXPversion() const; // report apparent XP installation version by looking at Log.txt
+    bool IsSameXPVersion(const std::string& version) const;
 
 private:
-	
-	static	bool	AccumAnyDir(const char * fileName, bool isDir, void * ref);
-	static	bool	AccumLibDir(const char * fileName, bool isDir, void * ref);
+    static bool AccumAnyDir(const char* fileName, bool isDir, void* ref);
+    static bool AccumLibDir(const char* fileName, bool isDir, void* ref);
 
-	std::string			system_path;
-	bool			system_exists;
+    std::string system_path;
+    bool system_exists;
 
-	std::vector<WED_PackageInfo> custom_packages;
-	std::vector<WED_PackageInfo> global_packages;
-	std::vector<WED_PackageInfo> default_packages;
+    std::vector<WED_PackageInfo> custom_packages;
+    std::vector<WED_PackageInfo> global_packages;
+    std::vector<WED_PackageInfo> default_packages;
 
-	std::string			XPversion;     // apparent version of XP install, from examining Log.txt
-	std::string			RecentPkgName;
+    std::string XPversion; // apparent version of XP install, from examining Log.txt
+    std::string RecentPkgName;
 };
 
-extern WED_PackageMgr *		gPackageMgr;
+extern WED_PackageMgr* gPackageMgr;
 
 #endif /* WED_PackageMgr_H */

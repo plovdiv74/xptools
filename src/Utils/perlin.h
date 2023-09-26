@@ -23,16 +23,16 @@
 #ifndef PERLIN_H
 #define PERLIN_H
 
-#define RAN_RAT_DIM  13127
+#define RAN_RAT_DIM 13127
 
-extern float gRandomRats	[RAN_RAT_DIM];
+extern float gRandomRats[RAN_RAT_DIM];
 
-inline	float	GetRandomRat(int seed)
+inline float GetRandomRat(int seed)
 {
-	return gRandomRats[seed % RAN_RAT_DIM];
+    return gRandomRats[seed % RAN_RAT_DIM];
 }
 
-float interp_noise_2d(const float x,const float y,const int seed);
+float interp_noise_2d(const float x, const float y, const int seed);
 float perlin_1d(float x, int min_level, int max_level, float persistence, int seed);
 float perlin_2d(float x, float y, int min_level, int max_level, float persistence, int seed);
 

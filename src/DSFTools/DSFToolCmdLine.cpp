@@ -30,75 +30,84 @@
 #include <stdlib.h>
 #endif
 
-FILE * err_fi = stdout;
+FILE* err_fi = stdout;
 
-void AssertShellBail(const char * condition, const char * file, int line)
+void AssertShellBail(const char* condition, const char* file, int line)
 {
-	fprintf(err_fi,"ERROR: %s\n", condition);
-	fprintf(err_fi,"(%s, %d.)\n", file, line);
-	exit(1);
+    fprintf(err_fi, "ERROR: %s\n", condition);
+    fprintf(err_fi, "(%s, %d.)\n", file, line);
+    exit(1);
 }
 
-int main(int argc, char * argv[])
+int main(int argc, char* argv[])
 {
-	InstallDebugAssertHandler(AssertShellBail);
-	InstallAssertHandler(AssertShellBail);
+    InstallDebugAssertHandler(AssertShellBail);
+    InstallAssertHandler(AssertShellBail);
 
-	if (argc < 2 || !strcmp(argv[1],"-h")) goto help;
+    if (argc < 2 || !strcmp(argv[1], "-h"))
+        goto help;
 
-	if(!strcmp(argv[1],"--auto_config"))
-	{
-		printf("CMD .txt .dsf \"%s\" -text2dsf \"INFILE\" \"OUTFILE\"\n", argv[0]);
-		printf("CMD .dsf .txt \"%s\" -dsf2text \"INFILE\" \"OUTFILE\"\n", argv[0]);
-		return 0;
-	}
+    if (!strcmp(argv[1], "--auto_config"))
+    {
+        printf("CMD .txt .dsf \"%s\" -text2dsf \"INFILE\" \"OUTFILE\"\n", argv[0]);
+        printf("CMD .dsf .txt \"%s\" -dsf2text \"INFILE\" \"OUTFILE\"\n", argv[0]);
+        return 0;
+    }
 
-	for (int n = 1; n < argc; ++n)
-	{
-		if (!strcmp(argv[n], "-dsf2text") ||
-			!strcmp(argv[n], "--dsf2text"))
-		{
-			++n;
-			if (n >= argc) goto help;
-			
-			const char * f2 = argv[argc-1];
-			if (strcmp(f2,"-")==0)			// If we are directing the DSF text stream to stdout
-				err_fi=stderr;				// then put err msgs to stderr.
+    for (int n = 1; n < argc; ++n)
+    {
+        if (!strcmp(argv[n], "-dsf2text") || !strcmp(argv[n], "--dsf2text"))
+        {
+            ++n;
+            if (n >= argc)
+                goto help;
 
-			fprintf(err_fi,"Converting %s from DSF to text as %s\n", argv[n], f2);
-			if (DSF2Text(argv+n, argc - n - 1, f2))
-				fprintf(err_fi,"Converted %s to %s\n",argv[n], f2);
-			else
-				{ fprintf(err_fi,"ERROR: Error convertiong %s to %s\n", argv[n], f2); exit(1); }
-		}
+            const char* f2 = argv[argc - 1];
+            if (strcmp(f2, "-") == 0) // If we are directing the DSF text stream to stdout
+                err_fi = stderr;      // then put err msgs to stderr.
 
-		if (!strcmp(argv[n], "-text2dsf") ||
-			!strcmp(argv[n], "--text2dsf"))
-		{
-			++n;
-			if (n >= argc) goto help;
-			const char * f1 = argv[n];
-			++n;
-			if (n >= argc) goto help;
-			const char * f2 = argv[n];
+            fprintf(err_fi, "Converting %s from DSF to text as %s\n", argv[n], f2);
+            if (DSF2Text(argv + n, argc - n - 1, f2))
+                fprintf(err_fi, "Converted %s to %s\n", argv[n], f2);
+            else
+            {
+                fprintf(err_fi, "ERROR: Error convertiong %s to %s\n", argv[n], f2);
+                exit(1);
+            }
+        }
 
-			printf("Converting %s from text to DSF as %s\n", f1, f2);
-			if (Text2DSF(f1, f2))
-				printf("Converted %s to %s\n",f1, f2);
-			else
-				{ fprintf(err_fi, "ERROR: Error convertiong %s to %s\n", f1, f2); exit(1); }
-		}
-		if (!strcmp(argv[n], "--version"))
-		{
-			print_product_version("DSFTool", DSFTOOL_VER, DSFTOOL_EXTRAVER);
-		}
-	}
+        if (!strcmp(argv[n], "-text2dsf") || !strcmp(argv[n], "--text2dsf"))
+        {
+            ++n;
+            if (n >= argc)
+                goto help;
+            const char* f1 = argv[n];
+            ++n;
+            if (n >= argc)
+                goto help;
+            const char* f2 = argv[n];
 
-	return 0;
+            printf("Converting %s from text to DSF as %s\n", f1, f2);
+            if (Text2DSF(f1, f2))
+                printf("Converted %s to %s\n", f1, f2);
+            else
+            {
+                fprintf(err_fi, "ERROR: Error convertiong %s to %s\n", f1, f2);
+                exit(1);
+            }
+        }
+        if (!strcmp(argv[n], "--version"))
+        {
+            print_product_version("DSFTool", DSFTOOL_VER, DSFTOOL_EXTRAVER);
+        }
+    }
+
+    return 0;
 help:
-	fprintf(err_fi, "Usage: %s --dsf2text [dsffile] [textfile]\n",argv[0]);
-	fprintf(err_fi, "       %s --text2dsf [textfile] [dsffile]\n",argv[0]);
-	fprintf(err_fi, "       %s --version\n",argv[0]);
-	fprintf(err_fi, "Please note: dsftool still supports single-hyphen (-dsf2text) syntax for backward compatibility.\n");
-	return 1;
+    fprintf(err_fi, "Usage: %s --dsf2text [dsffile] [textfile]\n", argv[0]);
+    fprintf(err_fi, "       %s --text2dsf [textfile] [dsffile]\n", argv[0]);
+    fprintf(err_fi, "       %s --version\n", argv[0]);
+    fprintf(err_fi,
+            "Please note: dsftool still supports single-hyphen (-dsf2text) syntax for backward compatibility.\n");
+    return 1;
 }

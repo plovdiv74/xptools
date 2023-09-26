@@ -24,6 +24,6 @@
 #ifndef GUI_Help_H
 #define GUI_Help_H
 
-void	GUI_LaunchURL(const char * url);
+void GUI_LaunchURL(const char* url);
 
 #endif /* GUI_Help_H */

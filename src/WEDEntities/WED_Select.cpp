@@ -29,8 +29,7 @@
 
 DEFINE_PERSISTENT(WED_Select)
 
-WED_Select::WED_Select(WED_Archive * parent, int id) :
-	WED_Thing(parent, id)
+WED_Select::WED_Select(WED_Archive* parent, int id) : WED_Thing(parent, id)
 {
 }
 
@@ -38,208 +37,212 @@ WED_Select::~WED_Select()
 {
 }
 
-void WED_Select::CopyFrom(const WED_Select * rhs)
+void WED_Select::CopyFrom(const WED_Select* rhs)
 {
-	DebugAssert(!"We should not be copying selection objects.");
-	WED_Thing::CopyFrom(rhs);
-	StateChanged();
-	mSelected = rhs->mSelected;
+    DebugAssert(!"We should not be copying selection objects.");
+    WED_Thing::CopyFrom(rhs);
+    StateChanged();
+    mSelected = rhs->mSelected;
 }
 
-bool 			WED_Select::ReadFrom(IOReader * reader)
+bool WED_Select::ReadFrom(IOReader* reader)
 {
-	bool r = WED_Thing::ReadFrom(reader);
-	int n,id;
-	reader->ReadInt(n);
-	mSelected.clear();
-	while(n--)
-	{
-		reader->ReadInt(id);
-		mSelected.insert(id);
-	}
-	return r;
+    bool r = WED_Thing::ReadFrom(reader);
+    int n, id;
+    reader->ReadInt(n);
+    mSelected.clear();
+    while (n--)
+    {
+        reader->ReadInt(id);
+        mSelected.insert(id);
+    }
+    return r;
 }
 
-void 			WED_Select::WriteTo(IOWriter * writer)
+void WED_Select::WriteTo(IOWriter* writer)
 {
-	WED_Thing::WriteTo(writer);
-	writer->WriteInt(mSelected.size());
-	for (std::set<int>::iterator i = mSelected.begin(); i != mSelected.end(); ++i)
-		writer->WriteInt(*i);
-
+    WED_Thing::WriteTo(writer);
+    writer->WriteInt(mSelected.size());
+    for (std::set<int>::iterator i = mSelected.begin(); i != mSelected.end(); ++i)
+        writer->WriteInt(*i);
 }
 
-void		WED_Select::AddExtraXML(WED_XMLElement * obj)
+void WED_Select::AddExtraXML(WED_XMLElement* obj)
 {
-	WED_XMLElement * selection = obj->add_sub_element("selection");
-	for(std::set<int>::iterator i = mSelected.begin(); i != mSelected.end(); ++i)
-	{
-		WED_XMLElement * sel = selection->add_sub_element("sel");
-		sel->add_attr_int("id",*i);
-	}
+    WED_XMLElement* selection = obj->add_sub_element("selection");
+    for (std::set<int>::iterator i = mSelected.begin(); i != mSelected.end(); ++i)
+    {
+        WED_XMLElement* sel = selection->add_sub_element("sel");
+        sel->add_attr_int("id", *i);
+    }
 }
 
-void		WED_Select::StartElement(
-								WED_XMLReader * reader,
-								const XML_Char *	name,
-								const XML_Char **	atts)
+void WED_Select::StartElement(WED_XMLReader* reader, const XML_Char* name, const XML_Char** atts)
 {
-	if(strcmp(name,"sel")==0)
-	{
-		const XML_Char * id = get_att("id",atts);
-		if(!id)
-			reader->FailWithError("No id");
-		else
-			mSelected.insert(atoi(id));
-	}
-	else if(strcmp(name,"selection")==0)
-	{
-		mSelected.clear();
-	}
-	else
-		WED_Thing::StartElement(reader,name,atts);
+    if (strcmp(name, "sel") == 0)
+    {
+        const XML_Char* id = get_att("id", atts);
+        if (!id)
+            reader->FailWithError("No id");
+        else
+            mSelected.insert(atoi(id));
+    }
+    else if (strcmp(name, "selection") == 0)
+    {
+        mSelected.clear();
+    }
+    else
+        WED_Thing::StartElement(reader, name, atts);
 }
 
-void		WED_Select::EndElement(void) { }
-void		WED_Select::PopHandler(void) { }
-
+void WED_Select::EndElement(void)
+{
+}
+void WED_Select::PopHandler(void)
+{
+}
 
 #pragma mark -
 
-bool		WED_Select::IsSelected(ISelectable * iwho) const
+bool WED_Select::IsSelected(ISelectable* iwho) const
 {
-	return mSelected.count(iwho->GetSelectionID()) > 0;
+    return mSelected.count(iwho->GetSelectionID()) > 0;
 }
 
-void		WED_Select::Select(ISelectable * iwho)
+void WED_Select::Select(ISelectable* iwho)
 {
-	int id = iwho->GetSelectionID();
+    int id = iwho->GetSelectionID();
 
-	if (mSelected.size() != 1 || mSelected.count(id) == 0)
-	{
-		StateChanged(wed_Change_Selection);
-		mSelected.clear();
-		mSelected.insert(id);
-	}
+    if (mSelected.size() != 1 || mSelected.count(id) == 0)
+    {
+        StateChanged(wed_Change_Selection);
+        mSelected.clear();
+        mSelected.insert(id);
+    }
 }
 
-void		WED_Select::Clear(void)
+void WED_Select::Clear(void)
 {
-	if (!mSelected.empty())
-	{
-		StateChanged(wed_Change_Selection);
-		mSelected.clear();
-	}
+    if (!mSelected.empty())
+    {
+        StateChanged(wed_Change_Selection);
+        mSelected.clear();
+    }
 }
 
-void		WED_Select::Toggle(ISelectable * iwho)
+void WED_Select::Toggle(ISelectable* iwho)
 {
-	int id = iwho->GetSelectionID();
+    int id = iwho->GetSelectionID();
 
-	StateChanged(wed_Change_Selection);
-	if (mSelected.count(id) > 0)
-		mSelected.erase(id);
-	else
-		mSelected.insert(id);
+    StateChanged(wed_Change_Selection);
+    if (mSelected.count(id) > 0)
+        mSelected.erase(id);
+    else
+        mSelected.insert(id);
 }
 
-void		WED_Select::Insert(ISelectable * iwho)
+void WED_Select::Insert(ISelectable* iwho)
 {
-	int id = iwho->GetSelectionID();
+    int id = iwho->GetSelectionID();
 
-	if (mSelected.count(id) == 0)
-	{
-		StateChanged(wed_Change_Selection);
-		mSelected.insert(id);
-	}
+    if (mSelected.count(id) == 0)
+    {
+        StateChanged(wed_Change_Selection);
+        mSelected.insert(id);
+    }
 }
 
 void WED_Select::Insert(const std::set<ISelectable*>& sel)
 {
-	Insert(sel.begin(), sel.end());
+    Insert(sel.begin(), sel.end());
 }
 
-void WED_Select::Insert(const std::set<ISelectable*>::const_iterator& begin, const std::set<ISelectable*>::const_iterator& end)
+void WED_Select::Insert(const std::set<ISelectable*>::const_iterator& begin,
+                        const std::set<ISelectable*>::const_iterator& end)
 {
-	for (std::set<ISelectable*>::const_iterator itr = begin; itr != end; ++itr)
-	{
-		Insert(*itr);
-	}
+    for (std::set<ISelectable*>::const_iterator itr = begin; itr != end; ++itr)
+    {
+        Insert(*itr);
+    }
 }
 
 void WED_Select::Insert(const std::vector<ISelectable*>& sel)
 {
-	Insert(sel.begin(), sel.end());
+    Insert(sel.begin(), sel.end());
 }
 
-void WED_Select::Insert(const std::vector<ISelectable*>::const_iterator& begin, const std::vector<ISelectable*>::const_iterator& end)
+void WED_Select::Insert(const std::vector<ISelectable*>::const_iterator& begin,
+                        const std::vector<ISelectable*>::const_iterator& end)
 {
-	for (std::vector<ISelectable*>::const_iterator itr = begin; itr != end; ++itr)
-	{
-		Insert(*itr);
-	}
+    for (std::vector<ISelectable*>::const_iterator itr = begin; itr != end; ++itr)
+    {
+        Insert(*itr);
+    }
 }
 
-void		WED_Select::Erase(ISelectable * iwho)
+void WED_Select::Erase(ISelectable* iwho)
 {
-	int id = iwho->GetSelectionID();
+    int id = iwho->GetSelectionID();
 
-	if (mSelected.count(id) > 0)
-	{
-		StateChanged(wed_Change_Selection);
-		mSelected.erase(id);
-	}
+    if (mSelected.count(id) > 0)
+    {
+        StateChanged(wed_Change_Selection);
+        mSelected.erase(id);
+    }
 }
 
-int				WED_Select::GetSelectionCount(void) const
+int WED_Select::GetSelectionCount(void) const
 {
-	return mSelected.size();
+    return mSelected.size();
 }
 
-void			WED_Select::GetSelectionSet(std::set<ISelectable *>& sel) const
+void WED_Select::GetSelectionSet(std::set<ISelectable*>& sel) const
 {
-	sel.clear();
-	for (std::set<int>::const_iterator i = mSelected.begin(); i != mSelected.end(); ++i)
-		sel.insert(FetchPeer(*i));
+    sel.clear();
+    for (std::set<int>::const_iterator i = mSelected.begin(); i != mSelected.end(); ++i)
+        sel.insert(FetchPeer(*i));
 }
 
-void			WED_Select::GetSelectionVector(std::vector<ISelectable *>& sel) const
+void WED_Select::GetSelectionVector(std::vector<ISelectable*>& sel) const
 {
-	sel.clear();
-	if (mSelected.empty()) return;
-	sel.reserve(mSelected.size());
-	for (std::set<int>::const_iterator i = mSelected.begin(); i != mSelected.end(); ++i)
-		sel.push_back(FetchPeer(*i));
+    sel.clear();
+    if (mSelected.empty())
+        return;
+    sel.reserve(mSelected.size());
+    for (std::set<int>::const_iterator i = mSelected.begin(); i != mSelected.end(); ++i)
+        sel.push_back(FetchPeer(*i));
 }
 
-ISelectable *		WED_Select::GetNthSelection(int n) const
+ISelectable* WED_Select::GetNthSelection(int n) const
 {
-	DebugAssert(n >= 0 && n < mSelected.size());
-	if (n < 0) return NULL;
-	std::set<int>::const_iterator i = mSelected.begin();
-	while (n > 0 && i != mSelected.end())
-	{
-		--n;
-		++i;
-	}
-	if (i == mSelected.end()) return NULL;
-	return FetchPeer(*i);
+    DebugAssert(n >= 0 && n < mSelected.size());
+    if (n < 0)
+        return NULL;
+    std::set<int>::const_iterator i = mSelected.begin();
+    while (n > 0 && i != mSelected.end())
+    {
+        --n;
+        ++i;
+    }
+    if (i == mSelected.end())
+        return NULL;
+    return FetchPeer(*i);
 }
 
-int			WED_Select::IterateSelectionOr(int (* func)(ISelectable * who, void * ref), void * ref) const
+int WED_Select::IterateSelectionOr(int (*func)(ISelectable* who, void* ref), void* ref) const
 {
-	int n = 0;
-	for (std::set<int>::const_iterator i = mSelected.begin(); i != mSelected.end(); ++i)
-		if ((n=func(FetchPeer(*i), ref)) != 0)
-			return n;
-	return 0;
+    int n = 0;
+    for (std::set<int>::const_iterator i = mSelected.begin(); i != mSelected.end(); ++i)
+        if ((n = func(FetchPeer(*i), ref)) != 0)
+            return n;
+    return 0;
 }
 
-int			WED_Select::IterateSelectionAnd(int (* func)(ISelectable * who, void * ref), void * ref) const
+int WED_Select::IterateSelectionAnd(int (*func)(ISelectable* who, void* ref), void* ref) const
 {
-	int n = 0;
-	for (std::set<int>::const_iterator i = mSelected.begin(); i != mSelected.end(); ++i)
-		if ((n=func(FetchPeer(*i), ref)) == 0)
-			return n;
-	return 1;
+    int n = 0;
+    for (std::set<int>::const_iterator i = mSelected.begin(); i != mSelected.end(); ++i)
+        if ((n = func(FetchPeer(*i), ref)) == 0)
+            return n;
+    return 1;
 }

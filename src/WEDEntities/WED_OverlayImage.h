@@ -27,40 +27,45 @@
 #include "WED_GISPolygon.h"
 #include "IGIS.h"
 
-typedef std::vector<Point2> gcp_t;    // ground control points - for warping/projection
+typedef std::vector<Point2> gcp_t; // ground control points - for warping/projection
 
-class WED_OverlayImage : public WED_GISPolygon, public virtual IGISQuad {
+class WED_OverlayImage : public WED_GISPolygon, public virtual IGISQuad
+{
 
-DECLARE_PERSISTENT(WED_OverlayImage)
+    DECLARE_PERSISTENT(WED_OverlayImage)
 
 public:
+    void GetImage(std::string& image_file) const;
+    void SetImage(const std::string& image_file);
+    double GetAlpha(void) const;
+    const gcp_t* GetGcpMat(void);
 
-	void		GetImage(std::string& image_file) const;
-	void		SetImage(const std::string& image_file);
-	double		GetAlpha(void) const;
-	const gcp_t * 	GetGcpMat(void);
+    virtual void GetCorners(GISLayer_t l, Point2 corners[4]) const;
 
-	virtual	void	GetCorners(GISLayer_t l,Point2 corners[4]) const;
+    virtual void MoveCorner(GISLayer_t l, int corner, const Vector2& delta);
+    virtual void MoveSide(GISLayer_t l, int side, const Vector2& delta);
 
-	virtual	void	MoveCorner(GISLayer_t l,int corner, const Vector2& delta);
-	virtual	void	MoveSide(GISLayer_t l,int side, const Vector2& delta);
+    virtual void ResizeSide(GISLayer_t l, int side, const Vector2& delta, bool symetric);
+    virtual void ResizeCorner(GISLayer_t l, int side, const Vector2& delta, bool symetric);
 
-	virtual	void	ResizeSide(GISLayer_t l,int side, const Vector2& delta, bool symetric);
-	virtual	void	ResizeCorner(GISLayer_t l,int side, const Vector2& delta, bool symetric);
-
-	virtual const char *	HumanReadableType(void) const { return "Reference Image"; }
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Reference Image";
+    }
 
 protected:
-
-	virtual	bool		IsInteriorFilled(void) const { return true; }
+    virtual bool IsInteriorFilled(void) const
+    {
+        return true;
+    }
 
 private:
+    WED_PropFileText mImageFile;
+    WED_PropDoubleText mAlpha;
+    bool mGcpSet;
 
-	WED_PropFileText		mImageFile;
-	WED_PropDoubleText		mAlpha;
-	bool					mGcpSet;
 public:
-	gcp_t					mGcp;
+    gcp_t mGcp;
 };
 
 #endif /* WED_OverlayImage_H */

@@ -22,35 +22,34 @@
  */
 
 /*
-	GUI_MemmoryHog - THEORY OF OPERATION
+    GUI_MemmoryHog - THEORY OF OPERATION
 
-	Simply: GU_MemoryHog is a mix-in that lets classes participate in emergency memory management.  When we run out of memory,
-	ReleaseMemory() is called on all memory hogs.  On each call, a participant should release some (but not necessarily) all memory
-	in an attempt to free memory.  Result codes: true if we did free memory, false if we have nothing to free.
+    Simply: GU_MemoryHog is a mix-in that lets classes participate in emergency memory management.  When we run out of
+   memory, ReleaseMemory() is called on all memory hogs.  On each call, a participant should release some (but not
+   necessarily) all memory in an attempt to free memory.  Result codes: true if we did free memory, false if we have
+   nothing to free.
 
-	This is called from operator new via the new_handler.  For example, WED's undo manager is a memory hog and it will urge undos
-	to free memory in emergencies.
+    This is called from operator new via the new_handler.  For example, WED's undo manager is a memory hog and it will
+   urge undos to free memory in emergencies.
 
 */
 
 #ifndef GUI_MemoryHog_H
 #define GUI_MemoryHog_H
 
-class GUI_MemoryHog {
+class GUI_MemoryHog
+{
 public:
+    GUI_MemoryHog();
+    virtual ~GUI_MemoryHog();
 
-					 GUI_MemoryHog();
-	virtual			~GUI_MemoryHog();
+    virtual bool ReleaseMemory(void) = 0;
 
-	virtual	bool	ReleaseMemory(void)=0;
-
-	static	void	InstallNewHandler(void);
-	static	void	RemoveNewHandler(void);
+    static void InstallNewHandler(void);
+    static void RemoveNewHandler(void);
 
 private:
-
-	  static void	our_new_handler();
-
+    static void our_new_handler();
 };
 
 #endif /* GUI_MemoryHog_H */

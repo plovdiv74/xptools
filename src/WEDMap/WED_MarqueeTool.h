@@ -28,67 +28,68 @@
 #include "IControlHandles.h"
 #include "IOperation.h"
 
-enum marquee_mode_t {
-	mm_None=0,			// No edit going on
-	mm_Drag,			// Drag any corner
-	mm_Rotate,			// Rotate around center
-	mm_Center,			// Drag, keep center in center
-	mm_Prop,			// Drag, maintain aspect ratio
-	mm_Prop_Center		// DRag, maintain aspect ratio AND keep center in center
+enum marquee_mode_t
+{
+    mm_None = 0,   // No edit going on
+    mm_Drag,       // Drag any corner
+    mm_Rotate,     // Rotate around center
+    mm_Center,     // Drag, keep center in center
+    mm_Prop,       // Drag, maintain aspect ratio
+    mm_Prop_Center // DRag, maintain aspect ratio AND keep center in center
 };
 
-class	WED_MarqueeTool : public WED_HandleToolBase, public virtual IControlHandles {
+class WED_MarqueeTool : public WED_HandleToolBase, public virtual IControlHandles
+{
 public:
+    WED_MarqueeTool(const char* tool_name, GUI_Pane* host, WED_MapZoomerNew* zoomer, IResolver* resolver);
+    virtual ~WED_MarqueeTool();
 
-						 WED_MarqueeTool(
-										const char *			tool_name,
-										GUI_Pane *				host,
-										WED_MapZoomerNew *		zoomer,
-										IResolver *				resolver);
-	virtual				~WED_MarqueeTool();
+    // CONTROL HANDLE INTERFACE:
+    virtual void BeginEdit(void);
+    virtual void EndEdit(void);
 
+    virtual int CountEntities(void) const;
+    virtual intptr_t GetNthEntityID(int n) const;
 
-	// CONTROL HANDLE INTERFACE:
-	virtual		void	BeginEdit(void);
-	virtual		void	EndEdit(void);
+    virtual int CountControlHandles(intptr_t id) const;
+    virtual void GetNthControlHandle(intptr_t id, int n, bool* active, HandleType_t* con_type, Point2* p,
+                                     Vector2* direction, float* radius) const;
 
-	virtual		int				CountEntities(void) const;
-	virtual		intptr_t		GetNthEntityID(int n) const;
+    virtual int GetLinks(intptr_t id) const;
+    virtual void GetNthLinkInfo(intptr_t id, int n, bool* active, LinkType_t* ltype) const;
+    virtual int GetNthLinkSource(intptr_t id, int n) const;
+    virtual int GetNthLinkSourceCtl(intptr_t id, int n) const; // -1 if no bezier ctl point!
+    virtual int GetNthLinkTarget(intptr_t id, int n) const;
+    virtual int GetNthLinkTargetCtl(intptr_t id, int n) const;
 
-	virtual		int				CountControlHandles(intptr_t id						  ) const;
-	virtual		void			GetNthControlHandle(intptr_t id, int n, bool * active, HandleType_t * con_type, Point2 * p, Vector2 * direction, float * radius) const;
+    virtual bool PointOnStructure(intptr_t id, const Point2& p) const;
 
-	virtual		int				GetLinks		    (intptr_t id) const;
-	virtual		void			GetNthLinkInfo		(intptr_t id, int n, bool * active, LinkType_t * ltype) const;
-	virtual		int				GetNthLinkSource   (intptr_t id, int n) const;
-	virtual		int				GetNthLinkSourceCtl(intptr_t id, int n) const;	// -1 if no bezier ctl point!
-	virtual		int				GetNthLinkTarget   (intptr_t id, int n) const;
-	virtual		int				GetNthLinkTargetCtl(intptr_t id, int n) const;
+    virtual void ControlsMoveBy(intptr_t id, const Vector2& delta, Point2& io_pt);
+    virtual void ControlsHandlesBy(intptr_t id, int c, const Vector2& delta, Point2& io_pt);
+    virtual void ControlsLinksBy(intptr_t id, int c, const Vector2& delta, Point2& io_pt);
 
-	virtual		bool	PointOnStructure(intptr_t id, const Point2& p) const;
-
-	virtual		void	ControlsMoveBy(intptr_t id, const Vector2& delta, Point2& io_pt);
-	virtual		void	ControlsHandlesBy(intptr_t id, int c, const Vector2& delta, Point2& io_pt);
-	virtual		void	ControlsLinksBy	 (intptr_t id, int c, const Vector2& delta, Point2& io_pt);
-
-	virtual	const char *		GetStatusText(void) { return NULL; }
+    virtual const char* GetStatusText(void)
+    {
+        return NULL;
+    }
 
 private:
+    virtual EntityHandling_t TraverseEntity(IGISEntity* ent, int pt_sel)
+    {
+        return ent_AtomicOrContainer;
+    }
 
-	virtual	EntityHandling_t	TraverseEntity(IGISEntity * ent, int pt_sel) { return ent_AtomicOrContainer; }
+    bool GetTotalBounds(void) const;
+    void ApplyRescale(const Bbox2& old_bounds, const Bbox2& new_bounds);
+    void ApplyRotate(const Point2& ctr, double angle);
 
-				bool	GetTotalBounds(void) const;
-				void	ApplyRescale(const Bbox2& old_bounds, const Bbox2& new_bounds);
-				void	ApplyRotate(const Point2& ctr, double angle);
+    marquee_mode_t mEditMode;
+    Point2 mRotateCtr;
+    Point2 mRotatePt;
 
-			marquee_mode_t	mEditMode;
-			Point2			mRotateCtr;
-			Point2			mRotatePt;
-
-	mutable	Bbox2			mCacheBounds;
-	mutable long long		mCacheKeyArchive;
-	mutable bool			mCacheIconic;
-
+    mutable Bbox2 mCacheBounds;
+    mutable long long mCacheKeyArchive;
+    mutable bool mCacheIconic;
 };
 
 #endif /* WED_MARQUEETOOL_H */

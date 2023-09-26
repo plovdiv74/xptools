@@ -29,26 +29,18 @@
 #include "WED_EnumSystem.h"
 #include "WED_SimpleBoundaryNode.h"
 
-static const char * kCreateCmds[] = {
-	"Exclusion Zone"
-};
+static const char* kCreateCmds[] = {"Exclusion Zone"};
 
-WED_CreateBoxTool::WED_CreateBoxTool(
-									const char *		tool_name,
-									GUI_Pane *			host,
-									WED_MapZoomerNew *	zoomer,
-									IResolver *			resolver,
-									WED_Archive *		archive,
-									CreateBox_t			tool) :
-	WED_CreateToolBase(tool_name,host, zoomer, resolver,archive,
-	1,								// min pts
-	1,								// max pts
-	1,								// curve allowed
-	1,								// curve required?
-	0,								// close allowed
-	0),								// close required?
-	mType(tool),
-		mExclusions(this,PROP_Name("Exclusions", XML_Name("","")), ExclusionTypes, 0)
+WED_CreateBoxTool::WED_CreateBoxTool(const char* tool_name, GUI_Pane* host, WED_MapZoomerNew* zoomer,
+                                     IResolver* resolver, WED_Archive* archive, CreateBox_t tool)
+    : WED_CreateToolBase(tool_name, host, zoomer, resolver, archive,
+                         1,  // min pts
+                         1,  // max pts
+                         1,  // curve allowed
+                         1,  // curve required?
+                         0,  // close allowed
+                         0), // close required?
+      mType(tool), mExclusions(this, PROP_Name("Exclusions", XML_Name("", "")), ExclusionTypes, 0)
 {
 }
 
@@ -56,65 +48,59 @@ WED_CreateBoxTool::~WED_CreateBoxTool()
 {
 }
 
-void	WED_CreateBoxTool::AcceptPath(
-							const std::vector<Point2>&	pts,
-							const std::vector<Point2>&	dirs_lo,
-							const std::vector<Point2>&	dirs_hi,
-							const std::vector<int>		has_dirs,
-							const std::vector<int>		has_split,
-							int						closed)
+void WED_CreateBoxTool::AcceptPath(const std::vector<Point2>& pts, const std::vector<Point2>& dirs_lo,
+                                   const std::vector<Point2>& dirs_hi, const std::vector<int> has_dirs,
+                                   const std::vector<int> has_split, int closed)
 {
-		char buf[256];
+    char buf[256];
 
-	sprintf(buf, "Create %s",kCreateCmds[mType]);
+    sprintf(buf, "Create %s", kCreateCmds[mType]);
 
-	GetArchive()->StartCommand(buf);
+    GetArchive()->StartCommand(buf);
 
-	int idx;
-	WED_Thing * host = WED_GetCreateHost(GetResolver(), false, true, idx);
-	WED_ExclusionZone * exc;
-	WED_GISBoundingBox * obj = NULL;
+    int idx;
+    WED_Thing* host = WED_GetCreateHost(GetResolver(), false, true, idx);
+    WED_ExclusionZone* exc;
+    WED_GISBoundingBox* obj = NULL;
 
-	switch(mType) {
-	case create_Exclusion:
-		obj = exc = WED_ExclusionZone::CreateTyped(GetArchive());
-		exc->SetExclusions(mExclusions.value);
-		break;
-	}
+    switch (mType)
+    {
+    case create_Exclusion:
+        obj = exc = WED_ExclusionZone::CreateTyped(GetArchive());
+        exc->SetExclusions(mExclusions.value);
+        break;
+    }
 
-	WED_SimpleBoundaryNode * n1 = WED_SimpleBoundaryNode::CreateTyped(GetArchive());
-	WED_SimpleBoundaryNode * n2 = WED_SimpleBoundaryNode::CreateTyped(GetArchive());
+    WED_SimpleBoundaryNode* n1 = WED_SimpleBoundaryNode::CreateTyped(GetArchive());
+    WED_SimpleBoundaryNode* n2 = WED_SimpleBoundaryNode::CreateTyped(GetArchive());
 
-	n1->SetParent(obj,0);
-	n2->SetParent(obj,1);
-	n1->SetName("Start");
-	n2->SetName("End");
+    n1->SetParent(obj, 0);
+    n2->SetParent(obj, 1);
+    n1->SetName("Start");
+    n2->SetName("End");
 
-	obj->GetMin()->SetLocation(gis_Geo,pts[0]);
-	obj->GetMax()->SetLocation(gis_Geo,dirs_hi[0]);
-	static int n = 0;
-	++n;
-	obj->SetParent(host, idx);
+    obj->GetMin()->SetLocation(gis_Geo, pts[0]);
+    obj->GetMax()->SetLocation(gis_Geo, dirs_hi[0]);
+    static int n = 0;
+    ++n;
+    obj->SetParent(host, idx);
 
-	sprintf(buf,"Exclusion Zone %d", n);
-	obj->SetName(buf);
+    sprintf(buf, "Exclusion Zone %d", n);
+    obj->SetName(buf);
 
-	ISelection * sel = WED_GetSelect(GetResolver());
-	sel->Clear();
-	sel->Select(obj);
+    ISelection* sel = WED_GetSelect(GetResolver());
+    sel->Clear();
+    sel->Select(obj);
 
-	GetArchive()->CommitCommand();
-
+    GetArchive()->CommitCommand();
 }
 
-
-const char *	WED_CreateBoxTool::GetStatusText(void)
+const char* WED_CreateBoxTool::GetStatusText(void)
 {
-	return NULL;
+    return NULL;
 }
 
-bool		WED_CreateBoxTool::CanCreateNow(void)
+bool WED_CreateBoxTool::CanCreateNow(void)
 {
-	return true;
+    return true;
 }
-

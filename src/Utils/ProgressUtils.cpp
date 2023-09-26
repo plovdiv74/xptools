@@ -22,50 +22,48 @@
  */
 #include "ProgressUtils.h"
 
-bool	ConsoleProgressFunc(
-						int				inCurrentStage,
-						int				inCurrentStageCount,
-						const char *	inCurrentStageName,
-						float			inProgress)
+bool ConsoleProgressFunc(int inCurrentStage, int inCurrentStageCount, const char* inCurrentStageName, float inProgress)
 {
-	static	bool	is_shown = false;
-	static	int		last_char = 0;
-	if (inProgress == 1.0)
-	{
-		if (is_shown)
-		{
-			int pos = 50.0 * inProgress;
-			if (pos > last_char)
-			{
-				for (int n = last_char; n < pos; ++n)
-					printf(".");
-				last_char = pos;
-	//			last_progress = inProgress;
-			}
-			printf("Done\n");
-			fflush(stdout);
-			is_shown = false;
-		}
-	} else {
-		if (!is_shown)
-		{
-			is_shown = true;
-			printf("Task %d of %d - %s...\n", inCurrentStage+1, inCurrentStageCount, inCurrentStageName);
-			printf("+----+----+----+----+----+----+----+----+----+----+\n");
-			fflush(stdout);
-//			last_progress = 0.0;
-			last_char = 0;
-		}
-		int pos = 50.0 * inProgress;
-		if (pos > last_char)
-		{
-			for (int n = last_char; n < pos; ++n)
-				printf(".");
-			last_char = pos;
-			fflush(stdout);
-//			last_progress = inProgress;
-		}
-	}
+    static bool is_shown = false;
+    static int last_char = 0;
+    if (inProgress == 1.0)
+    {
+        if (is_shown)
+        {
+            int pos = 50.0 * inProgress;
+            if (pos > last_char)
+            {
+                for (int n = last_char; n < pos; ++n)
+                    printf(".");
+                last_char = pos;
+                //			last_progress = inProgress;
+            }
+            printf("Done\n");
+            fflush(stdout);
+            is_shown = false;
+        }
+    }
+    else
+    {
+        if (!is_shown)
+        {
+            is_shown = true;
+            printf("Task %d of %d - %s...\n", inCurrentStage + 1, inCurrentStageCount, inCurrentStageName);
+            printf("+----+----+----+----+----+----+----+----+----+----+\n");
+            fflush(stdout);
+            //			last_progress = 0.0;
+            last_char = 0;
+        }
+        int pos = 50.0 * inProgress;
+        if (pos > last_char)
+        {
+            for (int n = last_char; n < pos; ++n)
+                printf(".");
+            last_char = pos;
+            fflush(stdout);
+            //			last_progress = inProgress;
+        }
+    }
 
-	return false;
+    return false;
 }

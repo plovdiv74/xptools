@@ -28,111 +28,114 @@
 #include "GUI_Listener.h"
 #include "IBase.h"
 
-enum res_type {
-	res_None,
-	res_Directory,
-	res_Object,
-	res_Facade,
-	res_Forest,
-	res_String,
-	res_Line,
-	res_Autogen,
-	res_Polygon
+enum res_type
+{
+    res_None,
+    res_Directory,
+    res_Object,
+    res_Facade,
+    res_Forest,
+    res_String,
+    res_Line,
+    res_Autogen,
+    res_Polygon
 #if ROAD_EDITING
-	,res_Road
+        ,
+    res_Road
 #endif
 };
 
-// "Virtual" package numbers...package mgr IDs packages as 0-based index.  These meta-constants are used for filtering in special ways.
-// They can be passed to GetResourceChildren.  Non-negative inputs mean take the Nth pack.
-enum {
-	pack_Local		= -1,			// Return only files in the users's currently open pack.
-	pack_Library	= -2,			// Return only library items.
-	pack_All		= -3,			// Return local files and the entire library.
-	pack_Default	= -4,			// Return only library items that come from the default scenery packs that x-plane ships with.
-	pack_New		= -5
-	};
-
-enum res_status {
-	status_Private		= 0,		// Intentionally SORTED so that the most EXPOSED status is the HIGHEST number!
-	status_Deprecated	= 1,		// fully deprecated - invisible in hierarchy and validation failure for gateway.
-	// Order matters - everything < semi-deprecated is going to fail validation
-	status_SemiDeprecated		= 2,		// half-deprecated items, visibility of deprecated, validates as public
-	// Order matters - everything >= public is going to be public
-	status_Public		= 3,
-	status_New			= 4
+// "Virtual" package numbers...package mgr IDs packages as 0-based index.  These meta-constants are used for filtering
+// in special ways. They can be passed to GetResourceChildren.  Non-negative inputs mean take the Nth pack.
+enum
+{
+    pack_Local = -1,   // Return only files in the users's currently open pack.
+    pack_Library = -2, // Return only library items.
+    pack_All = -3,     // Return local files and the entire library.
+    pack_Default = -4, // Return only library items that come from the default scenery packs that x-plane ships with.
+    pack_New = -5
 };
 
-void WED_clean_vpath(std::string& s);      // always uses "/"
-void WED_clean_rpath(std::string& s);      // uses OS specific DIR_CHAR
+enum res_status
+{
+    status_Private = 0,    // Intentionally SORTED so that the most EXPOSED status is the HIGHEST number!
+    status_Deprecated = 1, // fully deprecated - invisible in hierarchy and validation failure for gateway.
+    // Order matters - everything < semi-deprecated is going to fail validation
+    status_SemiDeprecated = 2, // half-deprecated items, visibility of deprecated, validates as public
+    // Order matters - everything >= public is going to be public
+    status_Public = 3,
+    status_New = 4
+};
 
-class WED_LibraryMgr : public GUI_Broadcaster, public GUI_Listener, public virtual IBase {
+void WED_clean_vpath(std::string& s); // always uses "/"
+void WED_clean_rpath(std::string& s); // uses OS specific DIR_CHAR
+
+class WED_LibraryMgr : public GUI_Broadcaster, public GUI_Listener, public virtual IBase
+{
 public:
+    WED_LibraryMgr(const std::string& local_package);
+    ~WED_LibraryMgr();
 
-				 WED_LibraryMgr(const std::string& local_package);
-				~WED_LibraryMgr();
+    // Returns "My Package" of .../Custom Scenery/My Package
+    // Combine with WED_PackageMgr::ComputePath to save a file in the package dir
+    std::string GetLocalPackage() const;
 
+    std::string GetResourceParent(const std::string& r);
+    void GetResourceChildren(const std::string& r, int filter_package, std::vector<std::string>& children,
+                             bool no_dirs = false); // Pass empty resource to get roots
+    res_type GetResourceType(const std::string& r) const;
+    std::string GetResourcePath(const std::string& r, int variant = 0);
 
-	//Returns "My Package" of .../Custom Scenery/My Package
-	//Combine with WED_PackageMgr::ComputePath to save a file in the package dir
-	std::string		GetLocalPackage() const;
+    // This returns true if the resource whose virtual path is "r" comes from the default library that x-plane ships
+    // with.
+    bool IsResourceDefault(const std::string& r) const;
+    bool IsResourceLocal(const std::string& r) const;
+    bool IsResourceLibrary(const std::string& r) const;
+    bool IsResourceDeprecatedOrPrivate(const std::string& r) const;
+    bool IsSeasonal(const std::string& r) const;
+    bool IsRegional(const std::string& r) const;
 
-	std::string		GetResourceParent(const std::string& r);
-	void		GetResourceChildren(const std::string& r, int filter_package, std::vector<std::string>& children, bool no_dirs = false);	// Pass empty resource to get roots
-	res_type	GetResourceType(const std::string& r) const;
-	std::string		GetResourcePath(const std::string& r, int variant = 0);
+    std::string CreateLocalResourcePath(const std::string& r);
 
-				// This returns true if the resource whose virtual path is "r" comes from the default library that x-plane ships with.
-	bool		IsResourceDefault(const std::string& r) const;
-	bool		IsResourceLocal(const std::string& r) const;
-	bool		IsResourceLibrary(const std::string& r) const;
-	bool		IsResourceDeprecatedOrPrivate(const std::string& r) const;
-	bool		IsSeasonal(const std::string& r) const;
-	bool		IsRegional(const std::string& r) const;
+    virtual void ReceiveMessage(GUI_Broadcaster* inSrc, intptr_t inMsg, intptr_t inParam);
 
-	std::string		CreateLocalResourcePath(const std::string& r);
-
-	virtual	void	ReceiveMessage(
-							GUI_Broadcaster *		inSrc,
-							intptr_t				inMsg,
-							intptr_t				inParam);
-
-				// This returns true if the package number 'package_number' adds at least one item to the library.
-	bool		DoesPackHaveLibraryItems(int package_number) const;
-				// indicates if art asset exported by multiple exports, i.e. has randomized appearance
-	int			GetNumVariants(const std::string& r) const;
-				// gets the vpath of the resource used to dar apt.dat liner markings
-	bool		GetLineVpath(int lt, std::string& vpath);
-				// look up apt.dat surface types and matching public .pol vpaths
-				// returns if there is a public polygon equivalent or not.
-	            // even if there isnt - may still return a vpath if there is at least a public surface
-	bool		GetSurfVpath(int surf, std::string& vpath);
-	int			GetSurfEnum(const std::string& vpath);
+    // This returns true if the package number 'package_number' adds at least one item to the library.
+    bool DoesPackHaveLibraryItems(int package_number) const;
+    // indicates if art asset exported by multiple exports, i.e. has randomized appearance
+    int GetNumVariants(const std::string& r) const;
+    // gets the vpath of the resource used to dar apt.dat liner markings
+    bool GetLineVpath(int lt, std::string& vpath);
+    // look up apt.dat surface types and matching public .pol vpaths
+    // returns if there is a public polygon equivalent or not.
+    // even if there isnt - may still return a vpath if there is at least a public surface
+    bool GetSurfVpath(int surf, std::string& vpath);
+    int GetSurfEnum(const std::string& vpath);
 
 private:
+    void Rescan();
+    void RescanLines();
+    void RescanSurfaces();
+    void AccumResource(const std::string& path, int package, const std::string& real_path, bool is_default,
+                       res_status status, bool is_backup = false, bool is_seasonal = false, bool is_regional = false);
+    static bool AccumLocalFile(const char* fileName, bool isDir, void* ref);
 
-	void			Rescan();
-	void			RescanLines();
-	void			RescanSurfaces();
-	void			AccumResource(const std::string& path, int package, const std::string& real_path, bool is_default,
-						res_status status, bool is_backup = false, bool is_seasonal = false, bool is_regional = false);
-	static	bool	AccumLocalFile(const char * fileName, bool isDir, void * ref);
+    struct res_info_t
+    {
+        std::set<int> packages;              // points out if same items is exported by multiple libraries
+        std::vector<std::string> real_paths; // holds all the variants causeed by multiple EXPORTS commands
+        unsigned res_type : 4, status : 4, is_backup : 1, is_default : 1, has_seasons : 1, has_regions : 1;
+    };
 
-	struct	res_info_t {
-		std::set<int>	packages;       // points out if same items is exported by multiple libraries
-		std::vector<std::string> real_paths;  // holds all the variants causeed by multiple EXPORTS commands
-		unsigned    res_type : 4, status : 4, is_backup : 1, is_default : 1, has_seasons : 1, has_regions : 1;
-	};
+    typedef std::map<std::string, res_info_t> res_map_t;
+    //	typedef std::unordered_map<std::string,res_info_t>	res_map_t;   // 1% faster for KATL full map display, but
+    // breaks library list
+    res_map_t res_table;
 
-	typedef std::map<std::string,res_info_t>	res_map_t;
-//	typedef std::unordered_map<std::string,res_info_t>	res_map_t;   // 1% faster for KATL full map display, but breaks library list
-	res_map_t			res_table;
+    std::string local_package;
+    std::map<int, std::string> default_lines; // list of art assets for sim default lines
+    std::map<int, std::pair<std::string, bool>> default_surfaces;
 
-	std::string				local_package;
-	std::map<int, std::string>	default_lines;        // list of art assets for sim default lines
-	std::map<int, std::pair<std::string, bool> >	default_surfaces;
-
-	friend class WED_JWFacades;
+    friend class WED_JWFacades;
 };
 
 #endif /* WED_LibraryMgr_H */

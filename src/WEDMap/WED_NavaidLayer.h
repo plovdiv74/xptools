@@ -27,30 +27,30 @@
 #include "WED_MapLayer.h"
 #include "CompGeomDefs2.h"
 
-struct navaid_t {
-	int		type;
-	Point2 	lonlat;
-	float	heading;
-	std::string	name;
-	std::string	icao;
-	int     freq;     // ATC tower freq for airports, in kHz
-	std::string	rwy;      // Or some other informative text
-	std::vector<Polygon2> shape; // airspaces only
+struct navaid_t
+{
+    int type;
+    Point2 lonlat;
+    float heading;
+    std::string name;
+    std::string icao;
+    int freq;                    // ATC tower freq for airports, in kHz
+    std::string rwy;             // Or some other informative text
+    std::vector<Polygon2> shape; // airspaces only
 };
 
-class WED_NavaidLayer : public WED_MapLayer {
+class WED_NavaidLayer : public WED_MapLayer
+{
 public:
+    WED_NavaidLayer(GUI_Pane* host, WED_MapZoomerNew* zoomer, IResolver* resolver);
+    virtual ~WED_NavaidLayer();
 
-						 WED_NavaidLayer(GUI_Pane * host, WED_MapZoomerNew * zoomer, IResolver * resolver);
-	virtual				~WED_NavaidLayer();
-
-	virtual	void		DrawVisualization		(bool inCurrent, GUI_GraphState * g);
-	virtual	void		GetCaps(bool& draw_ent_v, bool& draw_ent_s, bool& cares_about_sel, bool& wants_clicks);
+    virtual void DrawVisualization(bool inCurrent, GUI_GraphState* g);
+    virtual void GetCaps(bool& draw_ent_v, bool& draw_ent_s, bool& cares_about_sel, bool& wants_clicks);
 
 private:
-
-	void				LoadNavaids();
-	std::vector<navaid_t>	mNavaids;
+    void LoadNavaids();
+    std::vector<navaid_t> mNavaids;
 };
 
 #endif /* WED_NavaidLayer_H */

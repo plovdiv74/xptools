@@ -24,87 +24,88 @@
 #define XWINGL_H
 
 #if APL
-	#include <OpenGL/gl.h>
-	#if __OBJC__
-		#import <AppKit/AppKit.h>
-	#else
-		typedef void NSOpenGLView;
-	#endif
+#include <OpenGL/gl.h>
+#if __OBJC__
+#import <AppKit/AppKit.h>
+#else
+typedef void NSOpenGLView;
+#endif
 #elif IBM
-	#include "glew.h"
+#include "glew.h"
 #elif LIN
-	#include "glew.h"
+#include "glew.h"
 #include <FL/Fl_Gl_Window.H>
 
-
-class	XWinGL;
+class XWinGL;
 
 class glWidget : public Fl_Gl_Window
 {
 
 public:
-	glWidget(XWinGL* xwin,int w,int h,Fl_Gl_Window* share);
-	virtual ~glWidget(void);
-	void draw();
+    glWidget(XWinGL* xwin, int w, int h, Fl_Gl_Window* share);
+    virtual ~glWidget(void);
+    void draw();
 
 private:
-	XWinGL*   mXWinGL;
-	GLContext mSharedContext;
+    XWinGL* mXWinGL;
+    GLContext mSharedContext;
 };
 
 #endif
 
 #include "XWin.h"
 
-class	XWinGL : public XWin
+class XWinGL : public XWin
 {
 public:
+    XWinGL(int default_dnd, XWinGL* inShare);
+    XWinGL(int default_dnd, const char* inTitle, int inAttributes, int inX, int inY, int inWidth, int inHeight,
+           XWinGL* inShare);
 
-	XWinGL(int default_dnd, XWinGL * inShare);
-	XWinGL(int default_dnd, const char * inTitle, int inAttributes, int inX, int inY, int inWidth, int inHeight, XWinGL * inShare);
+    virtual ~XWinGL();
 
-	virtual					~XWinGL();
-
-			void			SetGLContext(void);
-			void			SwapBuffer(void);
+    void SetGLContext(void);
+    void SwapBuffer(void);
 
 #if IBM
-			HDC				GetDC(void);
+    HDC GetDC(void);
 #endif
-	virtual	void			Resized(int, int);
+    virtual void Resized(int, int);
 
-	// New hooks for you:
-	virtual	void			GLReshaped(int inWidth, int inHeight)=0;
-	virtual	void			GLDraw(void)=0;
+    // New hooks for you:
+    virtual void GLReshaped(int inWidth, int inHeight) = 0;
+    virtual void GLDraw(void) = 0;
 
-	// Handled for you
+    // Handled for you
 
-	virtual	void			Update(XContext ctx);
-	virtual	int				HandleMenuCmd(xmenu inMenu, int inCommand) { return 0; }
-	virtual void			Activate(int active) { }
+    virtual void Update(XContext ctx);
+    virtual int HandleMenuCmd(xmenu inMenu, int inCommand)
+    {
+        return 0;
+    }
+    virtual void Activate(int active)
+    {
+    }
 
 private:
-
 #if APL
-		NSOpenGLView *		mContext;
+    NSOpenGLView* mContext;
 #endif
 
 #if IBM
 
-		HDC				mDC;
-		HGLRC			mContext;
+    HDC mDC;
+    HGLRC mContext;
 
 #endif
 
 #if LIN
-	glWidget*		mGlWidget;
-
+    glWidget* mGlWidget;
 
 public:
-	bool			mGLInited;
-	bool			mCtxValid;
+    bool mGLInited;
+    bool mCtxValid;
 #endif
-
 };
 
 #endif

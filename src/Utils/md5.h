@@ -37,28 +37,30 @@
  ***********************************************************************
  */
 #ifdef __cplusplus
-    extern "C" {
+extern "C"
+{
 #endif
 
 #include <stdint.h>
 
-/* typedef a 32-bit type */
-typedef uint32_t  UINT4;
+    /* typedef a 32-bit type */
+    typedef uint32_t UINT4;
 
-/* Data structure for MD5 (Message-Digest) computation */
-typedef struct {
-	UINT4 i[2]; 							/* number of _bits_ handled mod 2^64 */
-	UINT4 buf[4]; 							/* scratch buffer */
-	unsigned char in[64]; 					/* input buffer */
-	unsigned char digest[16]; 				/* actual digest after MD5Final call */
-} MD5_CTX;
+    /* Data structure for MD5 (Message-Digest) computation */
+    typedef struct
+    {
+        UINT4 i[2];               /* number of _bits_ handled mod 2^64 */
+        UINT4 buf[4];             /* scratch buffer */
+        unsigned char in[64];     /* input buffer */
+        unsigned char digest[16]; /* actual digest after MD5Final call */
+    } MD5_CTX;
 
-void MD5Init (MD5_CTX *mdContext);
-void MD5Final (MD5_CTX *mdContext);
-void MD5Update (MD5_CTX *mdContext, unsigned char *inBuf, unsigned short inLen);
+    void MD5Init(MD5_CTX* mdContext);
+    void MD5Final(MD5_CTX* mdContext);
+    void MD5Update(MD5_CTX* mdContext, unsigned char* inBuf, unsigned short inLen);
 
 #ifdef __cplusplus
-    }
+}
 #endif
 
 /*

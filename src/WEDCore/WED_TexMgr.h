@@ -26,45 +26,37 @@
 
 #include "ITexMgr.h"
 
-class WED_TexMgr : public virtual ITexMgr {
+class WED_TexMgr : public virtual ITexMgr
+{
 public:
+    WED_TexMgr(const std::string& package);
+    virtual ~WED_TexMgr();
 
-						 WED_TexMgr(const std::string& package);
-	virtual				~WED_TexMgr();
+    virtual TexRef LookupTexture(const char* path, bool is_absolute, int flags);
+    virtual void DropTexture(const char* path);
 
-	virtual	TexRef		LookupTexture(const char * path, bool is_absolute, int flags);
-	virtual void		DropTexture(const char * path);
-
-	virtual	int			GetTexID(TexRef ref);
-	virtual	void		GetTexInfo(
-								TexRef	ref,
-								int *	vis_x,
-								int *	vis_y,
-								int *	act_x,
-								int *	act_y,
-								int *	org_x,
-								int *	org_y);
+    virtual int GetTexID(TexRef ref);
+    virtual void GetTexInfo(TexRef ref, int* vis_x, int* vis_y, int* act_x, int* act_y, int* org_x, int* org_y);
 
 private:
+    struct TexInfo
+    {
+        int tex_id;
+        int vis_x;
+        int vis_y;
+        int act_x;
+        int act_y;
+        int org_x;
+        int org_y;
+    };
 
-	struct	TexInfo {
-		int			tex_id;
-		int			vis_x;
-		int			vis_y;
-		int			act_x;
-		int			act_y;
-		int			org_x;
-		int			org_y;
-	};
+    typedef std::map<std::string, TexInfo*> TexMap;
 
-	typedef std::map<std::string,TexInfo *>	TexMap;
+    TexMap mTexes;
 
-	TexMap mTexes;
+    std::string mPackage;
 
-	std::string	mPackage;
-
-	TexInfo *	LoadTexture(const char * path, bool is_absolute, int flags);
-
+    TexInfo* LoadTexture(const char* path, bool is_absolute, int flags);
 };
 
 #endif /* WED_TexMgr_H */

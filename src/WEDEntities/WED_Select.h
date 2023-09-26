@@ -25,64 +25,64 @@
 #define WED_SELECT_H
 
 /*
-	WED_Select - THEORY OF OPERATION
+    WED_Select - THEORY OF OPERATION
 
-	WED_Select implmements ISelection for WED, using a std::set of object persistent IDs.
+    WED_Select implmements ISelection for WED, using a std::set of object persistent IDs.
 
-	WED_Select is itself persistent, that is, changes in the selection are undoable.  This is done
-	to maintain sanity -- if we back up the object model without backing up the selection, we could
-	have dead objects selected, which would require a bunch of special cases to handle in our editing
-	code.
+    WED_Select is itself persistent, that is, changes in the selection are undoable.  This is done
+    to maintain sanity -- if we back up the object model without backing up the selection, we could
+    have dead objects selected, which would require a bunch of special cases to handle in our editing
+    code.
 
 */
 #include "WED_Thing.h"
 #include "GUI_Broadcaster.h"
 #include "ISelection.h"
 
-class	WED_Select : public WED_Thing, public virtual ISelection, public GUI_Broadcaster {
+class WED_Select : public WED_Thing, public virtual ISelection, public GUI_Broadcaster
+{
 
-DECLARE_PERSISTENT(WED_Select)
+    DECLARE_PERSISTENT(WED_Select)
 
 public:
+    // ISelection
+    virtual bool IsSelected(ISelectable* who) const;
 
-	// ISelection
-	virtual		bool			IsSelected(ISelectable * who) const;
+    virtual void Select(ISelectable* who);
+    virtual void Clear(void);
+    virtual void Toggle(ISelectable* who);
+    virtual void Insert(ISelectable* who);
+    virtual void Insert(const std::set<ISelectable*>& sel);
+    virtual void Insert(const std::set<ISelectable*>::const_iterator& begin,
+                        const std::set<ISelectable*>::const_iterator& end);
+    virtual void Insert(const std::vector<ISelectable*>& sel);
+    virtual void Insert(const std::vector<ISelectable*>::const_iterator& begin,
+                        const std::vector<ISelectable*>::const_iterator& end);
+    virtual void Erase(ISelectable* who);
 
-	virtual		void			Select(ISelectable * who);
-	virtual		void			Clear (void			 );
-	virtual		void			Toggle(ISelectable * who);
-	virtual		void			Insert(ISelectable * who);
-	virtual		void			Insert(const std::set<ISelectable*>& sel);
-	virtual		void			Insert(const std::set<ISelectable*>::const_iterator& begin, const std::set<ISelectable*>::const_iterator& end);
-	virtual		void			Insert(const std::vector<ISelectable*>& sel);
-	virtual		void			Insert(const std::vector<ISelectable*>::const_iterator& begin, const std::vector<ISelectable*>::const_iterator& end);
-	virtual		void			Erase (ISelectable * who);
+    virtual int GetSelectionCount(void) const;
+    virtual void GetSelectionSet(std::set<ISelectable*>& sel) const;
+    virtual void GetSelectionVector(std::vector<ISelectable*>& sel) const;
+    virtual ISelectable* GetNthSelection(int n) const;
 
-	virtual		int				GetSelectionCount(void) const;
-	virtual		void			GetSelectionSet(std::set<ISelectable *>& sel) const;
-	virtual		void			GetSelectionVector(std::vector<ISelectable *>& sel) const;
-	virtual		ISelectable *	GetNthSelection(int n) const;
+    virtual int IterateSelectionOr(int (*func)(ISelectable* who, void* ref), void* ref) const;
+    virtual int IterateSelectionAnd(int (*func)(ISelectable* who, void* ref), void* ref) const;
 
-	virtual		int				IterateSelectionOr(int (* func)(ISelectable * who, void * ref), void * ref) const;
-	virtual		int				IterateSelectionAnd(int (* func)(ISelectable * who, void * ref), void * ref) const;
+    // WED_Persistent
+    virtual bool ReadFrom(IOReader* reader);
+    virtual void WriteTo(IOWriter* writer);
+    virtual void AddExtraXML(WED_XMLElement* obj);
+    virtual void StartElement(WED_XMLReader* reader, const XML_Char* name, const XML_Char** atts);
+    virtual void EndElement(void);
+    virtual void PopHandler(void);
 
-	// WED_Persistent
-	virtual		bool 			ReadFrom(IOReader * reader);
-	virtual		void 			WriteTo(IOWriter * writer);
-	virtual		void			AddExtraXML(WED_XMLElement * obj);
-	virtual void		StartElement(
-								WED_XMLReader * reader,
-								const XML_Char *	name,
-								const XML_Char **	atts);
-	virtual	void		EndElement(void);
-	virtual	void		PopHandler(void);
-
-	virtual const char *	HumanReadableType(void) const { return "Selection"; }	
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Selection";
+    }
 
 private:
-
-	std::set<int>		mSelected;
-
+    std::set<int> mSelected;
 };
 
 #endif

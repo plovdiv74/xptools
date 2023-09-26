@@ -29,10 +29,9 @@
 DEFINE_PERSISTENT(WED_OverlayImage)
 TRIVIAL_COPY(WED_OverlayImage, WED_GISPolygon)
 
-WED_OverlayImage::WED_OverlayImage(WED_Archive * a, int i) : WED_GISPolygon(a,i),
-	mImageFile(this,PROP_Name("File",  XML_Name("overlay_image","file_path")),""),
-	mAlpha    (this,PROP_Name("Alpha", XML_Name("overlay_image","alpha")), 1.0, 3.0, 1.0),
-	mGcpSet(false)
+WED_OverlayImage::WED_OverlayImage(WED_Archive* a, int i)
+    : WED_GISPolygon(a, i), mImageFile(this, PROP_Name("File", XML_Name("overlay_image", "file_path")), ""),
+      mAlpha(this, PROP_Name("Alpha", XML_Name("overlay_image", "alpha")), 1.0, 3.0, 1.0), mGcpSet(false)
 {
 }
 
@@ -40,100 +39,98 @@ WED_OverlayImage::~WED_OverlayImage()
 {
 }
 
-void		WED_OverlayImage::GetImage(std::string& image_file) const
+void WED_OverlayImage::GetImage(std::string& image_file) const
 {
-	image_file = mImageFile.value;
+    image_file = mImageFile.value;
 }
 
-double		WED_OverlayImage::GetAlpha(void) const
+double WED_OverlayImage::GetAlpha(void) const
 {
-	return mAlpha.value;
+    return mAlpha.value;
 }
 
 #include "IResolver.h"
 #include "ILibrarian.h"
 #include "WED_Archive.h"
 
-void	WED_OverlayImage::SetImage(const std::string& image_file)
+void WED_OverlayImage::SetImage(const std::string& image_file)
 {
-	// evict old img from texMgr
-	mImageFile = image_file;
-	mGcp.clear();
+    // evict old img from texMgr
+    mImageFile = image_file;
+    mGcp.clear();
 }
 
-const gcp_t * WED_OverlayImage::GetGcpMat(void)
+const gcp_t* WED_OverlayImage::GetGcpMat(void)
 {
-	if(!mGcp.size())
-	{
-		ILibrarian *   lib = WED_GetLibrarian(GetArchive()->GetResolver());
-		std::string s(mImageFile.value);
-		lib->LookupPath(s);
-	
-		double dummy[8];
-		int post_pos = dem_want_Area;
-		if(!FetchTIFFCorners(s.c_str(), dummy, post_pos, &mGcp))
-			mGcp.push_back(Point2());   // single point only indicates we tried, but failed
-	}
-	return &mGcp;
+    if (!mGcp.size())
+    {
+        ILibrarian* lib = WED_GetLibrarian(GetArchive()->GetResolver());
+        std::string s(mImageFile.value);
+        lib->LookupPath(s);
+
+        double dummy[8];
+        int post_pos = dem_want_Area;
+        if (!FetchTIFFCorners(s.c_str(), dummy, post_pos, &mGcp))
+            mGcp.push_back(Point2()); // single point only indicates we tried, but failed
+    }
+    return &mGcp;
 }
 
-void	WED_OverlayImage::GetCorners(GISLayer_t l,Point2 corners[4]) const
+void WED_OverlayImage::GetCorners(GISLayer_t l, Point2 corners[4]) const
 {
-	for (int n = 0; n < 4; ++n)
-		GetOuterRing()->GetNthPoint(n)->GetLocation(l,corners[n]);
+    for (int n = 0; n < 4; ++n)
+        GetOuterRing()->GetNthPoint(n)->GetLocation(l, corners[n]);
 }
 
-void	WED_OverlayImage::MoveCorner(GISLayer_t l,int corner, const Vector2& delta)
+void WED_OverlayImage::MoveCorner(GISLayer_t l, int corner, const Vector2& delta)
 {
-	Point2	p;
-	IGISPoint * pt = GetOuterRing()->GetNthPoint(corner);
-	pt->GetLocation(l,p);
-	p += delta;
-	pt->SetLocation(l,p);
+    Point2 p;
+    IGISPoint* pt = GetOuterRing()->GetNthPoint(corner);
+    pt->GetLocation(l, p);
+    p += delta;
+    pt->SetLocation(l, p);
 }
 
-void	WED_OverlayImage::MoveSide(GISLayer_t l,int side, const Vector2& delta)
+void WED_OverlayImage::MoveSide(GISLayer_t l, int side, const Vector2& delta)
 {
-	MoveCorner(l,side, delta);
-	MoveCorner(l,(side+1)%4, delta);
+    MoveCorner(l, side, delta);
+    MoveCorner(l, (side + 1) % 4, delta);
 }
 
-void WED_OverlayImage::ResizeSide(GISLayer_t l,int side, const Vector2& delta, bool symetric)
+void WED_OverlayImage::ResizeSide(GISLayer_t l, int side, const Vector2& delta, bool symetric)
 {
-	Point2	corners[4];
-	GetCorners(l,corners);
-	Quad_ResizeSide4(corners, side, delta, symetric);
-	for (int n = 0; n < 4; ++n)
-		GetOuterRing()->GetNthPoint(n)->SetLocation(l,corners[n]);
-
+    Point2 corners[4];
+    GetCorners(l, corners);
+    Quad_ResizeSide4(corners, side, delta, symetric);
+    for (int n = 0; n < 4; ++n)
+        GetOuterRing()->GetNthPoint(n)->SetLocation(l, corners[n]);
 }
 
-void	WED_OverlayImage::ResizeCorner(GISLayer_t l,int corner, const Vector2& delta, bool symetric)
+void WED_OverlayImage::ResizeCorner(GISLayer_t l, int corner, const Vector2& delta, bool symetric)
 {
-	Point2	corners[4], orig[4];
-	GetCorners(l,corners);
-	Point2 ctr;
-	ctr.x_ = (corners[0].x() + corners[1].x() + corners[2].x() + corners[3].x()) * 0.25;
-	ctr.y_ = (corners[0].y() + corners[1].y() + corners[2].y() + corners[3].y()) * 0.25;
+    Point2 corners[4], orig[4];
+    GetCorners(l, corners);
+    Point2 ctr;
+    ctr.x_ = (corners[0].x() + corners[1].x() + corners[2].x() + corners[3].x()) * 0.25;
+    ctr.y_ = (corners[0].y() + corners[1].y() + corners[2].y() + corners[3].y()) * 0.25;
 
-	Vector2	oldv(ctr,corners[corner]);
-	Vector2 newv(oldv+delta * (symetric ? 1.0 : 0.5));
+    Vector2 oldv(ctr, corners[corner]);
+    Vector2 newv(oldv + delta * (symetric ? 1.0 : 0.5));
 
-	double scale = (sqrt(newv.squared_length())) / (sqrt(oldv.squared_length()));
-	for (int n = 0; n < 4; ++n)
-	{
-		orig[n] = corners[n];
-		corners[n] = ctr + Vector2(ctr,corners[n]) * scale;
-	}
+    double scale = (sqrt(newv.squared_length())) / (sqrt(oldv.squared_length()));
+    for (int n = 0; n < 4; ++n)
+    {
+        orig[n] = corners[n];
+        corners[n] = ctr + Vector2(ctr, corners[n]) * scale;
+    }
 
-	if (!symetric)
-	{
-		Vector2	real_move(orig[corner],corners[corner]);
-		for (int n = 0; n < 4; ++n)
-			corners[n] += (real_move);
-	}
+    if (!symetric)
+    {
+        Vector2 real_move(orig[corner], corners[corner]);
+        for (int n = 0; n < 4; ++n)
+            corners[n] += (real_move);
+    }
 
-	for (int n = 0; n < 4; ++n)
-		GetOuterRing()->GetNthPoint(n)->SetLocation(l,corners[n]);
-
+    for (int n = 0; n < 4; ++n)
+        GetOuterRing()->GetNthPoint(n)->SetLocation(l, corners[n]);
 }

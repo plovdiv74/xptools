@@ -25,13 +25,12 @@
 #include "WED_EnumSystem.h"
 #include "AptDefs.h"
 
-
 DEFINE_PERSISTENT(WED_ATCFrequency)
 TRIVIAL_COPY(WED_ATCFrequency, WED_Thing)
 
-WED_ATCFrequency::WED_ATCFrequency(WED_Archive * a, int i) : WED_Thing(a, i),
-	freq_type	(this,PROP_Name( "Type",		XML_Name("atc_frequency",	"kind")), ATCFrequency, atc_Tower),
-	freq		(this,PROP_Name( "Frequency",	XML_Name("atc_frequency",	"freq")), 128.8, 7, 3)
+WED_ATCFrequency::WED_ATCFrequency(WED_Archive* a, int i)
+    : WED_Thing(a, i), freq_type(this, PROP_Name("Type", XML_Name("atc_frequency", "kind")), ATCFrequency, atc_Tower),
+      freq(this, PROP_Name("Frequency", XML_Name("atc_frequency", "freq")), 128.8, 7, 3)
 {
 }
 
@@ -39,23 +38,22 @@ WED_ATCFrequency::~WED_ATCFrequency()
 {
 }
 
-void	WED_ATCFrequency::Import(const AptATCFreq_t& info, void (* print_func)(void *, const char *, ...), void * ref)
+void WED_ATCFrequency::Import(const AptATCFreq_t& info, void (*print_func)(void*, const char*, ...), void* ref)
 {
-	SetName(info.name);
-	freq.AssignFrom1Khz(info.freq);
-	freq_type = ENUM_Import(ATCFrequency, info.atc_type);
-	if (freq_type == -1)
-	{
-		print_func(ref,"Error importing runway: ATC frequecny code %d is illegal (not a member of type %s).\n", info.atc_type, DOMAIN_Desc(freq_type.domain));
-		freq_type = atc_Tower;
-	}
-
+    SetName(info.name);
+    freq.AssignFrom1Khz(info.freq);
+    freq_type = ENUM_Import(ATCFrequency, info.atc_type);
+    if (freq_type == -1)
+    {
+        print_func(ref, "Error importing runway: ATC frequecny code %d is illegal (not a member of type %s).\n",
+                   info.atc_type, DOMAIN_Desc(freq_type.domain));
+        freq_type = atc_Tower;
+    }
 }
 
-void	WED_ATCFrequency::Export(		 AptATCFreq_t& info) const
+void WED_ATCFrequency::Export(AptATCFreq_t& info) const
 {
-	GetName(info.name);
-	info.freq = freq.GetAs1Khz();
-	info.atc_type = ENUM_Export(freq_type.value);
+    GetName(info.name);
+    info.freq = freq.GetAs1Khz();
+    info.atc_type = ENUM_Export(freq_type.value);
 }
-

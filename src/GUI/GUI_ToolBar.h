@@ -26,36 +26,33 @@
 
 #include "GUI_Control.h"
 
-class	GUI_ToolBar : public GUI_Control {
+class GUI_ToolBar : public GUI_Control
+{
 public:
+    GUI_ToolBar(int h, int v, const char* in_resource);
+    virtual ~GUI_ToolBar();
 
-			 		 GUI_ToolBar(int h, int v, const char * in_resource);
-	virtual			~GUI_ToolBar();
+    void SizeToBitmap(void);
 
-			void	SizeToBitmap(void);
+    void SetToolTips(const std::vector<std::string>& in_tips);
+    void DisableTool(int idx);
 
-			void	SetToolTips(const std::vector<std::string>& in_tips);
-			void	DisableTool(int idx);
+    virtual void SetValue(float inValue);
 
-	virtual	void	SetValue(float inValue);
+    virtual void Draw(GUI_GraphState* state);
 
+    virtual int MouseDown(int x, int y, int button);
+    virtual void MouseDrag(int x, int y, int button);
+    virtual void MouseUp(int x, int y, int button);
 
-	virtual	void	Draw(GUI_GraphState * state);
-
-	virtual	int		MouseDown(int x, int y, int button);
-	virtual	void	MouseDrag(int x, int y, int button);
-	virtual	void	MouseUp  (int x, int y, int button);
-
-	virtual	int		GetHelpTip(int x, int y, int tip_bounds[4], std::string& tip);
+    virtual int GetHelpTip(int x, int y, int tip_bounds[4], std::string& tip);
 
 private:
-
-	std::vector<std::string>	mTips;
-	std::vector<int>		mEnabled;
-	std::string			mResource;
-	int				mH;
-	int				mV;
-
+    std::vector<std::string> mTips;
+    std::vector<int> mEnabled;
+    std::string mResource;
+    int mH;
+    int mV;
 };
 
 #endif

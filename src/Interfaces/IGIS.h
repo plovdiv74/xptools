@@ -57,66 +57,63 @@
 // GIS-spatial entities, e.g. a runway (line-width with more points to edit0, a taxiway (poly with pavement type),
 // etc.
 
+enum GISClass_t
+{
 
-enum GISClass_t {
-
-	gis_Point,
-		gis_Point_Bezier,
-		gis_Point_Heading,
-			gis_Point_HeadingWidthLength,
-	gis_PointSequence,
-		gis_Line,
-			gis_Line_Width,
-		gis_Edge,
-		gis_Ring,
-		gis_Chain,
-	gis_Area,
-		gis_Polygon,
-		gis_BoundingBox,
-	gis_Composite
+    gis_Point,
+    gis_Point_Bezier,
+    gis_Point_Heading,
+    gis_Point_HeadingWidthLength,
+    gis_PointSequence,
+    gis_Line,
+    gis_Line_Width,
+    gis_Edge,
+    gis_Ring,
+    gis_Chain,
+    gis_Area,
+    gis_Polygon,
+    gis_BoundingBox,
+    gis_Composite
 };
 
-enum GISLayer_t {
-	gis_Geo  ,
-	gis_UV   ,
-	gis_Param
+enum GISLayer_t
+{
+    gis_Geo,
+    gis_UV,
+    gis_Param
 };
 
-class	IGISEntity : public virtual ISelectable {
+class IGISEntity : public virtual ISelectable
+{
 public:
+    virtual GISClass_t GetGISClass(void) const = 0;
+    virtual const char* GetGISSubtype(void) const = 0;
+    virtual bool HasLayer(GISLayer_t layer) const = 0;
 
-	virtual	GISClass_t		GetGISClass		(void										  ) const=0;
-	virtual	const char *	GetGISSubtype	(void										  ) const=0;
-	virtual	bool			HasLayer		(GISLayer_t layer							  ) const=0;
+    virtual void GetBounds(GISLayer_t layer, Bbox2& bounds) const = 0;
+    virtual bool IntersectsBox(GISLayer_t layer, const Bbox2& bounds) const = 0;
+    virtual bool WithinBox(GISLayer_t layer, const Bbox2& bounds) const = 0;
+    virtual bool PtWithin(GISLayer_t layer, const Point2& p) const = 0;
+    virtual bool PtOnFrame(GISLayer_t layer, const Point2& p, double dist) const = 0;
+    virtual bool Cull(const Bbox2& bounds)
+        const = 0; // Returns true if visible.  Different from bounds, because some objects "hang off" the screen a bit.
 
-	virtual	void			GetBounds		(GISLayer_t layer,	    Bbox2&  bounds		  ) const=0;
-	virtual	bool			IntersectsBox	(GISLayer_t layer,const Bbox2&  bounds		  ) const=0;
-	virtual	bool			WithinBox		(GISLayer_t layer,const Bbox2&  bounds		  ) const=0;
-	virtual bool			PtWithin		(GISLayer_t layer,const Point2& p			  ) const=0;
-	virtual bool			PtOnFrame		(GISLayer_t layer,const Point2& p, double dist) const=0;
-	virtual bool			Cull			(				  const Bbox2& bounds		  ) const=0;	// Returns true if visible.  Different from bounds, because some objects "hang off" the screen a bit.
-
-	virtual	void			Rescale(
-								GISLayer_t layer,
-								const Bbox2& old_bounds,			// Defines a linear remappign of coordinates we can apply.
-								const Bbox2& new_bounds)=0;
-	virtual	void			Rotate(
-								GISLayer_t layer,
-								const Point2& center,
-								double angle)=0;
+    virtual void Rescale(GISLayer_t layer,
+                         const Bbox2& old_bounds, // Defines a linear remappign of coordinates we can apply.
+                         const Bbox2& new_bounds) = 0;
+    virtual void Rotate(GISLayer_t layer, const Point2& center, double angle) = 0;
 };
 
-class	IGISQuad : public virtual IGISEntity {
+class IGISQuad : public virtual IGISEntity
+{
 public:
+    virtual void GetCorners(GISLayer_t layer, Point2 corners[4]) const = 0;
 
-	virtual	void	GetCorners(GISLayer_t layer, Point2 corners[4]) const=0;
+    virtual void MoveCorner(GISLayer_t layer, int corner, const Vector2& delta) = 0;
+    virtual void MoveSide(GISLayer_t layer, int side, const Vector2& delta) = 0;
 
-	virtual	void	MoveCorner(GISLayer_t layer,int corner, const Vector2& delta)=0;
-	virtual	void	MoveSide(GISLayer_t layer,int side, const Vector2& delta)=0;
-
-	virtual	void	ResizeSide(GISLayer_t layer,int side, const Vector2& delta, bool symetric)=0;
-	virtual	void	ResizeCorner(GISLayer_t layer,int side, const Vector2& delta, bool symetric)=0;
-
+    virtual void ResizeSide(GISLayer_t layer, int side, const Vector2& delta, bool symetric) = 0;
+    virtual void ResizeCorner(GISLayer_t layer, int side, const Vector2& delta, bool symetric) = 0;
 };
 
 //------------------------------------------------------------------------------------------------------------
@@ -125,48 +122,44 @@ public:
 //
 // These are used for all point-derived entities - with interfaces added on for more "aspects".
 
-class	IGISPoint : public virtual IGISEntity {
+class IGISPoint : public virtual IGISEntity
+{
 public:
-
-	virtual	void	GetLocation(GISLayer_t layer,      Point2& p) const=0;
-	virtual	void	SetLocation(GISLayer_t layer,const Point2& p)      =0;
-
+    virtual void GetLocation(GISLayer_t layer, Point2& p) const = 0;
+    virtual void SetLocation(GISLayer_t layer, const Point2& p) = 0;
 };
 
-class	IGISPoint_Bezier : public virtual IGISPoint {
+class IGISPoint_Bezier : public virtual IGISPoint
+{
 public:
+    virtual bool GetControlHandleLo(GISLayer_t layer, Point2& p) const = 0;
+    virtual bool GetControlHandleHi(GISLayer_t layer, Point2& p) const = 0;
+    virtual bool IsSplit(void) const = 0;
+    virtual void GetBezierLocation(GISLayer_t layer, BezierPoint2& p) const = 0;
 
-	virtual	bool	GetControlHandleLo (GISLayer_t layer,      Point2& p ) const=0;
-	virtual	bool	GetControlHandleHi (GISLayer_t layer,      Point2& p ) const=0;
-	virtual	bool	IsSplit			   (void							 ) const=0;
-	virtual	void	GetBezierLocation  (GISLayer_t layer, BezierPoint2& p) const=0;
-
-	virtual	void	SetControlHandleLo (GISLayer_t layer,const Point2& p	   )=0;
-	virtual	void	SetControlHandleHi (GISLayer_t layer,const Point2& p	   )=0;
-	virtual	void	DeleteHandleLo	   (void								   )=0;
-	virtual	void	DeleteHandleHi	   (void								   )=0;
-	virtual	void	SetSplit		   (				  bool is_split		   )=0;	// WARNING: unsplitting control handles WITHOUT then moving one handle leaves the resolution of split handles AMBIGUOUS!
-	virtual	void	SetBezierLocation  (GISLayer_t layer, const BezierPoint2& p)=0;
-
+    virtual void SetControlHandleLo(GISLayer_t layer, const Point2& p) = 0;
+    virtual void SetControlHandleHi(GISLayer_t layer, const Point2& p) = 0;
+    virtual void DeleteHandleLo(void) = 0;
+    virtual void DeleteHandleHi(void) = 0;
+    virtual void SetSplit(bool is_split) = 0; // WARNING: unsplitting control handles WITHOUT then moving one handle
+                                              // leaves the resolution of split handles AMBIGUOUS!
+    virtual void SetBezierLocation(GISLayer_t layer, const BezierPoint2& p) = 0;
 };
 
-class	IGISPoint_Heading : public virtual IGISPoint {
+class IGISPoint_Heading : public virtual IGISPoint
+{
 public:
-
-	virtual	double	GetHeading(void			 ) const=0;
-	virtual	void	SetHeading(double heading)      =0;
-
+    virtual double GetHeading(void) const = 0;
+    virtual void SetHeading(double heading) = 0;
 };
 
-
-class	IGISPoint_WidthLength : public virtual IGISPoint_Heading, public virtual IGISQuad {
+class IGISPoint_WidthLength : public virtual IGISPoint_Heading, public virtual IGISQuad
+{
 public:
-
-	virtual	double	GetWidth (void		  ) const=0;
-	virtual	void	SetWidth (double width)      =0;
-	virtual	double	GetLength(void		  ) const=0;
-	virtual	void	SetLength(double width)      =0;
-
+    virtual double GetWidth(void) const = 0;
+    virtual void SetWidth(double width) = 0;
+    virtual double GetLength(void) const = 0;
+    virtual void SetLength(double width) = 0;
 };
 
 //------------------------------------------------------------------------------------------------------------
@@ -178,56 +171,54 @@ public:
 // points by getting non-const interfaces to them.
 // Note: we only can create points by splitting a side.  This keeps our points 'well-ordered...'
 
-class	IGISPointSequence : public virtual IGISEntity {
+class IGISPointSequence : public virtual IGISEntity
+{
 public:
+    virtual int GetNumPoints(void) const = 0;
+    //	virtual	void				DeletePoint (int n)		 =0;
 
-	virtual	int					GetNumPoints(void ) const=0;
-//	virtual	void				DeletePoint (int n)		 =0;
+    virtual IGISPoint* GetNthPoint(int n) const = 0;
 
-	virtual		  IGISPoint *	GetNthPoint (int n)	const=0;
+    virtual int GetNumSides(void) const = 0;
+    virtual bool GetSide(GISLayer_t layer, int n,
+                         Bezier2& b) const = 0; // return true for bezier
+                                                // for GISEdges, n = -1 gets the edge from source-to-source as ONE side
 
-	virtual	int					GetNumSides(void) const=0;
-	virtual	bool				GetSide  (GISLayer_t layer, int n, Bezier2& b) const=0;	// return true for bezier
-								                    // for GISEdges, n = -1 gets the edge from source-to-source as ONE side
+    virtual bool IsClosed(void) const = 0;
 
-	virtual	bool				IsClosed(void) const=0;
+    virtual void Reverse(GISLayer_t l) = 0;
+    virtual void Shuffle(GISLayer_t l) = 0;
 
-	virtual	void				Reverse(GISLayer_t l)=0;
-	virtual	void				Shuffle(GISLayer_t l)=0;
-
-	// Split the side at this point, returning the new point.  Or return NULL if the split is
-	// impossible/makes no sense.  Dist is a maximum distance from the point where "where" can be
-	// that we would still split.  The split is made on the line as close to "where" as possible.
-	virtual		  IGISPoint *	SplitSide(const Point2& where, double dist)=0;
-
+    // Split the side at this point, returning the new point.  Or return NULL if the split is
+    // impossible/makes no sense.  Dist is a maximum distance from the point where "where" can be
+    // that we would still split.  The split is made on the line as close to "where" as possible.
+    virtual IGISPoint* SplitSide(const Point2& where, double dist) = 0;
 };
 
-class	IGISEdge : public virtual IGISPointSequence {
+class IGISEdge : public virtual IGISPointSequence
+{
 public:
+    virtual bool IsOneway(void) const = 0;
+    virtual bool CanBeCurved(void) const = 0;
+    virtual void SetSide(GISLayer_t layer, const Segment2& s, int n = 0) = 0;
+    virtual void SetSideBezier(GISLayer_t layer, const Bezier2& b, int n = 0) = 0;
+    // for GISEdges, n = -1 gets the edge from source-to-source as ONE side
 
-	virtual	bool				IsOneway(void) const=0;
-	virtual	bool				CanBeCurved(void) const=0;
-	virtual	void				SetSide(GISLayer_t layer, const Segment2& s, int n = 0)=0;
-	virtual	void				SetSideBezier(GISLayer_t layer, const Bezier2& b, int n = 0)=0;
-								                    // for GISEdges, n = -1 gets the edge from source-to-source as ONE side
-
-	virtual		  IGISPoint *	SplitEdge(const Point2& where, double dist)=0;
+    virtual IGISPoint* SplitEdge(const Point2& where, double dist) = 0;
 };
 
-class IGISLine : public virtual IGISPointSequence {
+class IGISLine : public virtual IGISPointSequence
+{
 public:
-
-	virtual		  IGISPoint *		GetSource(void)	const=0;
-	virtual		  IGISPoint *		GetTarget(void)	const=0;
-
+    virtual IGISPoint* GetSource(void) const = 0;
+    virtual IGISPoint* GetTarget(void) const = 0;
 };
 
-class IGISLine_Width : public virtual IGISLine, public virtual IGISQuad {
+class IGISLine_Width : public virtual IGISLine, public virtual IGISQuad
+{
 public:
-
-	virtual	double	GetWidth (void		  ) const=0;
-	virtual	void	SetWidth (double width)      =0;
-
+    virtual double GetWidth(void) const = 0;
+    virtual void SetWidth(double width) = 0;
 };
 
 //------------------------------------------------------------------------------------------------------------
@@ -237,27 +228,25 @@ public:
 // bounds.  What you can do is get a non-const interface to a ring and then use the interface editing of the
 // ring to muck with it.
 
-class	IGISPolygon  : public virtual IGISEntity {
+class IGISPolygon : public virtual IGISEntity
+{
 public:
+    virtual IGISPointSequence* GetOuterRing(void) const = 0;
+    virtual int GetNumHoles(void) const = 0;
+    virtual IGISPointSequence* GetNthHole(int n) const = 0;
 
-	virtual			IGISPointSequence *		GetOuterRing(void )	const=0;
-	virtual			int						GetNumHoles (void ) const=0;
-	virtual			IGISPointSequence *		GetNthHole  (int n)	const=0;
+    virtual void DeleteHole(int n) = 0;
+    virtual void AddHole(IGISPointSequence* r) = 0;
 
-	virtual			void					DeleteHole  (int n)					=0;
-	virtual			void					AddHole		(IGISPointSequence * r) =0;
-
-	virtual			void					Reverse(GISLayer_t l)=0;
-	virtual			void					Shuffle(GISLayer_t l)=0;
-
+    virtual void Reverse(GISLayer_t l) = 0;
+    virtual void Shuffle(GISLayer_t l) = 0;
 };
 
-class	IGISBoundingBox : public virtual IGISEntity {
+class IGISBoundingBox : public virtual IGISEntity
+{
 public:
-
-	virtual			IGISPoint *				GetMin(void) const=0;
-	virtual			IGISPoint *				GetMax(void) const=0;
-
+    virtual IGISPoint* GetMin(void) const = 0;
+    virtual IGISPoint* GetMax(void) const = 0;
 };
 
 //------------------------------------------------------------------------------------------------------------
@@ -266,12 +255,11 @@ public:
 // We do not provide a way to "edit" composite relationships, at least not yet.  This is just a way for code
 // written entirely from a geo-analysis standpoint to do recursive trees.
 
-class IGISComposite :  public virtual IGISEntity {
+class IGISComposite : public virtual IGISEntity
+{
 public:
-
-	virtual	int				GetNumEntities(void ) const=0;
-	virtual	IGISEntity *	GetNthEntity  (int n) const=0;
-
+    virtual int GetNumEntities(void) const = 0;
+    virtual IGISEntity* GetNthEntity(int n) const = 0;
 };
 
 #endif

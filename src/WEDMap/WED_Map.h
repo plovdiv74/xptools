@@ -33,70 +33,65 @@
 #include <stdint.h>
 #include "WED_MapLayer.h"
 
-class	WED_MapLayer;
-class	WED_MapToolNew;
-class	IResolver;
-class	IGISEntity;
-class	ISelection;
+class WED_MapLayer;
+class WED_MapToolNew;
+class IResolver;
+class IGISEntity;
+class ISelection;
 
-class	WED_Map : public GUI_Pane, public WED_MapZoomerNew, public GUI_Listener, public GUI_Commander {
+class WED_Map : public GUI_Pane, public WED_MapZoomerNew, public GUI_Listener, public GUI_Commander
+{
 public:
+    WED_Map(IResolver* in_resolver, GUI_Commander* cmdr);
+    virtual ~WED_Map();
 
-						 WED_Map(IResolver * in_resolver, GUI_Commander * cmdr);
-	virtual				~WED_Map();
+    void SetTool(WED_MapToolNew* tool);
+    void AddLayer(WED_MapLayer* layer);
 
-			void		SetTool(WED_MapToolNew * tool);
-			void		AddLayer(WED_MapLayer * layer);
-	
-			void		SetFilter(const std::string& name, const MapFilter_t& hide_filter, const MapFilter_t& lock_filter);
+    void SetFilter(const std::string& name, const MapFilter_t& hide_filter, const MapFilter_t& lock_filter);
 
-	virtual void		SetBounds(int x1, int y1, int x2, int y2);
-	virtual void		SetBounds(int inBounds[4]);
+    virtual void SetBounds(int x1, int y1, int x2, int y2);
+    virtual void SetBounds(int inBounds[4]);
 
-	virtual	void		Draw(GUI_GraphState * state);
+    virtual void Draw(GUI_GraphState* state);
 
-	virtual	int			MouseDown(int x, int y, int button);
-	virtual	void		MouseDrag(int x, int y, int button);
-	virtual	void		MouseUp  (int x, int y, int button);
-	virtual	int			MouseMove(int x, int y);
-	virtual	int			ScrollWheel(int x, int y, int dist, int axis);
+    virtual int MouseDown(int x, int y, int button);
+    virtual void MouseDrag(int x, int y, int button);
+    virtual void MouseUp(int x, int y, int button);
+    virtual int MouseMove(int x, int y);
+    virtual int ScrollWheel(int x, int y, int dist, int axis);
 
-	virtual	int			HandleKeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFlags);
+    virtual int HandleKeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFlags);
 
-	virtual	void		ReceiveMessage(
-							GUI_Broadcaster *		inSrc,
-							intptr_t				inMsg,
-							intptr_t				inParam);
+    virtual void ReceiveMessage(GUI_Broadcaster* inSrc, intptr_t inMsg, intptr_t inParam);
 
 private:
+    void DrawVisFor(WED_MapLayer* layer, int current, const Bbox2& bounds, IGISEntity* what, GUI_GraphState* g,
+                    ISelection* sel, int depth);
+    void DrawStrFor(WED_MapLayer* layer, int current, const Bbox2& bounds, IGISEntity* what, bool what_locked,
+                    GUI_GraphState* g, ISelection* sel, int depth);
 
-			void		DrawVisFor(WED_MapLayer * layer, int current, const Bbox2& bounds, IGISEntity * what, GUI_GraphState * g, ISelection * sel, int depth);
-			void		DrawStrFor(WED_MapLayer * layer, int current, const Bbox2& bounds, IGISEntity * what, bool what_locked, GUI_GraphState * g, ISelection * sel, int depth);
+    IGISEntity* GetGISBase();
+    ISelection* GetSel();
 
-		IGISEntity *	GetGISBase();
-		ISelection *	GetSel();
+    std::vector<WED_MapLayer*> mLayers;
+    WED_MapToolNew* mTool;
+    IResolver* mResolver;
 
+    MapFilter_t mHideFilter;
+    MapFilter_t mLockFilter;
+    std::string mFilterName;
 
-	std::vector<WED_MapLayer *>			mLayers;
-	WED_MapToolNew *				mTool;
-	IResolver *						mResolver;
+    WED_MapLayer* mClickLayer;
+    int mX;
+    int mY;
 
-	MapFilter_t						mHideFilter;
-	MapFilter_t						mLockFilter;
-	std::string							mFilterName;
+    int mX_Orig;
+    int mY_Orig;
+    int mIsDownCount;
+    int mIsDownExtraCount;
 
-	WED_MapLayer *	mClickLayer;
-	int				mX;
-	int				mY;
-
-	int				mX_Orig;
-	int				mY_Orig;
-	int				mIsDownCount;
-	int				mIsDownExtraCount;
-	
-	GUI_Button *	mTiltButton[4];
+    GUI_Button* mTiltButton[4];
 };
 
-
 #endif
-

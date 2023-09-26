@@ -29,50 +29,31 @@
 
 // A tagged polygon is a std::set of curves such that the end points are all linked to form a polygon.  This allows you
 // to have a per-edge parameter.
-typedef vector<Curve_2>				TaggedPolygon_t;
+typedef vector<Curve_2> TaggedPolygon_t;
 
-void	TagPolygon(
-				const Polygon_2&			in_polygon,
-				TaggedPolygon_t&			out_polygon);
+void TagPolygon(const Polygon_2& in_polygon, TaggedPolygon_t& out_polygon);
 
-void	UntagPolygon(
-				const TaggedPolygon_t&		in_polygon,
-				Polygon_2&					out_polygon);
+void UntagPolygon(const TaggedPolygon_t& in_polygon, Polygon_2& out_polygon);
 
-
-// Polygon buffering - positive inset means smaller.  If "in_insets" is not null, it must be one inset per side.  The inset array
-// must always be positive - use in_inset (the master scale) for outset.  A new polygon std::set is returned that contains the area
-// contained by the original polygon after the buffering op.
+// Polygon buffering - positive inset means smaller.  If "in_insets" is not null, it must be one inset per side.  The
+// inset array must always be positive - use in_inset (the master scale) for outset.  A new polygon std::set is returned
+// that contains the area contained by the original polygon after the buffering op.
 
 // Input polygons:
 // - Must be simple but may have antennas.
 // - Antennas must be correctly noded.
-// - Antennas are allowed on the side we expand into.  So for positive inset (shrink polygon) we can have antennas on the inside but not outside.
-// Polygons must be CCW orientation.
+// - Antennas are allowed on the side we expand into.  So for positive inset (shrink polygon) we can have antennas on
+// the inside but not outside. Polygons must be CCW orientation.
 
-void	BufferPolygon(
-				const Polygon_2&			in_polygon,
-				const RingInset_t *			in_insets,
-				double						in_inset,
-				Polygon_set_2&				out_new_polygon);
+void BufferPolygon(const Polygon_2& in_polygon, const RingInset_t* in_insets, double in_inset,
+                   Polygon_set_2& out_new_polygon);
 
 // Same as above, but for a polygon with holes.  All requirements apply plus the holes must be CW.
-void	BufferPolygonWithHoles(
-				const Polygon_with_holes_2&	in_polygon,
-				const PolyInset_t *			in_insets,
-				double						in_inset,
-				Polygon_set_2&				out_new_polygon);
+void BufferPolygonWithHoles(const Polygon_with_holes_2& in_polygon, const PolyInset_t* in_insets, double in_inset,
+                            Polygon_set_2& out_new_polygon);
 
-void	BufferPolygonSet(
-				const Polygon_set_2&		in_polygon,
-				double						in_inset,
-				Polygon_set_2&				out_new_polygon);
+void BufferPolygonSet(const Polygon_set_2& in_polygon, double in_inset, Polygon_set_2& out_new_polygon);
 
-
-void	ValidateBuffer(
-				Pmwx&						arr,
-				Face_handle					face,
-				Locator&					l,
-				Polygon_set_2&				ps);
+void ValidateBuffer(Pmwx& arr, Face_handle face, Locator& l, Polygon_set_2& ps);
 
 #endif /* MapBuffer_H */

@@ -26,25 +26,23 @@
 
 #include "MapDefs.h"
 
-// Given a std::set of lines, if we know the data, this creates a new map that contains those edges, and tags the edges with the data.
-// By convention, the GIS data is attached to the halfedge that goes in the direction of the input curves.  If two input curves
-// go in opposite directions, the results are indeterminate.  If two input curves overlap, which data is used is indeterminate.
-void	Map_CreateWithLineData(
-					Pmwx&									out_map,
-					const vector<Segment_2>&				input_curves,
-					const vector<GIS_halfedge_data>&		input_data);
+// Given a std::set of lines, if we know the data, this creates a new map that contains those edges, and tags the edges
+// with the data. By convention, the GIS data is attached to the halfedge that goes in the direction of the input
+// curves.  If two input curves go in opposite directions, the results are indeterminate.  If two input curves overlap,
+// which data is used is indeterminate.
+void Map_CreateWithLineData(Pmwx& out_map, const vector<Segment_2>& input_curves,
+                            const vector<GIS_halfedge_data>& input_data);
 
-// Given a std::set of lines, this creates a new map.  For each entry in the input curves, we get back a vector of half-edge handles that
-// represents the induced curves.  The returned vectors of half-edges _are_ in the same direction as the underlying curve, but are NOT
-// necessarily in order.
+// Given a std::set of lines, this creates a new map.  For each entry in the input curves, we get back a vector of
+// half-edge handles that represents the induced curves.  The returned vectors of half-edges _are_ in the same direction
+// as the underlying curve, but are NOT necessarily in order.
 //
-// (Thus the union of all of the induced half edges for all of the original edges of a polygon should, in theory, fully surround
-// the std::set of faces induced by the polygon.)
+// (Thus the union of all of the induced half edges for all of the original edges of a polygon should, in theory, fully
+// surround the std::set of faces induced by the polygon.)
 //
-// Since the data std::set may contain overlaps, it is possible that halfedeges will be in more than one source curve vector.
-void	Map_CreateReturnEdges(
-					Pmwx&									out_map,
-					const vector<Segment_2>&				input_curves,
-					vector<vector<Pmwx::Halfedge_handle> >&	halfedge_handles);
+// Since the data std::set may contain overlaps, it is possible that halfedeges will be in more than one source curve
+// vector.
+void Map_CreateReturnEdges(Pmwx& out_map, const vector<Segment_2>& input_curves,
+                           vector<vector<Pmwx::Halfedge_handle>>& halfedge_handles);
 
 #endif /* MapCreate_H */

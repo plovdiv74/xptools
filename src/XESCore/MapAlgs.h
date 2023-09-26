@@ -31,39 +31,38 @@
 
 #include "MeshDefs.h"
 
-template<typename Number>
-struct	PolyRasterizer;
-struct	DEMGeo;
+template <typename Number> struct PolyRasterizer;
+struct DEMGeo;
 
-
-
-//these need to go
+// these need to go
 
 /*
  * CCBToPolygon
  *
- * Given a CCB (ring) in a map, this converts it to a simple polygon.  You can pass a weight function in which case a second array
- * of per-side weights (0th weight is the CCB edge passed in) are also built up.
+ * Given a CCB (ring) in a map, this converts it to a simple polygon.  You can pass a weight function in which case a
+ * second array of per-side weights (0th weight is the CCB edge passed in) are also built up.
  *
  */
-//void		CCBToPolygon(Halfedge_const_handle ccb, Polygon2& outPolygon, vector<double> * road_types, double (* weight_func)(Halfedge_const_handle edge), Bbox2 * outBounds);
+// void		CCBToPolygon(Halfedge_const_handle ccb, Polygon2& outPolygon, vector<double> * road_types, double (*
+// weight_func)(Halfedge_const_handle edge), Bbox2 * outBounds);
 
 /*
  * FaceToComplexPolygon
  *
- * Given a face, this builds a "complex" polygon (multiple rings, first is outside CCW, rest are inside CW) from each ring (the outer CCB and holes) of the polygon.
- * Like above a weighting function is used.
+ * Given a face, this builds a "complex" polygon (multiple rings, first is outside CCW, rest are inside CW) from each
+ * ring (the outer CCB and holes) of the polygon. Like above a weighting function is used.
  *
  */
-//void	FaceToComplexPolygon(Face_const_handle face, vector<Polygon2>& outPolygon, vector<vector<double> > * road_types, double (* weight_func)(Halfedge_const_handle edge), Bbox2 * outBounds);
+// void	FaceToComplexPolygon(Face_const_handle face, vector<Polygon2>& outPolygon, vector<vector<double> > * road_types,
+// double (* weight_func)(Halfedge_const_handle edge), Bbox2 * outBounds);
 /*
  * ComplexPolygonToPmwx
  *
- * Given a complex polygon (outer bounds and holes) this builds a PMWX with the same topolgoy.  InTerrain and outTerrain are terrain types assigned to space
- * in the PMWX inside and outside the complex polygon.
+ * Given a complex polygon (outer bounds and holes) this builds a PMWX with the same topolgoy.  InTerrain and outTerrain
+ * are terrain types assigned to space in the PMWX inside and outside the complex polygon.
  *
  */
-//Face_handle	ComplexPolygonToPmwx(const vector<Polygon2>& inPolygons, Pmwx& outPmwx, int inTerrain, int outTerain);
+// Face_handle	ComplexPolygonToPmwx(const vector<Polygon2>& inPolygons, Pmwx& outPmwx, int inTerrain, int outTerain);
 
 /************************************************************************************************
  * MAP EDITING
@@ -92,9 +91,7 @@ struct	DEMGeo;
  */
 
 #if DEV
-void	RebuildMap(
-			Pmwx&			in_map,
-			Pmwx&			out_map);
+void RebuildMap(Pmwx& in_map, Pmwx& out_map);
 #endif
 
 // keep - but...Point_2 based?
@@ -110,17 +107,13 @@ void	RebuildMap(
  *  M = averge number of halfedges in a CCB.
  *
  */
-void	CropMap(
-			Pmwx&			ioMap,
-			double			inWest,
-			double			inSouth,
-			double			inEast,
-			double			inNorth,
-			bool			inKeepOutside,	// If true, keep outside crop zone (cut a hole), otherwise keep only inside (normal crop)
-			ProgressFunc	inProgress);
+void CropMap(
+    Pmwx& ioMap, double inWest, double inSouth, double inEast, double inNorth,
+    bool inKeepOutside, // If true, keep outside crop zone (cut a hole), otherwise keep only inside (normal crop)
+    ProgressFunc inProgress);
 
 // Keep
-//void	CutInside(
+// void	CutInside(
 //			Pmwx&				ioMap,
 //			const Polygon_2&	inBoundary,
 //			bool				inWantOutside,
@@ -137,28 +130,22 @@ void	CropMap(
  * (This is a convenient high level swap.)
  *
  */
-void	CropMap(
-			Pmwx&					ioMap,
-			Pmwx&					outCutout,
-			const vector<Point_2>&	inRingCCW,
-			ProgressFunc			inProgress);
+void CropMap(Pmwx& ioMap, Pmwx& outCutout, const vector<Point_2>& inRingCCW, ProgressFunc inProgress);
 
-//void	SwapFace(
+// void	SwapFace(
 //			Pmwx&			inMaster,
 //			Pmwx&			inSlave,
 //			Face_handle		inFace,
 //			ProgressFunc	inFunc);
 
-
-//void	SwapMaps(	Pmwx& 							ioMapA,
+// void	SwapMaps(	Pmwx& 							ioMapA,
 //					Pmwx& 							ioMapB,
 //					const vector<Halfedge_handle>&	inBoundsA,
 //					const vector<Halfedge_handle>&	inBoundsB);
 
-//void TopoIntegrateMaps(Pmwx * mapA, Pmwx * mapB);
+// void TopoIntegrateMaps(Pmwx * mapA, Pmwx * mapB);
 
-//Face_handle SafeInsertRing(Pmwx * inPmwx, Face_handle parent, const vector<Point2>& inPoints);
-
+// Face_handle SafeInsertRing(Pmwx * inPmwx, Face_handle parent, const vector<Point2>& inPoints);
 
 /*
  * MapSimplify
@@ -175,14 +162,14 @@ void MapSimplify(Pmwx& pmwx, double metric);
 /*
  * MapDesliver
  *
- * A sliver is a very long thin map face, typically induced by having slightly conflicting 
+ * A sliver is a very long thin map face, typically induced by having slightly conflicting
  * vector data.  This routine attempts to prevent slivering problems by changing the underlying
  * face properties of such slivers so that they will merge with their neighbors.  Generally after
- * a desliver the map should be simplified to eliminate unnecessary half-edges.  
+ * a desliver the map should be simplified to eliminate unnecessary half-edges.
  *
  * The metric is a degrees-lat/lon metric for the acceptable minimum radius of any feature...any
  * smaller feature will be a candidate for deslivering.
- * 
+ *
  * Returns the number of changed faces.
  *
  */
@@ -194,15 +181,8 @@ int KillWetAntennaRoads(Pmwx& io_map);
 int LandFillStrandedRoads(Pmwx& io_map, double dist_lo, double dist_hi);
 
 int KillSliverWater(Pmwx& pmwx, double metric, ProgressFunc func);
-int KillSlopedWater(Pmwx& pmwx, 
-			DEMGeo& elev, 
-			DEMGeo& landuse, 
-			int max_horizontal_err_pix,
-			int	minimum_lu_size_pix,
-			float maximum_lu_err_pix,
-			double zlimit, 
-			ProgressFunc func);
-
+int KillSlopedWater(Pmwx& pmwx, DEMGeo& elev, DEMGeo& landuse, int max_horizontal_err_pix, int minimum_lu_size_pix,
+                    float maximum_lu_err_pix, double zlimit, ProgressFunc func);
 
 /************************************************************************************************
  * MAP ANALYSIS AND RASTERIZATION/ANALYSIS
@@ -215,10 +195,7 @@ int KillSlopedWater(Pmwx& pmwx,
  * Given a map, find its boundingbox.
  *
  */
-void	CalcBoundingBox(
-			const Pmwx&		inMap,
-			Point_2&		sw,
-			Point_2&		ne);
+void CalcBoundingBox(const Pmwx& inMap, Point_2& sw, Point_2& ne);
 
 // These next routines, move elsewhere to just GIS-related as opposed to comp-geom related
 
@@ -228,7 +205,7 @@ void	CalcBoundingBox(
  * Given a map in lat/lon and a face, return its area in meters.
  *
  */
-double	GetMapFaceAreaMeters(const Face_handle f, Bbox2 * out_bounds = NULL);
+double GetMapFaceAreaMeters(const Face_handle f, Bbox2* out_bounds = NULL);
 
 /*
  * GetMapFaceAreaDegrees
@@ -236,8 +213,7 @@ double	GetMapFaceAreaMeters(const Face_handle f, Bbox2 * out_bounds = NULL);
  * Given a map in lat/lon and a face, return its area in degrees.
  *
  */
-double	GetMapFaceAreaDegrees(const Face_handle f);
-
+double GetMapFaceAreaDegrees(const Face_handle f);
 
 /*
  * GetMapEdgeLengthMeters
@@ -245,7 +221,7 @@ double	GetMapFaceAreaDegrees(const Face_handle f);
  * Given an edge in lat/lon, return is length in meters.
  *
  */
-double	GetMapEdgeLengthMeters(const Halfedge_handle e);
+double GetMapEdgeLengthMeters(const Halfedge_handle e);
 
 /*
  * GetParamAverage
@@ -256,9 +232,8 @@ double	GetMapEdgeLengthMeters(const Halfedge_handle e);
  * Please note that the histogram is NOT initialized; so that you can run it on multiple faces.
  *
  */
-float	GetParamAverage(const Face_handle f, const DEMGeo& dem, float * outMin, float * outMax);
-int		GetParamHistogram(const Face_handle f, const DEMGeo& dem, std::map<float, int>& outHistogram);
-
+float GetParamAverage(const Face_handle f, const DEMGeo& dem, float* outMin, float* outMax);
+int GetParamHistogram(const Face_handle f, const DEMGeo& dem, std::map<float, int>& outHistogram);
 
 // Move these to some kind of DEM-map interaction file
 /*
@@ -269,7 +244,8 @@ int		GetParamHistogram(const Face_handle f, const DEMGeo& dem, std::map<float, i
  * were copied, otherwise the X and Y params may nto be valid.
  *
  */
-bool	ClipDEMToFaceSet(const std::set<Face_handle>& inFaces, const DEMGeo& inSrcDEM, DEMGeo& inDstDEM, int& outX1, int& outY1, int& outX2, int& outY2);
+bool ClipDEMToFaceSet(const std::set<Face_handle>& inFaces, const DEMGeo& inSrcDEM, DEMGeo& inDstDEM, int& outX1,
+                      int& outY1, int& outX2, int& outY2);
 
 /*
  * SetupRasterizerForDEM
@@ -282,8 +258,9 @@ bool	ClipDEMToFaceSet(const std::set<Face_handle>& inFaces, const DEMGeo& inSrcD
  * the rasterize outer loop.
  *
  */
-int		SetupRasterizerForDEM(const Face_handle f, const DEMGeo& dem, PolyRasterizer<double>& rasterizer);
-int		SetupRasterizerForDEM(const std::set<Halfedge_handle>& inEdges, const DEMGeo& dem, PolyRasterizer<double>& rasterizer);
+int SetupRasterizerForDEM(const Face_handle f, const DEMGeo& dem, PolyRasterizer<double>& rasterizer);
+int SetupRasterizerForDEM(const std::set<Halfedge_handle>& inEdges, const DEMGeo& dem,
+                          PolyRasterizer<double>& rasterizer);
 
 /*
  * DumpMapStats
@@ -326,7 +303,7 @@ void DumpMapStats(const Pmwx& ioMap);
  *
  */
 // Ben says: to be replaced with constructive inseting of polygon sets using boolean ops
-//void	InsetPmwx(Face_handle inFace, Pmwx& outMap, double dist);
+// void	InsetPmwx(Face_handle inFace, Pmwx& outMap, double dist);
 
 /************************************************************************************************
  * INLINE STUFF
@@ -337,17 +314,17 @@ void DumpMapStats(const Pmwx& ioMap);
 template <typename InputIterator>
 Point_2	FindRefPoint(InputIterator begin, InputIterator end)
 {
-	if (begin == end) return CGAL::ORIGIN;
-	Point_2	best = *begin;
-	for (InputIterator i = begin; i != end; ++i)
-	{
-		if ((*i).x < best.x)
-			best = Point_2((*i).x, best.y);
-		if ((*i).y < best.y)
-			best = Point_2(best.x, (*i).y);
-	}
+    if (begin == end) return CGAL::ORIGIN;
+    Point_2	best = *begin;
+    for (InputIterator i = begin; i != end; ++i)
+    {
+        if ((*i).x < best.x)
+            best = Point_2((*i).x, best.y);
+        if ((*i).y < best.y)
+            best = Point_2(best.x, (*i).y);
+    }
 
-	return best;
+    return best;
 }
 
 */
@@ -356,33 +333,32 @@ Point_2	FindRefPoint(InputIterator begin, InputIterator end)
 template <typename ForwardIterator>
 void LatLonToLocalMeters(ForwardIterator begin, ForwardIterator end, const Point_2& ref)
 {
-	Vector__2	offset(ref);
-	double		DEG_TO_MTR_LON = DEG_TO_MTR_LAT * cos(CGAL::to_double(ref.y) * DEG_TO_RAD);
-	for (ForwardIterator i = begin; i != end; ++i)
-	{
-		Point_2 p = *i - offset;
-		Point_2	p2(p.x * DEG_TO_MTR_LON / kOverscale,
-				   p.y * DEG_TO_MTR_LAT / kOverscale);
-		*i = p2;
-	}
+    Vector__2	offset(ref);
+    double		DEG_TO_MTR_LON = DEG_TO_MTR_LAT * cos(CGAL::to_double(ref.y) * DEG_TO_RAD);
+    for (ForwardIterator i = begin; i != end; ++i)
+    {
+        Point_2 p = *i - offset;
+        Point_2	p2(p.x * DEG_TO_MTR_LON / kOverscale,
+                   p.y * DEG_TO_MTR_LAT / kOverscale);
+        *i = p2;
+    }
 }
 
 template <typename ForwardIterator>
 void LocalMetersToLatLon(ForwardIterator begin, ForwardIterator end, const Point_2& ref)
 {
-	Vector_2	offset(ref);
-	double		DEG_TO_MTR_LON = DEG_TO_MTR_LAT * cos(CGAL::to_double(ref.y) * DEG_TO_RAD);
-	for (ForwardIterator i = begin; i != end; ++i)
-	{
-		Point_2	p ((*i).x * kOverscale / DEG_TO_MTR_LON,
-				   (*i).y * kOverscale / DEG_TO_MTR_LAT);
-		Point_2 p2 = p + offset;
-		*i = p2;
-	}
+    Vector_2	offset(ref);
+    double		DEG_TO_MTR_LON = DEG_TO_MTR_LAT * cos(CGAL::to_double(ref.y) * DEG_TO_RAD);
+    for (ForwardIterator i = begin; i != end; ++i)
+    {
+        Point_2	p ((*i).x * kOverscale / DEG_TO_MTR_LON,
+                   (*i).y * kOverscale / DEG_TO_MTR_LAT);
+        Point_2 p2 = p + offset;
+        *i = p2;
+    }
 }
 */
 
 // Stubs?  or move to map draw?
-
 
 #endif

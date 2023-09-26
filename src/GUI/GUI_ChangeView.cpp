@@ -24,28 +24,25 @@
 #include "GUI_ChangeView.h"
 #include "AssertUtils.h"
 
-GUI_ChangeView::GUI_ChangeView(GUI_Commander * parent) :
-	GUI_Pane(),
-	GUI_Commander(parent)
+GUI_ChangeView::GUI_ChangeView(GUI_Commander* parent) : GUI_Pane(), GUI_Commander(parent)
 {
-
 }
 
 GUI_ChangeView::~GUI_ChangeView()
 {
 }
 
-void	GUI_ChangeView::SetSubView(int who)
+void GUI_ChangeView::SetSubView(int who)
 {
-	int cc = CountChildren();
-	for (int n = 0; n < cc; ++n)
-	if (who != n)
-		GetNthChild(n)->Hide();
+    int cc = CountChildren();
+    for (int n = 0; n < cc; ++n)
+        if (who != n)
+            GetNthChild(n)->Hide();
 
-	GetNthChild(who)->Show();
+    GetNthChild(who)->Show();
 
-	GUI_Commander * c = dynamic_cast<GUI_Commander *>(GetNthChild(who));
-	DebugAssert(c != NULL);
-	if (c && !c->IsFocusedChain())
-		c->FocusChain(1);
+    GUI_Commander* c = dynamic_cast<GUI_Commander*>(GetNthChild(who));
+    DebugAssert(c != NULL);
+    if (c && !c->IsFocusedChain())
+        c->FocusChain(1);
 }

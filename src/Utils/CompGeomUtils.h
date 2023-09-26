@@ -26,17 +26,16 @@
 #include "CompGeomDefs2.h"
 #include "CompGeomDefs3.h"
 
+struct CoordTranslator2
+{
+    Point2 mSrcMin;
+    Point2 mSrcMax;
+    Point2 mDstMin;
+    Point2 mDstMax;
 
-struct	CoordTranslator2 {
-	Point2	mSrcMin;
-	Point2	mSrcMax;
-	Point2	mDstMin;
-	Point2	mDstMax;
-
-	Point2	Forward(const Point2& input) const;
-	Point2	Reverse(const Point2& input) const;
+    Point2 Forward(const Point2& input) const;
+    Point2 Reverse(const Point2& input) const;
 };
-
 
 // BEN SAYS: part of the goal here is to start REMOVING code that was based on UNSTABLE math and have
 // ONE std::set of master algorithms, based on robust CGAL foundations.  So..just about all of the polygon code
@@ -122,7 +121,6 @@ double	CalcMaxInset(
  */
 void ExtendBoundingSphereToPt(const Point3& p, Sphere3& ioSphere);
 
-
 /*
  * ExtendBoundingSphereToSphere
  *
@@ -140,9 +138,7 @@ void ExtendBoundingSphereToSphere(const Sphere3& newSphere, Sphere3& ioSphere);
  * but calculates a very close approximation.
  *
  */
-void	FastBoundingSphere(
-				const std::vector<Point3>&		inPoints,
-				Sphere3&					outSphere);
+void FastBoundingSphere(const std::vector<Point3>& inPoints, Sphere3& outSphere);
 
 /*
  * PointInPolygon3
@@ -152,9 +148,7 @@ void	FastBoundingSphere(
  * polygon.  This includes points on the polygon.
  *
  */
-bool	PointInPolygon3(
-				const Polygon3&				inPolygon,
-				const Point3&				inPoint);
+bool PointInPolygon3(const Polygon3& inPolygon, const Point3& inPoint);
 
 /*
  * BezierCurve
@@ -172,17 +166,9 @@ bool	PointInPolygon3(
  * of the "pinching" problem.
  *
  */
-void	BezierCurve(
-				const Point3&				inStart,
-				const Point3&				inEnd,
-				bool						inHasStartCurve,
-				bool						inHasEndCurve,
-				const Point3&				inStartCurve,
-				const Point3&				inEndCurve,
-				int							inNumSegments,
-				double						inProtectStart,
-				double						inProtectEnd,
-				std::vector<Point3>&				outPoints);
+void BezierCurve(const Point3& inStart, const Point3& inEnd, bool inHasStartCurve, bool inHasEndCurve,
+                 const Point3& inStartCurve, const Point3& inEndCurve, int inNumSegments, double inProtectStart,
+                 double inProtectEnd, std::vector<Point3>& outPoints);
 
 /*
  * ChainToQuadStrip
@@ -192,14 +178,10 @@ void	BezierCurve(
  * results into a quad strip.
  *
  */
-void	ChainToQuadStrip(
-				const std::vector<Point3>&		inChain,
-				const std::vector<Vector3>&		inUp,
-				const std::vector<double>&		inWidth,
-				std::vector<Point3>&				outQuadStrip);
+void ChainToQuadStrip(const std::vector<Point3>& inChain, const std::vector<Vector3>& inUp,
+                      const std::vector<double>& inWidth, std::vector<Point3>& outQuadStrip);
 
-void	ReverseQuadStrip(
-				std::vector<Point3>&				ioQuadStrip);
+void ReverseQuadStrip(std::vector<Point3>& ioQuadStrip);
 
 /*
  * RemoveEndsFromQuadStrip
@@ -216,17 +198,11 @@ void	ReverseQuadStrip(
  * strip regular.
  *
  */
-void	RemoveFromQuadStripFront(
-				std::vector<Point3>&				ioChain,
-				double						inRemoveFromStart,
-				std::vector<Point3>&				outFront,
-				bool						inTrimOffBevel);
+void RemoveFromQuadStripFront(std::vector<Point3>& ioChain, double inRemoveFromStart, std::vector<Point3>& outFront,
+                              bool inTrimOffBevel);
 
-void	RemoveFromQuadStripBack(
-				std::vector<Point3>&				ioChain,
-				double						inRemoveFromEnd,
-				std::vector<Point3>&				outBack,
-				bool						inTrimOffBevel);
+void RemoveFromQuadStripBack(std::vector<Point3>& ioChain, double inRemoveFromEnd, std::vector<Point3>& outBack,
+                             bool inTrimOffBevel);
 
 /*
  * LongerSideOfQuad
@@ -236,8 +212,7 @@ void	RemoveFromQuadStripBack(
  * in length is returned as a positive number; if the left a negative.
  *
  */
-double	LongerSideOfQuad(
-				const std::vector<Point3>&		inChain);
+double LongerSideOfQuad(const std::vector<Point3>& inChain);
 
 /*
  * ClipToHalfPlane3
@@ -245,11 +220,7 @@ double	LongerSideOfQuad(
  * Remove things on the side of the plane pointed to by the normal.
  *
  */
-void	ClipToHalfPlane3(
-				const Polygon3&				inPolygon,
-				const Plane3&				inPlane,
-				Polygon3&					outPolygon);
-
+void ClipToHalfPlane3(const Polygon3& inPolygon, const Plane3& inPlane, Polygon3& outPolygon);
 
 /*
  * IntersectLinesAroundJunction
@@ -262,18 +233,14 @@ void	ClipToHalfPlane3(
  * of the two lines.
  *
  */
-bool	IntersectLinesAroundJunction(
-				const Line3&				inLine1,
-				const Line3&				inLine2,
-				const Point3&				inJunctionPt,
-				Point3&						outIntersection);
+bool IntersectLinesAroundJunction(const Line3& inLine1, const Line3& inLine2, const Point3& inJunctionPt,
+                                  Point3& outIntersection);
 
-
-bool	Span_Horizontal_CCW(const Vector2& v1, const Vector2& v2);
+bool Span_Horizontal_CCW(const Vector2& v1, const Vector2& v2);
 
 // Given three vectors, if they originated from the same point, and you
 // rotated counterclockwise from 1, would you hit 2 and then 3?
-bool	Is_CCW_Between(const Vector2& v1, const Vector2& v2, const Vector2& v3);
+bool Is_CCW_Between(const Vector2& v1, const Vector2& v2, const Vector2& v3);
 
 #if 0
 // Given a polygon, try to reduce the number of sides based on some tollerance.
@@ -303,8 +270,6 @@ void	SmoothPolygon(Polygon2& ioPolygon, double smooth_radius, double max_turn_de
 //			Why?!? - BAS
 void	MakePolygonConvex(Polygon2& ioPolygon);
 #endif
-
-
 
 // union (A OR B) of two multi winding polygons. Outer contours clockwise, holes counter-clockwise
 std::vector<Polygon2> PolygonUnion(const std::vector<Polygon2>& mpolyA, const std::vector<Polygon2>& mpolyB);

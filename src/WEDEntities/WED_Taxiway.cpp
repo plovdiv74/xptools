@@ -27,12 +27,13 @@
 DEFINE_PERSISTENT(WED_Taxiway)
 TRIVIAL_COPY(WED_Taxiway, WED_GISPolygon)
 
-WED_Taxiway::WED_Taxiway(WED_Archive * a, int i) : WED_GISPolygon(a,i),
-	surface  (this,PROP_Name("Surface",          XML_Name("taxiway", "surface")),  Surface_Type, surf_Concrete),
-	roughness(this,PROP_Name("Roughness",        XML_Name("taxiway", "roughness")),0.25,4,2),
-	heading  (this,PROP_Name("Texture Heading",  XML_Name("taxiway", "heading")),  0,6,2),
-	lines    (this,PROP_Name("Line Attributes",  XML_Name("","")),                 "Line Attributes", 1),
-	lights   (this,PROP_Name("Light Attributes", XML_Name("","")),                 "Light Attributes", 1)
+WED_Taxiway::WED_Taxiway(WED_Archive* a, int i)
+    : WED_GISPolygon(a, i),
+      surface(this, PROP_Name("Surface", XML_Name("taxiway", "surface")), Surface_Type, surf_Concrete),
+      roughness(this, PROP_Name("Roughness", XML_Name("taxiway", "roughness")), 0.25, 4, 2),
+      heading(this, PROP_Name("Texture Heading", XML_Name("taxiway", "heading")), 0, 6, 2),
+      lines(this, PROP_Name("Line Attributes", XML_Name("", "")), "Line Attributes", 1),
+      lights(this, PROP_Name("Light Attributes", XML_Name("", "")), "Light Attributes", 1)
 {
 }
 
@@ -40,91 +41,94 @@ WED_Taxiway::~WED_Taxiway()
 {
 }
 
-void		WED_Taxiway::SetSurface(int s)
+void WED_Taxiway::SetSurface(int s)
 {
-		surface = s;
+    surface = s;
 }
 
-void		WED_Taxiway::SetRoughness(double r)
+void WED_Taxiway::SetRoughness(double r)
 {
-		roughness = r;
+    roughness = r;
 }
 
-double		WED_Taxiway::GetHeading(void) const
+double WED_Taxiway::GetHeading(void) const
 {
-	return heading.value;
+    return heading.value;
 }
 
-void		WED_Taxiway::SetHeading(double h)
+void WED_Taxiway::SetHeading(double h)
 {
-		heading = h;
+    heading = h;
 }
 
-int			WED_Taxiway::GetSurface(void) const
+int WED_Taxiway::GetSurface(void) const
 {
-	return surface.value;
+    return surface.value;
 }
 
-void		WED_Taxiway::Import(const AptTaxiway_t& x, void (* print_func)(void *, const char *, ...), void * ref)
+void WED_Taxiway::Import(const AptTaxiway_t& x, void (*print_func)(void*, const char*, ...), void* ref)
 {
-	surface = ENUM_Import(Surface_Type, x.surface_code);
-	if (surface == -1)
-	{
-		print_func(ref,"Error importing taxiway: surface code %d is illegal (not a member of type %s).\n", x.surface_code, DOMAIN_Desc(surface.domain));
-		surface = surf_Concrete;
-	}
+    surface = ENUM_Import(Surface_Type, x.surface_code);
+    if (surface == -1)
+    {
+        print_func(ref, "Error importing taxiway: surface code %d is illegal (not a member of type %s).\n",
+                   x.surface_code, DOMAIN_Desc(surface.domain));
+        surface = surf_Concrete;
+    }
 
-	roughness = x.roughness_ratio;
-	heading = x.heading;
-	SetName(x.name);
+    roughness = x.roughness_ratio;
+    heading = x.heading;
+    SetName(x.name);
 }
 
-void		WED_Taxiway::Export(		 AptTaxiway_t& x) const
+void WED_Taxiway::Export(AptTaxiway_t& x) const
 {
-	x.surface_code = ENUM_Export(surface.value);
-	x.roughness_ratio = roughness;
-	x.heading = heading;
-	GetName(x.name);
+    x.surface_code = ENUM_Export(surface.value);
+    x.roughness_ratio = roughness;
+    x.heading = heading;
+    GetName(x.name);
 }
 
-void	WED_Taxiway::GetNthPropertyDict(int n, PropertyDict_t& dict) const
+void WED_Taxiway::GetNthPropertyDict(int n, PropertyDict_t& dict) const
 {
-	WED_GISPolygon::GetNthPropertyDict(n, dict);
-	if(n == PropertyItemNumber(&surface) && surface.value != surf_Water)
-	{
-		dict.erase(surf_Water);
-	}
+    WED_GISPolygon::GetNthPropertyDict(n, dict);
+    if (n == PropertyItemNumber(&surface) && surface.value != surf_Water)
+    {
+        dict.erase(surf_Water);
+    }
 }
 
-void 	WED_Taxiway::GetResource(std::string& r) const
+void WED_Taxiway::GetResource(std::string& r) const
 {
-	r.clear();                               // return a std::string ONLY if lines and light are std::set uniformly throughout all nodes
+    r.clear(); // return a std::string ONLY if lines and light are std::set uniformly throughout all nodes
 
-	PropertyVal_t line;
-	lines.GetProperty(line);
-	PropertyVal_t light;
-	lights.GetProperty(light);
+    PropertyVal_t line;
+    lines.GetProperty(line);
+    PropertyVal_t light;
+    lights.GetProperty(light);
 
-//	std::string n; this->GetName(n);
-//	printf("%s: lin=%d lgt=%d\n",n.c_str(), line.set_val.size(), light.set_val.size());
+    //	std::string n; this->GetName(n);
+    //	printf("%s: lin=%d lgt=%d\n",n.c_str(), line.set_val.size(), light.set_val.size());
 
-	if(line.set_val.size() == 1)
-	{
-		const char * c = ENUM_Desc(*line.set_val.begin());
-		if(c) r += c;
-	}
-	else if (line.set_val.size() > 1)
-		return;
+    if (line.set_val.size() == 1)
+    {
+        const char* c = ENUM_Desc(*line.set_val.begin());
+        if (c)
+            r += c;
+    }
+    else if (line.set_val.size() > 1)
+        return;
 
-	if(light.set_val.size() == 1)
-	{
-		const char * c = ENUM_Desc(*light.set_val.begin());
-		if(c)
-		{
-			if(!r.empty()) r +=  "$^";
-			r += c;
-		}
-	}
-	else
-		return;
+    if (light.set_val.size() == 1)
+    {
+        const char* c = ENUM_Desc(*light.set_val.begin());
+        if (c)
+        {
+            if (!r.empty())
+                r += "$^";
+            r += c;
+        }
+    }
+    else
+        return;
 }

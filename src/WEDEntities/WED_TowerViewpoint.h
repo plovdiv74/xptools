@@ -26,25 +26,26 @@
 
 #include "WED_GISPoint.h"
 
-struct	AptTowerPt_t;
+struct AptTowerPt_t;
 
-class	WED_TowerViewpoint : public WED_GISPoint {
+class WED_TowerViewpoint : public WED_GISPoint
+{
 
-DECLARE_PERSISTENT(WED_TowerViewpoint)
+    DECLARE_PERSISTENT(WED_TowerViewpoint)
 
 public:
+    void SetHeight(double);
 
-	void		SetHeight(double);
+    void Import(const AptTowerPt_t& x, void (*print_func)(void*, const char*, ...), void* ref);
+    void Export(AptTowerPt_t& x) const;
 
-	void		Import(const AptTowerPt_t& x, void (* print_func)(void *, const char *, ...), void * ref);
-	void		Export(		 AptTowerPt_t& x) const;
-
-	virtual const char *	HumanReadableType(void) const { return "Tower Viewpoint"; }
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Tower Viewpoint";
+    }
 
 private:
-
-	WED_PropDoubleTextMeters		height;
-
+    WED_PropDoubleTextMeters height;
 };
 
 #endif /* WED_TOWERVIEWPOINT_H */

@@ -26,24 +26,22 @@
 
 /*
 
-	These interfaces map subcomponents by std::string keys - sort of a hash-table of containment.
+    These interfaces map subcomponents by std::string keys - sort of a hash-table of containment.
 
 */
 
 #include "IBase.h"
 
-class	IDirectory : public virtual IBase {
+class IDirectory : public virtual IBase
+{
 public:
-
-	virtual	IBase *	Directory_Find(const char * name)=0;
-
+    virtual IBase* Directory_Find(const char* name) = 0;
 };
 
-class	IDirectoryEdit : public virtual IBase {
+class IDirectoryEdit : public virtual IBase
+{
 public:
-
-	virtual	void		Directory_Edit(const char * name, IBase * who)=0;
-
+    virtual void Directory_Edit(const char* name, IBase* who) = 0;
 };
 
 #endif /* IDIRECTORY_H */

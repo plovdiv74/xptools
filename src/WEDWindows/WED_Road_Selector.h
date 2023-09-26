@@ -30,55 +30,68 @@
 
 class GUI_GraphState;
 
-struct road_entry {
-	std::string	name;
-	bool	checked;
-	int		enu;
-	road_entry(const char * c = "") : name(c), checked(false), enu(-1) {}
+struct road_entry
+{
+    std::string name;
+    bool checked;
+    int enu;
+    road_entry(const char* c = "") : name(c), checked(false), enu(-1)
+    {
+    }
 };
 
-struct road_choices {
-	struct  sfx_t {
-		int idx;
-		int enu;
-		sfx_t(int i, int e) : idx(i), enu(e) {};
-		};
-	std::string prefix;
-	std::vector<sfx_t> combis;
-	road_choices(std::string s) : prefix(s) {};
+struct road_choices
+{
+    struct sfx_t
+    {
+        int idx;
+        int enu;
+        sfx_t(int i, int e) : idx(i), enu(e){};
+    };
+    std::string prefix;
+    std::vector<sfx_t> combis;
+    road_choices(std::string s) : prefix(s){};
 };
 
-class WED_Road_Selector : public GUI_EditorInsert {
+class WED_Road_Selector : public GUI_EditorInsert
+{
 public:
-			WED_Road_Selector(GUI_Commander * parent, const GUI_EnumDictionary& dict);
+    WED_Road_Selector(GUI_Commander* parent, const GUI_EnumDictionary& dict);
 
-	void	Draw(GUI_GraphState * state) override;
+    void Draw(GUI_GraphState* state) override;
 
-	int		MouseDown(int x, int y, int button) override;
-	int		MouseMove(int x, int y) override;
+    int MouseDown(int x, int y, int button) override;
+    int MouseMove(int x, int y) override;
 
-	int		GetCursor(int x, int y) override { return gui_Cursor_Arrow; } // prevents cursor being affected by elements in underlyig windows
+    int GetCursor(int x, int y) override
+    {
+        return gui_Cursor_Arrow;
+    } // prevents cursor being affected by elements in underlyig windows
 
-	bool	SetData(const GUI_CellContent& c) override;
-	void	GetData(GUI_CellContent& c) override;
-	void	GetSizeHint(int * w, int * h) override;
+    bool SetData(const GUI_CellContent& c) override;
+    void GetData(GUI_CellContent& c) override;
+    void GetSizeHint(int* w, int* h) override;
 
 protected:
-
-	int		AcceptTakeFocus() override { return 1; }
-	int		AcceptLoseFocus(int force) override { return 1; }
-	int		HandleKeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFlags) override;
+    int AcceptTakeFocus() override
+    {
+        return 1;
+    }
+    int AcceptLoseFocus(int force) override
+    {
+        return 1;
+    }
+    int HandleKeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFlags) override;
 
 private:
+    std::vector<road_choices> mRd_prefix; // prefix plus pairs of valid suffixes and emums
+    std::vector<std::string> mRd_suffix;
+    int mPfx; // current selections
+    int mSfx;
+    int mChoice; // original choice when tarted, used in case of abort
 
-	std::vector<road_choices> mRd_prefix;   // prefix plus pairs of valid suffixes and emums
-	std::vector<std::string>	mRd_suffix;
-	int				mPfx;              // current selections
-	int				mSfx;
-	int				mChoice;           // original choice when tarted, used in case of abort
-
-	int				mColWidth[2];
-	int				mR, mC;
+    int mColWidth[2];
+    int mR, mC;
 };
 
 #endif /* WED_Road_Selector_h */

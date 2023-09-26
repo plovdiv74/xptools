@@ -37,23 +37,29 @@ class WED_MapPreviewPane;
 class WED_MapPreviewWindow : public GUI_Window
 {
 public:
-	WED_MapPreviewWindow(GUI_Commander * documentWindowCmdr, WED_Document * document);
+    WED_MapPreviewWindow(GUI_Commander* documentWindowCmdr, WED_Document* document);
 
-	int	HandleKeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFlags) override;
-	int	HandleCommand(int command) override;
+    int HandleKeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFlags) override;
+    int HandleCommand(int command) override;
 
-	bool Closed() override;
+    bool Closed() override;
 
-	bool ShouldDeferKeypress() override { return false; }
+    bool ShouldDeferKeypress() override
+    {
+        return false;
+    }
 
-	void FromPrefs(IDocPrefs * prefs);
-	void ToPrefs(IDocPrefs * prefs);
+    void FromPrefs(IDocPrefs* prefs);
+    void ToPrefs(IDocPrefs* prefs);
 
-	WED_MapPreviewPane * MapPreviewPane() { return mMapPreviewPane; }
+    WED_MapPreviewPane* MapPreviewPane()
+    {
+        return mMapPreviewPane;
+    }
 
 private:
-	WED_MapPreviewPane * mMapPreviewPane;
-	GUI_Commander * mDocumentWindowCmdr;
+    WED_MapPreviewPane* mMapPreviewPane;
+    GUI_Commander* mDocumentWindowCmdr;
 };
 
 #endif

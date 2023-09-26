@@ -34,208 +34,239 @@
 #include <stdarg.h>
 #endif
 
-class	XGrinderWin;
+class XGrinderWin;
 
-static	char			gCurMessage[1024] = { 0 };
-static	string			gTitle = "XGrinder";
-static	XGrinderWin * 	gWin = NULL;
+static char gCurMessage[1024] = {0};
+static string gTitle = "XGrinder";
+static XGrinderWin* gWin = NULL;
 
 #if IBM
-HINSTANCE	gInstance = NULL;
+HINSTANCE gInstance = NULL;
 #endif
 
-class	XGrinderWin : public XWin {
+class XGrinderWin : public XWin
+{
 public:
-
-							XGrinderWin();
-	virtual					~XGrinderWin() { }
-	virtual	void			Timer(void) { }
-	virtual	bool			Closed(void) { XGrinder_Quit(); return true; }
-	virtual	void			Resized(int inWidth, int inHeight) { }
-	virtual	void			Update(XContext ctx);
-	virtual void			Activate(int inActive) { }
-	virtual	void			ClickDown(int inX, int inY, int inButton) { }
-	virtual	void			ClickUp(int inX, int inY, int inButton) { }
-	virtual	void			ClickDrag(int inX, int inY, int inButton) { }
-	virtual	void			ClickMove(int inX, int inY) { }
-	virtual	void			MouseWheel(int inX, int inY, int inDelta, int inAxis) { }
-	virtual	void			DragEnter(int inX, int inY) { }
-	virtual	void			DragOver(int inX, int inY) { }
-	virtual	void			DragLeave(void) { }
-	virtual	void			ReceiveFiles(const std::vector<std::string>& inFiles, int x, int y) { XGrindFiles(inFiles); }
-	virtual	int				KeyPressed(uint32_t, long, long, long) { return 1; }
-	virtual	int				HandleMenuCmd(xmenu inMenu, int inCommand) { return XGrinderMenuPick(inMenu, inCommand); };
+    XGrinderWin();
+    virtual ~XGrinderWin()
+    {
+    }
+    virtual void Timer(void)
+    {
+    }
+    virtual bool Closed(void)
+    {
+        XGrinder_Quit();
+        return true;
+    }
+    virtual void Resized(int inWidth, int inHeight)
+    {
+    }
+    virtual void Update(XContext ctx);
+    virtual void Activate(int inActive)
+    {
+    }
+    virtual void ClickDown(int inX, int inY, int inButton)
+    {
+    }
+    virtual void ClickUp(int inX, int inY, int inButton)
+    {
+    }
+    virtual void ClickDrag(int inX, int inY, int inButton)
+    {
+    }
+    virtual void ClickMove(int inX, int inY)
+    {
+    }
+    virtual void MouseWheel(int inX, int inY, int inDelta, int inAxis)
+    {
+    }
+    virtual void DragEnter(int inX, int inY)
+    {
+    }
+    virtual void DragOver(int inX, int inY)
+    {
+    }
+    virtual void DragLeave(void)
+    {
+    }
+    virtual void ReceiveFiles(const std::vector<std::string>& inFiles, int x, int y)
+    {
+        XGrindFiles(inFiles);
+    }
+    virtual int KeyPressed(uint32_t, long, long, long)
+    {
+        return 1;
+    }
+    virtual int HandleMenuCmd(xmenu inMenu, int inCommand)
+    {
+        return XGrinderMenuPick(inMenu, inCommand);
+    };
 
 #if LIN
 protected:
-	void draw();
+    void draw();
 #endif
 };
 
-XGrinderWin::XGrinderWin() : XWin(1, gTitle.c_str(),
-	xwin_style_resizable  | xwin_style_centered | xwin_style_visible,
-	50, 100, 512, 100)
+XGrinderWin::XGrinderWin()
+    : XWin(1, gTitle.c_str(), xwin_style_resizable | xwin_style_centered | xwin_style_visible, 50, 100, 512, 100)
 {
 }
 
 #if LIN
 void XGrinderWin::draw()
 {
-	int		w, h;
-	this->GetBounds(&w, &h);
+    int w, h;
+    this->GetBounds(&w, &h);
 
-	int mh = GetMenuBarHeight();
-	fl_rectf (0,mh,w,h,FL_BACKGROUND2_COLOR);
+    int mh = GetMenuBarHeight();
+    fl_rectf(0, mh, w, h, FL_BACKGROUND2_COLOR);
 
-	fl_color(0);
-	int fh = fl_height() - fl_descent();
-	int y = mh + fh;
+    fl_color(0);
+    int fh = fl_height() - fl_descent();
+    int y = mh + fh;
 
-	char msg[1024];int n = -1;double width;
-	const char * p = gCurMessage;
-	while ( n != 0)
+    char msg[1024];
+    int n = -1;
+    double width;
+    const char* p = gCurMessage;
+    while (n != 0)
     {
-		p = fl_expand_text(p,msg,1024,w,n,width,1,0);
-		fl_draw(msg,0,y);
-		y  += fh;
-	}
+        p = fl_expand_text(p, msg, 1024, w, n, width, 1, 0);
+        fl_draw(msg, 0, y);
+        y += fh;
+    }
 
-	draw_children();
+    draw_children();
 }
 #endif
 
 void XGrinderWin::Update(XWin::XContext ctx)
 {
 #if LIN
-	this->redraw();
+    this->redraw();
 #else
-	int		w, h;
-	this->GetBounds(&w, &h);
+    int w, h;
+    this->GetBounds(&w, &h);
 #if APL
-	erase_a_rect(0,0,w,h);
-	draw_text(0,0,w,h,gCurMessage);
+    erase_a_rect(0, 0, w, h);
+    draw_text(0, 0, w, h, gCurMessage);
 #endif
 #if IBM
-	RECT	bounds;
-	bounds.left = 0;
-	bounds.right = w;
-	bounds.top = 0;
-	bounds.bottom = h;
-	FillRect(ctx, &bounds, (HBRUSH) (COLOR_WINDOW+1));
-	if (gCurMessage[0] != 0)
-		//		TextOut(ctx, 0, 0, gCurMessage, strlen(gCurMessage));
-		DrawText(ctx, gCurMessage, -1, &bounds, DT_LEFT | DT_WORD_ELLIPSIS);
+    RECT bounds;
+    bounds.left = 0;
+    bounds.right = w;
+    bounds.top = 0;
+    bounds.bottom = h;
+    FillRect(ctx, &bounds, (HBRUSH)(COLOR_WINDOW + 1));
+    if (gCurMessage[0] != 0)
+        //		TextOut(ctx, 0, 0, gCurMessage, strlen(gCurMessage));
+        DrawText(ctx, gCurMessage, -1, &bounds, DT_LEFT | DT_WORD_ELLIPSIS);
 #endif
 #endif // LIN
 }
 
-void	XGrinder_ShowMessage(const char * fmt, ...)
+void XGrinder_ShowMessage(const char* fmt, ...)
 {
-	va_list		args;
-	va_start(args, fmt);
+    va_list args;
+    va_start(args, fmt);
 
-	vsprintf(gCurMessage, fmt, args);
+    vsprintf(gCurMessage, fmt, args);
 
-	if (gWin)
-		gWin->ForceRefresh();
-
+    if (gWin)
+        gWin->ForceRefresh();
 }
 
-void	XGrinder_SetWindowTitle(const char * title)
+void XGrinder_SetWindowTitle(const char* title)
 {
-	if (gWin)
-		gWin->SetTitle(title);
+    if (gWin)
+        gWin->SetTitle(title);
 }
 
-void	XGrinder_Quit(void)
+void XGrinder_Quit(void)
 {
 #if !LIN
-	exit(0);
+    exit(0);
 #endif
 }
 
-xmenu	XGrinder_AddMenu(const char * title, const char ** items)
+xmenu XGrinder_AddMenu(const char* title, const char** items)
 {
-	xmenu	theMenu = XWin::CreateMenu(gWin->GetMenuBar(), -1, title);
-	int n = 0;
-	while (items[n])
-	{
-		if (strcmp(items[n], "-"))
-			XWin::AppendMenuItem(theMenu, items[n]);
-		else
-			XWin::AppendSeparator(theMenu);
-		++n;
-	}
-	return theMenu;
+    xmenu theMenu = XWin::CreateMenu(gWin->GetMenuBar(), -1, title);
+    int n = 0;
+    while (items[n])
+    {
+        if (strcmp(items[n], "-"))
+            XWin::AppendMenuItem(theMenu, items[n]);
+        else
+            XWin::AppendSeparator(theMenu);
+        ++n;
+    }
+    return theMenu;
 }
 
 #if LIN
 int main(int argc, char* argv[])
 {
-	gWin = new XGrinderWin();
-	XGrindInit(gTitle);
-	gWin->xclass(gTitle.c_str());
-	gWin->show(argc,argv);
+    gWin = new XGrinderWin();
+    XGrindInit(gTitle);
+    gWin->xclass(gTitle.c_str());
+    gWin->show(argc, argv);
 
-	int res = Fl::run();
+    int res = Fl::run();
 
     gWin->ClearMenus();
 
-	return res;
+    return res;
 }
 #endif
 
 #if APL
-int		main(int argc, char ** argv)
+int main(int argc, char** argv)
 {
-	init_ns_stuff();
+    init_ns_stuff();
 
-	gWin = new XGrinderWin();
-	XGrindInit(gTitle);
-	gWin->SetTitle(gTitle.c_str());
-	gWin->ForceRefresh();
+    gWin = new XGrinderWin();
+    XGrindInit(gTitle);
+    gWin->SetTitle(gTitle.c_str());
+    gWin->ForceRefresh();
 
-	run_app();
+    run_app();
 
-	return 0;
+    return 0;
 }
 #endif
 
 #if IBM
-int APIENTRY WinMain(HINSTANCE hInstance,
-                     HINSTANCE hPrevInstance,
-                     LPSTR     lpCmdLine,
-                     int       nCmdShow)
+int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-	printf("Cmd line was: %s\n", lpCmdLine);
-	gInstance = hInstance;
+    printf("Cmd line was: %s\n", lpCmdLine);
+    gInstance = hInstance;
 
-	MSG msg;
-//	HACCEL hAccelTable;
+    MSG msg;
+    //	HACCEL hAccelTable;
 
-	XWin::RegisterClass(hInstance);
-	if(OleInitialize(NULL) != S_OK)
-		return FALSE;
+    XWin::RegisterClass(hInstance);
+    if (OleInitialize(NULL) != S_OK)
+        return FALSE;
 
-	gWin = new XGrinderWin();
-	XGrindInit(gTitle);
-	gWin->SetTitle(gTitle.c_str());
-	gWin->DrawMenuBar();
-	gWin->ForceRefresh();
+    gWin = new XGrinderWin();
+    XGrindInit(gTitle);
+    gWin->SetTitle(gTitle.c_str());
+    gWin->DrawMenuBar();
+    gWin->ForceRefresh();
 
-	while (GetMessage(&msg, NULL, 0, 0))
-	{
-//		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-//		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-//		}
-	}
+    while (GetMessage(&msg, NULL, 0, 0))
+    {
+        //		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+        //		{
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+        //		}
+    }
 
-	OleUninitialize();
-	return msg.wParam;
+    OleUninitialize();
+    return msg.wParam;
 }
 #endif
-
-
-

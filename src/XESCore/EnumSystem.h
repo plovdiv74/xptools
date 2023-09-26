@@ -23,58 +23,53 @@
 #ifndef ENUMSYSTEM_H
 #define ENUMSYSTEM_H
 
-struct	XAtomContainer;
+struct XAtomContainer;
 
 /* The Token macro defines tokens.  First, publicly declare all of our token
  * enums.   They will be assigned from 0 in the order of the file, so we acn
  * do enum range checks, etc. */
 
-#define	TOKEN(x)		x,
+#define TOKEN(x) x,
 #define EXTRACT_TOKENS 1
 
-enum {
+enum
+{
 
 #include "ParamDefs.h"
 
-	NUMBER_OF_DEFAULT_TOKENS
+    NUMBER_OF_DEFAULT_TOKENS
 };
 
 #undef TOKEN
 #undef EXTRACT_TOKENS
 
-
 /* A token map goes from the int to the string - use a vector because
  * all enums should be packed. */
 
-typedef	std::vector<std::string>			TokenMap;
-typedef std::hash_map<std::string, int>	TokenReverseMap;
-typedef	std::vector<int>				TokenConversionMap;
+typedef std::vector<std::string> TokenMap;
+typedef std::hash_map<std::string, int> TokenReverseMap;
+typedef std::vector<int> TokenConversionMap;
 
-extern	TokenMap		gTokens;
+extern TokenMap gTokens;
 
-const char *	FetchTokenString(int);
-int				NewToken(const char * inString);
-int				LookupToken(const char * inString);
-int				LookupTokenCreate(const char * inString);
+const char* FetchTokenString(int);
+int NewToken(const char* inString);
+int LookupToken(const char* inString);
+int LookupTokenCreate(const char* inString);
 
-void	InitEnumSystem(void);
+void InitEnumSystem(void);
 
-void	BuildTokenReverseMap(
-						const TokenMap&		inTokens,
-						TokenReverseMap&	inReverse);
+void BuildTokenReverseMap(const TokenMap& inTokens, TokenReverseMap& inReverse);
 
 // This routine builds a conversion map.  The destination
 // is not const because tokens may have to be added!
-void	BuildTokenConversionMap(
-						TokenMap&			ioDestination,
-						const TokenMap&		inSource,
-						TokenConversionMap&	outConversion);
+void BuildTokenConversionMap(TokenMap& ioDestination, const TokenMap& inSource, TokenConversionMap& outConversion);
 
 // These routines read or write a token map to a file.  Use this to store the current
 // tokens.
-void	WriteEnumsAtomToFile(FILE * inFile, const TokenMap& inTokens, int atomID);
-void	ReadEnumsAtomFromFile(XAtomContainer& inAtomContainer, TokenMap& outTokens, int atomID);
+void WriteEnumsAtomToFile(FILE* inFile, const TokenMap& inTokens, int atomID);
+void ReadEnumsAtomFromFile(XAtomContainer& inAtomContainer, TokenMap& outTokens, int atomID);
 
-void	EnumSystemSelfCheck(void);
+void EnumSystemSelfCheck(void);
 
 #endif /* ENUMSYSTEM_H */

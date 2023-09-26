@@ -26,36 +26,36 @@
 
 #include "WED_GISPoint_Bezier.h"
 
-class WED_TextureBezierNode : public WED_GISPoint_Bezier {
+class WED_TextureBezierNode : public WED_GISPoint_Bezier
+{
 
-DECLARE_PERSISTENT(WED_TextureBezierNode)
+    DECLARE_PERSISTENT(WED_TextureBezierNode)
 
 public:
+    virtual bool HasLayer(GISLayer_t l) const;
+    virtual void Rescale(GISLayer_t l, const Bbox2& old_bounds, const Bbox2& new_bounds);
+    virtual void Rotate(GISLayer_t l, const Point2& center, double angle);
 
-	virtual		bool		HasLayer(GISLayer_t l) const;
-	virtual	void			Rescale			(GISLayer_t l, const Bbox2& old_bounds, const Bbox2& new_bounds);
-	virtual	void			Rotate			(GISLayer_t l, const Point2& center, double angle);
+    virtual void SetLocation(GISLayer_t layer, const Point2& st);
+    virtual void GetLocation(GISLayer_t layer, Point2& st) const;
 
-	virtual		void		SetLocation(GISLayer_t layer,const Point2& st);
-	virtual		void		GetLocation(GISLayer_t layer,	   Point2& st) const;
+    virtual bool GetControlHandleLo(GISLayer_t layer, Point2& p) const;
+    virtual bool GetControlHandleHi(GISLayer_t layer, Point2& p) const;
+    virtual void SetControlHandleLo(GISLayer_t layer, const Point2& p);
+    virtual void SetControlHandleHi(GISLayer_t layer, const Point2& p);
 
-	virtual	bool	GetControlHandleLo (GISLayer_t layer,      Point2& p) const;
-	virtual	bool	GetControlHandleHi (GISLayer_t layer,      Point2& p) const;
-	virtual	void	SetControlHandleLo (GISLayer_t layer,const Point2& p)      ;
-	virtual	void	SetControlHandleHi (GISLayer_t layer,const Point2& p)      ;
-
-	virtual const char *	HumanReadableType(void) const { return "Curved UV-Mapped Node"; }
-
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Curved UV-Mapped Node";
+    }
 
 private:
-
-	WED_PropDoubleText			mS;
-	WED_PropDoubleText			mT;
-	WED_PropDoubleText			mScL;
-	WED_PropDoubleText			mTcL;
-	WED_PropDoubleText			mScH;
-	WED_PropDoubleText			mTcH;
-
+    WED_PropDoubleText mS;
+    WED_PropDoubleText mT;
+    WED_PropDoubleText mScL;
+    WED_PropDoubleText mTcL;
+    WED_PropDoubleText mScH;
+    WED_PropDoubleText mTcH;
 };
 
 #endif /* WED_TextureBezierNode_H */

@@ -30,108 +30,97 @@
 #include "WED_HandleToolBase.h"
 #include "IControlHandles.h"
 
-class	WED_Archive;
+class WED_Archive;
 
 using std::vector;
 
-class	WED_CreateToolBase : public WED_HandleToolBase, public virtual IControlHandles {
+class WED_CreateToolBase : public WED_HandleToolBase, public virtual IControlHandles
+{
 public:
+    WED_CreateToolBase(const char* tool_name, GUI_Pane* host, WED_MapZoomerNew* zoomer, IResolver* resolver,
+                       WED_Archive* archive, int min_num_pts, int max_num_pts, int can_curve, int must_curve,
+                       int can_close, int must_close);
+    virtual ~WED_CreateToolBase();
 
-						 WED_CreateToolBase(
-									const char *		tool_name,
-									GUI_Pane *			host,
-									WED_MapZoomerNew *	zoomer,
-									IResolver *			resolver,
-									WED_Archive *		archive,
-									int					min_num_pts,
-									int					max_num_pts,
-									int					can_curve,
-									int					must_curve,
-									int					can_close,
-									int					must_close);
-	virtual				~WED_CreateToolBase();
+    //	virtual	int			HandleClickDown(int inX, int inY, int inButton, GUI_KeyFlags modifiers);
+    //	virtual	void		HandleClickDrag(int inX, int inY, int inButton, GUI_KeyFlags modifiers);
+    //	virtual	void		HandleClickUp  (int inX, int inY, int inButton, GUI_KeyFlags modifiers);
+    //	virtual	void		KillOperation(void);
 
-//	virtual	int			HandleClickDown(int inX, int inY, int inButton, GUI_KeyFlags modifiers);
-//	virtual	void		HandleClickDrag(int inX, int inY, int inButton, GUI_KeyFlags modifiers);
-//	virtual	void		HandleClickUp  (int inX, int inY, int inButton, GUI_KeyFlags modifiers);
-//	virtual	void		KillOperation(void);
+    //	virtual	void		DrawStructure			(int inCurrent, GUI_GraphState * g);
 
-//	virtual	void		DrawStructure			(int inCurrent, GUI_GraphState * g);
+    virtual void BeginEdit(void);
+    virtual void EndEdit(void);
+    virtual int CountEntities(void) const;
+    virtual intptr_t GetNthEntityID(int n) const;
+    virtual int CountControlHandles(intptr_t id) const;
+    virtual void GetNthControlHandle(intptr_t id, int n, bool* active, HandleType_t* con_type, Point2* p,
+                                     Vector2* direction, float* radius) const;
+    virtual int GetLinks(intptr_t id) const;
+    virtual void GetNthLinkInfo(intptr_t id, int n, bool* active, LinkType_t* ltype) const;
+    virtual int GetNthLinkSource(intptr_t id, int n) const;
+    virtual int GetNthLinkSourceCtl(intptr_t id, int n) const; // -1 if no bezier ctl point!
+    virtual int GetNthLinkTarget(intptr_t id, int n) const;
+    virtual int GetNthLinkTargetCtl(intptr_t id, int n) const;
+    virtual bool PointOnStructure(intptr_t id, const Point2& p) const;
+    virtual void ControlsHandlesBy(intptr_t id, int c, const Vector2& delta, Point2& io_pt);
+    virtual void ControlsLinksBy(intptr_t id, int c, const Vector2& delta, Point2& io_pt);
+    virtual void ControlsMoveBy(intptr_t id, const Vector2& delta, Point2& io_pt);
 
-	virtual		void	BeginEdit(void);
-	virtual		void	EndEdit(void);
-	virtual		int		CountEntities(void) const;
-	virtual		intptr_t	GetNthEntityID(int n) const;
-	virtual		int		CountControlHandles(intptr_t id						  ) const;
-	virtual		void	GetNthControlHandle(intptr_t id, int n, bool * active, HandleType_t * con_type, Point2 * p, Vector2 * direction, float * radius) const;
-	virtual		int		GetLinks		    (intptr_t id) const;
-	virtual		void	GetNthLinkInfo(intptr_t id, int n, bool * active, LinkType_t * ltype) const;
-	virtual		int		GetNthLinkSource   (intptr_t id, int n) const;
-	virtual		int		GetNthLinkSourceCtl(intptr_t id, int n) const;	// -1 if no bezier ctl point!
-	virtual		int		GetNthLinkTarget   (intptr_t id, int n) const;
-	virtual		int		GetNthLinkTargetCtl(intptr_t id, int n) const;
-	virtual		bool	PointOnStructure(intptr_t id, const Point2& p) const;
-	virtual		void	ControlsHandlesBy(intptr_t id, int c, const Vector2& delta, Point2& io_pt);
-	virtual		void	ControlsLinksBy	 (intptr_t id, int c, const Vector2& delta, Point2& io_pt);
-	virtual		void	ControlsMoveBy	 (intptr_t id,        const Vector2& delta, Point2& io_pt);
+    virtual int CreationDown(const Point2& start_pt);
+    virtual void CreationDrag(const Point2& start_pt, const Point2& now_pt);
+    virtual void CreationUp(const Point2& start_pt, const Point2& now_pt);
 
-	virtual	int					CreationDown(const Point2& start_pt);
-	virtual	void				CreationDrag(const Point2& start_pt, const Point2& now_pt);
-	virtual	void				CreationUp(const Point2& start_pt, const Point2& now_pt);
-
-	virtual void		KillOperation(bool mouse_is_down);
-	virtual	int			HandleToolKeyPress(char inKey, int inVK, GUI_KeyFlags inFlags			  );
+    virtual void KillOperation(bool mouse_is_down);
+    virtual int HandleToolKeyPress(char inKey, int inVK, GUI_KeyFlags inFlags);
 
 protected:
+    virtual void AcceptPath(const std::vector<Point2>& pts, const std::vector<Point2>& dirs_lo,
+                            const std::vector<Point2>& dirs_hi, const std::vector<int> has_dirs,
+                            const std::vector<int> has_split, int closed) = 0;
+    virtual bool CanCreateNow(void) = 0;
 
-	virtual	void		AcceptPath(
-							const std::vector<Point2>&	pts,
-							const std::vector<Point2>&	dirs_lo,
-							const std::vector<Point2>&	dirs_hi,
-							const std::vector<int>		has_dirs,
-							const std::vector<int>		has_split,
-							int						closed)=0;
-	virtual	bool		CanCreateNow(void)=0;
+    inline WED_Archive* GetArchive(void)
+    {
+        return mArchive;
+    }
 
-		inline WED_Archive * GetArchive(void) { return mArchive; }
-
-//			bool		HasDragNow(
-//							Point2&	p,
-//							Point2& c);
-//			bool		HasPrevNow(
-//							Point2& p,
-//							Point2& c);
+    //			bool		HasDragNow(
+    //							Point2&	p,
+    //							Point2& c);
+    //			bool		HasPrevNow(
+    //							Point2& p,
+    //							Point2& c);
 
 private:
+    void DoEmit(int close_it);
 
-			void		DoEmit(int close_it);
+    void RecalcHeadings(void);
 
-			void		RecalcHeadings(void);
+    int mEditStarted;
 
-	int					mEditStarted;
+    WED_Archive* mArchive;
 
-	WED_Archive *		mArchive;
+    std::vector<Point2> mPts;
+    std::vector<Point2> mControlLo;
+    std::vector<Point2> mControlHi;
+    std::vector<int> mHasDirs;
+    std::vector<int> mIsSplit;
 
-	std::vector<Point2>		mPts;
-	std::vector<Point2>		mControlLo;
-	std::vector<Point2>		mControlHi;
-	std::vector<int>			mHasDirs;
-	std::vector<int>			mIsSplit;
+    float mLastTime;
+    Point2 mLastPt;
 
-	float	mLastTime;
-	Point2	mLastPt;
+    int mCreating;
 
-	int		mCreating;
 protected:
-	int		mMinPts;
-private:
-	int		mMaxPts;
-	int		mCanClose;
-	int		mMustClose;
-	int		mCanCurve;
-	int		mMustCurve;
+    int mMinPts;
 
+private:
+    int mMaxPts;
+    int mCanClose;
+    int mMustClose;
+    int mCanCurve;
+    int mMustCurve;
 };
-
 
 #endif /* WED_CREATETOOLBASE_H */

@@ -32,31 +32,26 @@
 class GUI_TabControl;
 class GUI_ChangeView;
 
-class GUI_TabPane : public GUI_Packer, public GUI_Commander, public GUI_Listener, public GUI_Broadcaster {
+class GUI_TabPane : public GUI_Packer, public GUI_Commander, public GUI_Listener, public GUI_Broadcaster
+{
 public:
+    GUI_TabPane(GUI_Commander* parent);
+    virtual ~GUI_TabPane();
 
-							 GUI_TabPane(GUI_Commander * parent);
-	virtual					~GUI_TabPane();
+    void SetTextColor(float color[4]);
 
-			void			SetTextColor(float color[4]);
+    void SetTab(int n);
+    int GetTab(void) const;
 
-			void			SetTab(int n);
-			int				GetTab(void) const;
+    GUI_Commander* GetPaneOwner(void);
 
-			GUI_Commander *	GetPaneOwner(void);
+    void AddPane(GUI_Pane* who, const char* title);
 
-			void			AddPane(GUI_Pane * who, const char * title);
-
-	virtual	void			ReceiveMessage(
-									GUI_Broadcaster *		inSrc,
-									intptr_t				inMsg,
-									intptr_t				inParam);
+    virtual void ReceiveMessage(GUI_Broadcaster* inSrc, intptr_t inMsg, intptr_t inParam);
 
 private:
-
-	GUI_TabControl *	mTabs;
-	GUI_ChangeView *	mChangeView;
-
+    GUI_TabControl* mTabs;
+    GUI_ChangeView* mChangeView;
 };
 
 #endif /* GUI_TabPane_H */

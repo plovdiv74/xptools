@@ -28,48 +28,48 @@
 #include "ForestTables.h"
 #include "Zoning.h"
 
-static bool HandleVocab(const std::vector<std::string>& inTokenLine, void * inRef)
+static bool HandleVocab(const std::vector<std::string>& inTokenLine, void* inRef)
 {
-	std::string	token;
-	if (TokenizeLine(inTokenLine," s", &token)==2)
-	{
-		if (LookupToken(token.c_str()) == -1)
-			NewToken(token.c_str());
-	}
-	return true;
+    std::string token;
+    if (TokenizeLine(inTokenLine, " s", &token) == 2)
+    {
+        if (LookupToken(token.c_str()) == -1)
+            NewToken(token.c_str());
+    }
+    return true;
 }
 
-void	XESInit(rf_region inRegion, bool want_forests)
+void XESInit(rf_region inRegion, bool want_forests)
 {
-	InitEnumSystem();
-	RegisterLineHandler("VOCAB", HandleVocab, NULL);
-	LoadConfigFile("vocab.txt");
+    InitEnumSystem();
+    RegisterLineHandler("VOCAB", HandleVocab, NULL);
+    LoadConfigFile("vocab.txt");
 
-	// Load first - zoning rules needed to validate terrain rules.
-	#if !PHONE
-	if(want_forests)
-	{
-		LoadForestTables();
-		LoadZoningRules(inRegion);
-	}
-	#endif
+// Load first - zoning rules needed to validate terrain rules.
+#if !PHONE
+    if (want_forests)
+    {
+        LoadForestTables();
+        LoadZoningRules(inRegion);
+    }
+#endif
 
-	int old_mark = gTokens.size();
-	LoadNetFeatureTables(inRegion);
-	LoadDEMTables();
-	LoadObjTables();
-	int new_mark = gTokens.size();
+    int old_mark = gTokens.size();
+    LoadNetFeatureTables(inRegion);
+    LoadDEMTables();
+    LoadObjTables();
+    int new_mark = gTokens.size();
 
-	if (old_mark != new_mark)
-	{
-		std::string vocab_path = FindConfigFile("vocab.txt");
-		FILE * vocab = fopen(vocab_path.c_str(), "a");
-		if (vocab)
-		{
-			fprintf(vocab, "# Added automatically - new tokens introduced by user." CRLF);
-			for (int n = old_mark; n < new_mark; ++n)
-				fprintf(vocab, "VOCAB    %s" CRLF, FetchTokenString(n));
-			fclose(vocab);
-		}
-	}
+    if (old_mark != new_mark)
+    {
+        std::string vocab_path = FindConfigFile("vocab.txt");
+        FILE* vocab = fopen(vocab_path.c_str(), "a");
+        if (vocab)
+        {
+            fprintf(vocab, "# Added automatically - new tokens introduced by user." CRLF);
+            for (int n = old_mark; n < new_mark; ++n)
+                fprintf(vocab, "VOCAB    %s" CRLF, FetchTokenString(n));
+            fclose(vocab);
+        }
+    }
 }

@@ -26,28 +26,31 @@
 
 #include "WED_GISPolygon.h"
 
-struct	AptBoundary_t;
+struct AptBoundary_t;
 
-class	WED_AirportBoundary : public WED_GISPolygon {
+class WED_AirportBoundary : public WED_GISPolygon
+{
 
-DECLARE_PERSISTENT(WED_AirportBoundary)
+    DECLARE_PERSISTENT(WED_AirportBoundary)
 
 public:
+    void Import(const AptBoundary_t& x, void (*print_func)(void*, const char*, ...), void* ref);
+    void Export(AptBoundary_t& x) const;
 
-		void	Import(const AptBoundary_t& x, void (* print_func)(void *, const char *, ...), void * ref);
-		void	Export(		 AptBoundary_t& x) const;
-
-	virtual const char *	HumanReadableType(void) const { return "Airport Boundary"; }
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Airport Boundary";
+    }
 
 protected:
-
-	virtual	bool		IsInteriorFilled(void) const { return false; }
+    virtual bool IsInteriorFilled(void) const
+    {
+        return false;
+    }
 
 private:
-
-	WED_PropIntEnumSetUnion	lines;
-	WED_PropIntEnumSetUnion	lights;
-
+    WED_PropIntEnumSetUnion lines;
+    WED_PropIntEnumSetUnion lights;
 };
 
 #endif /* WED_AIRPORTBOUNDARY_H */

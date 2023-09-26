@@ -29,9 +29,10 @@
 DEFINE_PERSISTENT(WED_AirportSign)
 TRIVIAL_COPY(WED_AirportSign, WED_GISPoint_Heading)
 
-WED_AirportSign::WED_AirportSign(WED_Archive * a, int i) : WED_GISPoint_Heading(a,i),
-	style (this,PROP_Name("Type", XML_Name("airport_sign","style")),Sign_Style,style_Default),
-	height(this,PROP_Name("Size", XML_Name("airport_sign","size")), Sign_Size,size_MediumTaxi)
+WED_AirportSign::WED_AirportSign(WED_Archive* a, int i)
+    : WED_GISPoint_Heading(a, i),
+      style(this, PROP_Name("Type", XML_Name("airport_sign", "style")), Sign_Style, style_Default),
+      height(this, PROP_Name("Size", XML_Name("airport_sign", "size")), Sign_Size, size_MediumTaxi)
 {
 }
 
@@ -39,80 +40,82 @@ WED_AirportSign::~WED_AirportSign()
 {
 }
 
-void	WED_AirportSign::SetStyle(int s)
+void WED_AirportSign::SetStyle(int s)
 {
-	style = s;
+    style = s;
 }
 
-void	WED_AirportSign::SetHeight(int h)
+void WED_AirportSign::SetHeight(int h)
 {
-	height = h;
+    height = h;
 }
 
-int		WED_AirportSign::GetHeight(void) const
+int WED_AirportSign::GetHeight(void) const
 {
-	return height.value;
+    return height.value;
 }
 
-void		WED_AirportSign::Import(const AptSign_t& x, void (* print_func)(void *, const char *, ...), void * ref)
+void WED_AirportSign::Import(const AptSign_t& x, void (*print_func)(void*, const char*, ...), void* ref)
 {
-	SetLocation(gis_Geo, x.location);
-	SetHeading(x.heading <= 180.0 ? x.heading + 180.0 : x.heading - 180.0);
-	style = ENUM_Import(Sign_Style, x.style_code);
-	if (style == -1)
-	{
-		print_func(ref,"Error importing airport sign: sign style code %d is illegal (not a member of type %s).\n", x.style_code, DOMAIN_Desc(style.domain));
-		style = style_Default;
-	}
-	height = ENUM_Import(Sign_Size, x.size_code);
-	if (height == -1)
-	{
-		print_func(ref,"Error importing airport sign: sign height code %d is illegal (not a member of type %s).\n", x.size_code, DOMAIN_Desc(height.domain));
-		height = size_MediumTaxi;
-	}
+    SetLocation(gis_Geo, x.location);
+    SetHeading(x.heading <= 180.0 ? x.heading + 180.0 : x.heading - 180.0);
+    style = ENUM_Import(Sign_Style, x.style_code);
+    if (style == -1)
+    {
+        print_func(ref, "Error importing airport sign: sign style code %d is illegal (not a member of type %s).\n",
+                   x.style_code, DOMAIN_Desc(style.domain));
+        style = style_Default;
+    }
+    height = ENUM_Import(Sign_Size, x.size_code);
+    if (height == -1)
+    {
+        print_func(ref, "Error importing airport sign: sign height code %d is illegal (not a member of type %s).\n",
+                   x.size_code, DOMAIN_Desc(height.domain));
+        height = size_MediumTaxi;
+    }
 
-	SetName(x.text);
+    SetName(x.text);
 }
 
-void		WED_AirportSign::Export(		 AptSign_t& x) const
+void WED_AirportSign::Export(AptSign_t& x) const
 {
-	GetLocation(gis_Geo, x.location);
-	x.heading = GetHeading();
-	x.heading += 180.0;
-	if (x.heading > 360.0) x.heading -= 360.0;
-	x.style_code = ENUM_Export(style.value);
-	x.size_code = ENUM_Export(height.value);
-	GetName(x.text);
+    GetLocation(gis_Geo, x.location);
+    x.heading = GetHeading();
+    x.heading += 180.0;
+    if (x.heading > 360.0)
+        x.heading -= 360.0;
+    x.style_code = ENUM_Export(style.value);
+    x.size_code = ENUM_Export(height.value);
+    GetName(x.text);
 }
 
-void		WED_AirportSign::GetNthPropertyInfo(int n, PropertyInfo_t& info) const
+void WED_AirportSign::GetNthPropertyInfo(int n, PropertyInfo_t& info) const
 {
-	WED_GISPoint_Heading::GetNthPropertyInfo(n, info);
-	if(n == PropertyItemNumber(&name))
-	{
-		DebugAssert(info.prop_kind == prop_String);
-		info.prop_kind = prop_TaxiSign;
-	}
+    WED_GISPoint_Heading::GetNthPropertyInfo(n, info);
+    if (n == PropertyItemNumber(&name))
+    {
+        DebugAssert(info.prop_kind == prop_String);
+        info.prop_kind = prop_TaxiSign;
+    }
 }
 
-void		WED_AirportSign::GetNthProperty(int n, PropertyVal_t& val) const
+void WED_AirportSign::GetNthProperty(int n, PropertyVal_t& val) const
 {
-	WED_GISPoint_Heading::GetNthProperty(n, val);
-	if(n == PropertyItemNumber(&name))
-	{
-		DebugAssert(val.prop_kind == prop_String);
-		val.prop_kind = prop_TaxiSign;
-	}
+    WED_GISPoint_Heading::GetNthProperty(n, val);
+    if (n == PropertyItemNumber(&name))
+    {
+        DebugAssert(val.prop_kind == prop_String);
+        val.prop_kind = prop_TaxiSign;
+    }
 }
 
-void		WED_AirportSign::SetNthProperty(int n, const PropertyVal_t& val)
+void WED_AirportSign::SetNthProperty(int n, const PropertyVal_t& val)
 {
-	PropertyVal_t v(val);
-	if(n == PropertyItemNumber(&name))
-	{
-		DebugAssert(v.prop_kind == prop_TaxiSign);
-		v.prop_kind = prop_String;
-	}
-	WED_GISPoint_Heading::SetNthProperty(n, v);
+    PropertyVal_t v(val);
+    if (n == PropertyItemNumber(&name))
+    {
+        DebugAssert(v.prop_kind == prop_TaxiSign);
+        v.prop_kind = prop_String;
+    }
+    WED_GISPoint_Heading::SetNthProperty(n, v);
 }
-

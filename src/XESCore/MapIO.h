@@ -29,32 +29,32 @@
 #include "EnumSystem.h"
 
 /*
-	MAP STORAGE FORMAT:
+    MAP STORAGE FORMAT:
 
-	The map is stored as an atom of atoms.  The subatoms are one for the map itself,
-	and a series of other atoms containing the data attached to elements.
+    The map is stored as an atom of atoms.  The subatoms are one for the map itself,
+    and a series of other atoms containing the data attached to elements.
 
-	The map has an inherent order, the order the items appear in the file, that is
-	also used for the other atoms of data.  (Each atom covers one type of entity.)
+    The map has an inherent order, the order the items appear in the file, that is
+    also used for the other atoms of data.  (Each atom covers one type of entity.)
 
-	The map contains 3 ints, for the vertex, face and halfedge count, then
-	for each vertex:
-	  two doubles - x and y
-	for each halfedge
-	  int - vertex index of target
-	  four doubles - curve
-	for each face
-	  int number of outer ccb halfedges, or 0 if unbounded
-	     for each outer halfedge, write index
-	  int number of holes
-	  for each hole
-	     int number of half edges on each hole
-	     for each inner halfedge, write index
+    The map contains 3 ints, for the vertex, face and halfedge count, then
+    for each vertex:
+      two doubles - x and y
+    for each halfedge
+      int - vertex index of target
+      four doubles - curve
+    for each face
+      int number of outer ccb halfedges, or 0 if unbounded
+         for each outer halfedge, write index
+      int number of holes
+      for each hole
+         int number of half edges on each hole
+         for each inner halfedge, write index
  */
 
- struct	XAtomContainer;
+struct XAtomContainer;
 
-void	WriteMap(FILE * fi, const 	Pmwx& inMap, ProgressFunc inProgress, int atomID);
-void	ReadMap(XAtomContainer& container, Pmwx& inMap, ProgressFunc inProgress, int atomID, const TokenConversionMap& c);
+void WriteMap(FILE* fi, const Pmwx& inMap, ProgressFunc inProgress, int atomID);
+void ReadMap(XAtomContainer& container, Pmwx& inMap, ProgressFunc inProgress, int atomID, const TokenConversionMap& c);
 
 #endif

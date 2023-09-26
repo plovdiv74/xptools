@@ -33,215 +33,223 @@
 // So...the last op DONE is in undo.back()
 // The first op UNDONE is redo.front()
 
-#define WARN_IF_LESS_LEVEL	10
-#define MAX_UNDO_LEVELS 100   // now that WED is 64 bits - there is a LOT of virtual memory to keep this stuff around ...
-                              // tested a large scenery (900 apts on US east coast, 1.2 Million items, 1 GB memory usage) and moved 
-										// the whole thing 10x - that is barely 200MB of undo buffer. No need to keep track of its size for now.
+#define WARN_IF_LESS_LEVEL 10
+#define MAX_UNDO_LEVELS                                                                                                \
+    100 // now that WED is 64 bits - there is a LOT of virtual memory to keep this stuff around ...
+        // tested a large scenery (900 apts on US east coast, 1.2 Million items, 1 GB memory usage) and moved
+        // the whole thing 10x - that is barely 200MB of undo buffer. No need to keep track of its size for now.
 
-WED_UndoMgr::WED_UndoMgr(WED_Archive * inArchive, WED_UndoFatalErrorHandler * panic_handler) 
-	: mCommand(NULL), mArchive(inArchive), mPanicHandler(panic_handler), mUndoSinceMark(-1)
+WED_UndoMgr::WED_UndoMgr(WED_Archive* inArchive, WED_UndoFatalErrorHandler* panic_handler)
+    : mCommand(NULL), mArchive(inArchive), mPanicHandler(panic_handler), mUndoSinceMark(-1)
 {
 }
 
 WED_UndoMgr::~WED_UndoMgr()
 {
-	DebugAssert(mCommand == NULL);
-	if (mCommand) delete mCommand;
-	mCommand = NULL;
-	PurgeUndo();
-	PurgeRedo();
+    DebugAssert(mCommand == NULL);
+    if (mCommand)
+        delete mCommand;
+    mCommand = NULL;
+    PurgeUndo();
+    PurgeRedo();
 }
 
-static const char * trim_file(const char * p)
+static const char* trim_file(const char* p)
 {
-	const char * ret = p;
-	while(*p)
-	{
-		if(*p == '\\' || *p == ':' || *p == '/')
-			ret = p+1;
-		++p;
-	}
-	return ret;
+    const char* ret = p;
+    while (*p)
+    {
+        if (*p == '\\' || *p == ':' || *p == '/')
+            ret = p + 1;
+        ++p;
+    }
+    return ret;
 }
 
-void	WED_UndoMgr::__StartCommand(const std::string& inName, const char * file, int line)
+void WED_UndoMgr::__StartCommand(const std::string& inName, const char* file, int line)
 {
-	while(mUndo.size() > MAX_UNDO_LEVELS)
-	{
-		delete mUndo.front();
-		mUndo.pop_front();
-	}
-	
-	// This is the asset case that often burns us: a command is started WHILE another command is going on.  This happens due to
-	// either bad UI code or unknown weird shit from the window mgr.
-	if (mCommand != NULL)
-	{
-		if (mPanicHandler) 
-		{
-			// If we have a panic handler, abort the old cmd, don't start the new one. 
-			mArchive->SetUndo(NULL);
-			mArchive->SetUndo(UNDO_DISCARD);
-			mCommand->Execute();
-			// Now when we call panic, the previous unfinished cmd is backed out and we are in the last sane state.  The user loses the
-			// TWO half-done cmds that clashed, and that's it.
-			mPanicHandler->Panic();
-		}
-		AssertPrintf("Command %s (%s:%d) started while command %s (%s:%d) still active.",inName.c_str(), trim_file(file), line, mCommand->GetName().c_str(), trim_file(mCommand->GetFile()), mCommand->GetLine());
-	}
-	mCommand = new WED_UndoLayer(mArchive, inName, file, line);
-	mArchive->SetUndo(mCommand);
+    while (mUndo.size() > MAX_UNDO_LEVELS)
+    {
+        delete mUndo.front();
+        mUndo.pop_front();
+    }
+
+    // This is the asset case that often burns us: a command is started WHILE another command is going on.  This happens
+    // due to either bad UI code or unknown weird shit from the window mgr.
+    if (mCommand != NULL)
+    {
+        if (mPanicHandler)
+        {
+            // If we have a panic handler, abort the old cmd, don't start the new one.
+            mArchive->SetUndo(NULL);
+            mArchive->SetUndo(UNDO_DISCARD);
+            mCommand->Execute();
+            // Now when we call panic, the previous unfinished cmd is backed out and we are in the last sane state.  The
+            // user loses the TWO half-done cmds that clashed, and that's it.
+            mPanicHandler->Panic();
+        }
+        AssertPrintf("Command %s (%s:%d) started while command %s (%s:%d) still active.", inName.c_str(),
+                     trim_file(file), line, mCommand->GetName().c_str(), trim_file(mCommand->GetFile()),
+                     mCommand->GetLine());
+    }
+    mCommand = new WED_UndoLayer(mArchive, inName, file, line);
+    mArchive->SetUndo(mCommand);
 }
 
-void	WED_UndoMgr::CommitCommand(void)
+void WED_UndoMgr::CommitCommand(void)
 {
-	Assert(mCommand != NULL);
-	mArchive->SetUndo(NULL);
-	if (mCommand->Empty())
-	{
-		delete mCommand;
-		mCommand = NULL;
-		return;
-	}
-	PurgeRedo();
-	mUndo.push_back(mCommand);
-	int change_mask = mCommand->GetChangeMask();
-	mCommand = NULL;
-	mArchive->BroadcastMessage(msg_ArchiveChanged,change_mask);
-	if (mUndoSinceMark >= 0)  mUndoSinceMark++;
+    Assert(mCommand != NULL);
+    mArchive->SetUndo(NULL);
+    if (mCommand->Empty())
+    {
+        delete mCommand;
+        mCommand = NULL;
+        return;
+    }
+    PurgeRedo();
+    mUndo.push_back(mCommand);
+    int change_mask = mCommand->GetChangeMask();
+    mCommand = NULL;
+    mArchive->BroadcastMessage(msg_ArchiveChanged, change_mask);
+    if (mUndoSinceMark >= 0)
+        mUndoSinceMark++;
 }
 
-void	WED_UndoMgr::AbortCommand(void)
+void WED_UndoMgr::AbortCommand(void)
 {
-	mArchive->SetUndo(NULL);
-	mArchive->SetUndo(UNDO_DISCARD);
-	Assert(mCommand != NULL);
-	mCommand->Execute();
-	delete mCommand;
-	mCommand = NULL;
-	mArchive->SetUndo(NULL);
+    mArchive->SetUndo(NULL);
+    mArchive->SetUndo(UNDO_DISCARD);
+    Assert(mCommand != NULL);
+    mCommand->Execute();
+    delete mCommand;
+    mCommand = NULL;
+    mArchive->SetUndo(NULL);
 }
 
-bool	WED_UndoMgr::HasUndo(void) const
+bool WED_UndoMgr::HasUndo(void) const
 {
-	return !mUndo.empty();
+    return !mUndo.empty();
 }
 
-void	WED_UndoMgr::MarkUndo(void)
+void WED_UndoMgr::MarkUndo(void)
 {
-	mUndoSinceMark = 0;
+    mUndoSinceMark = 0;
 }
 
-bool	WED_UndoMgr::UndoToMark(void)
+bool WED_UndoMgr::UndoToMark(void)
 {
-	if (mUndoSinceMark < 0)
-	{
-		LOG_MSG("I/Undo UndoToMark fail for no mark std::set");
-		return true;
-	}
+    if (mUndoSinceMark < 0)
+    {
+        LOG_MSG("I/Undo UndoToMark fail for no mark std::set");
+        return true;
+    }
 
-	while (mUndoSinceMark > 0)
-	{
-		if (mUndo.empty())
-		{
-			LOG_MSG("I/Undo hit end of buffer before hitting mark, %d ops not undone", mUndoSinceMark);
-			mUndoSinceMark = -1;
-			return true;
-		}
-		Undo();
-	}
-	mUndoSinceMark = -1;
-	return false;
+    while (mUndoSinceMark > 0)
+    {
+        if (mUndo.empty())
+        {
+            LOG_MSG("I/Undo hit end of buffer before hitting mark, %d ops not undone", mUndoSinceMark);
+            mUndoSinceMark = -1;
+            return true;
+        }
+        Undo();
+    }
+    mUndoSinceMark = -1;
+    return false;
 }
 
-bool	WED_UndoMgr::HasRedo(void) const
+bool WED_UndoMgr::HasRedo(void) const
 {
-	return !mRedo.empty();
+    return !mRedo.empty();
 }
 
-std::string	WED_UndoMgr::GetUndoName(void) const
+std::string WED_UndoMgr::GetUndoName(void) const
 {
-	DebugAssert(!mUndo.empty());
-	return "&Undo " + mUndo.back()->GetName();
+    DebugAssert(!mUndo.empty());
+    return "&Undo " + mUndo.back()->GetName();
 }
 
-std::string	WED_UndoMgr::GetRedoName(void) const
+std::string WED_UndoMgr::GetRedoName(void) const
 {
-	DebugAssert(!mRedo.empty());
-	return "&Redo " + mRedo.front()->GetName();
+    DebugAssert(!mRedo.empty());
+    return "&Redo " + mRedo.front()->GetName();
 }
 
-void	WED_UndoMgr::Undo(void)
+void WED_UndoMgr::Undo(void)
 {
-	DebugAssert(!mUndo.empty());
-	WED_UndoLayer * undo = mUndo.back();
-	WED_UndoLayer * redo = new WED_UndoLayer(mArchive, undo->GetName(), undo->GetFile(), undo->GetLine());
-	mArchive->SetUndo(redo);
-	int change_mask = undo->GetChangeMask();
-	undo->Execute();
-	mArchive->SetUndo(NULL);
-	mRedo.push_front(redo);
-	delete undo;
-	mUndo.pop_back();
-	mArchive->mOpCount--;
-	mArchive->mCacheKey++;
-	mArchive->BroadcastMessage(msg_ArchiveChanged,change_mask);
-	if (mUndoSinceMark >= 0)  mUndoSinceMark--;
+    DebugAssert(!mUndo.empty());
+    WED_UndoLayer* undo = mUndo.back();
+    WED_UndoLayer* redo = new WED_UndoLayer(mArchive, undo->GetName(), undo->GetFile(), undo->GetLine());
+    mArchive->SetUndo(redo);
+    int change_mask = undo->GetChangeMask();
+    undo->Execute();
+    mArchive->SetUndo(NULL);
+    mRedo.push_front(redo);
+    delete undo;
+    mUndo.pop_back();
+    mArchive->mOpCount--;
+    mArchive->mCacheKey++;
+    mArchive->BroadcastMessage(msg_ArchiveChanged, change_mask);
+    if (mUndoSinceMark >= 0)
+        mUndoSinceMark--;
 }
 
-void	WED_UndoMgr::Redo(void)
+void WED_UndoMgr::Redo(void)
 {
-	DebugAssert(!mRedo.empty());
-	WED_UndoLayer * redo = mRedo.front();
-	WED_UndoLayer * undo = new WED_UndoLayer(mArchive, redo->GetName(), redo->GetFile(), redo->GetLine());
-	mArchive->SetUndo(undo);
-	int change_mask = redo->GetChangeMask();
-	redo->Execute();
-	mArchive->SetUndo(NULL);
-	mUndo.push_back(undo);
-	delete redo;
-	mRedo.pop_front();
-	mArchive->mOpCount++;
-	mArchive->mCacheKey++;
-	mArchive->BroadcastMessage(msg_ArchiveChanged,change_mask);
-	if (mUndoSinceMark >= 0)  mUndoSinceMark++;
+    DebugAssert(!mRedo.empty());
+    WED_UndoLayer* redo = mRedo.front();
+    WED_UndoLayer* undo = new WED_UndoLayer(mArchive, redo->GetName(), redo->GetFile(), redo->GetLine());
+    mArchive->SetUndo(undo);
+    int change_mask = redo->GetChangeMask();
+    redo->Execute();
+    mArchive->SetUndo(NULL);
+    mUndo.push_back(undo);
+    delete redo;
+    mRedo.pop_front();
+    mArchive->mOpCount++;
+    mArchive->mCacheKey++;
+    mArchive->BroadcastMessage(msg_ArchiveChanged, change_mask);
+    if (mUndoSinceMark >= 0)
+        mUndoSinceMark++;
 }
 
-void	WED_UndoMgr::PurgeUndo(void)
+void WED_UndoMgr::PurgeUndo(void)
 {
-	for (LayerList::iterator l = mUndo.begin(); l != mUndo.end(); ++l)
-		delete *l;
-	mUndo.clear();
-	mUndoSinceMark = -1;
+    for (LayerList::iterator l = mUndo.begin(); l != mUndo.end(); ++l)
+        delete *l;
+    mUndo.clear();
+    mUndoSinceMark = -1;
 }
 
-void	WED_UndoMgr::PurgeRedo(void)
+void WED_UndoMgr::PurgeRedo(void)
 {
-	for (LayerList::iterator l = mRedo.begin(); l != mRedo.end(); ++l)
-		delete *l;
-	mRedo.clear();
+    for (LayerList::iterator l = mRedo.begin(); l != mRedo.end(); ++l)
+        delete *l;
+    mRedo.clear();
 }
 
-bool	WED_UndoMgr::ReleaseMemory(void)
+bool WED_UndoMgr::ReleaseMemory(void)
 {
-	mUndoSinceMark = -1;
-	if (mUndo.empty() && mRedo.empty()) return false;
-	if (mUndo.size() > WARN_IF_LESS_LEVEL)
-	{
-		delete mUndo.front();
-		mUndo.pop_front();
-		return true;
-	}
+    mUndoSinceMark = -1;
+    if (mUndo.empty() && mRedo.empty())
+        return false;
+    if (mUndo.size() > WARN_IF_LESS_LEVEL)
+    {
+        delete mUndo.front();
+        mUndo.pop_front();
+        return true;
+    }
 
-//	if(!ConfirmMessage("WED is low on memory.  May I purge the undo list to free up memory?", "Purge", "Cancel")) return false;
+    //	if(!ConfirmMessage("WED is low on memory.  May I purge the undo list to free up memory?", "Purge", "Cancel"))
+    // return false;
 
-	if (!mRedo.empty())
-	{
-		PurgeRedo();
-		return true;
-	}
+    if (!mRedo.empty())
+    {
+        PurgeRedo();
+        return true;
+    }
 
-	delete mUndo.front();
-	mUndo.pop_front();
-	return true;
-
+    delete mUndo.front();
+    mUndo.pop_front();
+    return true;
 }

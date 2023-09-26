@@ -27,38 +27,43 @@
 #include "IHasResource.h"
 #include "WED_GISPolygon.h"
 
-enum {
-	dsf_fill_area = 0,
-	dsf_fill_line = 1,
-	dsf_fill_points = 2
+enum
+{
+    dsf_fill_area = 0,
+    dsf_fill_line = 1,
+    dsf_fill_points = 2
 };
 
-class	WED_ForestPlacement : public WED_GISPolygon, public IHasResource {
+class WED_ForestPlacement : public WED_GISPolygon, public IHasResource
+{
 
-DECLARE_PERSISTENT(WED_ForestPlacement)
+    DECLARE_PERSISTENT(WED_ForestPlacement)
 
 public:
+    double GetDensity(void) const;
+    void SetDensity(double h);
 
-			double		GetDensity(void) const;
-			void		SetDensity(double h);
+    virtual void GetResource(std::string& r) const;
+    virtual void SetResource(const std::string& r);
 
-	virtual void		GetResource(	  std::string& r) const;
-	virtual void		SetResource(const std::string& r);
+    int GetFillMode(void) const;
+    void SetFillMode(int mode);
 
-			int			GetFillMode(void) const;
-			void		SetFillMode(int mode);
-
-	virtual const char *	HumanReadableType(void) const { return "Forest"; }
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Forest";
+    }
 
 protected:
-
-	virtual	bool		IsInteriorFilled(void) const { return GetFillMode() == dsf_fill_area; }
+    virtual bool IsInteriorFilled(void) const
+    {
+        return GetFillMode() == dsf_fill_area;
+    }
 
 private:
-
-	WED_PropDoubleText		density;
-	WED_PropStringText		resource;
-	WED_PropIntEnum			fill_mode;
+    WED_PropDoubleText density;
+    WED_PropStringText resource;
+    WED_PropIntEnum fill_mode;
 };
 
 #endif /* WED_ForestPlacement_H */

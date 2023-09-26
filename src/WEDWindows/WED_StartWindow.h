@@ -27,50 +27,46 @@
 #include "GUI_Window.h"
 #include "GUI_Listener.h"
 
-class	GUI_Button;
-class	GUI_ScrollerPane;
-class	GUI_TextTable;
-class	GUI_Table;
-class	WED_PackageListAdapter;
+class GUI_Button;
+class GUI_ScrollerPane;
+class GUI_TextTable;
+class GUI_Table;
+class WED_PackageListAdapter;
 
-class WED_StartWindow : public GUI_Window, public GUI_Listener  {
+class WED_StartWindow : public GUI_Window, public GUI_Listener
+{
 public:
+    WED_StartWindow(GUI_Commander* cmder);
+    virtual ~WED_StartWindow();
 
-					 WED_StartWindow(GUI_Commander * cmder);
-	virtual			~WED_StartWindow();
+    void ShowMessage(const std::string& msg);
 
-			void	ShowMessage(const std::string& msg);
+    virtual bool Closed(void);
 
-	virtual	bool	Closed(void);
+    virtual int MouseMove(int x, int y);
+    virtual void Draw(GUI_GraphState* state);
+    virtual void ReceiveMessage(GUI_Broadcaster* inSrc, intptr_t inMsg, intptr_t inParam);
 
-	virtual	int		MouseMove(int x, int y			  );
-	virtual	void	Draw(GUI_GraphState * state);
-	virtual	void	ReceiveMessage(
-							GUI_Broadcaster *		inSrc,
-							intptr_t				inMsg,
-							intptr_t				inParam);
+    virtual int HandleKeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFlags);
+    virtual int HandleCommand(int command);
+    virtual int CanHandleCommand(int command, std::string& ioName, int& ioCheck);
 
-	virtual	int				HandleKeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFlags)	 	;
-	virtual	int				HandleCommand(int command) 									;
-	virtual	int				CanHandleCommand(int command, std::string& ioName, int& ioCheck) ;
-
-	virtual void			Activate(int inActive);
+    virtual void Activate(int inActive);
 
 private:
+    void RecomputeButtonEnables();
 
-			void			RecomputeButtonEnables();
+    std::string mCaption;
 
-	std::string				mCaption;
+    GUI_Button* mNew;
+    GUI_Button* mOpen;
+    GUI_Button* mChange;
+    GUI_ScrollerPane* mScroller;
 
-	GUI_Button *		mNew;
-	GUI_Button *		mOpen;
-	GUI_Button *		mChange;
-	GUI_ScrollerPane *	mScroller;
+    GUI_Table* mTable;
+    GUI_TextTable* mTextTable;
 
-	GUI_Table *			mTable;
-	GUI_TextTable *					mTextTable;
-
-	WED_PackageListAdapter *		mPackageList;
+    WED_PackageListAdapter* mPackageList;
 };
 
 #endif /* WED_StartWindow_H */

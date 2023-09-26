@@ -24,10 +24,7 @@
 #include "GUI_Control.h"
 #include "GUI_Messages.h"
 
-GUI_Control::GUI_Control() :
-	mMin(0), mMax(1), mValue(0), mPageSize(1),
-	mMsg(GUI_CONTROL_VALUE_CHANGED),
-	mParam(0)
+GUI_Control::GUI_Control() : mMin(0), mMax(1), mValue(0), mPageSize(1), mMsg(GUI_CONTROL_VALUE_CHANGED), mParam(0)
 {
 }
 
@@ -35,49 +32,49 @@ GUI_Control::~GUI_Control()
 {
 }
 
-void	GUI_Control::SetMsg(intptr_t m, intptr_t v)
+void GUI_Control::SetMsg(intptr_t m, intptr_t v)
 {
-	mMsg = m;
-	mParam = v;
+    mMsg = m;
+    mParam = v;
 }
 
-float	GUI_Control::GetValue(void) const
+float GUI_Control::GetValue(void) const
 {
-	return mValue;
+    return mValue;
 }
 
-float	GUI_Control::GetMin(void) const
+float GUI_Control::GetMin(void) const
 {
-	return mMin;
+    return mMin;
 }
 
-float	GUI_Control::GetMax(void) const
+float GUI_Control::GetMax(void) const
 {
-	return mMax;
+    return mMax;
 }
 
-float	GUI_Control::GetPageSize(void) const
+float GUI_Control::GetPageSize(void) const
 {
-	return mPageSize;
+    return mPageSize;
 }
 
-void	GUI_Control::SetValue(float inValue)
+void GUI_Control::SetValue(float inValue)
 {
-	mValue = inValue;
-	BroadcastMessage(mMsg, mParam);
+    mValue = inValue;
+    BroadcastMessage(mMsg, mParam);
 }
 
-void	GUI_Control::SetMin(float inMin)
+void GUI_Control::SetMin(float inMin)
 {
-	mMin = inMin;
+    mMin = inMin;
 }
 
-void	GUI_Control::SetMax(float inMax)
+void GUI_Control::SetMax(float inMax)
 {
-	mMax = inMax;
+    mMax = inMax;
 }
 
-void	GUI_Control::SetPageSize(float inPageSize)
+void GUI_Control::SetPageSize(float inPageSize)
 {
-	mPageSize = inPageSize;
+    mPageSize = inPageSize;
 }

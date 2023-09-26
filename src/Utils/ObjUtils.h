@@ -23,60 +23,50 @@
 #ifndef OBJUTILS_H
 #define OBJUTILS_H
 
-//#include "CompGeomDefs2.h"
-//#include "CompGeomDefs3.h"
-//#include "XProtoDefs.h"
+// #include "CompGeomDefs2.h"
+// #include "CompGeomDefs3.h"
+// #include "XProtoDefs.h"
 #include "XObjDefs.h"
 
-
-
-//void	ApplyPrototype(const Prototype_t& 					inPrototype,
+// void	ApplyPrototype(const Prototype_t& 					inPrototype,
 //					   const Polygon2& 						inPoints,
 //					   int									inFloors,
 //					   XObj&							    outObject);
 
-void	GetObjBoundingSphere(const XObj& inObj, float outSphere[4]);
-//void	GetObjBoundingSphere8(const XObj8& inObj, float outSphere[4]);
-void 	OffsetObject(XObj& ioObj, double x, double y, double z);
+void GetObjBoundingSphere(const XObj& inObj, float outSphere[4]);
+// void	GetObjBoundingSphere8(const XObj8& inObj, float outSphere[4]);
+void OffsetObject(XObj& ioObj, double x, double y, double z);
 
-void	GetObjDimensions(const XObj& inObj,
-						float	minCoords[3],
-						float	maxCoords[3]);
+void GetObjDimensions(const XObj& inObj, float minCoords[3], float maxCoords[3]);
 
-void	GetObjDimensions8(const XObj8& inObj,
-						float	minCoords[3],
-						float	maxCoords[3]);
+void GetObjDimensions8(const XObj8& inObj, float minCoords[3], float maxCoords[3]);
 
 // Given two points that will be the minimum and max X
 // locations for a given object at the min and max Y locations
 // this routine extrudes them in an axis opposite the wall
 // line to make sure X-Z coordinates are square.
-//void	ExtrudeBoxZ(float minCorner[3], float maxCorner[3],
+// void	ExtrudeBoxZ(float minCorner[3], float maxCorner[3],
 //					float outNewCoords[8][3]);
 
 // New coords go xyz Xyz xYz XYz xyZ Xyz xYZ XYZ
 // where caps = max, lower = min
-void	ConformObjectToBox(XObj& 	ioObj,
-							float		inMinCoords[3],
-							float		inMaxCoords[3],
-							float		inNewCoords[8][3]);
+void ConformObjectToBox(XObj& ioObj, float inMinCoords[3], float inMaxCoords[3], float inNewCoords[8][3]);
 
-//bool	LoadPrototype(const char * inFileName, Prototype_t& outProto);
+// bool	LoadPrototype(const char * inFileName, Prototype_t& outProto);
 
-//bool	SavePrototype(const char * inFileName, const Prototype_t& outProto);
+// bool	SavePrototype(const char * inFileName, const Prototype_t& outProto);
 
+// void	ExtrudeFuncToObj(int polyType, int count, float * pts, float * sts, float LOD_near, float LOD_far, void *
+// inRef);
 
-//void	ExtrudeFuncToObj(int polyType, int count, float * pts, float * sts, float LOD_near, float LOD_far, void * inRef);
-
-void	DecomposeObjCmd(const XObjCmd& inCmd, vector<XObjCmd>& outCmd, int maxValence);
-void	DecomposeObj(const XObj& inObj, XObj& outObj, int maxValence);
-void	ChangePolyCmdCW(XObjCmd& ioCmd);
+void DecomposeObjCmd(const XObjCmd& inCmd, vector<XObjCmd>& outCmd, int maxValence);
+void DecomposeObj(const XObj& inObj, XObj& outObj, int maxValence);
+void ChangePolyCmdCW(XObjCmd& ioCmd);
 
 // WARNING: this is a dumb radius, a radius from 0,0,0.  It is not
 // the radius of a bounding sphere!  Why it is in this translation
 // unit is also rather questionable.
-double	GetObjRadius(const XObj& inObj);
-double	GetObjRadius8(const XObj8& inObj);
-
+double GetObjRadius(const XObj& inObj);
+double GetObjRadius8(const XObj8& inObj);
 
 #endif

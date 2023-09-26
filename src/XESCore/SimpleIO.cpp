@@ -24,216 +24,213 @@
 #include "EndianUtils.h"
 
 #if IBM
-typedef	unsigned short UInt16;
+typedef unsigned short UInt16;
 typedef unsigned long UInt32;
 typedef unsigned long long UInt64;
 #endif
 
-FileReader::FileReader(const char * inFileName, PlatformType platform)
+FileReader::FileReader(const char* inFileName, PlatformType platform)
 {
-	mFile = fopen(inFileName, "rb");
-	mClose = true;
-	mPlatform = platform;
+    mFile = fopen(inFileName, "rb");
+    mClose = true;
+    mPlatform = platform;
 }
 
-FileReader::FileReader(FILE * inFile, PlatformType platform)
+FileReader::FileReader(FILE* inFile, PlatformType platform)
 {
-	mFile = inFile;
-	mClose = false;
-	mPlatform = platform;
+    mFile = inFile;
+    mClose = false;
+    mPlatform = platform;
 }
 
 FileReader::~FileReader()
 {
-	if (mClose)
-		fclose(mFile);
+    if (mClose)
+        fclose(mFile);
 }
 
-void	FileReader::ReadShort(short& x)
+void FileReader::ReadShort(short& x)
 {
-	if (1 != fread(&x, sizeof(x), 1, mFile))
-		throw "fread error";
-	EndianSwapBuffer(mPlatform, platform_Native, kSwapTwo, &x);
+    if (1 != fread(&x, sizeof(x), 1, mFile))
+        throw "fread error";
+    EndianSwapBuffer(mPlatform, platform_Native, kSwapTwo, &x);
 }
 
-void	FileReader::ReadInt(int& x)
+void FileReader::ReadInt(int& x)
 {
-	if (1 != fread(&x, sizeof(x), 1, mFile))
-		throw "fread error";
-	EndianSwapBuffer(mPlatform, platform_Native, kSwapFour, &x);
+    if (1 != fread(&x, sizeof(x), 1, mFile))
+        throw "fread error";
+    EndianSwapBuffer(mPlatform, platform_Native, kSwapFour, &x);
 }
 
-void	FileReader::ReadFloat(float& x)
+void FileReader::ReadFloat(float& x)
 {
-	if (1 != fread(&x, sizeof(x), 1, mFile))
-		throw "fread error";
-	EndianSwapBuffer(mPlatform, platform_Native, kSwapFour, &x);
+    if (1 != fread(&x, sizeof(x), 1, mFile))
+        throw "fread error";
+    EndianSwapBuffer(mPlatform, platform_Native, kSwapFour, &x);
 }
 
-void	FileReader::ReadDouble(double& x)
+void FileReader::ReadDouble(double& x)
 {
-	if (1 != fread(&x, sizeof(x), 1, mFile))
-		throw "fread error";
-	EndianSwapBuffer(mPlatform, platform_Native, kSwapEight, &x);
+    if (1 != fread(&x, sizeof(x), 1, mFile))
+        throw "fread error";
+    EndianSwapBuffer(mPlatform, platform_Native, kSwapEight, &x);
 }
 
-void	FileReader::ReadBulk(char * inBuf, int inLength, bool inZip)
+void FileReader::ReadBulk(char* inBuf, int inLength, bool inZip)
 {
-	if (1 != fread(inBuf, inLength, 1, mFile))
-		throw "fread error";
+    if (1 != fread(inBuf, inLength, 1, mFile))
+        throw "fread error";
 }
 
-MemFileReader::MemFileReader(const char * inStart, const char * inEnd, PlatformType platform)
+MemFileReader::MemFileReader(const char* inStart, const char* inEnd, PlatformType platform)
 {
-	mPtr = inStart;
-	mEnd = inEnd;
-	mPlatform = platform;
+    mPtr = inStart;
+    mEnd = inEnd;
+    mPlatform = platform;
 }
 
 MemFileReader::~MemFileReader()
 {
 }
 
-void	MemFileReader::ReadShort(short& x)
+void MemFileReader::ReadShort(short& x)
 {
-	if (mPtr >= mEnd)	return;
-	x = *((short *) mPtr);
-	mPtr += sizeof(short);
-	EndianSwapBuffer(mPlatform, platform_Native, kSwapTwo, &x);
+    if (mPtr >= mEnd)
+        return;
+    x = *((short*)mPtr);
+    mPtr += sizeof(short);
+    EndianSwapBuffer(mPlatform, platform_Native, kSwapTwo, &x);
 }
 
-void	MemFileReader::ReadInt(int& x)
+void MemFileReader::ReadInt(int& x)
 {
-	if (mPtr >= mEnd)	return;
-	x = *((int *) mPtr);
-	mPtr += sizeof(int);
-	EndianSwapBuffer(mPlatform, platform_Native, kSwapFour, &x);
+    if (mPtr >= mEnd)
+        return;
+    x = *((int*)mPtr);
+    mPtr += sizeof(int);
+    EndianSwapBuffer(mPlatform, platform_Native, kSwapFour, &x);
 }
 
-void	MemFileReader::ReadFloat(float& x)
+void MemFileReader::ReadFloat(float& x)
 {
-	if (mPtr >= mEnd)	return;
-	x = *((float *) mPtr);
-	mPtr += sizeof(float);
-	EndianSwapBuffer(mPlatform, platform_Native, kSwapFour, &x);
+    if (mPtr >= mEnd)
+        return;
+    x = *((float*)mPtr);
+    mPtr += sizeof(float);
+    EndianSwapBuffer(mPlatform, platform_Native, kSwapFour, &x);
 }
 
-void	MemFileReader::ReadDouble(double& x)
+void MemFileReader::ReadDouble(double& x)
 {
-	if (mPtr >= mEnd)	return;
-	x = *((double *) mPtr);
-	mPtr += sizeof(double);
-	EndianSwapBuffer(mPlatform, platform_Native, kSwapEight, &x);
+    if (mPtr >= mEnd)
+        return;
+    x = *((double*)mPtr);
+    mPtr += sizeof(double);
+    EndianSwapBuffer(mPlatform, platform_Native, kSwapEight, &x);
 }
 
-void	MemFileReader::ReadBulk(char * inBuf, int inLength, bool inZip)
+void MemFileReader::ReadBulk(char* inBuf, int inLength, bool inZip)
 {
-	if (mPtr >= mEnd) return;
-	memcpy(inBuf, mPtr, inLength);
-	mPtr += inLength;
+    if (mPtr >= mEnd)
+        return;
+    memcpy(inBuf, mPtr, inLength);
+    mPtr += inLength;
 }
 
-
-
-
-
-
-FileWriter::FileWriter(const char * inFileName, PlatformType platform)
+FileWriter::FileWriter(const char* inFileName, PlatformType platform)
 {
-	mFile = fopen(inFileName, "wb");
-	mClose = true;
-	mPlatform = platform;
+    mFile = fopen(inFileName, "wb");
+    mClose = true;
+    mPlatform = platform;
 }
 
-FileWriter::FileWriter(FILE * inFile, PlatformType platform)
+FileWriter::FileWriter(FILE* inFile, PlatformType platform)
 {
-	mFile = inFile;
-	mClose = false;
-	mPlatform = platform;
+    mFile = inFile;
+    mClose = false;
+    mPlatform = platform;
 }
 
 FileWriter::~FileWriter()
 {
-	if (mClose)
-		fclose(mFile);
+    if (mClose)
+        fclose(mFile);
 }
 
-void	FileWriter::WriteShort(short x)
+void FileWriter::WriteShort(short x)
 {
-	EndianSwapBuffer(platform_Native, mPlatform, kSwapTwo, &x);
-	fwrite(&x, sizeof(x), 1, mFile);
+    EndianSwapBuffer(platform_Native, mPlatform, kSwapTwo, &x);
+    fwrite(&x, sizeof(x), 1, mFile);
 }
 
-void	FileWriter::WriteInt(int x)
+void FileWriter::WriteInt(int x)
 {
-	EndianSwapBuffer(platform_Native, mPlatform, kSwapFour, &x);
-	fwrite(&x, sizeof(x), 1, mFile);
+    EndianSwapBuffer(platform_Native, mPlatform, kSwapFour, &x);
+    fwrite(&x, sizeof(x), 1, mFile);
 }
 
-void	FileWriter::WriteFloat(float x)
+void FileWriter::WriteFloat(float x)
 {
-	EndianSwapBuffer(platform_Native, mPlatform, kSwapFour, &x);
-	fwrite(&x, sizeof(x), 1, mFile);
+    EndianSwapBuffer(platform_Native, mPlatform, kSwapFour, &x);
+    fwrite(&x, sizeof(x), 1, mFile);
 }
 
-void	FileWriter::WriteDouble(double x)
+void FileWriter::WriteDouble(double x)
 {
-	EndianSwapBuffer(platform_Native, mPlatform, kSwapEight, &x);
-	fwrite(&x, sizeof(x), 1, mFile);
+    EndianSwapBuffer(platform_Native, mPlatform, kSwapEight, &x);
+    fwrite(&x, sizeof(x), 1, mFile);
 }
 
-void	FileWriter::WriteBulk(const char * inBuf, int inLength, bool inZip)
+void FileWriter::WriteBulk(const char* inBuf, int inLength, bool inZip)
 {
-	fwrite(inBuf, inLength, 1, mFile);
+    fwrite(inBuf, inLength, 1, mFile);
 }
 
-ZipFileWriter::ZipFileWriter(const char * inFileName, const char * inEntryName, PlatformType platform)
+ZipFileWriter::ZipFileWriter(const char* inFileName, const char* inEntryName, PlatformType platform)
 {
-	mFile = zipOpen(inFileName, 0);
-	mPlatform = platform;
-	if (mFile)
-	{
-		zipOpenNewFileInZip(mFile, inEntryName, NULL, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION);
-	}
+    mFile = zipOpen(inFileName, 0);
+    mPlatform = platform;
+    if (mFile)
+    {
+        zipOpenNewFileInZip(mFile, inEntryName, NULL, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION);
+    }
 }
 
 ZipFileWriter::~ZipFileWriter()
 {
-	if (mFile)
-	{
-		zipCloseFileInZip(mFile);
-		zipClose(mFile, NULL);
-	}
+    if (mFile)
+    {
+        zipCloseFileInZip(mFile);
+        zipClose(mFile, NULL);
+    }
 }
 
-
-void	ZipFileWriter::WriteShort(short x)
+void ZipFileWriter::WriteShort(short x)
 {
-	EndianSwapBuffer(platform_Native, mPlatform, kSwapTwo, &x);
-	zipWriteInFileInZip(mFile, &x, sizeof(x));
+    EndianSwapBuffer(platform_Native, mPlatform, kSwapTwo, &x);
+    zipWriteInFileInZip(mFile, &x, sizeof(x));
 }
 
-void	ZipFileWriter::WriteInt(int x)
+void ZipFileWriter::WriteInt(int x)
 {
-	EndianSwapBuffer(platform_Native, mPlatform, kSwapFour, &x);
-	zipWriteInFileInZip(mFile, &x, sizeof(x));
+    EndianSwapBuffer(platform_Native, mPlatform, kSwapFour, &x);
+    zipWriteInFileInZip(mFile, &x, sizeof(x));
 }
 
-void	ZipFileWriter::WriteFloat(float x)
+void ZipFileWriter::WriteFloat(float x)
 {
-	EndianSwapBuffer(platform_Native, mPlatform, kSwapFour, &x);
-	zipWriteInFileInZip(mFile, &x, sizeof(x));
+    EndianSwapBuffer(platform_Native, mPlatform, kSwapFour, &x);
+    zipWriteInFileInZip(mFile, &x, sizeof(x));
 }
 
-void	ZipFileWriter::WriteDouble(double x)
+void ZipFileWriter::WriteDouble(double x)
 {
-	EndianSwapBuffer(platform_Native, mPlatform, kSwapEight, &x);
-	zipWriteInFileInZip(mFile, &x, sizeof(x));
+    EndianSwapBuffer(platform_Native, mPlatform, kSwapEight, &x);
+    zipWriteInFileInZip(mFile, &x, sizeof(x));
 }
 
-void	ZipFileWriter::WriteBulk(const char * inBuf, int inLength, bool inZip)
+void ZipFileWriter::WriteBulk(const char* inBuf, int inLength, bool inZip)
 {
-	zipWriteInFileInZip(mFile, (void * const) inBuf, inLength);
+    zipWriteInFileInZip(mFile, (void* const)inBuf, inLength);
 }
-
-

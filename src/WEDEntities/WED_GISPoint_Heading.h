@@ -27,23 +27,21 @@
 #include "IGIS.h"
 #include "WED_GISPoint.h"
 
-class	WED_GISPoint_Heading : public WED_GISPoint, public virtual IGISPoint_Heading {
+class WED_GISPoint_Heading : public WED_GISPoint, public virtual IGISPoint_Heading
+{
 
-DECLARE_INTERMEDIATE(WED_GISPoint_Heading)
+    DECLARE_INTERMEDIATE(WED_GISPoint_Heading)
 
 public:
+    virtual GISClass_t GetGISClass(void) const;
 
-	virtual	GISClass_t		GetGISClass		(void				 ) const;
+    virtual double GetHeading(void) const;
+    virtual void SetHeading(double heading);
 
-	virtual	double	GetHeading(void			 ) const;
-	virtual	void	SetHeading(double heading)      ;
-
-	virtual	void	Rotate			(GISLayer_t l,const Point2& center, double angle);
+    virtual void Rotate(GISLayer_t l, const Point2& center, double angle);
 
 private:
-
-		WED_PropDoubleText		heading;
-
+    WED_PropDoubleText heading;
 };
 
 #endif

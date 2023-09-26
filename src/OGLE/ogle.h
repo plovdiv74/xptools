@@ -26,380 +26,202 @@
 
 /*
 
-	OGLE COORDINATE SYSTEM
+    OGLE COORDINATE SYSTEM
 
-	Each handle requires two rectangles:
-	- Drawing coordinates are the coordinate system that OGLE needs to pass to the callbacks to put
-	  text on the screen. +X = right and +Y = up.
-	- The visible boundary defines how much of the text can be seen currently, in drawing coordinates.
-	- The logical boundary defines the entire size of the document, in drawing coordinates.
-	- Neither rectangle needs to be aligned with the origin of the drawing coordinate system in any way.
+    Each handle requires two rectangles:
+    - Drawing coordinates are the coordinate system that OGLE needs to pass to the callbacks to put
+      text on the screen. +X = right and +Y = up.
+    - The visible boundary defines how much of the text can be seen currently, in drawing coordinates.
+    - The logical boundary defines the entire size of the document, in drawing coordinates.
+    - Neither rectangle needs to be aligned with the origin of the drawing coordinate system in any way.
 
-	Scrolling deltas are always positive numbers expressed from the lower left corner of the logical
-	view to the lower left corner of the visible view.  Typically these will always be positive, but if
-	the visible view is taller than the logical view, the vertical scroll position can go negative to
-	allow this.
+    Scrolling deltas are always positive numbers expressed from the lower left corner of the logical
+    view to the lower left corner of the visible view.  Typically these will always be positive, but if
+    the visible view is taller than the logical view, the vertical scroll position can go negative to
+    allow this.
 
 
 
 
 */
 
-
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-/*******************************************************************************************
- * C DATATYPES
- *******************************************************************************************/
+    /*******************************************************************************************
+     * C DATATYPES
+     *******************************************************************************************/
 
-/* Special keys */
-enum {
-	ogle_Home		= 1,
-	ogle_End		= 4,
-	ogle_DeleteBack = 8,
-	ogle_Left 		= 28,
-	ogle_Right 		= 29,
-	ogle_Up 		= 30,
-	ogle_Down 		= 31,
-	ogle_Delete		= 127
-};
+    /* Special keys */
+    enum
+    {
+        ogle_Home = 1,
+        ogle_End = 4,
+        ogle_DeleteBack = 8,
+        ogle_Left = 28,
+        ogle_Right = 29,
+        ogle_Up = 30,
+        ogle_Down = 31,
+        ogle_Delete = 127
+    };
 
+    struct OGLE_Rec;
+    typedef OGLE_Rec* OGLE_Handle;
 
-struct OGLE_Rec;
-typedef OGLE_Rec *		OGLE_Handle;
+    /*******************************************************************************************
+     * C CALLBACKS
+     *******************************************************************************************/
 
-/*******************************************************************************************
- * C CALLBACKS
- *******************************************************************************************/
+    struct OGLE_Callbacks
+    {
 
-struct OGLE_Callbacks {
+        /********************** GEOMETRY CALLBACKS *********************/
 
-	/********************** GEOMETRY CALLBACKS *********************/
+        /* Called to determine the visible bounds in OpenGL space of the editor. */
+        void (*GetVisibleBounds_f)(OGLE_Handle handle, float bounds[4]);
 
-	/* Called to determine the visible bounds in OpenGL space of the editor. */
-	void			(* GetVisibleBounds_f)(
-							OGLE_Handle		handle,
-							float			bounds[4]);
+        /* Called to determine the logical bounds in OpenGL space of the editor. */
+        void (*GetLogicalBounds_f)(OGLE_Handle handle, float bounds[4]);
 
-	/* Called to determine the logical bounds in OpenGL space of the editor. */
-	void			(* GetLogicalBounds_f)(
-							OGLE_Handle		handle,
-							float			bounds[4]);
+        /* Called to attempt to change the physical bounds of the editor.  You do
+         * not HAVE to accept this change-request; OGLE will re-request the logical
+         * bounds to figure out what really happened.   This is called both when the
+         * total text grows and shrinks, so if you accept this your right-side scrollbar
+         * can be good. */
+        void (*SetLogicalHeight_f)(OGLE_Handle handle, float height);
 
-	/* Called to attempt to change the physical bounds of the editor.  You do
-	 * not HAVE to accept this change-request; OGLE will re-request the logical
-	 * bounds to figure out what really happened.   This is called both when the
-	 * total text grows and shrinks, so if you accept this your right-side scrollbar
-	 * can be good. */
-	void			(* SetLogicalHeight_f)(
-							OGLE_Handle		handle,
-							float			height);
+        /* Requests scrolling to a position - again OGLE will re-request bounds to see
+         * what really happened.  Coodrinates are the off logcal->physical lower left
+         * corner std::vector, so the values are always positive. */
+        void (*ScrollTo_f)(OGLE_Handle handle, float where[2]);
 
-	/* Requests scrolling to a position - again OGLE will re-request bounds to see
-	 * what really happened.  Coodrinates are the off logcal->physical lower left
-	 * corner std::vector, so the values are always positive. */
-	void			(* ScrollTo_f)(
-							OGLE_Handle		handle,
-							float			where[2]);
+        /********************** RAW TEXT DATA *********************/
 
-	/********************** RAW TEXT DATA *********************/
+        void (*GetText_f)(OGLE_Handle handle, const char** start_p, const char** end_p);
+        void (*ReplaceText_f)(OGLE_Handle handle, int offset1, int offset2, const char* t1, const char* t2);
 
+        /********************** FONT MANAGEMENT *********************/
 
-	void			(* GetText_f)(
-							OGLE_Handle		handle,
-							const char **	start_p,
-							const char **	end_p);
-	void			(* ReplaceText_f)(
-							OGLE_Handle		handle,
-							int				offset1,
-							int				offset2,
-							const char *	t1,
-							const char *	t2);
+        float (*GetLineHeight_f)(OGLE_Handle handle);
+        float (*MeasureString_f)(OGLE_Handle handle, const char* tStart, const char* tEnd);
+        int (*FitStringFwd_f)(OGLE_Handle handle, const char* tStart, const char* tEnd, float space);
+        int (*FitStringRev_f)(OGLE_Handle handle, const char* tStart, const char* tEnd, float space);
+        void (*DrawString_f)(OGLE_Handle handle, const char* tStart, const char* tEnd, float x, float y);
+        void (*DrawSelection_f)(OGLE_Handle handle, float bounds[4]);
 
-	/********************** FONT MANAGEMENT *********************/
+        /********************** MISC *********************/
 
-	float			(* GetLineHeight_f)(
-							OGLE_Handle 	handle);
-	float			(* MeasureString_f)(
-							OGLE_Handle 	handle,
-							const char * 	tStart,
-							const char * 	tEnd);
-	int				(* FitStringFwd_f)(
-							OGLE_Handle 	handle,
-							const char * 	tStart,
-							const char * 	tEnd,
-							float 			space);
-	int				(* FitStringRev_f)(
-							OGLE_Handle 	handle,
-							const char * 	tStart,
-							const char * 	tEnd,
-							float 			space);
-	void			(* DrawString_f)(
-							OGLE_Handle		handle,
-							const char *	tStart,
-							const char *	tEnd,
-							float			x,
-							float			y);
-	void			(* DrawSelection_f)(
-							OGLE_Handle		handle,
-							float			bounds[4]);
+        const char* (*WordBreak_f)(OGLE_Handle handle, const char* t1, const char* t2);
 
-	/********************** MISC *********************/
+        const char* (*MBCS_Next_f)(OGLE_Handle handle, const char* ptr);
+        int (*MBCS_NextPos_f)(OGLE_Handle handle, int pos);
+        int (*MBCS_PrevPos_f)(OGLE_Handle handle, int pos);
+    };
 
-	const char *	(* WordBreak_f)(
-							OGLE_Handle		handle,
-							const char *	t1,
-							const char *	t2);
+    /*******************************************************************************************
+     * C FUNCTION CALLS
+     *******************************************************************************************/
 
-	const char *	(* MBCS_Next_f)(
-							OGLE_Handle		handle,
-							const char *	ptr);
-	int				(* MBCS_NextPos_f)(
-							OGLE_Handle		handle,
-							int				pos);
-	int				(* MBCS_PrevPos_f)(
-							OGLE_Handle		handle,
-							int				pos);
-							
-};
+    OGLE_Handle OGLE_Create(OGLE_Callbacks* callbacks, void* ref);
 
-/*******************************************************************************************
- * C FUNCTION CALLS
- *******************************************************************************************/
+    void OGLE_Destroy(OGLE_Handle handle);
 
-OGLE_Handle		OGLE_Create(
-						OGLE_Callbacks *	callbacks,
-						void *				ref);
+    void* OGLE_GetRef(OGLE_Handle handle);
 
-void			OGLE_Destroy(
-						OGLE_Handle 		handle);
+    void OGLE_Draw(OGLE_Handle handle, int draw_caret);
 
-void *			OGLE_GetRef(
-						OGLE_Handle			handle);
+    void OGLE_Key(OGLE_Handle handle, char key, int extend);
 
-void			OGLE_Draw(
-						OGLE_Handle			handle,
-						int					draw_caret);
+    void OGLE_Key_MBCS(OGLE_Handle handle, int count, const char keys[], int extend);
 
-void			OGLE_Key(
-						OGLE_Handle			handle,
-						char				key,
-						int					extend);
+    void OGLE_Click(OGLE_Handle handle, float x, float y, int extend);
 
-void			OGLE_Key_MBCS(
-						OGLE_Handle			handle,
-						int					count,
-						const char			keys[],
-						int					extend);
+    void OGLE_Drag(OGLE_Handle handle, float x, float y);
 
-void			OGLE_Click(
-						OGLE_Handle			handle,
-						float				x,
-						float				y,
-						int					extend);
+    void OGLE_ReplaceText(OGLE_Handle handle, int offset1, int offset2, const char* t1, const char* T2);
 
-void			OGLE_Drag(
-						OGLE_Handle			handle,
-						float				x,
-						float				y);
+    void OGLE_GetSelection(OGLE_Handle handle, int* offset1, int* offset2);
 
+    void OGLE_SetSelection(OGLE_Handle handle, int offset1, int offset2);
 
-void			OGLE_ReplaceText(
-						OGLE_Handle			handle,
-						int					offset1,
-						int					offset2,
-						const char *		t1,
-						const char *		T2);
+    void OGLE_RevealSelection(OGLE_Handle handle);
 
-void			OGLE_GetSelection(
-						OGLE_Handle			handle,
-						int *				offset1,
-						int	*				offset2);
-
-void			OGLE_SetSelection(
-						OGLE_Handle			handle,
-						int					offset1,
-						int					offset2);
-
-void			OGLE_RevealSelection(
-						OGLE_Handle			handle);
-
-void			OGLE_Repaginate(
-						OGLE_Handle			handle);
-
+    void OGLE_Repaginate(OGLE_Handle handle);
 
 #ifdef __cplusplus
 }
-
 
 /*******************************************************************************************
  * C++ WRAPPER OBJECT
  *******************************************************************************************/
 
-
-class	OGLE {
+class OGLE
+{
 public:
-								 OGLE();
-	virtual						~OGLE();
+    OGLE();
+    virtual ~OGLE();
 
-			void			Draw(
-									int					draw_caret);
+    void Draw(int draw_caret);
 
-			void			Key(
-									char				key,
-									int					extend);
+    void Key(char key, int extend);
 
-			void			Key_MBCS(
-									int					count,
-									const char			keys[],
-									int					extend);
+    void Key_MBCS(int count, const char keys[], int extend);
 
-			void			Click(
-									float				x,
-									float				y,
-									int					extend);
+    void Click(float x, float y, int extend);
 
-			void			Drag(
-									float				x,
-									float				y);
+    void Drag(float x, float y);
 
-			void			DoReplaceText(
-									int					offset1,
-									int					offset2,
-									const char *		t1,
-									const char *		t2);
+    void DoReplaceText(int offset1, int offset2, const char* t1, const char* t2);
 
-			void			GetSelection(
-									int *				offset1,
-									int	*				offset2);
+    void GetSelection(int* offset1, int* offset2);
 
-			void			SetSelection(
-									int					offset1,
-									int					offset2);
+    void SetSelection(int offset1, int offset2);
 
-			void			RevealSelection(void);
+    void RevealSelection(void);
 
-			void			Repaginate(void);
+    void Repaginate(void);
 
 protected:
-
-	virtual	void			GetVisibleBounds(
-								float			bounds[4])=0;
-	virtual	void			GetLogicalBounds(
-								float			bounds[4])=0;
-	virtual	void			SetLogicalHeight(
-								float 			height)=0;
-	virtual	void			ScrollTo(
-								float			where[2])=0;
-	virtual	void			GetText(
-								const char **	start_p,
-								const char **	end_p)=0;
-	virtual	void			ReplaceText(
-								int				offset1,
-								int				offset2,
-								const char *	t1,
-								const char *	t2)=0;
-	virtual	float			GetLineHeight(void)=0;
-	virtual	float			MeasureString(
-								const char * 	tStart,
-								const char * 	tEnd)=0;
-	virtual	int				FitStringFwd(
-								const char * 	tStart,
-								const char * 	tEnd,
-								float 			space)=0;
-	virtual	int				FitStringRev(
-								const char * 	tStart,
-								const char * 	tEnd,
-								float 			space)=0;
-	virtual	void			DrawString(
-								const char *	tStart,
-								const char *	tEnd,
-								float			x,
-								float			y)=0;
-	virtual	void			DrawSelection(
-								float			bounds[4])=0;
-	virtual	const char *	WordBreak(
-								const char *	t1,
-								const char *	t2)=0;
-	virtual	const char *	MBCS_Next(
-								const char *	ptr)=0;
-	virtual	int				MBCS_NextPos(
-								int				pos)=0;
-	virtual	int				MBCS_PrevPos(
-								int				pos)=0;
+    virtual void GetVisibleBounds(float bounds[4]) = 0;
+    virtual void GetLogicalBounds(float bounds[4]) = 0;
+    virtual void SetLogicalHeight(float height) = 0;
+    virtual void ScrollTo(float where[2]) = 0;
+    virtual void GetText(const char** start_p, const char** end_p) = 0;
+    virtual void ReplaceText(int offset1, int offset2, const char* t1, const char* t2) = 0;
+    virtual float GetLineHeight(void) = 0;
+    virtual float MeasureString(const char* tStart, const char* tEnd) = 0;
+    virtual int FitStringFwd(const char* tStart, const char* tEnd, float space) = 0;
+    virtual int FitStringRev(const char* tStart, const char* tEnd, float space) = 0;
+    virtual void DrawString(const char* tStart, const char* tEnd, float x, float y) = 0;
+    virtual void DrawSelection(float bounds[4]) = 0;
+    virtual const char* WordBreak(const char* t1, const char* t2) = 0;
+    virtual const char* MBCS_Next(const char* ptr) = 0;
+    virtual int MBCS_NextPos(int pos) = 0;
+    virtual int MBCS_PrevPos(int pos) = 0;
 
 private:
+    static void GetVisibleBoundsCB(OGLE_Handle handle, float bounds[4]);
+    static void GetLogicalBoundsCB(OGLE_Handle handle, float bounds[4]);
+    static void SetLogicalHeightCB(OGLE_Handle handle, float height);
+    static void ScrollToCB(OGLE_Handle handle, float where[2]);
+    static void GetTextCB(OGLE_Handle handle, const char** start_p, const char** end_p);
+    static void ReplaceTextCB(OGLE_Handle handle, int offset1, int offset2, const char* t1, const char* t2);
+    static float GetLineHeightCB(OGLE_Handle handle);
+    static float MeasureStringCB(OGLE_Handle handle, const char* tStart, const char* tEnd);
+    static int FitStringFwdCB(OGLE_Handle handle, const char* tStart, const char* tEnd, float space);
+    static int FitStringRevCB(OGLE_Handle handle, const char* tStart, const char* tEnd, float space);
+    static void DrawStringCB(OGLE_Handle handle, const char* tStart, const char* tEnd, float x, float y);
+    static void DrawSelectionCB(OGLE_Handle handle, float bounds[4]);
+    static const char* WordBreakCB(OGLE_Handle handle, const char* t1, const char* t2);
+    static const char* MBCS_NextCB(OGLE_Handle handle, const char* ptr);
+    static int MBCS_NextPosCB(OGLE_Handle handle, int pos);
+    static int MBCS_PrevPosCB(OGLE_Handle handle, int pos);
 
-	static	void			GetVisibleBoundsCB(
-								OGLE_Handle		handle,
-								float			bounds[4]);
-	static	void			GetLogicalBoundsCB(
-								OGLE_Handle		handle,
-								float			bounds[4]);
-	static	void			SetLogicalHeightCB(
-								OGLE_Handle		handle,
-								float			height);
-	static	void			ScrollToCB(
-								OGLE_Handle		handle,
-								float			where[2]);
-	static	void			GetTextCB(
-								OGLE_Handle		handle,
-								const char **	start_p,
-								const char **	end_p);
-	static	void			ReplaceTextCB(
-								OGLE_Handle		handle,
-								int				offset1,
-								int				offset2,
-								const char *	t1,
-								const char *	t2);
-	static	float			GetLineHeightCB(
-								OGLE_Handle 	handle);
-	static	float			MeasureStringCB(
-								OGLE_Handle 	handle,
-								const char * 	tStart,
-								const char * 	tEnd);
-	static	int				FitStringFwdCB(
-								OGLE_Handle 	handle,
-								const char * 	tStart,
-								const char * 	tEnd,
-								float 			space);
-	static	int				FitStringRevCB(
-								OGLE_Handle 	handle,
-								const char * 	tStart,
-								const char * 	tEnd,
-								float 			space);
-	static	void			DrawStringCB(
-								OGLE_Handle		handle,
-								const char *	tStart,
-								const char *	tEnd,
-								float			x,
-								float			y);
-	static	void			DrawSelectionCB(
-								OGLE_Handle		handle,
-								float			bounds[4]);
-	static	const char *	WordBreakCB(
-								OGLE_Handle		handle,
-								const char *	t1,
-								const char *	t2);
-	static	const char *	MBCS_NextCB(
-								OGLE_Handle		handle,
-								const char *	ptr);
-	static	int				MBCS_NextPosCB(
-								OGLE_Handle		handle,
-								int				pos);
-	static	int				MBCS_PrevPosCB(
-								OGLE_Handle		handle,
-								int				pos);
-
-	OGLE_Handle		mHandle;
-
-
+    OGLE_Handle mHandle;
 };
 
-
 #endif
-
 
 #endif /* OGLE_H */

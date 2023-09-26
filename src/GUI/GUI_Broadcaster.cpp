@@ -31,42 +31,40 @@ GUI_Broadcaster::GUI_Broadcaster()
 
 GUI_Broadcaster::~GUI_Broadcaster()
 {
-	for (std::set<GUI_Listener*>::iterator who = mListeners.begin();
-		who != mListeners.end(); ++who)
-	{
-		(*who)->mBroadcasters.erase(this);
-	}
+    for (std::set<GUI_Listener*>::iterator who = mListeners.begin(); who != mListeners.end(); ++who)
+    {
+        (*who)->mBroadcasters.erase(this);
+    }
 }
 
-void	GUI_Broadcaster::BroadcastMessage(intptr_t inMsg, intptr_t inParam)
+void GUI_Broadcaster::BroadcastMessage(intptr_t inMsg, intptr_t inParam)
 {
-	// We need to be careful because a listener may respond to a message by
-	// destroying itself and/or other listeners. So create a copy of the
-	// listener std::set that is guaranteed not to change while we're iterating, and
-	// check that a listener still exists before sending a message to it.
-	std::set<GUI_Listener*> listeners = mListeners;
-	for (GUI_Listener* who : listeners)
-	{
-		if (mListeners.count(who))
-			who->ReceiveMessage(this, inMsg, inParam);
-	}
+    // We need to be careful because a listener may respond to a message by
+    // destroying itself and/or other listeners. So create a copy of the
+    // listener std::set that is guaranteed not to change while we're iterating, and
+    // check that a listener still exists before sending a message to it.
+    std::set<GUI_Listener*> listeners = mListeners;
+    for (GUI_Listener* who : listeners)
+    {
+        if (mListeners.count(who))
+            who->ReceiveMessage(this, inMsg, inParam);
+    }
 }
 
-void	GUI_Broadcaster::AddListener(GUI_Listener * inListener)
+void GUI_Broadcaster::AddListener(GUI_Listener* inListener)
 {
-	DebugAssert(this->mListeners.count(inListener) == 0);
-	DebugAssert(inListener->mBroadcasters.count(this) == 0);
+    DebugAssert(this->mListeners.count(inListener) == 0);
+    DebugAssert(inListener->mBroadcasters.count(this) == 0);
 
-	inListener->mBroadcasters.insert(this);
-	this->mListeners.insert(inListener);
+    inListener->mBroadcasters.insert(this);
+    this->mListeners.insert(inListener);
 }
 
-void	GUI_Broadcaster::RemoveListener(GUI_Listener * inListener)
+void GUI_Broadcaster::RemoveListener(GUI_Listener* inListener)
 {
-	DebugAssert(this->mListeners.count(inListener) != 0);
-	DebugAssert(inListener->mBroadcasters.count(this) != 0);
+    DebugAssert(this->mListeners.count(inListener) != 0);
+    DebugAssert(inListener->mBroadcasters.count(this) != 0);
 
-	inListener->mBroadcasters.erase(this);
-	this->mListeners.erase(inListener);
+    inListener->mBroadcasters.erase(this);
+    this->mListeners.erase(inListener);
 }
-

@@ -26,36 +26,40 @@
 #include "CompGeomDefs2.h"
 #include "CompGeomUtils.h"
 
-struct	StRestoreChunk {
-	char *			mDst;
-	char *			mSrc;
-	int				mLength;
-	bool			mRestore;
+struct StRestoreChunk
+{
+    char* mDst;
+    char* mSrc;
+    int mLength;
+    bool mRestore;
 
-	StRestoreChunk(char * inSrc, char * inDst, int width, int bot, int top, bool save)
-	{
-		mRestore = true;
-		int rowb = width / 8;
-		mLength = (top - bot) * rowb;
-		mSrc = inSrc + rowb * bot;
-		mDst = inDst + rowb * bot;
-		if (save)
-			memcpy(mDst, mSrc, mLength);
-		else
-			mRestore = false;
-	}
+    StRestoreChunk(char* inSrc, char* inDst, int width, int bot, int top, bool save)
+    {
+        mRestore = true;
+        int rowb = width / 8;
+        mLength = (top - bot) * rowb;
+        mSrc = inSrc + rowb * bot;
+        mDst = inDst + rowb * bot;
+        if (save)
+            memcpy(mDst, mSrc, mLength);
+        else
+            mRestore = false;
+    }
 
-	void	Commit(void) { mRestore = false; }
-	~StRestoreChunk()
-	{
-		if (mDst && mSrc && mRestore && mLength)
-		{
-			memcpy(mSrc, mDst, mLength);
-		}
-	}
+    void Commit(void)
+    {
+        mRestore = false;
+    }
+    ~StRestoreChunk()
+    {
+        if (mDst && mSrc && mRestore && mLength)
+        {
+            memcpy(mSrc, mDst, mLength);
+        }
+    }
 };
 
-#define WORD_SIZE  (sizeof(long)*8)
+#define WORD_SIZE (sizeof(long) * 8)
 
 #if DEV
 #define BWINLINE
@@ -63,36 +67,34 @@ struct	StRestoreChunk {
 #define BWINLINE inline
 #endif
 
-struct	BWImage {
+struct BWImage
+{
 
-	int				mWidth;
-	int				mHeight;
+    int mWidth;
+    int mHeight;
 
-	int				mXLimit;
-	int				mYLimit;
+    int mXLimit;
+    int mYLimit;
 
-	unsigned long *	mData;
-	unsigned long * mBackup;
+    unsigned long* mData;
+    unsigned long* mBackup;
 
-	BWImage();
-	BWImage(int width, int height);
-	BWImage(const BWImage&);
-	~BWImage();
-	BWImage& operator=(const BWImage&);
+    BWImage();
+    BWImage(int width, int height);
+    BWImage(const BWImage&);
+    ~BWImage();
+    BWImage& operator=(const BWImage&);
 
-	BWINLINE void		ClearBand(int y1, int y2);
-	// This routine always blasts in the polygon, period.
-	BWINLINE void			RasterizeLocal(
-						const vector<Polygon2>& inPolygon);
-	// This routine draws the polygon, but aborts if it won't fit.
-	BWINLINE bool		RasterizeLocalStopConflicts(
-						const vector<Polygon2>& inPolygon);
-	// This routine checks to see if it will fit but makes no changes.
-	BWINLINE bool		RasterizeLocalCheck(
-						const vector<Polygon2>& inPolygon);
+    BWINLINE void ClearBand(int y1, int y2);
+    // This routine always blasts in the polygon, period.
+    BWINLINE void RasterizeLocal(const vector<Polygon2>& inPolygon);
+    // This routine draws the polygon, but aborts if it won't fit.
+    BWINLINE bool RasterizeLocalStopConflicts(const vector<Polygon2>& inPolygon);
+    // This routine checks to see if it will fit but makes no changes.
+    BWINLINE bool RasterizeLocalCheck(const vector<Polygon2>& inPolygon);
 
 #if APL && DEV
-	void Debug();
+    void Debug();
 #endif
 };
 

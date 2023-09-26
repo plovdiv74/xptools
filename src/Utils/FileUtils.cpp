@@ -38,651 +38,685 @@
 #include "GUI_Unicode.h"
 #include <io.h>
 
-char * mkdtemp(char *dirname)
+char* mkdtemp(char* dirname)
 {
-	if(_wmktemp((wchar_t *) convert_str_to_utf16(dirname).c_str()))
-	{
-		if(FILE_exists(dirname))
-		{
-			FILE_delete_file(dirname, false);
-		}
-		FILE_make_dir_exist(dirname);
-		return dirname;
-	}
-	return NULL;
+    if (_wmktemp((wchar_t*)convert_str_to_utf16(dirname).c_str()))
+    {
+        if (FILE_exists(dirname))
+        {
+            FILE_delete_file(dirname, false);
+        }
+        FILE_make_dir_exist(dirname);
+        return dirname;
+    }
+    return NULL;
 }
 #endif
-
 
 //--XDefs fopen trick----------------------------------------------------------
 
 #if IBM && SUPPORT_UNICODE
-FILE * x_fopen(const char * _Filename, const char * _Mode)
-{	
-	return _wfopen(convert_str_to_utf16(_Filename).c_str(), convert_str_to_utf16(_Mode).c_str());
+FILE* x_fopen(const char* _Filename, const char* _Mode)
+{
+    return _wfopen(convert_str_to_utf16(_Filename).c_str(), convert_str_to_utf16(_Mode).c_str());
 }
 
-void x_ofstream::open(const char *_Filename, ios_base::openmode _Mode, int _Prot)
+void x_ofstream::open(const char* _Filename, ios_base::openmode _Mode, int _Prot)
 {
-	if (_Filebuffer.open(convert_str_to_utf16(_Filename).c_str(), _Mode | ios_base::out, _Prot) == 0)
-		_Myios::setstate(ios_base::failbit);
-	else
-		_Myios::clear();
+    if (_Filebuffer.open(convert_str_to_utf16(_Filename).c_str(), _Mode | ios_base::out, _Prot) == 0)
+        _Myios::setstate(ios_base::failbit);
+    else
+        _Myios::clear();
 }
 
-void x_ofstream::open(const wchar_t *_Filename, ios_base::openmode _Mode, int _Prot)
+void x_ofstream::open(const wchar_t* _Filename, ios_base::openmode _Mode, int _Prot)
 {
-	if (_Filebuffer.open(_Filename, _Mode | ios_base::out, _Prot) == 0)
-		_Myios::setstate(ios_base::failbit);
-	else
-		_Myios::clear();	// added with C++0X
+    if (_Filebuffer.open(_Filename, _Mode | ios_base::out, _Prot) == 0)
+        _Myios::setstate(ios_base::failbit);
+    else
+        _Myios::clear(); // added with C++0X
 }
 
 void x_ofstream::close()
 {
-	if (_Filebuffer.close() == 0)
-		_Myios::setstate(ios_base::failbit);
+    if (_Filebuffer.close() == 0)
+        _Myios::setstate(ios_base::failbit);
 }
 #endif
 
 #if LIN || APL
-FILE * x_fopen(const char * _Filename, const char * _Mode)
+FILE* x_fopen(const char* _Filename, const char* _Mode)
 {
-	FILE_case_correct_path Filename(_Filename);
-	return (fopen)(Filename, _Mode);       // the brackets are to prevent macro expansion of this fopen
+    FILE_case_correct_path Filename(_Filename);
+    return (fopen)(Filename, _Mode); // the brackets are to prevent macro expansion of this fopen
 }
 
 #define LOG_CASE_DESENS 0
 
 #if !LOG_CASE_DESENS
-	#undef  LOG_MSG
-	#define	LOG_MSG(...)
+#undef LOG_MSG
+#define LOG_MSG(...)
 #endif
 
-static int desens_partial(DIR * dir, char * io_file)
+static int desens_partial(DIR* dir, char* io_file)
 {
- struct dirent* de;
- while (de = readdir(dir))
- {
-  if (!strcasecmp(io_file, de->d_name))
-  {
-   strcpy(io_file, de->d_name);
-   return 1;
-  }
- }
- return 0;
+    struct dirent* de;
+    while (de = readdir(dir))
+    {
+        if (!strcasecmp(io_file, de->d_name))
+        {
+            strcpy(io_file, de->d_name);
+            return 1;
+        }
+    }
+    return 0;
 }
 #endif
 //-----------------------------------------------------------------------------
 
-int FILE_case_correct(char * buf)
+int FILE_case_correct(char* buf)
 {
-	#if LIN || APL
-	LOG_MSG("Case desens for: '%s'\n", buf);
+#if LIN || APL
+    LOG_MSG("Case desens for: '%s'\n", buf);
 
-	// Fast match?  Try that first - MOST content in x-plane is case-correct, and any file path derived from dir scanning will be.
+    // Fast match?  Try that first - MOST content in x-plane is case-correct, and any file path derived from dir
+    // scanning will be.
 
-	struct stat sta;
-	if (stat(buf, &sta) == 0) 
-	{
-		LOG_MSG("  Fast match.  Done.\n");
-		return 1;
-	}
-	
-	char * p = buf;
-	
-	while (*p != 0)
-	{
-		DIR * dir;
-		if (*p == '/')
-		{
-			dir = opendir("/");
-			LOG_MSG("  Open-dir '%s': 0x%16p\n","/", dir);
-			++p;
-		}
-		else if (p == buf)
-		{
-			dir = opendir(".");
-			LOG_MSG("  Open-dir '%s': 0x%16p\n",".", dir);
-		}
-		else
-		{
-			*(p-1) = 0;
-			dir = opendir(buf);
-			LOG_MSG("  Open-dir '%s': 0x%16p\n", buf, dir);
-			*(p-1) = '/';
-		}
-		if (dir == NULL)
-		{
-			return 0;
-		}	
-		char * q = p;// Ptr past EOF
-		while (*q != 0 && *q != '/') ++q;
-		
-		int last_time = *q == 0;
-		*q = 0;		// Fake null term
-		
-		int worked = desens_partial(dir, p);
-		closedir(dir);
-		
-		if (!last_time)
-		{
-			*q = '/';
-			p = q+1;
-			if (!worked)			{
-				LOG_MSG("  Partial-desens failed.  Done at '%s'\n",buf);
-				return 0;
-			}
-		} else {
-			LOG_MSG("  Finished all parts.  Done at '%s'\n",buf);
-			return 1;
-		}		
-	}
-	return 0;	// we hit here if our file name was empty.
-#else 
-	return 1;
+    struct stat sta;
+    if (stat(buf, &sta) == 0)
+    {
+        LOG_MSG("  Fast match.  Done.\n");
+        return 1;
+    }
+
+    char* p = buf;
+
+    while (*p != 0)
+    {
+        DIR* dir;
+        if (*p == '/')
+        {
+            dir = opendir("/");
+            LOG_MSG("  Open-dir '%s': 0x%16p\n", "/", dir);
+            ++p;
+        }
+        else if (p == buf)
+        {
+            dir = opendir(".");
+            LOG_MSG("  Open-dir '%s': 0x%16p\n", ".", dir);
+        }
+        else
+        {
+            *(p - 1) = 0;
+            dir = opendir(buf);
+            LOG_MSG("  Open-dir '%s': 0x%16p\n", buf, dir);
+            *(p - 1) = '/';
+        }
+        if (dir == NULL)
+        {
+            return 0;
+        }
+        char* q = p; // Ptr past EOF
+        while (*q != 0 && *q != '/')
+            ++q;
+
+        int last_time = *q == 0;
+        *q = 0; // Fake null term
+
+        int worked = desens_partial(dir, p);
+        closedir(dir);
+
+        if (!last_time)
+        {
+            *q = '/';
+            p = q + 1;
+            if (!worked)
+            {
+                LOG_MSG("  Partial-desens failed.  Done at '%s'\n", buf);
+                return 0;
+            }
+        }
+        else
+        {
+            LOG_MSG("  Finished all parts.  Done at '%s'\n", buf);
+            return 1;
+        }
+    }
+    return 0; // we hit here if our file name was empty.
+#else
+    return 1;
 #endif
 }
 #ifdef _MSC_VER
-FILE_case_correct_path::FILE_case_correct_path(const char * in_path) : path(_strdup(in_path)) { FILE_case_correct(path); }
+FILE_case_correct_path::FILE_case_correct_path(const char* in_path) : path(_strdup(in_path))
+{
+    FILE_case_correct(path);
+}
 #else
-FILE_case_correct_path::FILE_case_correct_path(const char * in_path) : path(strdup(in_path)) { FILE_case_correct(path); }
+FILE_case_correct_path::FILE_case_correct_path(const char* in_path) : path(strdup(in_path))
+{
+    FILE_case_correct(path);
+}
 #endif
-FILE_case_correct_path::~FILE_case_correct_path() { free(path); }
-FILE_case_correct_path::operator const char * (void) const { return path; }
+FILE_case_correct_path::~FILE_case_correct_path()
+{
+    free(path);
+}
+FILE_case_correct_path::operator const char*(void) const
+{
+    return path;
+}
 
-bool FILE_exists(const char * path)
+bool FILE_exists(const char* path)
 {
 #if IBM
-	if (_waccess(convert_str_to_utf16(path).c_str(),0) == -1) return false;
+    if (_waccess(convert_str_to_utf16(path).c_str(), 0) == -1)
+        return false;
 #else
-	FILE_case_correct_path path2(path);
-	struct stat ss;
-	if (stat(path2,&ss) < 0) return false;
+    FILE_case_correct_path path2(path);
+    struct stat ss;
+    if (stat(path2, &ss) < 0)
+        return false;
 #endif
-	return true;
-//	return (S_ISDIR(ss.st_mode))? 1 : 0;
+    return true;
+    //	return (S_ISDIR(ss.st_mode))? 1 : 0;
 }
 
 std::string FILE_get_file_extension(const std::string& path)
 {
-	std::string name;
+    std::string name;
 
-	// cutting off the pathname prevents confusion in cases of suffix-less file names, e.g. /dir/dir.fake/filename
-	name = FILE_get_file_name(path);
-	
-	size_t dot_start = name.find_last_of('.');
-	if(dot_start == std::string::npos)
-		return "";
-	else
-	{
-		name = name.substr(dot_start+1);
-		for (std::string::iterator i = name.begin(); i != name.end(); ++i)
-		    (*i) = tolower(*i);
-		return name;
-	}
+    // cutting off the pathname prevents confusion in cases of suffix-less file names, e.g. /dir/dir.fake/filename
+    name = FILE_get_file_name(path);
+
+    size_t dot_start = name.find_last_of('.');
+    if (dot_start == std::string::npos)
+        return "";
+    else
+    {
+        name = name.substr(dot_start + 1);
+        for (std::string::iterator i = name.begin(); i != name.end(); ++i)
+            (*i) = tolower(*i);
+        return name;
+    }
 }
 
 int FILE_get_file_meta_data(const std::string& path, struct stat& meta_data)
 {
 #if IBM
-	struct _stat my_stat = { 0 };
-	int res = _wstat(convert_str_to_utf16(path).c_str(), &my_stat);
-	meta_data.st_dev   = my_stat.st_dev;
-	meta_data.st_ino   = my_stat.st_ino;
-	meta_data.st_mode  = my_stat.st_mode;
-	meta_data.st_nlink = my_stat.st_nlink;
-	meta_data.st_uid   = my_stat.st_uid;
-	meta_data.st_gid   = my_stat.st_gid;
-	meta_data.st_rdev  = my_stat.st_rdev;
-	meta_data.st_size  = my_stat.st_size;
-	meta_data.st_atime = my_stat.st_atime;
-	meta_data.st_mtime = my_stat.st_mtime;
-	meta_data.st_ctime = my_stat.st_ctime;
+    struct _stat my_stat = {0};
+    int res = _wstat(convert_str_to_utf16(path).c_str(), &my_stat);
+    meta_data.st_dev = my_stat.st_dev;
+    meta_data.st_ino = my_stat.st_ino;
+    meta_data.st_mode = my_stat.st_mode;
+    meta_data.st_nlink = my_stat.st_nlink;
+    meta_data.st_uid = my_stat.st_uid;
+    meta_data.st_gid = my_stat.st_gid;
+    meta_data.st_rdev = my_stat.st_rdev;
+    meta_data.st_size = my_stat.st_size;
+    meta_data.st_atime = my_stat.st_atime;
+    meta_data.st_mtime = my_stat.st_mtime;
+    meta_data.st_ctime = my_stat.st_ctime;
 #else
-	int res = stat(path.c_str(), &meta_data);
+    int res = stat(path.c_str(), &meta_data);
 #endif
-	return res;
-
+    return res;
 }
 
 std::string FILE_get_file_name(const std::string& path)
 {
-	size_t last_sep = path.find_last_of("\\:/");
-	if(last_sep == path.npos)
-		return path;                        // path was either empty std::string or just a filename, without directory separators
-	else
-		return path.substr(last_sep + 1);
+    size_t last_sep = path.find_last_of("\\:/");
+    if (last_sep == path.npos)
+        return path; // path was either empty std::string or just a filename, without directory separators
+    else
+        return path.substr(last_sep + 1);
 }
 
 std::string FILE_get_dir_name(const std::string& path)
 {
-	size_t last_sep = path.find_last_of("\\:/");
-	if(last_sep == path.npos)
-		return "";                          // path was either empty std::string or just a filename, without directory separators
-	else
-		return path.substr(0,last_sep + 1);
+    size_t last_sep = path.find_last_of("\\:/");
+    if (last_sep == path.npos)
+        return ""; // path was either empty std::string or just a filename, without directory separators
+    else
+        return path.substr(0, last_sep + 1);
 }
 
 std::string FILE_get_file_name_wo_extensions(const std::string& path)
 {
-	size_t dot_pos = path.find_last_of('.');
-	if(dot_pos == path.npos || dot_pos == 0)
-		return path;
-	else
-		return path.substr(0, dot_pos);
+    size_t dot_pos = path.find_last_of('.');
+    if (dot_pos == path.npos || dot_pos == 0)
+        return path;
+    else
+        return path.substr(0, dot_pos);
 }
 
-int FILE_delete_file(const char * nuke_path, bool is_dir)
+int FILE_delete_file(const char* nuke_path, bool is_dir)
 {
-	// NOTE: if the path is to a dir, it will end in a dir-char.
-	// We must clip off this char and also call the right routine on Windows.
+    // NOTE: if the path is to a dir, it will end in a dir-char.
+    // We must clip off this char and also call the right routine on Windows.
 #if IBM
-	string_utf16 output = convert_str_to_utf16(nuke_path);
-	
-	if (is_dir)	{
-		if (!RemoveDirectoryW(output.c_str()))	return GetLastError();
-	} else {
-		if (!DeleteFileW(output.c_str()))		return GetLastError();
-	}
+    string_utf16 output = convert_str_to_utf16(nuke_path);
+
+    if (is_dir)
+    {
+        if (!RemoveDirectoryW(output.c_str()))
+            return GetLastError();
+    }
+    else
+    {
+        if (!DeleteFileW(output.c_str()))
+            return GetLastError();
+    }
 #endif
 
 #if LIN || APL
-	if (is_dir)	{
-		if (rmdir(nuke_path) != 0)	return errno;
-	}	else 	{
-		if (unlink(nuke_path) != 0)	return errno;
-	}
+    if (is_dir)
+    {
+        if (rmdir(nuke_path) != 0)
+            return errno;
+    }
+    else
+    {
+        if (unlink(nuke_path) != 0)
+            return errno;
+    }
 #endif
-	return 0;
+    return 0;
 }
 
 int FILE_read_file_to_string(FILE* file, std::string& content)
 {
-	content = "";
-	if(file != NULL)
-	{
+    content = "";
+    if (file != NULL)
+    {
 #if LIN || APL
-		errno = 0;
+        errno = 0;
 #else
-		SetLastError(0);
+        SetLastError(0);
 #endif
-		fseek(file, 0, SEEK_END);
-		content.resize(ftell(file));
-		rewind(file);
-		if( !fread(&content[0], sizeof(char), content.size(), file)) content = "";
-	}
-#if LIN ||APL
-	return errno;
+        fseek(file, 0, SEEK_END);
+        content.resize(ftell(file));
+        rewind(file);
+        if (!fread(&content[0], sizeof(char), content.size(), file))
+            content = "";
+    }
+#if LIN || APL
+    return errno;
 #else
-	return GetLastError();
+    return GetLastError();
 #endif
 }
 
 int FILE_read_file_to_string(const std::string& path, std::string& content)
 {
-	int res = -1;
+    int res = -1;
 
-	FILE* file = fopen(path.c_str(),"r");
-	
-	if(file != NULL)
-	{
-		res = FILE_read_file_to_string(file, content);
-		fclose(file);
-	}
+    FILE* file = fopen(path.c_str(), "r");
 
-	return res;
+    if (file != NULL)
+    {
+        res = FILE_read_file_to_string(file, content);
+        fclose(file);
+    }
+
+    return res;
 }
 
-int FILE_rename_file(const char * old_name, const char * new_name)
+int FILE_rename_file(const char* old_name, const char* new_name)
 {
 #if IBM
-	if(!MoveFileW(convert_str_to_utf16(old_name).c_str(), convert_str_to_utf16(new_name).c_str())) return GetLastError();
+    if (!MoveFileW(convert_str_to_utf16(old_name).c_str(), convert_str_to_utf16(new_name).c_str()))
+        return GetLastError();
 #endif
 #if LIN || APL
-	if(rename(old_name,new_name)<0)	return errno;
+    if (rename(old_name, new_name) < 0)
+        return errno;
 #endif
-	return 0;
+    return 0;
 }
 
-int FILE_get_directory(const std::string& path, std::vector<std::string> * out_files, std::vector<std::string> * out_dirs)
+int FILE_get_directory(const std::string& path, std::vector<std::string>* out_files, std::vector<std::string>* out_dirs)
 {
 #if IBM
-	string_utf16		searchPath = convert_str_to_utf16(path) + L"\\*.*";
-	WIN32_FIND_DATAW	findData;
-	HANDLE				hFind;
-	int					total = 0;
+    string_utf16 searchPath = convert_str_to_utf16(path) + L"\\*.*";
+    WIN32_FIND_DATAW findData;
+    HANDLE hFind;
+    int total = 0;
 
-	hFind = FindFirstFileW((LPCWSTR)searchPath.c_str(),&findData);
-	if (hFind == INVALID_HANDLE_VALUE) return -1;
+    hFind = FindFirstFileW((LPCWSTR)searchPath.c_str(), &findData);
+    if (hFind == INVALID_HANDLE_VALUE)
+        return -1;
 
-	do {
+    do
+    {
 
-		if(wcscmp(findData.cFileName,L".") == 0 ||
-			wcscmp(findData.cFileName,L"..") == 0)
-		{
-			continue;
-		}
+        if (wcscmp(findData.cFileName, L".") == 0 || wcscmp(findData.cFileName, L"..") == 0)
+        {
+            continue;
+        }
 
-		if(findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-		{
-			if(out_dirs)
-				out_dirs->push_back(convert_utf16_to_str(findData.cFileName));
-		}
-		else
-		{
-			if(out_files)
-				out_files->push_back(convert_utf16_to_str(findData.cFileName));
-		}
+        if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+        {
+            if (out_dirs)
+                out_dirs->push_back(convert_utf16_to_str(findData.cFileName));
+        }
+        else
+        {
+            if (out_files)
+                out_files->push_back(convert_utf16_to_str(findData.cFileName));
+        }
 
-		++total;
+        ++total;
 
-	} while(FindNextFileW(hFind,&findData) != 0);
+    } while (FindNextFileW(hFind, &findData) != 0);
 
-
-	FindClose(hFind);
-	return total;
+    FindClose(hFind);
+    return total;
 
 #elif LIN || APL
 
-	int total=0;
-	DIR* dir = opendir ( path.c_str() );
-	if ( !dir ) return -1;
-	struct dirent* ent;
+    int total = 0;
+    DIR* dir = opendir(path.c_str());
+    if (!dir)
+        return -1;
+    struct dirent* ent;
 
-	while ( ( ent = readdir ( dir ) ) )
-	{
-		struct stat ss;
-		if ( ( strcmp ( ent->d_name, "." ) ==0 ) ||
-		        ( strcmp ( ent->d_name, ".." ) ==0 ) )
-			continue;
+    while ((ent = readdir(dir)))
+    {
+        struct stat ss;
+        if ((strcmp(ent->d_name, ".") == 0) || (strcmp(ent->d_name, "..") == 0))
+            continue;
 
-		std::string	fullPath ( path );
-		fullPath += DIR_CHAR;
-		fullPath += ent->d_name;
+        std::string fullPath(path);
+        fullPath += DIR_CHAR;
+        fullPath += ent->d_name;
 
-		if ( stat ( fullPath.c_str(), &ss ) < 0 )
-			continue;
-		total++;
-		
-		if(S_ISDIR ( ss.st_mode ))
-		{
-			if(out_dirs)
-				out_dirs->push_back(ent->d_name);
-		}
-		else
-		{
-			if(out_files)
-				out_files->push_back(ent->d_name);
-		}
-	}
-	closedir ( dir );
+        if (stat(fullPath.c_str(), &ss) < 0)
+            continue;
+        total++;
 
-	return total;
+        if (S_ISDIR(ss.st_mode))
+        {
+            if (out_dirs)
+                out_dirs->push_back(ent->d_name);
+        }
+        else
+        {
+            if (out_files)
+                out_files->push_back(ent->d_name);
+        }
+    }
+    closedir(dir);
+
+    return total;
 
 #else
 #error not implemented
 #endif
 }
 
-int FILE_get_directory_recursive(const std::string& path, std::vector<std::string>& out_files, std::vector<std::string>& out_dirs)
+int FILE_get_directory_recursive(const std::string& path, std::vector<std::string>& out_files,
+                                 std::vector<std::string>& out_dirs)
 {
-	//Save the previous last positions before we potentially add more to files and dirs
-	int files_start_index = out_files.size();
-	int start_index = out_dirs.size();
-	
-	//Gets this level of the directory's information
-	int num_files = FILE_get_directory(path, &out_files, &out_dirs);
+    // Save the previous last positions before we potentially add more to files and dirs
+    int files_start_index = out_files.size();
+    int start_index = out_dirs.size();
 
-	for(int i = files_start_index; i < out_files.size(); i++)
-	{
-		out_files.at(i) = path + DIR_STR + out_files.at(i);
-	}
-	
-	for(int i = start_index; i < out_dirs.size(); i++)
-	{
-		out_dirs.at(i) = path + DIR_STR + out_dirs.at(i);
-	}
-	
-	//For all the directories added at this level, recurse into them
-	int end_index = out_dirs.size();
-	for (int i = start_index; i < end_index; ++i)
-	{
-		std::string path_copy(out_dirs[i]);  // Don't pass the _same_ std::vector TWICE by reference. If it grows, its data array may get re-allocated and 
-		                                // location. The called function assumes no such interaction between two unrelated parameters ...
-		num_files += FILE_get_directory_recursive(path_copy, out_files, out_dirs);
-	}
-	return num_files;
+    // Gets this level of the directory's information
+    int num_files = FILE_get_directory(path, &out_files, &out_dirs);
+
+    for (int i = files_start_index; i < out_files.size(); i++)
+    {
+        out_files.at(i) = path + DIR_STR + out_files.at(i);
+    }
+
+    for (int i = start_index; i < out_dirs.size(); i++)
+    {
+        out_dirs.at(i) = path + DIR_STR + out_dirs.at(i);
+    }
+
+    // For all the directories added at this level, recurse into them
+    int end_index = out_dirs.size();
+    for (int i = start_index; i < end_index; ++i)
+    {
+        std::string path_copy(out_dirs[i]); // Don't pass the _same_ std::vector TWICE by reference. If it grows, its
+                                            // data array may get re-allocated and location. The called function assumes
+                                            // no such interaction between two unrelated parameters ...
+        num_files += FILE_get_directory_recursive(path_copy, out_files, out_dirs);
+    }
+    return num_files;
 }
 
-int FILE_make_dir(const char * in_dir)
+int FILE_make_dir(const char* in_dir)
 {
-	#if IBM
-		if (!CreateDirectoryW(convert_str_to_utf16(in_dir).c_str() ,NULL))	return GetLastError();
-	#endif
-	#if LIN || APL
-		if (mkdir(in_dir,0755) != 0)		return errno;
-	#endif
-	return 0;
+#if IBM
+    if (!CreateDirectoryW(convert_str_to_utf16(in_dir).c_str(), NULL))
+        return GetLastError();
+#endif
+#if LIN || APL
+    if (mkdir(in_dir, 0755) != 0)
+        return errno;
+#endif
+    return 0;
 }
 
-int FILE_make_dir_exist(const char * in_dir)
+int FILE_make_dir_exist(const char* in_dir)
 {
-	int result = 0;
-	if (!FILE_exists(in_dir))
-	{
-		const char * dc = in_dir + strlen(in_dir) - 1;
-		if(dc > in_dir && *dc == DIR_CHAR) --dc;			// Dir ends in trailing /?  Better pop it off.
-		while(dc > in_dir && *dc != DIR_CHAR) --dc;
-		if(dc > in_dir)
-		{
-			std::string parent(in_dir, dc);
-			result = FILE_make_dir_exist(parent.c_str());
-		}
-		if (result == 0)	result = FILE_make_dir(in_dir);
-	}
-	return result;
+    int result = 0;
+    if (!FILE_exists(in_dir))
+    {
+        const char* dc = in_dir + strlen(in_dir) - 1;
+        if (dc > in_dir && *dc == DIR_CHAR)
+            --dc; // Dir ends in trailing /?  Better pop it off.
+        while (dc > in_dir && *dc != DIR_CHAR)
+            --dc;
+        if (dc > in_dir)
+        {
+            std::string parent(in_dir, dc);
+            result = FILE_make_dir_exist(parent.c_str());
+        }
+        if (result == 0)
+            result = FILE_make_dir(in_dir);
+    }
+    return result;
 }
 
-date_cmpr_result_t FILE_date_cmpr(const char * first, const char * second)
+date_cmpr_result_t FILE_date_cmpr(const char* first, const char* second)
 {
-//Inspired by http://msdn.microsoft.com/en-us/library/14h5k7ff.aspx
-#if IBM 
-	struct stat firstFile;
-	struct stat secondFile;
-	int error1;
-	int error2;
+// Inspired by http://msdn.microsoft.com/en-us/library/14h5k7ff.aspx
+#if IBM
+    struct stat firstFile;
+    struct stat secondFile;
+    int error1;
+    int error2;
 
-	error1 = FILE_get_file_meta_data(first, firstFile);
-	error2 = FILE_get_file_meta_data(second, secondFile);
+    error1 = FILE_get_file_meta_data(first, firstFile);
+    error2 = FILE_get_file_meta_data(second, secondFile);
 
-	if(error1 != 0)
-	{
-		return dcr_error;
-	}
-	else
-	{
-		//If first is newer
-		if(firstFile.st_mtime > secondFile.st_mtime || error2 !=0)
-		{
-			return dcr_firstIsNew;
-		}
-		if(firstFile.st_mtime < secondFile.st_mtime)
-		{
-			return dcr_secondIsNew;
-		}
-		if(firstFile.st_mtime == secondFile.st_mtime)
-		{
-			return dcr_same;
-		}
-		return dcr_error;
-	}
+    if (error1 != 0)
+    {
+        return dcr_error;
+    }
+    else
+    {
+        // If first is newer
+        if (firstFile.st_mtime > secondFile.st_mtime || error2 != 0)
+        {
+            return dcr_firstIsNew;
+        }
+        if (firstFile.st_mtime < secondFile.st_mtime)
+        {
+            return dcr_secondIsNew;
+        }
+        if (firstFile.st_mtime == secondFile.st_mtime)
+        {
+            return dcr_same;
+        }
+        return dcr_error;
+    }
 #else
-	struct stat firstFile;
-	struct stat secondFile;
-	int error1;
-	int error2;
+    struct stat firstFile;
+    struct stat secondFile;
+    int error1;
+    int error2;
 
-	error1 = stat(first,&firstFile);
-	error2 = stat(second,&secondFile);
+    error1 = stat(first, &firstFile);
+    error2 = stat(second, &secondFile);
 
-	if(error1 != 0)
-	{
-		return dcr_error;
-	}
-	else
-	{
-		//If first is newer
-		if(firstFile.st_mtime > secondFile.st_mtime || error2 !=0)
-		{
-			return dcr_firstIsNew;
-		}
-		if(firstFile.st_mtime < secondFile.st_mtime)
-		{
-			return dcr_secondIsNew;
-		}
-		if(firstFile.st_mtime == secondFile.st_mtime)
-		{
-			return dcr_same;
-		}
-		return dcr_error;
-	}
+    if (error1 != 0)
+    {
+        return dcr_error;
+    }
+    else
+    {
+        // If first is newer
+        if (firstFile.st_mtime > secondFile.st_mtime || error2 != 0)
+        {
+            return dcr_firstIsNew;
+        }
+        if (firstFile.st_mtime < secondFile.st_mtime)
+        {
+            return dcr_secondIsNew;
+        }
+        if (firstFile.st_mtime == secondFile.st_mtime)
+        {
+            return dcr_same;
+        }
+        return dcr_error;
+    }
 
 #endif
 }
 
 int FILE_delete_dir_recursive(const std::string& path)
 {
-	std::vector<std::string>	files, dirs;
+    std::vector<std::string> files, dirs;
 
-	int r = FILE_get_directory(path, &files, &dirs);
-	
-	if(r < 0)
-		return r;
-		
-	for(std::vector<std::string>::iterator f = files.begin(); f != files.end(); ++f)
-	{
-		std::string fp(path);
-		fp += *f;
-		r = FILE_delete_file(fp.c_str(), false);
-		if(r != 0)
-			return r;
-	}
-	
-	for(std::vector<std::string>::iterator d = dirs.begin(); d != dirs.end(); ++d)
-	{
-		std::string dp(path);
-		dp += *d;
-		dp += DIR_STR;
-		int r = FILE_delete_dir_recursive(dp);
-		if(r != 0)
-			return r;
-	}
-	
-	r = FILE_delete_file(path.c_str(),true);
-	return r;
+    int r = FILE_get_directory(path, &files, &dirs);
+
+    if (r < 0)
+        return r;
+
+    for (std::vector<std::string>::iterator f = files.begin(); f != files.end(); ++f)
+    {
+        std::string fp(path);
+        fp += *f;
+        r = FILE_delete_file(fp.c_str(), false);
+        if (r != 0)
+            return r;
+    }
+
+    for (std::vector<std::string>::iterator d = dirs.begin(); d != dirs.end(); ++d)
+    {
+        std::string dp(path);
+        dp += *d;
+        dp += DIR_STR;
+        int r = FILE_delete_dir_recursive(dp);
+        if (r != 0)
+            return r;
+    }
+
+    r = FILE_delete_file(path.c_str(), true);
+    return r;
 }
 
-#if WED	
+#if WED
 static int compress_one_file(zipFile archive, const std::string& src, const std::string& dst)
 {
-	FILE * srcf = fopen(src.c_str(),"rb");
-	if(!srcf)
-		return errno;
+    FILE* srcf = fopen(src.c_str(), "rb");
+    if (!srcf)
+        return errno;
 
-	zip_fileinfo	fi = { 0 };
-	//http://unix.stackexchange.com/questions/14705/the-zip-formats-external-file-attribute
-	fi.external_fa = 0100777 << 16;
+    zip_fileinfo fi = {0};
+    // http://unix.stackexchange.com/questions/14705/the-zip-formats-external-file-attribute
+    fi.external_fa = 0100777 << 16;
 
-	time_t		t;			
-	time(&t);
-	struct tm * our_time = localtime(&t);
-	if(our_time)
-	{
-		fi.tmz_date.tm_sec  = our_time->tm_sec ;
-		fi.tmz_date.tm_min  = our_time->tm_min ;
-		fi.tmz_date.tm_hour = our_time->tm_hour;
-		fi.tmz_date.tm_mday = our_time->tm_mday;
-		fi.tmz_date.tm_mon  = our_time->tm_mon ;
-		fi.tmz_date.tm_year = our_time->tm_year + 1900;
-	}
+    time_t t;
+    time(&t);
+    struct tm* our_time = localtime(&t);
+    if (our_time)
+    {
+        fi.tmz_date.tm_sec = our_time->tm_sec;
+        fi.tmz_date.tm_min = our_time->tm_min;
+        fi.tmz_date.tm_hour = our_time->tm_hour;
+        fi.tmz_date.tm_mday = our_time->tm_mday;
+        fi.tmz_date.tm_mon = our_time->tm_mon;
+        fi.tmz_date.tm_year = our_time->tm_year + 1900;
+    }
 
-	int r = zipOpenNewFileInZip (archive,dst.c_str(),
-		&fi,		// mod dates, etc??
-		NULL,0,
-		NULL,0,
-		NULL,		// comment
-		Z_DEFLATED,
-		Z_DEFAULT_COMPRESSION);
-		
-	if(r != 0) 
-	{
-		fclose(srcf);
-		return r;
-	}
-	
-	char buf[1024];
-	while(!feof(srcf))
-	{
-		int rd = fread(buf,1,sizeof(buf),srcf);
+    int r = zipOpenNewFileInZip(archive, dst.c_str(),
+                                &fi, // mod dates, etc??
+                                NULL, 0, NULL, 0,
+                                NULL, // comment
+                                Z_DEFLATED, Z_DEFAULT_COMPRESSION);
 
-		if(rd)
-		{
-			r = zipWriteInFileInZip(archive,buf,rd);
-			if(r != 0)
-			{
-				fclose(srcf);
-				return r;
-			}
-		}
-		else
-			break;
-	}
-	
-	fclose(srcf);
-	
+    if (r != 0)
+    {
+        fclose(srcf);
+        return r;
+    }
 
-	r = zipCloseFileInZip(archive);
-	return r;
+    char buf[1024];
+    while (!feof(srcf))
+    {
+        int rd = fread(buf, 1, sizeof(buf), srcf);
+
+        if (rd)
+        {
+            r = zipWriteInFileInZip(archive, buf, rd);
+            if (r != 0)
+            {
+                fclose(srcf);
+                return r;
+            }
+        }
+        else
+            break;
+    }
+
+    fclose(srcf);
+
+    r = zipCloseFileInZip(archive);
+    return r;
 }
-				
+
 static int compress_recursive(zipFile archive, const std::string& dir, const std::string& prefix)
-{	
-	std::vector<std::string> files ,dirs;
-	int r = FILE_get_directory(dir, &files,&dirs);
-	if(r < 0) return r;
-	
-	for(std::vector<std::string>::iterator f = files.begin(); f != files.end(); ++f)
-	{
-		std::string sf = dir + *f;
-		std::string df = prefix + *f;
-		r = compress_one_file(archive, sf, df);
-		if (r != 0)
-			return r;
-	}
-	
-	for(std::vector<std::string>::iterator d = dirs.begin(); d != dirs.end(); ++d)
-	{
-		std::string sd = dir + *d + DIR_STR;
-		std::string dd = prefix + *d + "/";			// FORCE unix / or Mac loses its mind on decompress.
-		r = compress_recursive(archive, sd, dd);
-		if (r != 0)
-			return r;
-	}
-	return 0;
+{
+    std::vector<std::string> files, dirs;
+    int r = FILE_get_directory(dir, &files, &dirs);
+    if (r < 0)
+        return r;
+
+    for (std::vector<std::string>::iterator f = files.begin(); f != files.end(); ++f)
+    {
+        std::string sf = dir + *f;
+        std::string df = prefix + *f;
+        r = compress_one_file(archive, sf, df);
+        if (r != 0)
+            return r;
+    }
+
+    for (std::vector<std::string>::iterator d = dirs.begin(); d != dirs.end(); ++d)
+    {
+        std::string sd = dir + *d + DIR_STR;
+        std::string dd = prefix + *d + "/"; // FORCE unix / or Mac loses its mind on decompress.
+        r = compress_recursive(archive, sd, dd);
+        if (r != 0)
+            return r;
+    }
+    return 0;
 }
 
 int FILE_compress_dir(const std::string& src_path, const std::string& dst_path, const std::string& prefix)
 {
-	zipFile archive = zipOpen(dst_path.c_str(), 0);
-	if(archive == NULL)
-		return -1;
+    zipFile archive = zipOpen(dst_path.c_str(), 0);
+    if (archive == NULL)
+        return -1;
 
-	int r = compress_recursive(archive, src_path,prefix);
-	
-	zipClose(archive, NULL);
-	
-	return r;
-	
+    int r = compress_recursive(archive, src_path, prefix);
+
+    zipClose(archive, NULL);
+
+    return r;
 }
 #endif // WED

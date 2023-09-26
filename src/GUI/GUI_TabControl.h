@@ -29,39 +29,36 @@
 #include <vector>
 #include <string>
 
-using std::vector;
 using std::string;
+using std::vector;
 
-class	GUI_TabControl : public GUI_Control {
+class GUI_TabControl : public GUI_Control
+{
 public:
+    GUI_TabControl();
+    virtual ~GUI_TabControl();
 
-						 GUI_TabControl();
-	virtual				~GUI_TabControl();
+    void SetTextColor(float color[4]);
 
-			void		SetTextColor(float color[4]);
+    virtual void SetDescriptor(const std::string& inDesc);
+    virtual void Draw(GUI_GraphState* state);
 
-	virtual	void		SetDescriptor(const std::string& inDesc);
-	virtual	void		Draw(GUI_GraphState * state);
+    virtual int MouseDown(int x, int y, int button);
+    virtual void MouseDrag(int x, int y, int button);
+    virtual void MouseUp(int x, int y, int button);
 
-	virtual	int			MouseDown(int x, int y, int button);
-	virtual	void		MouseDrag(int x, int y, int button);
-	virtual	void		MouseUp  (int x, int y, int button);
+    virtual void SetValue(float inValue);
 
-	virtual	void		SetValue(float inValue);
+    int GetNaturalHeight(void);
 
-			int			GetNaturalHeight(void);
 private:
+    std::vector<std::string> mItems;
+    std::vector<int> mWidths;
 
-		std::vector<std::string>		mItems;
-		std::vector<int>			mWidths;
+    int mTrackBtn;
+    int mHilite;
 
-		int					mTrackBtn;
-		int					mHilite;
-
-		float				mTextColor[4];
-
+    float mTextColor[4];
 };
-
-
 
 #endif

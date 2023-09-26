@@ -26,25 +26,26 @@
 
 #include "WED_GISPoint.h"
 
-struct	AptWindsock_t;
+struct AptWindsock_t;
 
-class	WED_Windsock : public WED_GISPoint {
+class WED_Windsock : public WED_GISPoint
+{
 
-DECLARE_PERSISTENT(WED_Windsock)
+    DECLARE_PERSISTENT(WED_Windsock)
 
 public:
+    void SetLit(int);
 
-		void		SetLit(int);
+    void Import(const AptWindsock_t& x, void (*print_func)(void*, const char*, ...), void* ref);
+    void Export(AptWindsock_t& x) const;
 
-		void		Import(const AptWindsock_t& x, void (* print_func)(void *, const char *, ...), void * ref);
-		void		Export(		 AptWindsock_t& x) const;
-
-	virtual const char *	HumanReadableType(void) const { return "Windsock"; }
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Windsock";
+    }
 
 private:
-
-	WED_PropBoolText			lit;
-
+    WED_PropBoolText lit;
 };
 
 #endif /* WED_WINDSOCK_H */

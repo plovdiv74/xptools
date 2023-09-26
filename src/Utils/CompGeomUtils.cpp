@@ -33,15 +33,15 @@ using namespace std;
 /*
 Point2	CoordTranslator::Forward(const Point2& input)
 {
-	return Point2(
-			mDstMin.x + (input.x - mSrcMin.x) * (mDstMax.x - mDstMin.x) / (mSrcMax.x - mSrcMin.x),
-			mDstMin.y + (input.y - mSrcMin.y) * (mDstMax.y - mDstMin.y) / (mSrcMax.y - mSrcMin.y));
+    return Point2(
+            mDstMin.x + (input.x - mSrcMin.x) * (mDstMax.x - mDstMin.x) / (mSrcMax.x - mSrcMin.x),
+            mDstMin.y + (input.y - mSrcMin.y) * (mDstMax.y - mDstMin.y) / (mSrcMax.y - mSrcMin.y));
 }
 Point2	CoordTranslator::Reverse(const Point2& input)
 {
-	return Point2(
-			mSrcMin.x + (input.x - mDstMin.x) * (mSrcMax.x - mSrcMin.x) / (mDstMax.x - mDstMin.x),
-			mSrcMin.y + (input.y - mDstMin.y) * (mSrcMax.y - mSrcMin.y) / (mDstMax.y - mDstMin.y));
+    return Point2(
+            mSrcMin.x + (input.x - mDstMin.x) * (mSrcMax.x - mSrcMin.x) / (mDstMax.x - mDstMin.x),
+            mSrcMin.y + (input.y - mDstMin.y) * (mSrcMax.y - mSrcMin.y) / (mDstMax.y - mDstMin.y));
 }
 */
 
@@ -346,27 +346,33 @@ double	CalcMaxInset(
 
 void ExtendBoundingSphereToSphere(const Sphere3& newSphere, Sphere3& ioSphere)
 {
-	if (newSphere.radius_squared == 0.0) return;
-	if (ioSphere.radius_squared == 0.0) { ioSphere = newSphere; return; }
-	Sphere3 smaller(ioSphere);
-	smaller.radius_squared = sqrt(ioSphere.radius_squared) - sqrt(newSphere.radius_squared);
-	smaller.radius_squared *= smaller.radius_squared;
-	if (smaller.contains(newSphere.c)) return;
+    if (newSphere.radius_squared == 0.0)
+        return;
+    if (ioSphere.radius_squared == 0.0)
+    {
+        ioSphere = newSphere;
+        return;
+    }
+    Sphere3 smaller(ioSphere);
+    smaller.radius_squared = sqrt(ioSphere.radius_squared) - sqrt(newSphere.radius_squared);
+    smaller.radius_squared *= smaller.radius_squared;
+    if (smaller.contains(newSphere.c))
+        return;
 
-	// Find a std::vector from the old to the new scale, and normalize it for direction.
-	Vector3	to_new = Vector3(ioSphere.c, newSphere.c);
-	to_new.normalize();
-	// Build vectors in the same and opposite direction of radius length -
-	// these go to the farthest points.
-	Vector3 new_r(to_new), old_r(to_new);
-	old_r *= -sqrt(ioSphere.radius_squared);
-	new_r *=  sqrt(newSphere.radius_squared);
-	// Build a segment spanning the diameter of the new sphere.
-	// Cut it in half to get the center and radius
-	Segment3	seg(newSphere.c + new_r, ioSphere.c + old_r);
-	ioSphere.c = seg.midpoint();
-	seg.p1 = ioSphere.c;
-	ioSphere.radius_squared = seg.squared_length();
+    // Find a std::vector from the old to the new scale, and normalize it for direction.
+    Vector3 to_new = Vector3(ioSphere.c, newSphere.c);
+    to_new.normalize();
+    // Build vectors in the same and opposite direction of radius length -
+    // these go to the farthest points.
+    Vector3 new_r(to_new), old_r(to_new);
+    old_r *= -sqrt(ioSphere.radius_squared);
+    new_r *= sqrt(newSphere.radius_squared);
+    // Build a segment spanning the diameter of the new sphere.
+    // Cut it in half to get the center and radius
+    Segment3 seg(newSphere.c + new_r, ioSphere.c + old_r);
+    ioSphere.c = seg.midpoint();
+    seg.p1 = ioSphere.c;
+    ioSphere.radius_squared = seg.squared_length();
 }
 
 // Given a bounding sphere and a point not in the sphere, grow the sphere
@@ -375,551 +381,543 @@ void ExtendBoundingSphereToSphere(const Sphere3& newSphere, Sphere3& ioSphere)
 // sphere routine below.
 void ExtendBoundingSphereToPt1(const Point3& p, Sphere3& ioSphere)
 {
-	// Start with a std::vector from the sphere to the new point.
-	Vector3	to_pt = Vector3(ioSphere.c, p);
-	// Normalize it to a unit std::vector in the direction of our sphere.  This is also
-	// a std::vector toward a pt on the sphere that is closest to the new pt.
-	to_pt.normalize();
-	// Now rescale it to go the other way and to the edge of the sphere.  This is the
-	// now pointing at the pt farthest from the new pt on the sphere.
-	to_pt *= -sqrt(ioSphere.radius_squared);
-	Point3	opposite_pt = ioSphere.c + to_pt;
-	// The sphere must contain opposite_pt and p, so put the midpoint halfway and
-	// recalc the bounds.
-	ioSphere.c = Segment3(opposite_pt, p).midpoint();
-	ioSphere.radius_squared = Vector3(ioSphere.c, p).squared_length();
+    // Start with a std::vector from the sphere to the new point.
+    Vector3 to_pt = Vector3(ioSphere.c, p);
+    // Normalize it to a unit std::vector in the direction of our sphere.  This is also
+    // a std::vector toward a pt on the sphere that is closest to the new pt.
+    to_pt.normalize();
+    // Now rescale it to go the other way and to the edge of the sphere.  This is the
+    // now pointing at the pt farthest from the new pt on the sphere.
+    to_pt *= -sqrt(ioSphere.radius_squared);
+    Point3 opposite_pt = ioSphere.c + to_pt;
+    // The sphere must contain opposite_pt and p, so put the midpoint halfway and
+    // recalc the bounds.
+    ioSphere.c = Segment3(opposite_pt, p).midpoint();
+    ioSphere.radius_squared = Vector3(ioSphere.c, p).squared_length();
 }
 
 void ExtendBoundingSphereToPt(const Point3& p, Sphere3& ioSphere)
 {
-	if (!ioSphere.contains(p))
-		ExtendBoundingSphereToPt1(p, ioSphere);
+    if (!ioSphere.contains(p))
+        ExtendBoundingSphereToPt1(p, ioSphere);
 }
 
-void	FastBoundingSphere(
-				const std::vector<Point3>&		inPoints,
-				Sphere3&					outSphere)
+void FastBoundingSphere(const std::vector<Point3>& inPoints, Sphere3& outSphere)
 {
-	if (inPoints.empty())	return;
+    if (inPoints.empty())
+        return;
 
-	// sort the points first so we can take the widest span
-	// to build the sphere.
-	std::vector<Point3>	pts(inPoints);
-	sort(pts.begin(), pts.end(), lesser_y_then_x_then_z());
+    // sort the points first so we can take the widest span
+    // to build the sphere.
+    std::vector<Point3> pts(inPoints);
+    sort(pts.begin(), pts.end(), lesser_y_then_x_then_z());
 
-	// Make an initial sphere from the two ends...this will hopefully
-	// contain almost everyone.
-	outSphere.c = Segment3(pts[0], pts[pts.size()-1]).midpoint();
-	outSphere.radius_squared = Vector3(outSphere.c, pts[0]).squared_length();
+    // Make an initial sphere from the two ends...this will hopefully
+    // contain almost everyone.
+    outSphere.c = Segment3(pts[0], pts[pts.size() - 1]).midpoint();
+    outSphere.radius_squared = Vector3(outSphere.c, pts[0]).squared_length();
 
-	// Now grow the sphere for any points we missed.
-	for (int n = 1; n < (pts.size() - 1); ++n)
-	{
-		if (!outSphere.contains(pts[n]))
-			ExtendBoundingSphereToPt1(pts[n], outSphere);
-	}
+    // Now grow the sphere for any points we missed.
+    for (int n = 1; n < (pts.size() - 1); ++n)
+    {
+        if (!outSphere.contains(pts[n]))
+            ExtendBoundingSphereToPt1(pts[n], outSphere);
+    }
 }
 
-bool	PointInPolygon3(
-				const Polygon3&				inPolygon,
-				const Point3&				inPoint)
+bool PointInPolygon3(const Polygon3& inPolygon, const Point3& inPoint)
 {
-	// Our strategy is this: for each side of the polygon,
-	// build a plane normal to the polygon along that edge and see if
-	// the point is on the inside of it.  Note that we must have a convex
-	// polygon for this to work!
+    // Our strategy is this: for each side of the polygon,
+    // build a plane normal to the polygon along that edge and see if
+    // the point is on the inside of it.  Note that we must have a convex
+    // polygon for this to work!
 
-	if (inPolygon.size() < 3)
-		return false;
+    if (inPolygon.size() < 3)
+        return false;
 
-	// First find the normal for the polygon.  This normal points
-	// toward a viewer looking at the clockwise face.
-	Vector3	v1 = Vector3(inPolygon[0], inPolygon[1]);
-	Vector3	v2 = Vector3(inPolygon[2], inPolygon[1]);
-	Vector3	polyNormal = v1.cross(v2);
-	polyNormal.normalize();
+    // First find the normal for the polygon.  This normal points
+    // toward a viewer looking at the clockwise face.
+    Vector3 v1 = Vector3(inPolygon[0], inPolygon[1]);
+    Vector3 v2 = Vector3(inPolygon[2], inPolygon[1]);
+    Vector3 polyNormal = v1.cross(v2);
+    polyNormal.normalize();
 
-	for (int n = 0; n < inPolygon.size(); ++n)
-	{
-		// Construct a half-plane throught this side of the polygon perpendicular
-		// to the polygon itself.  Do this by crossing the side with the polygon normal.
-		// The half-plane is pointing away from the inside of the polygon.
-		Vector3	side = Vector3(inPolygon[n], inPolygon[(n+1)%inPolygon.size()]);
-		Vector3 faceVector = polyNormal.cross(side);
-		faceVector.normalize();
-		double	d = -faceVector.dot(Vector3(inPolygon[n]));
+    for (int n = 0; n < inPolygon.size(); ++n)
+    {
+        // Construct a half-plane throught this side of the polygon perpendicular
+        // to the polygon itself.  Do this by crossing the side with the polygon normal.
+        // The half-plane is pointing away from the inside of the polygon.
+        Vector3 side = Vector3(inPolygon[n], inPolygon[(n + 1) % inPolygon.size()]);
+        Vector3 faceVector = polyNormal.cross(side);
+        faceVector.normalize();
+        double d = -faceVector.dot(Vector3(inPolygon[n]));
 
-		// If the point is on the positive side of the half-plane, it's outside
-		// the polygon; bail.
-		double	eq = faceVector.dot(Vector3(inPoint)) + d;
-		if (eq > 0)
-			return false;
-	}
-	return true;
+        // If the point is on the positive side of the half-plane, it's outside
+        // the polygon; bail.
+        double eq = faceVector.dot(Vector3(inPoint)) + d;
+        if (eq > 0)
+            return false;
+    }
+    return true;
 }
 
 /*
-	AN EXPLANATION OF THE PINCHING PROBLEM
+    AN EXPLANATION OF THE PINCHING PROBLEM
 
-	Normally rendering a road path is a two-step process:
-	1. The std::set of segments and control points are converted into a std::set of simple segments with many
-	   small segments forming the curve, using this function, BezierCurve.
-	2. Those points and a series of width and up vectors are fed into ChainToQuadStrip to form a
-	   3-d quad strip that can then be rendered (or covered with pavement.
+    Normally rendering a road path is a two-step process:
+    1. The std::set of segments and control points are converted into a std::set of simple segments with many
+       small segments forming the curve, using this function, BezierCurve.
+    2. Those points and a series of width and up vectors are fed into ChainToQuadStrip to form a
+       3-d quad strip that can then be rendered (or covered with pavement.
 
-	The problem happens when we combine (1) a bezier curve with many polygons for smoothness with (2)
-	a very sharp hard turn in the curve.
+    The problem happens when we combine (1) a bezier curve with many polygons for smoothness with (2)
+    a very sharp hard turn in the curve.
 
-	Normallly ChainToQuadStrip intersects two adjacent quads to form a sharp corner...for example in
-	a 90 degree turn the two quads around the turn are angled so the "inside" of the turn quads are
-	reduced in length and the outside of the turn is extended, forming an L-joint that flows smoothly.
+    Normallly ChainToQuadStrip intersects two adjacent quads to form a sharp corner...for example in
+    a 90 degree turn the two quads around the turn are angled so the "inside" of the turn quads are
+    reduced in length and the outside of the turn is extended, forming an L-joint that flows smoothly.
 
-	The problem happens when the segments leading up to a hard turn are very short (typically due to a
-	very detailed bezier curve).  The result is that many quads overlap each other, and ChainToQuadStrip
-	cannot unpinch them all the way it would need to.  Instead it ends up causing part of the road to
-	go inside out.
+    The problem happens when the segments leading up to a hard turn are very short (typically due to a
+    very detailed bezier curve).  The result is that many quads overlap each other, and ChainToQuadStrip
+    cannot unpinch them all the way it would need to.  Instead it ends up causing part of the road to
+    go inside out.
 
-	Our _hacky_ solution:
+    Our _hacky_ solution:
 
-	"Doctor it hurts when I do this."
-	"Well, then don't do this."
+    "Doctor it hurts when I do this."
+    "Well, then don't do this."
 
-	You can pass a length to BezierCurve...this is an initial length of each side of the curve that
-	_must_ be made of one straight segment.  This reduces the number of total segments.  The result is
-	that when a tight corner hits, if your "protected" length is wider than the effective angled
-	amount of the road on the inside of the curve, you are guaranteed only one quad on each side for
-	that length and no pinching problem happens.
+    You can pass a length to BezierCurve...this is an initial length of each side of the curve that
+    _must_ be made of one straight segment.  This reduces the number of total segments.  The result is
+    that when a tight corner hits, if your "protected" length is wider than the effective angled
+    amount of the road on the inside of the curve, you are guaranteed only one quad on each side for
+    that length and no pinching problem happens.
 
-	How long should that length be?  Well, it should for our side be:
-	width_us / tan(angle) + width_them / sin(angle)
+    How long should that length be?  Well, it should for our side be:
+    width_us / tan(angle) + width_them / sin(angle)
 
 */
 
-void	BezierCurve(
-				const Point3&				inStart,
-				const Point3&				inEnd,
-				bool						inHasStartCurve,
-				bool						inHasEndCurve,
-				const Point3&				inStartCurve,
-				const Point3&				inEndCurve,
-				int							inNumSegments,
-				double						inProtectStart,
-				double						inProtectEnd,
-				std::vector<Point3>&				outPoints)
+void BezierCurve(const Point3& inStart, const Point3& inEnd, bool inHasStartCurve, bool inHasEndCurve,
+                 const Point3& inStartCurve, const Point3& inEndCurve, int inNumSegments, double inProtectStart,
+                 double inProtectEnd, std::vector<Point3>& outPoints)
 {
-	if (inNumSegments < 1) inNumSegments = 1;
-	if (!inHasStartCurve && !inHasEndCurve) inNumSegments = 1;
+    if (inNumSegments < 1)
+        inNumSegments = 1;
+    if (!inHasStartCurve && !inHasEndCurve)
+        inNumSegments = 1;
 
-	outPoints.clear();
-	outPoints.push_back(inStart);
+    outPoints.clear();
+    outPoints.push_back(inStart);
 
-	Point3	startCurve = inHasStartCurve ? inStartCurve : inStart;
-	Point3	endCurve =   inHasEndCurve   ? inEndCurve   : inEnd;
+    Point3 startCurve = inHasStartCurve ? inStartCurve : inStart;
+    Point3 endCurve = inHasEndCurve ? inEndCurve : inEnd;
 
-	if (inNumSegments > 1)
-	{
-		Line3	base_line(inStart, inEnd);
-		if (base_line.on_line(startCurve) && base_line.on_line(endCurve))
-			inNumSegments = 1;
-	}
+    if (inNumSegments > 1)
+    {
+        Line3 base_line(inStart, inEnd);
+        if (base_line.on_line(startCurve) && base_line.on_line(endCurve))
+            inNumSegments = 1;
+    }
 
-	inProtectStart *= inProtectStart;
-	inProtectEnd *= inProtectEnd;
+    inProtectStart *= inProtectStart;
+    inProtectEnd *= inProtectEnd;
 
-	for (int t = 1; t < inNumSegments; ++t)
-	{
-		float	p = (float) t / (float) inNumSegments;
-		float	mp = 1.0 - p;
+    for (int t = 1; t < inNumSegments; ++t)
+    {
+        float p = (float)t / (float)inNumSegments;
+        float mp = 1.0 - p;
 
-		float	w0 = mp * mp * mp;
-		float	w1 = 3.0 * mp * mp * p;
-		float	w2 = 3.0 * mp * p  * p;
-		float	w3 = p  * p  * p;
+        float w0 = mp * mp * mp;
+        float w1 = 3.0 * mp * mp * p;
+        float w2 = 3.0 * mp * p * p;
+        float w3 = p * p * p;
 
-		Point3	loc(
-			inStart.x * w0 + startCurve.x * w1 + endCurve.x * w2 + inEnd.x * w3,
-			inStart.y * w0 + startCurve.y * w1 + endCurve.y * w2 + inEnd.y * w3,
-			inStart.z * w0 + startCurve.z * w1 + endCurve.z * w2 + inEnd.z * w3);
+        Point3 loc(inStart.x * w0 + startCurve.x * w1 + endCurve.x * w2 + inEnd.x * w3,
+                   inStart.y * w0 + startCurve.y * w1 + endCurve.y * w2 + inEnd.y * w3,
+                   inStart.z * w0 + startCurve.z * w1 + endCurve.z * w2 + inEnd.z * w3);
 
-		bool	skip = false;
-		if (inProtectStart > 0.0 && Segment3(inStart, loc).squared_length() < inProtectStart)
-			skip = true;
-		if (inProtectEnd > 0.0 && Segment3(inEnd, loc).squared_length() < inProtectEnd)
-			skip = true;
-		if (!skip)
-			outPoints.push_back(loc);
-	}
+        bool skip = false;
+        if (inProtectStart > 0.0 && Segment3(inStart, loc).squared_length() < inProtectStart)
+            skip = true;
+        if (inProtectEnd > 0.0 && Segment3(inEnd, loc).squared_length() < inProtectEnd)
+            skip = true;
+        if (!skip)
+            outPoints.push_back(loc);
+    }
 
-	outPoints.push_back(inEnd);
+    outPoints.push_back(inEnd);
 }
 
 #define NEAR_COLINEAR 0.9995
 
-void	ChainToQuadStrip(
-				const std::vector<Point3>&		inChain,
-				const std::vector<Vector3>&		inUp,
-				const std::vector<double>&		inWidth,
-				std::vector<Point3>&				outQuadStrip)
+void ChainToQuadStrip(const std::vector<Point3>& inChain, const std::vector<Vector3>& inUp,
+                      const std::vector<double>& inWidth, std::vector<Point3>& outQuadStrip)
 {
-	Vector3	centerline, right;
+    Vector3 centerline, right;
 
-	if (inChain.size() < 2) return;
-	outQuadStrip.clear();
-	int	last = inChain.size() - 1;
+    if (inChain.size() < 2)
+        return;
+    outQuadStrip.clear();
+    int last = inChain.size() - 1;
 
-	for (int n = 0; n < inChain.size(); ++n)
-	{
-		if (n == 0)
-		{
-			centerline = Vector3(inChain[0], inChain[1]);
-			right = centerline.cross(inUp[0]);
-			right.normalize();
-			right *= (inWidth[0] * 0.5);
+    for (int n = 0; n < inChain.size(); ++n)
+    {
+        if (n == 0)
+        {
+            centerline = Vector3(inChain[0], inChain[1]);
+            right = centerline.cross(inUp[0]);
+            right.normalize();
+            right *= (inWidth[0] * 0.5);
 
-			outQuadStrip.push_back(inChain[n] + right);
-			outQuadStrip.push_back(inChain[n] - right);
-		} else if (n == last) {
-			centerline = Vector3(inChain[last-1], inChain[last]);
-			right = centerline.cross(inUp[last]);
-			right.normalize();
-			right *= (inWidth[last] * 0.5);
+            outQuadStrip.push_back(inChain[n] + right);
+            outQuadStrip.push_back(inChain[n] - right);
+        }
+        else if (n == last)
+        {
+            centerline = Vector3(inChain[last - 1], inChain[last]);
+            right = centerline.cross(inUp[last]);
+            right.normalize();
+            right *= (inWidth[last] * 0.5);
 
-			outQuadStrip.push_back(inChain[n] + right);
-			outQuadStrip.push_back(inChain[n] - right);
-		} else {
+            outQuadStrip.push_back(inChain[n] + right);
+            outQuadStrip.push_back(inChain[n] - right);
+        }
+        else
+        {
 
-			// First we construct four planes...these planes define
-			// the sides of the outgoing and incoming segments.
-			Vector3 centerline1(inChain[n-1], inChain[n  ]);
-			Vector3 centerline2(inChain[n  ], inChain[n+1]);
-			centerline1.normalize();
-			centerline2.normalize();
-			Vector3 normal1 = centerline1.cross(inUp[n]);
-			Vector3 normal2 = centerline2.cross(inUp[n]);
-			normal1.normalize();
-			normal2.normalize();
+            // First we construct four planes...these planes define
+            // the sides of the outgoing and incoming segments.
+            Vector3 centerline1(inChain[n - 1], inChain[n]);
+            Vector3 centerline2(inChain[n], inChain[n + 1]);
+            centerline1.normalize();
+            centerline2.normalize();
+            Vector3 normal1 = centerline1.cross(inUp[n]);
+            Vector3 normal2 = centerline2.cross(inUp[n]);
+            normal1.normalize();
+            normal2.normalize();
 
-			// SPECIAL CASE: if the noramsl are near colinear basically
-			// that means that we have a segment that really isn't turning
-			// at all.  Using an intersection to calculate the edges is a BAD
-			// idea - intersect is imprecise for nearly parallel lines.  So
-			// just punt and use one std::set of points.
-			if (normal1.dot(normal2) > NEAR_COLINEAR)
-			{
-				outQuadStrip.push_back(inChain[n] - normal1);
-				outQuadStrip.push_back(inChain[n] + normal1);
-			} else if (normal1.dot(normal2) < -NEAR_COLINEAR) {
-				outQuadStrip.push_back(inChain[n] - normal1);
-				outQuadStrip.push_back(inChain[n] + normal1);
-				outQuadStrip.push_back(inChain[n] - normal2);
-				outQuadStrip.push_back(inChain[n] + normal2);
-			} else {
+            // SPECIAL CASE: if the noramsl are near colinear basically
+            // that means that we have a segment that really isn't turning
+            // at all.  Using an intersection to calculate the edges is a BAD
+            // idea - intersect is imprecise for nearly parallel lines.  So
+            // just punt and use one std::set of points.
+            if (normal1.dot(normal2) > NEAR_COLINEAR)
+            {
+                outQuadStrip.push_back(inChain[n] - normal1);
+                outQuadStrip.push_back(inChain[n] + normal1);
+            }
+            else if (normal1.dot(normal2) < -NEAR_COLINEAR)
+            {
+                outQuadStrip.push_back(inChain[n] - normal1);
+                outQuadStrip.push_back(inChain[n] + normal1);
+                outQuadStrip.push_back(inChain[n] - normal2);
+                outQuadStrip.push_back(inChain[n] + normal2);
+            }
+            else
+            {
 
-			normal1 *= (inWidth[n] * 0.5);
-			normal2 *= (inWidth[n] * 0.5);
+                normal1 *= (inWidth[n] * 0.5);
+                normal2 *= (inWidth[n] * 0.5);
 
-			Point3	left1 = inChain[n] - normal1;
-			Point3	left2 = inChain[n] - normal2;
-			Point3	right1 = inChain[n] + normal1;
-			Point3	right2 = inChain[n] + normal2;
+                Point3 left1 = inChain[n] - normal1;
+                Point3 left2 = inChain[n] - normal2;
+                Point3 right1 = inChain[n] + normal1;
+                Point3 right2 = inChain[n] + normal2;
 
-			Plane3	leftWall1 = Plane3(left1, normal1);
-			Plane3	leftWall2 = Plane3(left2, normal2);
-			Plane3	rightWall1 = Plane3(right1, normal1);
-			Plane3	rightWall2 = Plane3(right2, normal2);
+                Plane3 leftWall1 = Plane3(left1, normal1);
+                Plane3 leftWall2 = Plane3(left2, normal2);
+                Plane3 rightWall1 = Plane3(right1, normal1);
+                Plane3 rightWall2 = Plane3(right2, normal2);
 
-			// Next we intersect them.  This forms two lines that
-			// represent the valid std::set of possible end points for
-			// the planes where the widths of the planes are consistent.
+                // Next we intersect them.  This forms two lines that
+                // represent the valid std::set of possible end points for
+                // the planes where the widths of the planes are consistent.
 
-			// If we don't have an intersection, that means that the
-			// side wall planes are the same, which makes life easy.
-			// Just pick the end of one of the segments because they're straight.
+                // If we don't have an intersection, that means that the
+                // side wall planes are the same, which makes life easy.
+                // Just pick the end of one of the segments because they're straight.
 
-			Line3	leftEdge, rightEdge;
-			if (!leftWall1.intersect(leftWall2, leftEdge))
-				leftEdge = Line3(left1, inUp[n]);
-			if (!rightWall1.intersect(rightWall2, rightEdge))
-				rightEdge = Line3(right1, inUp[n]);
+                Line3 leftEdge, rightEdge;
+                if (!leftWall1.intersect(leftWall2, leftEdge))
+                    leftEdge = Line3(left1, inUp[n]);
+                if (!rightWall1.intersect(rightWall2, rightEdge))
+                    rightEdge = Line3(right1, inUp[n]);
 
-			// Build the plane that contains both pavement end lines.  This
-			// is the plane within which we'd like our end points to occur if
-			// we're going to interpolate our end lines reasonably.
+                // Build the plane that contains both pavement end lines.  This
+                // is the plane within which we'd like our end points to occur if
+                // we're going to interpolate our end lines reasonably.
 
-			Plane3	junctionPlane(inChain[n], inUp[n]);
+                Plane3 junctionPlane(inChain[n], inUp[n]);
 
-			// Now intersect those end lines with that plane...that is
-			// theoretically a good compromise of road continuity and
-			// outer distance.  (Yeah right!)
+                // Now intersect those end lines with that plane...that is
+                // theoretically a good compromise of road continuity and
+                // outer distance.  (Yeah right!)
 
-			Point3	leftPt, rightPt;
+                Point3 leftPt, rightPt;
 
-			if (!junctionPlane.intersect(leftEdge, leftPt))
-				leftPt = left1;
+                if (!junctionPlane.intersect(leftEdge, leftPt))
+                    leftPt = left1;
 
-			if (!junctionPlane.intersect(rightEdge, rightPt))
-				rightPt = right1;
+                if (!junctionPlane.intersect(rightEdge, rightPt))
+                    rightPt = right1;
 
-			outQuadStrip.push_back(rightPt);
-			outQuadStrip.push_back(leftPt);
-			}
-		}
-	}
+                outQuadStrip.push_back(rightPt);
+                outQuadStrip.push_back(leftPt);
+            }
+        }
+    }
 }
 
-void	ReverseQuadStrip(
-				std::vector<Point3>&				ioQuadStrip)
+void ReverseQuadStrip(std::vector<Point3>& ioQuadStrip)
 {
-	int	p = ioQuadStrip.size();
-	int h = p/2;
-	for (int n = 0; n < h; ++n)
-	{
-		std::swap(ioQuadStrip[n], ioQuadStrip[p-n-1]);
-	}
+    int p = ioQuadStrip.size();
+    int h = p / 2;
+    for (int n = 0; n < h; ++n)
+    {
+        std::swap(ioQuadStrip[n], ioQuadStrip[p - n - 1]);
+    }
 }
 
-
-
-void	RemoveFromQuadStripFront(
-				std::vector<Point3>&				ioChain,
-				double						inRemoveFromStart,
-				std::vector<Point3>&				outFront,
-				bool						inTrimOffAngle)
+void RemoveFromQuadStripFront(std::vector<Point3>& ioChain, double inRemoveFromStart, std::vector<Point3>& outFront,
+                              bool inTrimOffAngle)
 {
-	outFront.clear();
-	if (ioChain.size() < 4)	return;
+    outFront.clear();
+    if (ioChain.size() < 4)
+        return;
 
-//	double	left_first_dist = sqrt(Segment3(ioChain[1], ioChain[3]).squared_length());
-//	double	right_first_dist = sqrt(Segment3(ioChain[0], ioChain[2]).squared_length());
+    //	double	left_first_dist = sqrt(Segment3(ioChain[1], ioChain[3]).squared_length());
+    //	double	right_first_dist = sqrt(Segment3(ioChain[0], ioChain[2]).squared_length());
 
-	double	removeFromStartLeft = inRemoveFromStart, removeFromStartRight = inRemoveFromStart;
+    double removeFromStartLeft = inRemoveFromStart, removeFromStartRight = inRemoveFromStart;
 
-	if (inTrimOffAngle)
-	{
-		double	trim_dist = LongerSideOfQuad(ioChain);
-		if (trim_dist >= 0.0)
-			removeFromStartRight += trim_dist;
-		else
-			removeFromStartLeft -= trim_dist;
-	}
+    if (inTrimOffAngle)
+    {
+        double trim_dist = LongerSideOfQuad(ioChain);
+        if (trim_dist >= 0.0)
+            removeFromStartRight += trim_dist;
+        else
+            removeFromStartLeft -= trim_dist;
+    }
 
-	int	last_left = ioChain.size() - 1;
-	int last_right = ioChain.size() - 2;
-	int	left, right;
-	double	length, accum;
+    int last_left = ioChain.size() - 1;
+    int last_right = ioChain.size() - 2;
+    int left, right;
+    double length, accum;
 
-	if (inRemoveFromStart > 0.0)
-	{
-		Point3	left_split, right_split;
-		int		cut_left = -1, cut_right = -1;
-		accum = 0.0;
-		for (left = 1; left < last_left; left += 2)
-		{
-			Segment3	seg(ioChain[left], ioChain[left+2]);
-			length = sqrt(seg.squared_length());
+    if (inRemoveFromStart > 0.0)
+    {
+        Point3 left_split, right_split;
+        int cut_left = -1, cut_right = -1;
+        accum = 0.0;
+        for (left = 1; left < last_left; left += 2)
+        {
+            Segment3 seg(ioChain[left], ioChain[left + 2]);
+            length = sqrt(seg.squared_length());
 
-			if ((accum + length) > removeFromStartLeft)
-			{
-				left_split = seg.midpoint((removeFromStartLeft - accum) / length);
-				cut_left = left;
-				break;
-			} else
-				accum += length;
-		}
+            if ((accum + length) > removeFromStartLeft)
+            {
+                left_split = seg.midpoint((removeFromStartLeft - accum) / length);
+                cut_left = left;
+                break;
+            }
+            else
+                accum += length;
+        }
 
-		accum = 0.0;
-		for (right = 0; right < last_right; right += 2)
-		{
-			Segment3	seg(ioChain[right], ioChain[right+2]);
-			length = sqrt(seg.squared_length());
+        accum = 0.0;
+        for (right = 0; right < last_right; right += 2)
+        {
+            Segment3 seg(ioChain[right], ioChain[right + 2]);
+            length = sqrt(seg.squared_length());
 
-			if ((accum + length) >= removeFromStartRight)
-			{
-				right_split = seg.midpoint((removeFromStartRight - accum) / length);
-				cut_right = right;
-				break;
-			} else
-				accum += length;
-		}
+            if ((accum + length) >= removeFromStartRight)
+            {
+                right_split = seg.midpoint((removeFromStartRight - accum) / length);
+                cut_right = right;
+                break;
+            }
+            else
+                accum += length;
+        }
 
-		if (cut_left != -1 && cut_right != -1)
-		{
-			int		cut_proj_left = cut_right + 1;
-			int		vertices_to_copy = min(cut_proj_left, cut_left) + 1;
-			int		vertices_to_nuke = max(cut_proj_left, cut_left) + 1;
-			
-			outFront.insert(outFront.end(), ioChain.begin(), ioChain.begin() + vertices_to_copy);
-			ioChain.erase(ioChain.begin(), ioChain.begin() + vertices_to_nuke);
+        if (cut_left != -1 && cut_right != -1)
+        {
+            int cut_proj_left = cut_right + 1;
+            int vertices_to_copy = min(cut_proj_left, cut_left) + 1;
+            int vertices_to_nuke = max(cut_proj_left, cut_left) + 1;
 
+            outFront.insert(outFront.end(), ioChain.begin(), ioChain.begin() + vertices_to_copy);
+            ioChain.erase(ioChain.begin(), ioChain.begin() + vertices_to_nuke);
 
-			outFront.push_back(right_split);
-			outFront.push_back(left_split);
+            outFront.push_back(right_split);
+            outFront.push_back(left_split);
 
-			// If our split points _both_ hit on exactly the edge of a quad strip unit (damn unlikely)
-			// then our split points are the same as the start of the old strip.  Check this case.
-			// If they both match, no need to put the splits in.  But if one doesn't match, push back
-			// the point and accumulate a degenerate quad (a triangle).
-			if (ioChain[0] != right_split && ioChain[1] != left_split)
-			{
-				ioChain.insert(ioChain.begin(), left_split);
-				ioChain.insert(ioChain.begin(), right_split);
-			}
-		}
-	}
+            // If our split points _both_ hit on exactly the edge of a quad strip unit (damn unlikely)
+            // then our split points are the same as the start of the old strip.  Check this case.
+            // If they both match, no need to put the splits in.  But if one doesn't match, push back
+            // the point and accumulate a degenerate quad (a triangle).
+            if (ioChain[0] != right_split && ioChain[1] != left_split)
+            {
+                ioChain.insert(ioChain.begin(), left_split);
+                ioChain.insert(ioChain.begin(), right_split);
+            }
+        }
+    }
 }
 
-void	RemoveFromQuadStripBack(
-				std::vector<Point3>&				ioChain,
-				double						inRemoveFromEnd,
-				std::vector<Point3>&				outBack,
-				bool						inTrimOffAngle)
+void RemoveFromQuadStripBack(std::vector<Point3>& ioChain, double inRemoveFromEnd, std::vector<Point3>& outBack,
+                             bool inTrimOffAngle)
 {
-	ReverseQuadStrip(ioChain);
-	RemoveFromQuadStripFront(ioChain, inRemoveFromEnd, outBack, inTrimOffAngle);
-	ReverseQuadStrip(ioChain);
+    ReverseQuadStrip(ioChain);
+    RemoveFromQuadStripFront(ioChain, inRemoveFromEnd, outBack, inTrimOffAngle);
+    ReverseQuadStrip(ioChain);
 }
 
-double	LongerSideOfQuad(
-				const std::vector<Point3>&		inChain)
+double LongerSideOfQuad(const std::vector<Point3>& inChain)
 {
-	Vector3	left_v(inChain[3], inChain[1]);
-	Vector3	right_v(inChain[2], inChain[0]);
+    Vector3 left_v(inChain[3], inChain[1]);
+    Vector3 right_v(inChain[2], inChain[0]);
 
-	double	tl = left_v.dot(Vector3(inChain[3], inChain[0])) / left_v.dot(left_v);
-	double	tr = right_v.dot(Vector3(inChain[2], inChain[1])) / right_v.dot(right_v);
+    double tl = left_v.dot(Vector3(inChain[3], inChain[0])) / left_v.dot(left_v);
+    double tr = right_v.dot(Vector3(inChain[2], inChain[1])) / right_v.dot(right_v);
 
-	if (tl < 1.0)
-		return -sqrt(Segment3(inChain[1], inChain[3] + left_v * tl).squared_length());
-	else
-		return sqrt(Segment3(inChain[0], inChain[2] + right_v * tr).squared_length());
+    if (tl < 1.0)
+        return -sqrt(Segment3(inChain[1], inChain[3] + left_v * tl).squared_length());
+    else
+        return sqrt(Segment3(inChain[0], inChain[2] + right_v * tr).squared_length());
 }
 
-
-
-void	ClipToHalfPlane3(
-				const Polygon3&				inPolygon,
-				const Plane3&				inPlane,
-				Polygon3&					outPolygon)
+void ClipToHalfPlane3(const Polygon3& inPolygon, const Plane3& inPlane, Polygon3& outPolygon)
 {
-	outPolygon.clear();
-	if (inPolygon.empty()) return;
+    outPolygon.clear();
+    if (inPolygon.empty())
+        return;
 
-	bool culled = inPlane.on_normal_side(inPolygon[0]);
-	Point3	pt;
+    bool culled = inPlane.on_normal_side(inPolygon[0]);
+    Point3 pt;
 
-	for (int n = 0; n < inPolygon.size(); ++n)
-	{
-		int nn = (n + 1) % inPolygon.size();
-		Segment3	seg(inPolygon[n], inPolygon[nn]);
-		if (!culled)
-			outPolygon.push_back(inPolygon[n]);
-		if (inPlane.intersect(seg, pt))
-		{
-			if (pt != inPolygon[n] && pt != inPolygon[nn])
-				outPolygon.push_back(pt);
-			culled = !culled;
-		}
-	}
+    for (int n = 0; n < inPolygon.size(); ++n)
+    {
+        int nn = (n + 1) % inPolygon.size();
+        Segment3 seg(inPolygon[n], inPolygon[nn]);
+        if (!culled)
+            outPolygon.push_back(inPolygon[n]);
+        if (inPlane.intersect(seg, pt))
+        {
+            if (pt != inPolygon[n] && pt != inPolygon[nn])
+                outPolygon.push_back(pt);
+            culled = !culled;
+        }
+    }
 }
 
-bool	IntersectLinesAroundJunction(
-				const Line3&				inLine1,
-				const Line3&				inLine2,
-				const Point3&				inJunctionPt,
-				Point3&						outIntersection)
+bool IntersectLinesAroundJunction(const Line3& inLine1, const Line3& inLine2, const Point3& inJunctionPt,
+                                  Point3& outIntersection)
 {
-	if (inLine1.parallel(inLine2))	return false;
+    if (inLine1.parallel(inLine2))
+        return false;
 
-	Vector3	ground_plane_normal = inLine1.v.cross(inLine2.v);
-	ground_plane_normal.normalize();
+    Vector3 ground_plane_normal = inLine1.v.cross(inLine2.v);
+    ground_plane_normal.normalize();
 
-	Plane3	ground_plane(inJunctionPt, ground_plane_normal);
+    Plane3 ground_plane(inJunctionPt, ground_plane_normal);
 
-	Vector3	plane1_normal = inLine1.v.cross(ground_plane_normal);
-	Vector3	plane2_normal = inLine2.v.cross(ground_plane_normal);
+    Vector3 plane1_normal = inLine1.v.cross(ground_plane_normal);
+    Vector3 plane2_normal = inLine2.v.cross(ground_plane_normal);
 
-	Plane3	plane1(inLine1.p, plane1_normal);
-	Plane3	plane2(inLine2.p, plane2_normal);
+    Plane3 plane1(inLine1.p, plane1_normal);
+    Plane3 plane2(inLine2.p, plane2_normal);
 
-	Line3	plane_crossing;
-	if (plane1.intersect(plane2, plane_crossing))
-	{
-		return ground_plane.intersect(plane_crossing, outIntersection);
-	} else
-		return false;
+    Line3 plane_crossing;
+    if (plane1.intersect(plane2, plane_crossing))
+    {
+        return ground_plane.intersect(plane_crossing, outIntersection);
+    }
+    else
+        return false;
 }
 
-bool	Span_Horizontal_CCW(const Vector2& v1, const Vector2& v2)
+bool Span_Horizontal_CCW(const Vector2& v1, const Vector2& v2)
 {
-	DebugAssert(v1.dx != 0.0 || v1.dy != 0.0);		// No zero length allowed.
-	DebugAssert(v2.dx != 0.0 || v2.dy != 0.0);
-	DebugAssert(v1.dy != 0.0 || v1.dx < 0.0);		// Can't be horizontal facing to the right - that's our "test" pooint.
-	DebugAssert(v2.dy != 0.0 || v2.dx < 0.0);
-	DebugAssert(v1.dy != 0.0 || v2.dy != 0.0);		// Can't both be horizontal - they'd both be to the left.
+    DebugAssert(v1.dx != 0.0 || v1.dy != 0.0); // No zero length allowed.
+    DebugAssert(v2.dx != 0.0 || v2.dy != 0.0);
+    DebugAssert(v1.dy != 0.0 || v1.dx < 0.0); // Can't be horizontal facing to the right - that's our "test" pooint.
+    DebugAssert(v2.dy != 0.0 || v2.dx < 0.0);
+    DebugAssert(v1.dy != 0.0 || v2.dy != 0.0); // Can't both be horizontal - they'd both be to the left.
 
-	// Special case horizontal...if the first or second line is horizontal to the left we just have to know which hemisphere the other is in.
-	if(v1.dy == 0.0)	return v2.dy > 0.0;
-	if(v2.dy == 0.0)	return v1.dy < 0.0;
+    // Special case horizontal...if the first or second line is horizontal to the left we just have to know which
+    // hemisphere the other is in.
+    if (v1.dy == 0.0)
+        return v2.dy > 0.0;
+    if (v2.dy == 0.0)
+        return v1.dy < 0.0;
 
-	if(v1.dy > 0.0 && v2.dy < 0.0)	return false;
-	if(v1.dy < 0.0 && v2.dy > 0.0)	return true;
-	return v2.perpendicular_ccw().dot(v1) > 0.0;
+    if (v1.dy > 0.0 && v2.dy < 0.0)
+        return false;
+    if (v1.dy < 0.0 && v2.dy > 0.0)
+        return true;
+    return v2.perpendicular_ccw().dot(v1) > 0.0;
 }
-
 
 // TODO: theoretically lack of atan2 precision can cause this to have problems.
 // Pragmatically I'm not sure this happens, but it'd be better to solve it
 // by case-by-case analysis.
 
-bool	Is_CCW_Between(const Vector2& v1, const Vector2& v2, const Vector2& v3)
+bool Is_CCW_Between(const Vector2& v1, const Vector2& v2, const Vector2& v3)
 {
-	double	angle1 = atan2(v1.dy, v1.dx);
-	double	angle2 = atan2(v2.dy, v2.dx);
-	double	angle3 = atan2(v3.dy, v3.dx);
+    double angle1 = atan2(v1.dy, v1.dx);
+    double angle2 = atan2(v2.dy, v2.dx);
+    double angle3 = atan2(v3.dy, v3.dx);
 
-	// Special case...if angle 1 and 3 are the same, then treat the whole circle as
-	// inside and always return true.  This is important when an antenna gets near its
-	// end...the two choices are a return path equal to the current path and an alternate
-	// continuation.  We have to take the continuation or we'll orphan the antenna, which blows.
-	// Is this computationally safe?  It is because two vectors of equal angle will be overlapping
-	// and are therefore two sides of the same edge.  They MUST have the same extent in opposite
-	// direction by topological rules, so their angles should be deterministically the same!
-	if (angle1 == angle3)
-		return true;
-	// This was a special case to try to detect funky data.
-	if (angle1 == angle2 || angle3 == angle2)
-	{
+    // Special case...if angle 1 and 3 are the same, then treat the whole circle as
+    // inside and always return true.  This is important when an antenna gets near its
+    // end...the two choices are a return path equal to the current path and an alternate
+    // continuation.  We have to take the continuation or we'll orphan the antenna, which blows.
+    // Is this computationally safe?  It is because two vectors of equal angle will be overlapping
+    // and are therefore two sides of the same edge.  They MUST have the same extent in opposite
+    // direction by topological rules, so their angles should be deterministically the same!
+    if (angle1 == angle3)
+        return true;
+    // This was a special case to try to detect funky data.
+    if (angle1 == angle2 || angle3 == angle2)
+    {
 #if DEV
-		printf("WARNING: trying to place a std::vector that overlaps one of the edges.\n");
-		printf("Vec1: %lf,%lf\n", v1.dx, v1.dy);
-		printf("Vec2: %lf,%lf\n", v2.dx, v2.dy);
-		printf("Vec3: %lf,%lf\n", v3.dx, v3.dy);
+        printf("WARNING: trying to place a std::vector that overlaps one of the edges.\n");
+        printf("Vec1: %lf,%lf\n", v1.dx, v1.dy);
+        printf("Vec2: %lf,%lf\n", v2.dx, v2.dy);
+        printf("Vec3: %lf,%lf\n", v3.dx, v3.dy);
 #endif
-		return true;
-	}
+        return true;
+    }
 
-	// Normalize all angles to be from 0 to 360.
-	if (angle1 <= -M_PI)	angle1 += M_PI * 2.0;
-	if (angle2 <= -M_PI)	angle2 += M_PI * 2.0;
-	if (angle3 <= -M_PI)	angle3 += M_PI * 2.0;
+    // Normalize all angles to be from 0 to 360.
+    if (angle1 <= -M_PI)
+        angle1 += M_PI * 2.0;
+    if (angle2 <= -M_PI)
+        angle2 += M_PI * 2.0;
+    if (angle3 <= -M_PI)
+        angle3 += M_PI * 2.0;
 
-	// Special case - if we have to increase BOTH angle 2 and 3,
-	// we know that (1) angle 1 will be smaller than angle 2 after the increase AND
-	// (2) the compare of angle 2 and 3 is the smae whether or not we add.
-	// BUT adding PI2 causes floating point rounding to give us wrong answers for a few
-	// rare cases.  So special-case this to avoid the add.
-	if (angle2 < angle1 && angle3 < angle1)
-	{
-		return angle2 < angle3;
-	}
+    // Special case - if we have to increase BOTH angle 2 and 3,
+    // we know that (1) angle 1 will be smaller than angle 2 after the increase AND
+    // (2) the compare of angle 2 and 3 is the smae whether or not we add.
+    // BUT adding PI2 causes floating point rounding to give us wrong answers for a few
+    // rare cases.  So special-case this to avoid the add.
+    if (angle2 < angle1 && angle3 < angle1)
+    {
+        return angle2 < angle3;
+    }
 
-	// Normalize angles 2 and 3 to be at least as big as angle 1 (represents counterclockwise rotation
-	// from angle 1), even if exceeds 360.
-	if (angle2 < angle1)	angle2 += M_PI * 2.0;
-	if (angle3 < angle1)	angle3 += M_PI * 2.0;
+    // Normalize angles 2 and 3 to be at least as big as angle 1 (represents counterclockwise rotation
+    // from angle 1), even if exceeds 360.
+    if (angle2 < angle1)
+        angle2 += M_PI * 2.0;
+    if (angle3 < angle1)
+        angle3 += M_PI * 2.0;
 
-	// Now if the headings go 1 2 3 we're CCW.
-	return (angle1 < angle2 && angle2 < angle3);
+    // Now if the headings go 1 2 3 we're CCW.
+    return (angle1 < angle2 && angle2 < angle3);
 }
 
 #if 0
@@ -1328,155 +1326,157 @@ static void PmwxToPoly(const Pmwx& inMap, Polygon2& outPoly)
 
 #endif
 
-Point2	CoordTranslator2::Forward(const Point2& input) const
+Point2 CoordTranslator2::Forward(const Point2& input) const
 {
-	double x = mDstMin.x();
-	if (mSrcMax.x() != mSrcMin.x())
-		x += (input.x() - mSrcMin.x()) * (mDstMax.x() - mDstMin.x()) / (mSrcMax.x() - mSrcMin.x());
+    double x = mDstMin.x();
+    if (mSrcMax.x() != mSrcMin.x())
+        x += (input.x() - mSrcMin.x()) * (mDstMax.x() - mDstMin.x()) / (mSrcMax.x() - mSrcMin.x());
 
-	double y = mDstMin.y();
-	if (mSrcMax.y() != mSrcMin.y())
-		y += (input.y() - mSrcMin.y()) * (mDstMax.y() - mDstMin.y()) / (mSrcMax.y() - mSrcMin.y());
+    double y = mDstMin.y();
+    if (mSrcMax.y() != mSrcMin.y())
+        y += (input.y() - mSrcMin.y()) * (mDstMax.y() - mDstMin.y()) / (mSrcMax.y() - mSrcMin.y());
 
-	return Point2(x, y);
+    return Point2(x, y);
 }
-Point2	CoordTranslator2::Reverse(const Point2& input) const
+Point2 CoordTranslator2::Reverse(const Point2& input) const
 {
-	double x = mSrcMin.x();
-	if (mDstMax.x() != mDstMin.x())
-		x += (input.x() - mDstMin.x()) * (mSrcMax.x() - mSrcMin.x()) / (mDstMax.x() - mDstMin.x());
+    double x = mSrcMin.x();
+    if (mDstMax.x() != mDstMin.x())
+        x += (input.x() - mDstMin.x()) * (mSrcMax.x() - mSrcMin.x()) / (mDstMax.x() - mDstMin.x());
 
-	double y = mSrcMin.y();
-	if (mDstMax.y() != mDstMin.y())
-		y += (input.y() - mDstMin.y()) * (mSrcMax.y() - mSrcMin.y()) / (mDstMax.y() - mDstMin.y());
+    double y = mSrcMin.y();
+    if (mDstMax.y() != mDstMin.y())
+        y += (input.y() - mDstMin.y()) * (mSrcMax.y() - mSrcMin.y()) / (mDstMax.y() - mDstMin.y());
 
-	return Point2(x, y);
+    return Point2(x, y);
 }
 
-
-// polygon subtraction often result in the countour still having zero-width "excursions" or the contour "backtracking on itself", i.e. three subsequent points having
-// the third exactly on the line from the first to the second. Clean those out by skipping the 2nd point.
+// polygon subtraction often result in the countour still having zero-width "excursions" or the contour "backtracking on
+// itself", i.e. three subsequent points having the third exactly on the line from the first to the second. Clean those
+// out by skipping the 2nd point.
 
 static void Polygon2cleaner(Polygon2& poly) // this needs to be ideally done in meterspace
 {
-	for(int n = 0; n < poly.size(); n++)
-	{
-//		printf("%lf %lf  %lf %lf  %lf %lf\n",poly.at(n).x(), poly.at(n).y(), poly.at(n+1).x(), poly.at(n+1).y(), poly[n+2].x(), poly[n+2].y());
-//		printf("%2d (%8.3lf) dist to %2d %8.3lf\n", n, 1.0e5*sqrt(poly.side(n).squared_length()),  (n+2) % poly.size(), 1.0e5*sqrt(poly.side(n).squared_distance(poly[(n+2) % poly.size()])));
-//		printf("%2d            dist to %2d %8.3lf\n", n, (n+3) % poly.size(), 1.0e5*sqrt(poly.side(n).squared_distance(poly[(n+3) % poly.size()])));
-		if(poly.side(n).squared_distance(poly[(n+2) % poly.size()]) < 1e-12) // if its degree's - amounts to about 0.1 meter
-		{
-			for(int m = n + 1; m < poly.size() - 1; m++)
-				poly[m] = poly[m+1];
-			poly.pop_back();
-			n--;  // do it over - but now we're effectively testing against the next point after
-		}
-	}
+    for (int n = 0; n < poly.size(); n++)
+    {
+        //		printf("%lf %lf  %lf %lf  %lf %lf\n",poly.at(n).x(), poly.at(n).y(), poly.at(n+1).x(), poly.at(n+1).y(),
+        // poly[n+2].x(), poly[n+2].y()); 		printf("%2d (%8.3lf) dist to %2d %8.3lf\n",
+        // n, 1.0e5*sqrt(poly.side(n).squared_length()),  (n+2) %
+        // poly.size(), 1.0e5*sqrt(poly.side(n).squared_distance(poly[(n+2) % poly.size()]))); 		printf("%2d dist to
+        // %2d %8.3lf\n", n, (n+3) % poly.size(), 1.0e5*sqrt(poly.side(n).squared_distance(poly[(n+3) % poly.size()])));
+        if (poly.side(n).squared_distance(poly[(n + 2) % poly.size()]) <
+            1e-12) // if its degree's - amounts to about 0.1 meter
+        {
+            for (int m = n + 1; m < poly.size() - 1; m++)
+                poly[m] = poly[m + 1];
+            poly.pop_back();
+            n--; // do it over - but now we're effectively testing against the next point after
+        }
+    }
 }
 
 std::vector<Polygon2> PolygonIntersect(const std::vector<Polygon2>& mpolyA, const std::vector<Polygon2>& mpolyB)
 {
-//printf("intersect A %d B %d\n", mpolyA.size()	,mpolyB.size());
-	std::vector<Polygon2> mpoly;
-	TESStesselator * tess = tessNewTess(NULL);
+    // printf("intersect A %d B %d\n", mpolyA.size()	,mpolyB.size());
+    std::vector<Polygon2> mpoly;
+    TESStesselator* tess = tessNewTess(NULL);
 
-	for(auto& poly : mpolyA)
-		tessAddContour(tess, 2, poly.data(), 2 * sizeof(TESSreal), poly.size());
+    for (auto& poly : mpolyA)
+        tessAddContour(tess, 2, poly.data(), 2 * sizeof(TESSreal), poly.size());
 
-	for(auto& poly : mpolyB)
-		tessAddContour(tess, 2, poly.data(), 2 * sizeof(TESSreal), poly.size());
+    for (auto& poly : mpolyB)
+        tessAddContour(tess, 2, poly.data(), 2 * sizeof(TESSreal), poly.size());
 
-	if(tessTesselate(tess, TESS_WINDING_ABS_GEQ_TWO, TESS_BOUNDARY_CONTOURS, 3, 2, 0))
-	{
-		int contours = tessGetElementCount(tess);
-		const TESSindex* elems = tessGetElements(tess);
-		const TESSreal * verts = tessGetVertices(tess);
+    if (tessTesselate(tess, TESS_WINDING_ABS_GEQ_TWO, TESS_BOUNDARY_CONTOURS, 3, 2, 0))
+    {
+        int contours = tessGetElementCount(tess);
+        const TESSindex* elems = tessGetElements(tess);
+        const TESSreal* verts = tessGetVertices(tess);
 
-		for(int c = 0; c < contours; c++)
-		{
-			mpoly.push_back(Polygon2());
-			int start = elems[c * 2];
-			int last  = start + elems[c * 2 + 1];
-			mpoly.back().reserve(last - start);
-			for (int i = start; i < last; i++)
-				mpoly.back().push_back(Point2(verts[i * 2], verts[i * 2 + 1]));
-			Polygon2cleaner(mpoly.back());
-		}
-	}
-	tessDeleteTess(tess);
-	return mpoly;
+        for (int c = 0; c < contours; c++)
+        {
+            mpoly.push_back(Polygon2());
+            int start = elems[c * 2];
+            int last = start + elems[c * 2 + 1];
+            mpoly.back().reserve(last - start);
+            for (int i = start; i < last; i++)
+                mpoly.back().push_back(Point2(verts[i * 2], verts[i * 2 + 1]));
+            Polygon2cleaner(mpoly.back());
+        }
+    }
+    tessDeleteTess(tess);
+    return mpoly;
 }
-
 
 std::vector<Polygon2> PolygonUnion(const std::vector<Polygon2>& mpolyA, const std::vector<Polygon2>& mpolyB)
 {
-	std::vector<Polygon2> mpoly;
-	TESStesselator * tess = tessNewTess(NULL);
-	
-	for(auto& poly : mpolyA)
-		tessAddContour(tess, 2, poly.data(), 2 * sizeof(TESSreal), poly.size());
+    std::vector<Polygon2> mpoly;
+    TESStesselator* tess = tessNewTess(NULL);
 
-	for(auto& poly : mpolyB)
-		tessAddContour(tess, 2, poly.data(), 2 * sizeof(TESSreal), poly.size());
+    for (auto& poly : mpolyA)
+        tessAddContour(tess, 2, poly.data(), 2 * sizeof(TESSreal), poly.size());
 
-	if(tessTesselate(tess, TESS_WINDING_POSITIVE, TESS_BOUNDARY_CONTOURS, 3, 2, 0))
-	{
-		int contours = tessGetElementCount(tess);
-		const TESSindex* elems = tessGetElements(tess);
-		const TESSreal * verts = tessGetVertices(tess);
+    for (auto& poly : mpolyB)
+        tessAddContour(tess, 2, poly.data(), 2 * sizeof(TESSreal), poly.size());
 
-		for(int c = 0; c < contours; c++)
-		{
-			mpoly.push_back(Polygon2());
-			int start = elems[c * 2];
-			int last  = start + elems[c * 2 + 1];
-			mpoly.back().reserve(last - start);
-			for (int i = start; i < last; i++)
-				mpoly.back().push_back(Point2(verts[i * 2], verts[i * 2 + 1]));
-		}
-	}
-	tessDeleteTess(tess);
-	return mpoly;
+    if (tessTesselate(tess, TESS_WINDING_POSITIVE, TESS_BOUNDARY_CONTOURS, 3, 2, 0))
+    {
+        int contours = tessGetElementCount(tess);
+        const TESSindex* elems = tessGetElements(tess);
+        const TESSreal* verts = tessGetVertices(tess);
+
+        for (int c = 0; c < contours; c++)
+        {
+            mpoly.push_back(Polygon2());
+            int start = elems[c * 2];
+            int last = start + elems[c * 2 + 1];
+            mpoly.back().reserve(last - start);
+            for (int i = start; i < last; i++)
+                mpoly.back().push_back(Point2(verts[i * 2], verts[i * 2 + 1]));
+        }
+    }
+    tessDeleteTess(tess);
+    return mpoly;
 }
 
 std::vector<Polygon2> PolygonCut(const std::vector<Polygon2>& mpolyA, const std::vector<Polygon2>& mpolyB)
 {
-	std::vector<Polygon2> mpoly;
-	TESStesselator * tess = tessNewTess(NULL);
-//printf("cut A %d B %d\n", mpolyA.size()	,mpolyB.size());
-	for(auto& poly : mpolyA)
-		tessAddContour(tess, 2, poly.data(), 2 * sizeof(TESSreal), poly.size());
+    std::vector<Polygon2> mpoly;
+    TESStesselator* tess = tessNewTess(NULL);
+    // printf("cut A %d B %d\n", mpolyA.size()	,mpolyB.size());
+    for (auto& poly : mpolyA)
+        tessAddContour(tess, 2, poly.data(), 2 * sizeof(TESSreal), poly.size());
 
-	for(auto& poly : mpolyB)
-	{
-		std::vector<Point2>inv_pts;
-		inv_pts.reserve(poly.size());
-//if(poly.is_ccw()) printf("B CCW %d\n",poly.size()); else printf("B CW %d\n",poly.size());
-		for(auto p = poly.rbegin(); p != poly.rend(); p++)
-			inv_pts.push_back(*p);
-		if(!inv_pts.empty())
-			tessAddContour(tess, 2, inv_pts.data(), 2 * sizeof(TESSreal), poly.size());
-	}
+    for (auto& poly : mpolyB)
+    {
+        std::vector<Point2> inv_pts;
+        inv_pts.reserve(poly.size());
+        // if(poly.is_ccw()) printf("B CCW %d\n",poly.size()); else printf("B CW %d\n",poly.size());
+        for (auto p = poly.rbegin(); p != poly.rend(); p++)
+            inv_pts.push_back(*p);
+        if (!inv_pts.empty())
+            tessAddContour(tess, 2, inv_pts.data(), 2 * sizeof(TESSreal), poly.size());
+    }
 
-	if(tessTesselate(tess, TESS_WINDING_POSITIVE, TESS_BOUNDARY_CONTOURS, 3, 2, 0))
-	{
-		int contours = tessGetElementCount(tess);
-		const TESSindex* elems = tessGetElements(tess);
-		const TESSreal * verts = tessGetVertices(tess);
+    if (tessTesselate(tess, TESS_WINDING_POSITIVE, TESS_BOUNDARY_CONTOURS, 3, 2, 0))
+    {
+        int contours = tessGetElementCount(tess);
+        const TESSindex* elems = tessGetElements(tess);
+        const TESSreal* verts = tessGetVertices(tess);
 
-		for(int c = 0; c < contours; c++)
-		{
-			mpoly.push_back(Polygon2());
-			int start = elems[c * 2];
-			int last  = start + elems[c * 2 + 1];
-			mpoly.back().reserve(last - start);
-			for (int i = start; i < last; i++)
-				mpoly.back().push_back(Point2(verts[i * 2], verts[i * 2 + 1]));
-//if(mpoly.back().is_ccw()) printf("O CCW %d\n",mpoly.back().size()); else printf("O CW %d\n",mpoly.back().size());
-			Polygon2cleaner(mpoly.back());
-		}
-	}
-	tessDeleteTess(tess);
-	return mpoly;
+        for (int c = 0; c < contours; c++)
+        {
+            mpoly.push_back(Polygon2());
+            int start = elems[c * 2];
+            int last = start + elems[c * 2 + 1];
+            mpoly.back().reserve(last - start);
+            for (int i = start; i < last; i++)
+                mpoly.back().push_back(Point2(verts[i * 2], verts[i * 2 + 1]));
+            // if(mpoly.back().is_ccw()) printf("O CCW %d\n",mpoly.back().size()); else printf("O CW
+            // %d\n",mpoly.back().size());
+            Polygon2cleaner(mpoly.back());
+        }
+    }
+    tessDeleteTess(tess);
+    return mpoly;
 }
-

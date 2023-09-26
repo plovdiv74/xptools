@@ -24,62 +24,63 @@
 #ifndef WED_Colors_H
 #define WED_Colors_H
 
-enum WED_Color {
-	wed_Map_Matte,
-	wed_Map_Gridlines,
-	wed_Map_Bkgnd,
+enum WED_Color
+{
+    wed_Map_Matte,
+    wed_Map_Gridlines,
+    wed_Map_Bkgnd,
 
-	wed_Structure,
-	wed_StructureSelected,
-	wed_StructureLocked,
-	wed_StructureLockedSelected,
+    wed_Structure,
+    wed_StructureSelected,
+    wed_StructureLocked,
+    wed_StructureLockedSelected,
 
-	wed_ControlHandle,
-	wed_Link,
-	wed_ControlLink,
-	wed_GhostLink,
-	wed_Marquee,
+    wed_ControlHandle,
+    wed_Link,
+    wed_ControlLink,
+    wed_GhostLink,
+    wed_Marquee,
 
-	wed_Surface_Asphalt,
-	wed_Surface_Concrete,
-	wed_Surface_Grass,
-	wed_Surface_Dirt,
-	wed_Surface_Gravel,
-	wed_Surface_DryLake,
-	wed_Surface_Water,
-	wed_Surface_Snow,
-	wed_Surface_Transparent,
+    wed_Surface_Asphalt,
+    wed_Surface_Concrete,
+    wed_Surface_Grass,
+    wed_Surface_Dirt,
+    wed_Surface_Gravel,
+    wed_Surface_DryLake,
+    wed_Surface_Water,
+    wed_Surface_Snow,
+    wed_Surface_Transparent,
 
-	wed_Table_Gridlines,
-	wed_Table_Text,
-	wed_Table_Select,
-	wed_Table_SelectText,
-	wed_Table_Drag_Insert,
-	wed_Table_Drag_Into,
-	wed_Header_Text,
-	wed_Tabs_Text,
-	wed_PropertyBar_Text,
+    wed_Table_Gridlines,
+    wed_Table_Text,
+    wed_Table_Select,
+    wed_Table_SelectText,
+    wed_Table_Drag_Insert,
+    wed_Table_Drag_Into,
+    wed_Header_Text,
+    wed_Tabs_Text,
+    wed_PropertyBar_Text,
 
-	wed_TextField_Bkgnd,
-	wed_TextField_Text,
-	wed_TextField_Hilite,
-	wed_TextField_FocusRing,
-	
-	wed_Runway,						// In a future version these will be used to color airport taxi routing lines for some of their special properties.
-	wed_Runway_Selected,
-	wed_Hotzone,
-	wed_Hotzone_Selected,
-	wed_ILSzone,
-	wed_ILSzone_Selected,
+    wed_TextField_Bkgnd,
+    wed_TextField_Text,
+    wed_TextField_Hilite,
+    wed_TextField_FocusRing,
 
-	wed_pure_white,            // like runway markings/thresholds etc
+    wed_Runway, // In a future version these will be used to color airport taxi routing lines for some of their special
+                // properties.
+    wed_Runway_Selected,
+    wed_Hotzone,
+    wed_Hotzone_Selected,
+    wed_ILSzone,
+    wed_ILSzone_Selected,
 
-	wed_Last
+    wed_pure_white, // like runway markings/thresholds etc
+
+    wed_Last
 };
 
-float *		WED_Color_RGBA		(WED_Color c);
-float *		WED_Color_RGBA_Alpha(WED_Color c, float alpha, float storage[4]);
-float *		WED_Color_Surface	(int surface, float alpha, float storage[4]);
-
+float* WED_Color_RGBA(WED_Color c);
+float* WED_Color_RGBA_Alpha(WED_Color c, float alpha, float storage[4]);
+float* WED_Color_Surface(int surface, float alpha, float storage[4]);
 
 #endif /* WED_Colors_H */

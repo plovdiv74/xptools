@@ -22,12 +22,12 @@
  */
 
 #include "WED_Ring.h"
-//#include "WED_AirportNode.h"
+// #include "WED_AirportNode.h"
 
 DEFINE_PERSISTENT(WED_Ring)
 TRIVIAL_COPY(WED_Ring, WED_GISChain)
 
-WED_Ring::WED_Ring(WED_Archive * a, int i) : WED_GISChain(a,i)
+WED_Ring::WED_Ring(WED_Archive* a, int i) : WED_GISChain(a, i)
 {
 }
 
@@ -38,39 +38,38 @@ WED_Ring::~WED_Ring()
 /*
 IGISPoint *	WED_Ring::SplitSide   (int n)
 {
-	int c = GetNumSides();
-	if (n > c) return NULL;
+    int c = GetNumSides();
+    if (n > c) return NULL;
 
-	Bezier2		b;
-	if (GetSide(n, b))
-	{
-		WED_AirportNode * node = WED_AirportNode::CreateTyped(GetArchive());
+    Bezier2		b;
+    if (GetSide(n, b))
+    {
+        WED_AirportNode * node = WED_AirportNode::CreateTyped(GetArchive());
 
-		Bezier2	b1, b2;
-		b.partition(b1,b2,0.5);
+        Bezier2	b1, b2;
+        b.partition(b1,b2,0.5);
 
-		node->SetLocation(b2.p1);
-		node->SetControlHandleHi(b2.c1);
+        node->SetLocation(b2.p1);
+        node->SetControlHandleHi(b2.c1);
 
-		node->SetParent(this, n+1);
-		return node;
+        node->SetParent(this, n+1);
+        return node;
 
-	} else {
+    } else {
 
-		WED_AirportNode * node = WED_AirportNode::CreateTyped(GetArchive());
+        WED_AirportNode * node = WED_AirportNode::CreateTyped(GetArchive());
 
-		node->SetLocation(s.midpoint(0.5));
-		node->SetControlHandleHi(s.midpoint(0.5));
+        node->SetLocation(s.midpoint(0.5));
+        node->SetControlHandleHi(s.midpoint(0.5));
 
-		node->SetParent(this, n+1);
-		return node;
-	}
+        node->SetParent(this, n+1);
+        return node;
+    }
 
 }
 */
 
-bool	 WED_Ring::IsClosed	(void	) const
+bool WED_Ring::IsClosed(void) const
 {
-	return true;
+    return true;
 }
-

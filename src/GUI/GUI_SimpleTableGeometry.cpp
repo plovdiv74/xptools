@@ -25,109 +25,119 @@
 #include "GUI_Messages.h"
 #include "GUI_Fonts.h"
 
-GUI_SimpleTableGeometry::GUI_SimpleTableGeometry(
-			int		num_cols,
-	const	int *	default_col_widths,
-			int		row_height)
+GUI_SimpleTableGeometry::GUI_SimpleTableGeometry(int num_cols, const int* default_col_widths, int row_height)
 {
-	mRowHeight = row_height;
-	mCols.resize(num_cols);
-	int p = 0;
-	for (int n = 0; n < num_cols; ++n)
-	{
-		p += default_col_widths[n];
-		mCols[n] = p;
-	}
+    mRowHeight = row_height;
+    mCols.resize(num_cols);
+    int p = 0;
+    for (int n = 0; n < num_cols; ++n)
+    {
+        p += default_col_widths[n];
+        mCols[n] = p;
+    }
 }
 
 GUI_SimpleTableGeometry::~GUI_SimpleTableGeometry()
 {
 }
 
-//int			GUI_SimpleTableGeometry::GetColCount(void)
+// int			GUI_SimpleTableGeometry::GetColCount(void)
 //{
 //	return mCols.size();
-//}
+// }
 
-int			GUI_SimpleTableGeometry::GetCellLeft (int n)
+int GUI_SimpleTableGeometry::GetCellLeft(int n)
 {
-	if(n > 0) ExtendTo(n-1);
-	return (n == 0) ? 0 : mCols[n-1];
+    if (n > 0)
+        ExtendTo(n - 1);
+    return (n == 0) ? 0 : mCols[n - 1];
 }
 
-int			GUI_SimpleTableGeometry::GetCellRight(int n)
+int GUI_SimpleTableGeometry::GetCellRight(int n)
 {
-	ExtendTo(n);
-	return mCols[n];
+    ExtendTo(n);
+    return mCols[n];
 }
 
-int			GUI_SimpleTableGeometry::GetCellWidth(int n)
+int GUI_SimpleTableGeometry::GetCellWidth(int n)
 {
-	ExtendTo(n);
-	return (n == 0) ? mCols[0] : (mCols[n] - mCols[n-1]);
+    ExtendTo(n);
+    return (n == 0) ? mCols[0] : (mCols[n] - mCols[n - 1]);
 }
 
-int			GUI_SimpleTableGeometry::GetCellBottom(int n)
+int GUI_SimpleTableGeometry::GetCellBottom(int n)
 {
-	return n * GUI_SimpleTableGeometry::GetCellHeight(n);
+    return n * GUI_SimpleTableGeometry::GetCellHeight(n);
 }
 
-int			GUI_SimpleTableGeometry::GetCellTop	 (int n)
+int GUI_SimpleTableGeometry::GetCellTop(int n)
 {
-	return (n+1) * GUI_SimpleTableGeometry::GetCellHeight(n);
+    return (n + 1) * GUI_SimpleTableGeometry::GetCellHeight(n);
 }
 
-int			GUI_SimpleTableGeometry::GetCellHeight(int n)
+int GUI_SimpleTableGeometry::GetCellHeight(int n)
 {
-	return mRowHeight ? mRowHeight : GUI_GetLineHeight(font_UI_Basic) + 4.0f;  // allow for 2 pix margin, top+bottom
+    return mRowHeight ? mRowHeight : GUI_GetLineHeight(font_UI_Basic) + 4.0f; // allow for 2 pix margin, top+bottom
 }
 
-int			GUI_SimpleTableGeometry::ColForX(int n)
+int GUI_SimpleTableGeometry::ColForX(int n)
 {
-	std::vector<int>::iterator i = lower_bound(mCols.begin(),mCols.end(),n);
-	if (i == mCols.end()) return (int) mCols.size()-1;
-	int p = distance(mCols.begin(),i);
-	if (n == *i) ++p;
-	if (p == mCols.size()) return (int)mCols.size()-1;
-	return p;
+    std::vector<int>::iterator i = lower_bound(mCols.begin(), mCols.end(), n);
+    if (i == mCols.end())
+        return (int)mCols.size() - 1;
+    int p = distance(mCols.begin(), i);
+    if (n == *i)
+        ++p;
+    if (p == mCols.size())
+        return (int)mCols.size() - 1;
+    return p;
 }
 
-int			GUI_SimpleTableGeometry::RowForY(int n)
+int GUI_SimpleTableGeometry::RowForY(int n)
 {
-	if(n < 0) return -1; //Fixes being able to click an imaginary last cell and select the real last cell
-	return n / GUI_SimpleTableGeometry::GetCellHeight(n);
+    if (n < 0)
+        return -1; // Fixes being able to click an imaginary last cell and select the real last cell
+    return n / GUI_SimpleTableGeometry::GetCellHeight(n);
 }
 
-bool		GUI_SimpleTableGeometry::CanSetCellWidth (void) const { return true; }
-
-void		GUI_SimpleTableGeometry::SetCellWidth (int n, int w)
+bool GUI_SimpleTableGeometry::CanSetCellWidth(void) const
 {
-	if (w < 5) w = 5;
-	ExtendTo(n);
-	int delta = w - GetCellWidth(n);
-	for (int i = n; i < mCols.size(); ++i)
-		mCols[i] += delta;
-//	BroadcastMessage(GUI_TABLE_SHAPE_RESIZED, 0);
+    return true;
 }
 
-bool		GUI_SimpleTableGeometry::CanSetCellHeight(void) const { return false; }
+void GUI_SimpleTableGeometry::SetCellWidth(int n, int w)
+{
+    if (w < 5)
+        w = 5;
+    ExtendTo(n);
+    int delta = w - GetCellWidth(n);
+    for (int i = n; i < mCols.size(); ++i)
+        mCols[i] += delta;
+    //	BroadcastMessage(GUI_TABLE_SHAPE_RESIZED, 0);
+}
 
-void		GUI_SimpleTableGeometry::SetCellHeight(int n, int h)
+bool GUI_SimpleTableGeometry::CanSetCellHeight(void) const
+{
+    return false;
+}
+
+void GUI_SimpleTableGeometry::SetCellHeight(int n, int h)
 {
 }
 
-void		GUI_SimpleTableGeometry::ExtendTo(int n)
+void GUI_SimpleTableGeometry::ExtendTo(int n)
 {
-	if (n < mCols.size()) return;
-	int last_width = mCols[mCols.size()-1] - mCols[mCols.size()-2];
-	int pos = mCols[mCols.size()-1];
+    if (n < mCols.size())
+        return;
+    int last_width = mCols[mCols.size() - 1] - mCols[mCols.size() - 2];
+    int pos = mCols[mCols.size() - 1];
 
-	int num_to_add = n + 1 - mCols.size();
+    int num_to_add = n + 1 - mCols.size();
 
-	while (num_to_add > 0)
-	{
-		pos += last_width;
-		mCols.push_back(pos);
-		--num_to_add;
-	}
+    while (num_to_add > 0)
+    {
+        pos += last_width;
+        mCols.push_back(pos);
+        --num_to_add;
+    }
 }

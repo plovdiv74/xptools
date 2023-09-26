@@ -28,100 +28,101 @@
 #include <vector>
 
 /*
-	WED_PerspectiveCamera
+    WED_PerspectiveCamera
 
-	An implementation of WED_Camera that uses a perspective projection.
+    An implementation of WED_Camera that uses a perspective projection.
 */
 
-class WED_PerspectiveCamera : public WED_Camera {
+class WED_PerspectiveCamera : public WED_Camera
+{
 public:
-	// Initializes the camera with near and far clip planes at the given distances in meters.
-	WED_PerspectiveCamera(double nearClip, double farClip);
+    // Initializes the camera with near and far clip planes at the given distances in meters.
+    WED_PerspectiveCamera(double nearClip, double farClip);
 
-	// Moves the camera to the given position.
-	void MoveTo(const Point3& position);
+    // Moves the camera to the given position.
+    void MoveTo(const Point3& position);
 
-	// Sets the camera's "forward" std::vector, which points into the screen.
-	void SetForward(const Vector3& forward);
+    // Sets the camera's "forward" std::vector, which points into the screen.
+    void SetForward(const Vector3& forward);
 
-	// Sets the field of view and screen resolution.
-	// `horiztontalFovDeg` is the horizontal field of view in degrees. `viewportWidth` and `viewportHeight`
-	// are the size of the viewport in pixels.
-	void SetFOV(double horizontalFovDeg, double viewportWidth, double viewportHeight);
+    // Sets the field of view and screen resolution.
+    // `horiztontalFovDeg` is the horizontal field of view in degrees. `viewportWidth` and `viewportHeight`
+    // are the size of the viewport in pixels.
+    void SetFOV(double horizontalFovDeg, double viewportWidth, double viewportHeight);
 
-	// Applies the camera's projection matrix to the current OpenGL matrix. Make sure glMatrixMode(GL_PROJECTION)
-	// is called before calling this method.
-	void ApplyProjectionMatrix();
+    // Applies the camera's projection matrix to the current OpenGL matrix. Make sure glMatrixMode(GL_PROJECTION)
+    // is called before calling this method.
+    void ApplyProjectionMatrix();
 
-	// Applies the camera's model-view matrix to the current OpenGL matrix. Make sure glMatrixMode(GL_MODELVIEW)
-	// is called before calling this method.
-	void ApplyModelViewMatrix();
+    // Applies the camera's model-view matrix to the current OpenGL matrix. Make sure glMatrixMode(GL_MODELVIEW)
+    // is called before calling this method.
+    void ApplyModelViewMatrix();
 
-	// For a given point on the viewport, returns the corresponding view ray in world coordinates.
-	Vector3 Unproject(const Point2& point);
+    // For a given point on the viewport, returns the corresponding view ray in world coordinates.
+    Vector3 Unproject(const Point2& point);
 
-	// Returns the corners of the view frustum.
-	std::vector<Point3> FrustumCorners() const;
+    // Returns the corners of the view frustum.
+    std::vector<Point3> FrustumCorners() const;
 
-	const Point3& Position() const
-	{
-		return mXform.position;
-	}
+    const Point3& Position() const
+    {
+        return mXform.position;
+    }
 
-	const Vector3& Forward() const
-	{
-		return mXform.forward;
-	}
+    const Vector3& Forward() const
+    {
+        return mXform.forward;
+    }
 
-	const Vector3& Up() const
-	{
-		return mXform.up;
-	}
+    const Vector3& Up() const
+    {
+        return mXform.up;
+    }
 
-	const Vector3& Right() const
-	{
-		return mXform.right;
-	}
+    const Vector3& Right() const
+    {
+        return mXform.right;
+    }
 
-	// WED_Camera overrides.
-	double PointDistance(const Point3& point) const override;
-	double PixelSize(double zCamera, double featureSize) const override;
-	double PixelSize(const Bbox3& bbox) const override;
-	double PixelSize(const Bbox3& bbox, double featureSize) const override;
-	double PixelSize(const Point3& position, double diameter) const override;
-	void PushMatrix() override;
-	void PopMatrix() override;
-	void Translate(const Vector3& v) override;
-	void Scale(double sx, double sy, double sz) override;
-	void Rotate(double deg, const Vector3& axis) override;
+    // WED_Camera overrides.
+    double PointDistance(const Point3& point) const override;
+    double PixelSize(double zCamera, double featureSize) const override;
+    double PixelSize(const Bbox3& bbox) const override;
+    double PixelSize(const Bbox3& bbox, double featureSize) const override;
+    double PixelSize(const Point3& position, double diameter) const override;
+    void PushMatrix() override;
+    void PopMatrix() override;
+    void Translate(const Vector3& v) override;
+    void Scale(double sx, double sy, double sz) override;
+    void Rotate(double deg, const Vector3& axis) override;
 
 private:
-	bool ModelViewMatrixConsistent();
+    bool ModelViewMatrixConsistent();
 
-	// Current model-view transformation. This is equivalent to the following matrix:
-	//
-	// /  rx  ry  rz 0 \  /  1  0  0 px \
+    // Current model-view transformation. This is equivalent to the following matrix:
+    //
+    // /  rx  ry  rz 0 \  /  1  0  0 px \
 	// |  ux  uy  uz 0 |  |  0  1  0 py |
-	// | -fx -fy -fz 0 |  |  0  0  1 pz |
-	// \  0   0   0  1 /  \  0  0  0 1  /
-	//
-	// Where
-	// right    = (rx, ry, rz)
-	// forward  = (fx, fy, fz)
-	// up       = (ux, ry, uz)
-	// position = (px, py, pz)
-	struct Transformation
-	{
-		Point3 position;
-		Vector3 forward, right, up;
-	};
+    // | -fx -fy -fz 0 |  |  0  0  1 pz |
+    // \  0   0   0  1 /  \  0  0  0 1  /
+    //
+    // Where
+    // right    = (rx, ry, rz)
+    // forward  = (fx, fy, fz)
+    // up       = (ux, ry, uz)
+    // position = (px, py, pz)
+    struct Transformation
+    {
+        Point3 position;
+        Vector3 forward, right, up;
+    };
 
-	static constexpr int kNumFrustumPlanes = 6;
+    static constexpr int kNumFrustumPlanes = 6;
 
-	double mNearClip, mFarClip, mWidth, mHeight;
-	double mViewportWidth, mViewportHeight;
-	Transformation mXform;
-	std::vector<Transformation> mXformStack;
+    double mNearClip, mFarClip, mWidth, mHeight;
+    double mViewportWidth, mViewportHeight;
+    Transformation mXform;
+    std::vector<Transformation> mXformStack;
 };
 
 #endif

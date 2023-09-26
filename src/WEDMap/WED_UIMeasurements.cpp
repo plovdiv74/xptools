@@ -25,32 +25,31 @@
 #include "GUI_Resources.h"
 #include "MemFileUtils.h"
 
-typedef std::map<std::string,int>	UI_Measurement_t;
+typedef std::map<std::string, int> UI_Measurement_t;
 
-static UI_Measurement_t	sMeasurements;
+static UI_Measurement_t sMeasurements;
 
-int		WED_UIMeasurement(const char * measurement)
+int WED_UIMeasurement(const char* measurement)
 {
-	if (sMeasurements.empty())
-	{
-		GUI_Resource	res = GUI_LoadResource("ui_measurements.txt");
+    if (sMeasurements.empty())
+    {
+        GUI_Resource res = GUI_LoadResource("ui_measurements.txt");
 
-		MFScanner	s;
-		MFS_init(&s, GUI_GetResourceBegin(res), GUI_GetResourceEnd(res));
+        MFScanner s;
+        MFS_init(&s, GUI_GetResourceBegin(res), GUI_GetResourceEnd(res));
 
-		while (!MFS_done(&s))
-		{
-			std::string token;
-			MFS_string(&s,&token);
-			if (!token.empty() && token[0] != '#')
-			{
-				sMeasurements[token] = MFS_int(&s);
-			}
-			MFS_string_eol(&s,NULL);
-		}
-		GUI_UnloadResource(res);
+        while (!MFS_done(&s))
+        {
+            std::string token;
+            MFS_string(&s, &token);
+            if (!token.empty() && token[0] != '#')
+            {
+                sMeasurements[token] = MFS_int(&s);
+            }
+            MFS_string_eol(&s, NULL);
+        }
+        GUI_UnloadResource(res);
+    }
 
-	}
-
-	return sMeasurements[std::string(measurement)];
+    return sMeasurements[std::string(measurement)];
 }

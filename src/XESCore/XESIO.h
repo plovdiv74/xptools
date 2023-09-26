@@ -25,14 +25,14 @@
 
 /*
 
-	XES Format Basics -
+    XES Format Basics -
 
-	An XES file is a file containing atoms.  The main atoms are:
+    An XES file is a file containing atoms.  The main atoms are:
 
-	- An atom for the integrated vector map for the XES file.
-	- An atom for each raster plane in the XES file.
-	- An atom that contains a directory locating the raster planes.
-	- An atom storing the token dictionary for this XES file.
+    - An atom for the integrated vector map for the XES file.
+    - An atom for each raster plane in the XES file.
+    - An atom that contains a directory locating the raster planes.
+    - An atom storing the token dictionary for this XES file.
 
  */
 
@@ -43,20 +43,14 @@
 
 class CDT;
 
-void	WriteXESFile(
-				const char *	inFileName,
-				const Pmwx&		inMap,
-					  CDT&		inMesh,
-				DEMGeoMap&		inDEM,
-				const AptVector& inApts,
-				ProgressFunc	inFunc);
+void WriteXESFile(const char* inFileName, const Pmwx& inMap, CDT& inMesh, DEMGeoMap& inDEM, const AptVector& inApts,
+                  ProgressFunc inFunc);
 
-void	ReadXESFile(
-				MFMemFile *		inFile,
-				Pmwx *			inMap,		// Can be NULL
-				CDT *			inCDt,		// Can be NULL
-				DEMGeoMap *		inDEM,		// Can be NULL
-				AptVector *		inApts,		// Can be NULL
-				ProgressFunc	inFunc);	// Can be NULL
+void ReadXESFile(MFMemFile* inFile,
+                 Pmwx* inMap,          // Can be NULL
+                 CDT* inCDt,           // Can be NULL
+                 DEMGeoMap* inDEM,     // Can be NULL
+                 AptVector* inApts,    // Can be NULL
+                 ProgressFunc inFunc); // Can be NULL
 
 #endif

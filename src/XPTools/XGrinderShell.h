@@ -21,10 +21,9 @@
  *
  */
 
-
 #ifndef XGRINDERSHELL_H
 #define XGRINDERSHELL_H
 
-void	grind_file(const char * inFileName);
+void grind_file(const char* inFileName);
 
 #endif

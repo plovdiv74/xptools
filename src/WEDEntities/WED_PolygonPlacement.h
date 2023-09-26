@@ -27,40 +27,40 @@
 #include "IHasResource.h"
 #include "WED_GISPolygon.h"
 
-class	WED_PolygonPlacement : public WED_GISPolygon, public IHasResource {
+class WED_PolygonPlacement : public WED_GISPolygon, public IHasResource
+{
 
-DECLARE_PERSISTENT(WED_PolygonPlacement)
+    DECLARE_PERSISTENT(WED_PolygonPlacement)
 
 public:
+    double GetHeading(void) const;
+    void SetHeading(double h);
 
-			double		GetHeading(void) const;
-			void		SetHeading(double h);
+    void GetResource(std::string& r) const;
+    void SetResource(const std::string& r);
 
-void		GetResource(	  std::string& r) const;
-void		SetResource(const std::string& r);
+    int CountProperties(void) const;
+    int FindProperty(const char* in_prop) const;
+    void GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
+    void GetNthPropertyDict(int n, PropertyDict_t& dict) const;
+    void GetNthPropertyDictItem(int n, int e, std::string& item) const;
+    void GetNthProperty(int n, PropertyVal_t& val) const;
+    void SetNthProperty(int n, const PropertyVal_t& val);
 
-int			CountProperties(void) const;
-int			FindProperty(const char * in_prop) const;
-void		GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
-void		GetNthPropertyDict(int n, PropertyDict_t& dict) const;
-void		GetNthPropertyDictItem(int n, int e, std::string& item) const;
-void		GetNthProperty(int n, PropertyVal_t& val) const;
-void		SetNthProperty(int n, const PropertyVal_t& val);
-
-
-const char *	HumanReadableType(void) const { return "Draped Polygon"; }
+    const char* HumanReadableType(void) const
+    {
+        return "Draped Polygon";
+    }
 
 protected:
-
-bool		IsInteriorFilled(void) const { return true; }
+    bool IsInteriorFilled(void) const
+    {
+        return true;
+    }
 
 private:
-
-	WED_PropDoubleText		heading;
-	WED_PropStringText		resource;
-
+    WED_PropDoubleText heading;
+    WED_PropStringText resource;
 };
-
-
 
 #endif /* WED_PolygonPlacement_H */

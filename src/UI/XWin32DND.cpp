@@ -34,17 +34,14 @@
 
 CDropTarget::CDropTarget(void)
 {
-m_cRefCount = 1;
-m_fAcceptFmt = FALSE;
-m_pDropTargetHelper = NULL;
-m_ReceiverObj = NULL;
-m_Window = NULL;
+    m_cRefCount = 1;
+    m_fAcceptFmt = FALSE;
+    m_pDropTargetHelper = NULL;
+    m_ReceiverObj = NULL;
+    m_Window = NULL;
 
-CoCreateInstance( CLSID_DragDropHelper,
-                  NULL,
-                  CLSCTX_INPROC_SERVER,
-                  IID_IDropTargetHelper,
-                  (LPVOID*)&m_pDropTargetHelper);
+    CoCreateInstance(CLSID_DragDropHelper, NULL, CLSCTX_INPROC_SERVER, IID_IDropTargetHelper,
+                     (LPVOID*)&m_pDropTargetHelper);
 }
 
 /**************************************************************************
@@ -55,11 +52,11 @@ CoCreateInstance( CLSID_DragDropHelper,
 
 CDropTarget::~CDropTarget(void)
 {
-if(m_pDropTargetHelper)
-   {
-   m_pDropTargetHelper->Release();
-   m_pDropTargetHelper = NULL;
-   }
+    if (m_pDropTargetHelper)
+    {
+        m_pDropTargetHelper->Release();
+        m_pDropTargetHelper = NULL;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -73,29 +70,29 @@ if(m_pDropTargetHelper)
 
 **************************************************************************/
 
-STDMETHODIMP CDropTarget::QueryInterface(REFIID riid, LPVOID *ppvOut)
+STDMETHODIMP CDropTarget::QueryInterface(REFIID riid, LPVOID* ppvOut)
 {
-*ppvOut = NULL;
+    *ppvOut = NULL;
 
-//IUnknown
-if(IsEqualIID(riid, IID_IUnknown))
-   {
-   *ppvOut = this;
-   }
+    // IUnknown
+    if (IsEqualIID(riid, IID_IUnknown))
+    {
+        *ppvOut = this;
+    }
 
-//IDropTarget
-else if(IsEqualIID(riid, IID_IDropTarget))
-   {
-   *ppvOut = (IDropTarget*)this;
-   }
+    // IDropTarget
+    else if (IsEqualIID(riid, IID_IDropTarget))
+    {
+        *ppvOut = (IDropTarget*)this;
+    }
 
-if(*ppvOut)
-   {
-   (*(LPUNKNOWN*)ppvOut)->AddRef();
-   return S_OK;
-   }
+    if (*ppvOut)
+    {
+        (*(LPUNKNOWN*)ppvOut)->AddRef();
+        return S_OK;
+    }
 
-return E_NOINTERFACE;
+    return E_NOINTERFACE;
 }
 
 /**************************************************************************
@@ -106,7 +103,7 @@ return E_NOINTERFACE;
 
 STDMETHODIMP_(ULONG) CDropTarget::AddRef(void)
 {
-return ++m_cRefCount;
+    return ++m_cRefCount;
 }
 
 /**************************************************************************
@@ -117,13 +114,13 @@ return ++m_cRefCount;
 
 STDMETHODIMP_(ULONG) CDropTarget::Release(void)
 {
-if(--m_cRefCount == 0)
-   {
-   delete this;
-   return 0;
-   }
+    if (--m_cRefCount == 0)
+    {
+        delete this;
+        return 0;
+    }
 
-return m_cRefCount;
+    return m_cRefCount;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -137,28 +134,25 @@ return m_cRefCount;
 
 **************************************************************************/
 
-STDMETHODIMP CDropTarget::DragEnter(   LPDATAOBJECT pDataObj,
-                                       DWORD grfKeyState,
-                                       POINTL pt,
-                                       LPDWORD pdwEffect)
+STDMETHODIMP CDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 {
-if(m_pDropTargetHelper)
-   m_pDropTargetHelper->DragEnter(m_Window, pDataObj, (LPPOINT)&pt, *pdwEffect);
+    if (m_pDropTargetHelper)
+        m_pDropTargetHelper->DragEnter(m_Window, pDataObj, (LPPOINT)&pt, *pdwEffect);
 
-FORMATETC fe;
+    FORMATETC fe;
 
-fe.cfFormat = CF_HDROP;
-fe.ptd      = NULL;
-fe.dwAspect = DVASPECT_CONTENT;
-fe.lindex   = -1;
-fe.tymed    = TYMED_HGLOBAL;
+    fe.cfFormat = CF_HDROP;
+    fe.ptd = NULL;
+    fe.dwAspect = DVASPECT_CONTENT;
+    fe.lindex = -1;
+    fe.tymed = TYMED_HGLOBAL;
 
-// Does the drag source provide the clipboard format we are looking for?
-m_fAcceptFmt = (S_OK == pDataObj->QueryGetData(&fe)) ? TRUE : FALSE;
+    // Does the drag source provide the clipboard format we are looking for?
+    m_fAcceptFmt = (S_OK == pDataObj->QueryGetData(&fe)) ? TRUE : FALSE;
 
-QueryDrop(grfKeyState, pdwEffect);
+    QueryDrop(grfKeyState, pdwEffect);
 
-return S_OK;
+    return S_OK;
 }
 
 /**************************************************************************
@@ -167,16 +161,14 @@ return S_OK;
 
 **************************************************************************/
 
-STDMETHODIMP CDropTarget::DragOver( DWORD grfKeyState,
-                                    POINTL pt,
-                                    LPDWORD pdwEffect)
+STDMETHODIMP CDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 {
-if(m_pDropTargetHelper)
-   m_pDropTargetHelper->DragOver((LPPOINT)&pt, *pdwEffect);
+    if (m_pDropTargetHelper)
+        m_pDropTargetHelper->DragOver((LPPOINT)&pt, *pdwEffect);
 
-QueryDrop(grfKeyState, pdwEffect);
+    QueryDrop(grfKeyState, pdwEffect);
 
-return S_OK;
+    return S_OK;
 }
 
 /**************************************************************************
@@ -187,11 +179,11 @@ return S_OK;
 
 STDMETHODIMP CDropTarget::DragLeave()
 {
-if(m_pDropTargetHelper)
-   m_pDropTargetHelper->DragLeave();
+    if (m_pDropTargetHelper)
+        m_pDropTargetHelper->DragLeave();
 
-m_fAcceptFmt = FALSE;
-return S_OK;
+    m_fAcceptFmt = FALSE;
+    return S_OK;
 }
 
 /**************************************************************************
@@ -200,40 +192,37 @@ return S_OK;
 
 **************************************************************************/
 
-STDMETHODIMP CDropTarget::Drop(  LPDATAOBJECT pDataObj,
-                                 DWORD grfKeyState,
-                                 POINTL pt,
-                                 LPDWORD pdwEffect)
+STDMETHODIMP CDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 {
-if(m_pDropTargetHelper)
-   m_pDropTargetHelper->Drop(pDataObj, (LPPOINT)&pt, *pdwEffect);
+    if (m_pDropTargetHelper)
+        m_pDropTargetHelper->Drop(pDataObj, (LPPOINT)&pt, *pdwEffect);
 
-FORMATETC   fe;
-STGMEDIUM   sm;
-HRESULT     hr = E_FAIL;
+    FORMATETC fe;
+    STGMEDIUM sm;
+    HRESULT hr = E_FAIL;
 
-if(QueryDrop(grfKeyState, pdwEffect))
-   {
-   fe.cfFormat = CF_HDROP;
-   fe.ptd = NULL;
-   fe.dwAspect = DVASPECT_CONTENT;
-   fe.lindex = -1;
-   fe.tymed = TYMED_HGLOBAL;
+    if (QueryDrop(grfKeyState, pdwEffect))
+    {
+        fe.cfFormat = CF_HDROP;
+        fe.ptd = NULL;
+        fe.dwAspect = DVASPECT_CONTENT;
+        fe.lindex = -1;
+        fe.tymed = TYMED_HGLOBAL;
 
-   // User has dropped on us. Get the data from drag source
-   hr = pDataObj->GetData(&fe, &sm);
-   if(SUCCEEDED(hr))
-      {
-      // Display the data and release it.
-      DisplayFileNames(m_Window, sm.hGlobal);
+        // User has dropped on us. Get the data from drag source
+        hr = pDataObj->GetData(&fe, &sm);
+        if (SUCCEEDED(hr))
+        {
+            // Display the data and release it.
+            DisplayFileNames(m_Window, sm.hGlobal);
 
-      ReleaseStgMedium(&sm);
-      }
-   }
+            ReleaseStgMedium(&sm);
+        }
+    }
 
-*pdwEffect = DROPEFFECT_NONE;
+    *pdwEffect = DROPEFFECT_NONE;
 
-return hr;
+    return hr;
 }
 
 /* OleStdGetDropEffect
@@ -255,10 +244,9 @@ return hr;
 **    performed. if the drag is not local, then a COPY operation is
 **    performed.
 */
-#define OleStdGetDropEffect(grfKeyState)    \
-    ( (grfKeyState & MK_CONTROL) ?          \
-        ( (grfKeyState & MK_SHIFT) ? DROPEFFECT_LINK : DROPEFFECT_COPY ) :  \
-        ( (grfKeyState & MK_SHIFT) ? DROPEFFECT_MOVE : 0 ) )
+#define OleStdGetDropEffect(grfKeyState)                                                                               \
+    ((grfKeyState & MK_CONTROL) ? ((grfKeyState & MK_SHIFT) ? DROPEFFECT_LINK : DROPEFFECT_COPY)                       \
+                                : ((grfKeyState & MK_SHIFT) ? DROPEFFECT_MOVE : 0))
 
 /**************************************************************************
 
@@ -268,42 +256,42 @@ return hr;
 
 BOOL CDropTarget::QueryDrop(DWORD grfKeyState, LPDWORD pdwEffect)
 {
-DWORD dwOKEffects = *pdwEffect;
+    DWORD dwOKEffects = *pdwEffect;
 
-if(!m_fAcceptFmt)
-   {
-   *pdwEffect = DROPEFFECT_NONE;
-   return FALSE;
-   }
+    if (!m_fAcceptFmt)
+    {
+        *pdwEffect = DROPEFFECT_NONE;
+        return FALSE;
+    }
 
-*pdwEffect = OleStdGetDropEffect(grfKeyState);
-if(*pdwEffect == 0)
-   {
-   // No modifier keys used by user while dragging.
-   if (DROPEFFECT_COPY & dwOKEffects)
-      *pdwEffect = DROPEFFECT_COPY;
-   else if (DROPEFFECT_MOVE & dwOKEffects)
-      *pdwEffect = DROPEFFECT_MOVE;
-   else if (DROPEFFECT_LINK & dwOKEffects)
-      *pdwEffect = DROPEFFECT_LINK;
-   else
-      {
-      *pdwEffect = DROPEFFECT_NONE;
-      }
-   }
-else
-   {
-   // Check if the drag source application allows the drop effect desired by user.
-   // The drag source specifies this in DoDragDrop
-   if(!(*pdwEffect & dwOKEffects))
-      *pdwEffect = DROPEFFECT_NONE;
+    *pdwEffect = OleStdGetDropEffect(grfKeyState);
+    if (*pdwEffect == 0)
+    {
+        // No modifier keys used by user while dragging.
+        if (DROPEFFECT_COPY & dwOKEffects)
+            *pdwEffect = DROPEFFECT_COPY;
+        else if (DROPEFFECT_MOVE & dwOKEffects)
+            *pdwEffect = DROPEFFECT_MOVE;
+        else if (DROPEFFECT_LINK & dwOKEffects)
+            *pdwEffect = DROPEFFECT_LINK;
+        else
+        {
+            *pdwEffect = DROPEFFECT_NONE;
+        }
+    }
+    else
+    {
+        // Check if the drag source application allows the drop effect desired by user.
+        // The drag source specifies this in DoDragDrop
+        if (!(*pdwEffect & dwOKEffects))
+            *pdwEffect = DROPEFFECT_NONE;
 
-   // We don't accept links
-   if(*pdwEffect == DROPEFFECT_LINK)
-      *pdwEffect = DROPEFFECT_NONE;
-   }
+        // We don't accept links
+        if (*pdwEffect == DROPEFFECT_LINK)
+            *pdwEffect = DROPEFFECT_NONE;
+    }
 
-return (DROPEFFECT_NONE == *pdwEffect) ? FALSE : TRUE;
+    return (DROPEFFECT_NONE == *pdwEffect) ? FALSE : TRUE;
 }
 
 /**************************************************************************
@@ -314,26 +302,26 @@ return (DROPEFFECT_NONE == *pdwEffect) ? FALSE : TRUE;
 
 void CDropTarget::DisplayFileNames(HWND hwndOwner, HGLOBAL hgFiles)
 {
-	UINT	i, nFiles;
+    UINT i, nFiles;
 
-	nFiles = DragQueryFile((HDROP)hgFiles, 0xFFFFFFFF, NULL, 0);
+    nFiles = DragQueryFile((HDROP)hgFiles, 0xFFFFFFFF, NULL, 0);
 
-	WCHAR	path[MAX_PATH+1];
+    WCHAR path[MAX_PATH + 1];
 
-	std::vector<std::string>	fileList;
+    std::vector<std::string> fileList;
 
-	for(i = 0; i < nFiles; i++)
-	{
-		DragQueryFileW((HDROP)hgFiles, i, path, MAX_PATH);
-		fileList.push_back(convert_utf16_to_str(path));
-	}
+    for (i = 0; i < nFiles; i++)
+    {
+        DragQueryFileW((HDROP)hgFiles, i, path, MAX_PATH);
+        fileList.push_back(convert_utf16_to_str(path));
+    }
 
-	if(m_ReceiverObj)
-		m_ReceiverObj->ReceiveFilesFromDrag(fileList);
+    if (m_ReceiverObj)
+        m_ReceiverObj->ReceiveFilesFromDrag(fileList);
 }
 
-void	CDropTarget::SetReceiver(XWinFileReceiver * inReceiver, HWND inWindow)
+void CDropTarget::SetReceiver(XWinFileReceiver* inReceiver, HWND inWindow)
 {
-	m_ReceiverObj = inReceiver;
-	m_Window = inWindow;
+    m_ReceiverObj = inReceiver;
+    m_Window = inWindow;
 }

@@ -24,13 +24,13 @@
 #ifndef GUI_Prefs_H
 #define GUI_Prefs_H
 
-void			GUI_Prefs_Read(const char * app_name);
-void			GUI_Prefs_Write(const char * app_name);
+void GUI_Prefs_Read(const char* app_name);
+void GUI_Prefs_Write(const char* app_name);
 
-const char *	GUI_GetPrefString(const char * section, const char * key, const char * def);
-void			GUI_SetPrefString(const char * section, const char * key, const char * value);
-void			GUI_EnumSection(const char * section, void (* cb)(const char * key, const char * value, void * ref), void * ref);
+const char* GUI_GetPrefString(const char* section, const char* key, const char* def);
+void GUI_SetPrefString(const char* section, const char* key, const char* value);
+void GUI_EnumSection(const char* section, void (*cb)(const char* key, const char* value, void* ref), void* ref);
 
-bool			GUI_GetPrefsDir(std::string& path);
+bool GUI_GetPrefsDir(std::string& path);
 
 #endif /* GUI_Prefs_H */

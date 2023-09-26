@@ -28,25 +28,25 @@
 
 struct AptBeacon_t;
 
-class	WED_AirportBeacon : public WED_GISPoint {
+class WED_AirportBeacon : public WED_GISPoint
+{
 
-DECLARE_PERSISTENT(WED_AirportBeacon)
+    DECLARE_PERSISTENT(WED_AirportBeacon)
 
 public:
+    void Import(const AptBeacon_t& x, void (*print_func)(void*, const char*, ...), void* ref);
+    void Export(AptBeacon_t& x) const;
 
-	void	Import(const AptBeacon_t& x, void (* print_func)(void *, const char *, ...), void * ref);
-	void	Export(		 AptBeacon_t& x) const;
+    void SetKind(int kind);
+    int GetKind(void) const;
 
-	void			SetKind(int kind);
-	int 			GetKind(void) const;
-
-	virtual const char *	HumanReadableType(void) const { return "Airport Beacon"; }
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Airport Beacon";
+    }
 
 private:
-
-	WED_PropIntEnum			kind;
-
+    WED_PropIntEnum kind;
 };
 
 #endif
-

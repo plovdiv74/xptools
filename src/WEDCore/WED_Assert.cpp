@@ -29,16 +29,18 @@
 
 static char gAssertBuf[512];
 
-void WED_AssertHandler_f(const char * condition, const char * file, int line)
+void WED_AssertHandler_f(const char* condition, const char* file, int line)
 {
-	snprintf(gAssertBuf, 512, "WED has hit an error '%s' due to a bug. Please report on gatewaybugs.x-plane.com "
-	                          "and attach the file %sWED_Log.txt", condition, FILE_get_dir_name(GetApplicationPath()).c_str());
-	DoUserAlert(gAssertBuf);
-	throw wed_assert_fail_exception(gAssertBuf, file, line);
+    snprintf(gAssertBuf, 512,
+             "WED has hit an error '%s' due to a bug. Please report on gatewaybugs.x-plane.com "
+             "and attach the file %sWED_Log.txt",
+             condition, FILE_get_dir_name(GetApplicationPath()).c_str());
+    DoUserAlert(gAssertBuf);
+    throw wed_assert_fail_exception(gAssertBuf, file, line);
 }
 
-void	WED_AssertInit(void)
+void WED_AssertInit(void)
 {
-	InstallDebugAssertHandler(WED_AssertHandler_f);
-	InstallAssertHandler(WED_AssertHandler_f);
+    InstallDebugAssertHandler(WED_AssertHandler_f);
+    InstallAssertHandler(WED_AssertHandler_f);
 }

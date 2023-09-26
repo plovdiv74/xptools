@@ -26,41 +26,42 @@
 
 #include "CompGeomDefs2.h"
 
-class	WED_Thing;
-class	IResolver;
+class WED_Thing;
+class IResolver;
 
 // The parent object for DSF_Import really really really should be some kind of composite
 // like WED_Group or WED_Airport; however this API lets you specify any base and hopes
 // you know what you're doing. This is because WED_GISComposite is sort of an implementation
 // intermediate and thus kind of weird to have in a public API.
 
-int		WED_CanImportDSF(IResolver * resolver);
-void	WED_DoImportDSF(IResolver * resolver);
-int		WED_CanImportRoads(IResolver * resolver);
-void	WED_DoImportRoads(IResolver * resolver);
+int WED_CanImportDSF(IResolver* resolver);
+void WED_DoImportDSF(IResolver* resolver);
+int WED_CanImportRoads(IResolver* resolver);
+void WED_DoImportRoads(IResolver* resolver);
 
-int 	DSF_Import(const char * file, WED_Thing * base);
-int 	WED_ImportText(const char * path, WED_Thing * base);
+int DSF_Import(const char* file, WED_Thing* base);
+int WED_ImportText(const char* path, WED_Thing* base);
 
-
-enum dsf_filter_category {
-	dsf_filter_exclusion = 1,
-	dsf_filter_objects = 2,
-	dsf_filter_facades = 4,
-	dsf_filter_forests = 8,
-	dsf_filter_lines = 16,
-	dsf_filter_strings = 32,
-	dsf_filter_orthophoto = 64,
-	dsf_filter_draped_poly = 128,
-	dsf_filter_roads = 256,
-	dsf_filter_terrain = 512,
-	dsf_filter_autogen = 1024,
-	dsf_filter_all = 2047
+enum dsf_filter_category
+{
+    dsf_filter_exclusion = 1,
+    dsf_filter_objects = 2,
+    dsf_filter_facades = 4,
+    dsf_filter_forests = 8,
+    dsf_filter_lines = 16,
+    dsf_filter_strings = 32,
+    dsf_filter_orthophoto = 64,
+    dsf_filter_draped_poly = 128,
+    dsf_filter_roads = 256,
+    dsf_filter_terrain = 512,
+    dsf_filter_autogen = 1024,
+    dsf_filter_all = 2047
 };
 
-int		DSF_Import_Partial(const char * path, WED_Thing * base, int inCatFilter,
-							const std::vector<Bbox2> & inBounds = std::vector<Bbox2>(), const std::vector<std::string>& inAptFilter = std::vector<std::string>());
+int DSF_Import_Partial(const char* path, WED_Thing* base, int inCatFilter,
+                       const std::vector<Bbox2>& inBounds = std::vector<Bbox2>(),
+                       const std::vector<std::string>& inAptFilter = std::vector<std::string>());
 
-void	add_all_global_DSF(const Bbox2& bb, std::set<std::string>& matching_dsf);
+void add_all_global_DSF(const Bbox2& bb, std::set<std::string>& matching_dsf);
 
 #endif /* WED_DSFImport_H */

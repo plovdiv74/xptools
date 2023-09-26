@@ -27,25 +27,26 @@
 #include "WED_GISPoint_Bezier.h"
 #include "IHasResource.h"
 
-class	WED_AirportNode : public WED_GISPoint_Bezier, public IHasAttr {
+class WED_AirportNode : public WED_GISPoint_Bezier, public IHasAttr
+{
 
-DECLARE_PERSISTENT(WED_AirportNode)
+    DECLARE_PERSISTENT(WED_AirportNode)
 
 public:
+    void GetAttributes(std::set<int>& attrs) const;
+    void SetAttributes(const std::set<int>& attrs);
 
-			void		GetAttributes(		std::set<int>& attrs) const;
-			void		SetAttributes(const std::set<int>& attrs)	  ;
+    virtual void GetResource(std::string& r) const;
 
-	virtual void 		GetResource(std::string& r) const;
-
-	virtual const char *	HumanReadableType(void) const { return "Airport Line Node"; }
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Airport Line Node";
+    }
 
 private:
-
-	WED_PropIntEnumSet			attrs;
-	WED_PropIntEnumSetFilterVal	lines;
-	WED_PropIntEnumSetFilterVal	lights;
-
+    WED_PropIntEnumSet attrs;
+    WED_PropIntEnumSetFilterVal lines;
+    WED_PropIntEnumSetFilterVal lights;
 };
 
 #endif /* WED_AIRPORTNODE_H */

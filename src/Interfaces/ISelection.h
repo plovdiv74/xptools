@@ -26,12 +26,12 @@
 
 /*
 
-	ISelection - THEORY OF OPERATION
+    ISelection - THEORY OF OPERATION
 
-	This is an abstract object-based selection std::set.  The selection can be teted per object
-	or copied out to either a std::vector or std::set.  (These are provided to give clients whichever
-	format is more useful.  We expect std::vector to be more memory efficient, particularly since
-	the selection knows the size of the block up-front.)
+    This is an abstract object-based selection std::set.  The selection can be teted per object
+    or copied out to either a std::vector or std::set.  (These are provided to give clients whichever
+    format is more useful.  We expect std::vector to be more memory efficient, particularly since
+    the selection knows the size of the block up-front.)
 
 */
 
@@ -39,43 +39,45 @@
 #include <set>
 #include <vector>
 
-using std::vector;
 using std::set;
+using std::vector;
 
-class	ISelectable : public virtual IBase {
+class ISelectable : public virtual IBase
+{
 public:
-
-	virtual		int				GetSelectionID(void) const=0;
-
+    virtual int GetSelectionID(void) const = 0;
 };
 
-class	ISelection : public virtual IBase {
+class ISelection : public virtual IBase
+{
 public:
-	virtual		bool			IsSelected(ISelectable * who) const=0;
+    virtual bool IsSelected(ISelectable* who) const = 0;
 
-	virtual		void			Select(ISelectable * who)=0;
-	virtual		void			Clear (void			 )=0;
-	virtual		void			Toggle(ISelectable * who)=0;
-	virtual		void			Insert(ISelectable * who)=0;
+    virtual void Select(ISelectable* who) = 0;
+    virtual void Clear(void) = 0;
+    virtual void Toggle(ISelectable* who) = 0;
+    virtual void Insert(ISelectable* who) = 0;
 
-	virtual		void			Insert(const std::set<ISelectable*>& sel)=0;
-	virtual		void			Insert(const std::set<ISelectable*>::const_iterator& begin, const std::set<ISelectable*>::const_iterator& end)=0;
+    virtual void Insert(const std::set<ISelectable*>& sel) = 0;
+    virtual void Insert(const std::set<ISelectable*>::const_iterator& begin,
+                        const std::set<ISelectable*>::const_iterator& end) = 0;
 
-	virtual		void			Insert(const std::vector<ISelectable*>& sel)=0;
-	virtual		void			Insert(const std::vector<ISelectable*>::const_iterator& begin, const std::vector<ISelectable*>::const_iterator& end)=0;
-	virtual		void			Erase (ISelectable * who)=0;
+    virtual void Insert(const std::vector<ISelectable*>& sel) = 0;
+    virtual void Insert(const std::vector<ISelectable*>::const_iterator& begin,
+                        const std::vector<ISelectable*>::const_iterator& end) = 0;
+    virtual void Erase(ISelectable* who) = 0;
 
-	virtual		int				GetSelectionCount(void) const=0;
-	virtual		void			GetSelectionSet(std::set<ISelectable *>& sel) const=0;
-	virtual		void			GetSelectionVector(std::vector<ISelectable *>& sel) const=0;
-	virtual		ISelectable *	GetNthSelection(int n) const=0;
+    virtual int GetSelectionCount(void) const = 0;
+    virtual void GetSelectionSet(std::set<ISelectable*>& sel) const = 0;
+    virtual void GetSelectionVector(std::vector<ISelectable*>& sel) const = 0;
+    virtual ISelectable* GetNthSelection(int n) const = 0;
 
-	// Iterate the selection until our func returns true for at least one item.  Return true if ANY objs passed.  Returns false for the empty std::set.  (None passed)
-	virtual		int				IterateSelectionOr(int (* func)(ISelectable * who, void * ref), void * ref) const=0;
-	// Iterate the selection as long as our func returns true.  Return true if they ALL passed.  Returns true for the empty std::set.  (None failed)
-	virtual		int				IterateSelectionAnd(int (* func)(ISelectable * who, void * ref), void * ref) const=0;
-
+    // Iterate the selection until our func returns true for at least one item.  Return true if ANY objs passed. Returns
+    // false for the empty std::set.  (None passed)
+    virtual int IterateSelectionOr(int (*func)(ISelectable* who, void* ref), void* ref) const = 0;
+    // Iterate the selection as long as our func returns true.  Return true if they ALL passed.  Returns true for the
+    // empty std::set.  (None failed)
+    virtual int IterateSelectionAnd(int (*func)(ISelectable* who, void* ref), void* ref) const = 0;
 };
-
 
 #endif /* ISELECTION_H */

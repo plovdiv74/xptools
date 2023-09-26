@@ -23,26 +23,24 @@
 #ifndef IODEFS_H
 #define IODEFS_H
 
-class	IOReader {
+class IOReader
+{
 public:
-
-	virtual	void	ReadShort(short&)=0;
-	virtual	void	ReadInt(int&)=0;
-	virtual	void	ReadFloat(float&)=0;
-	virtual	void	ReadDouble(double&)=0;
-	virtual	void	ReadBulk(char * inBuf, int inLength, bool inZip)=0;
-
+    virtual void ReadShort(short&) = 0;
+    virtual void ReadInt(int&) = 0;
+    virtual void ReadFloat(float&) = 0;
+    virtual void ReadDouble(double&) = 0;
+    virtual void ReadBulk(char* inBuf, int inLength, bool inZip) = 0;
 };
 
-class	IOWriter {
+class IOWriter
+{
 public:
-
-	virtual	void	WriteShort(short)=0;
-	virtual	void	WriteInt(int)=0;
-	virtual	void	WriteFloat(float)=0;
-	virtual	void	WriteDouble(double)=0;
-	virtual	void	WriteBulk(const char * inBuf, int inLength, bool inZip)=0;
-
+    virtual void WriteShort(short) = 0;
+    virtual void WriteInt(int) = 0;
+    virtual void WriteFloat(float) = 0;
+    virtual void WriteDouble(double) = 0;
+    virtual void WriteBulk(const char* inBuf, int inLength, bool inZip) = 0;
 };
 
 #endif

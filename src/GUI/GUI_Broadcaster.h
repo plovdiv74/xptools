@@ -24,25 +24,23 @@
 #ifndef GUI_BROADCASTER_H
 #define GUI_BROADCASTER_H
 
-class	GUI_Listener;
+class GUI_Listener;
 
-class	GUI_Broadcaster {
+class GUI_Broadcaster
+{
 public:
+    GUI_Broadcaster();
+    virtual ~GUI_Broadcaster();
 
-			 GUI_Broadcaster();
-	virtual	~GUI_Broadcaster();
+    void BroadcastMessage(intptr_t inMsg, intptr_t inParam);
 
-	void	BroadcastMessage(intptr_t inMsg, intptr_t inParam);
-
-	void	AddListener(GUI_Listener * inListener);
-	void	RemoveListener(GUI_Listener * inListener);
+    void AddListener(GUI_Listener* inListener);
+    void RemoveListener(GUI_Listener* inListener);
 
 private:
+    friend class GUI_Listener;
 
-	friend class	GUI_Listener;
-
-	std::set<GUI_Listener *>		mListeners;
-
+    std::set<GUI_Listener*> mListeners;
 };
 
 #endif

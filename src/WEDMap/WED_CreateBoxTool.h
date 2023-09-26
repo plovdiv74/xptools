@@ -26,40 +26,28 @@
 
 #include "WED_CreateToolBase.h"
 
-enum CreateBox_t {
-	create_Exclusion = 0
+enum CreateBox_t
+{
+    create_Exclusion = 0
 };
 
-class WED_CreateBoxTool : public WED_CreateToolBase {
+class WED_CreateBoxTool : public WED_CreateToolBase
+{
 public:
-
-						 WED_CreateBoxTool(
-									const char *		tool_name,
-									GUI_Pane *			host,
-									WED_MapZoomerNew *	zoomer,
-									IResolver *			resolver,
-									WED_Archive *		archive,
-									CreateBox_t		tool_type);
-	virtual				~WED_CreateBoxTool();
-	virtual	const char *		GetStatusText(void);
+    WED_CreateBoxTool(const char* tool_name, GUI_Pane* host, WED_MapZoomerNew* zoomer, IResolver* resolver,
+                      WED_Archive* archive, CreateBox_t tool_type);
+    virtual ~WED_CreateBoxTool();
+    virtual const char* GetStatusText(void);
 
 protected:
+    WED_PropIntEnumSet mExclusions;
 
-		WED_PropIntEnumSet				mExclusions;
+    virtual void AcceptPath(const std::vector<Point2>& pts, const std::vector<Point2>& dirs_lo,
+                            const std::vector<Point2>& dirs_hi, const std::vector<int> has_dirs,
+                            const std::vector<int> has_split, int closed);
+    virtual bool CanCreateNow(void);
 
-
-	virtual	void		AcceptPath(
-							const std::vector<Point2>&	pts,
-							const std::vector<Point2>&	dirs_lo,
-							const std::vector<Point2>&	dirs_hi,
-							const std::vector<int>		has_dirs,
-							const std::vector<int>		has_split,
-							int						closed);
-	virtual	bool		CanCreateNow(void);
-
-		CreateBox_t	mType;
-
-
+    CreateBox_t mType;
 };
 
 #endif /* WED_CreateBoxTool_H */

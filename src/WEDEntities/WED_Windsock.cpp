@@ -27,8 +27,8 @@
 DEFINE_PERSISTENT(WED_Windsock)
 TRIVIAL_COPY(WED_Windsock, WED_GISPoint)
 
-WED_Windsock::WED_Windsock(WED_Archive * a, int i) : WED_GISPoint(a,i),
-	lit(this,PROP_Name("Lit", XML_Name("windsock","lit")),0)
+WED_Windsock::WED_Windsock(WED_Archive* a, int i)
+    : WED_GISPoint(a, i), lit(this, PROP_Name("Lit", XML_Name("windsock", "lit")), 0)
 {
 }
 
@@ -36,21 +36,21 @@ WED_Windsock::~WED_Windsock()
 {
 }
 
-void	WED_Windsock::SetLit(int l)
+void WED_Windsock::SetLit(int l)
 {
-	lit = l;
+    lit = l;
 }
 
-void	WED_Windsock::Import(const AptWindsock_t& x, void (* print_func)(void *, const char *, ...), void * ref)
+void WED_Windsock::Import(const AptWindsock_t& x, void (*print_func)(void*, const char*, ...), void* ref)
 {
-	SetLocation(gis_Geo,x.location);
-	SetName(x.name);
-	lit = x.lit;
+    SetLocation(gis_Geo, x.location);
+    SetName(x.name);
+    lit = x.lit;
 }
 
-void	WED_Windsock::Export(		 AptWindsock_t& x) const
+void WED_Windsock::Export(AptWindsock_t& x) const
 {
-	GetLocation(gis_Geo,x.location);
-	GetName(x.name);
-	x.lit = lit;
+    GetLocation(gis_Geo, x.location);
+    GetName(x.name);
+    x.lit = lit;
 }

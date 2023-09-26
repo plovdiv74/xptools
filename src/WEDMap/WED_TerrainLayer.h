@@ -28,52 +28,55 @@
 #include "CompGeomDefs2.h"
 #include "CompGeomDefs3.h"
 
-struct terrain_t {
-	int		index;
-	Bbox2	bounds;
-	int		width;
-	int		height;
-	std::vector<float> dem;
-	int		water_idx;
-	std::vector<int> apt_idx;
-	int		current_color;
+struct terrain_t
+{
+    int index;
+    Bbox2 bounds;
+    int width;
+    int height;
+    std::vector<float> dem;
+    int water_idx;
+    std::vector<int> apt_idx;
+    int current_color;
 
-	struct vert_data_t {
-		Point2	LonLat;
-		float	height;
-		float	para1;
-		float	para2;
-		vert_data_t(double *p) : LonLat({p[0], p[1]}), height(p[2]), para1(p[5]), para2(p[6]) {};
-	};
+    struct vert_data_t
+    {
+        Point2 LonLat;
+        float height;
+        float para1;
+        float para2;
+        vert_data_t(double* p) : LonLat({p[0], p[1]}), height(p[2]), para1(p[5]), para2(p[6]){};
+    };
 
-	struct patch_t {
-		int topology;
-		int color;
-		Bbox2 bounds;
-		std::vector<vert_data_t> verts;
-	};
-	std::vector<patch_t> patches;
+    struct patch_t
+    {
+        int topology;
+        int color;
+        Bbox2 bounds;
+        std::vector<vert_data_t> verts;
+    };
+    std::vector<patch_t> patches;
 };
 
-enum {
-	color_water,
-	color_airport,
-	color_land
+enum
+{
+    color_water,
+    color_airport,
+    color_land
 };
 
-class WED_TerrainLayer : public WED_MapLayer {
+class WED_TerrainLayer : public WED_MapLayer
+{
 public:
+    WED_TerrainLayer(GUI_Pane* host, WED_MapZoomerNew* zoomer, IResolver* resolver);
+    virtual ~WED_TerrainLayer();
 
-						 WED_TerrainLayer(GUI_Pane * host, WED_MapZoomerNew * zoomer, IResolver * resolver);
-	virtual				~WED_TerrainLayer();
-
-	virtual	void		DrawVisualization		(bool inCurrent, GUI_GraphState * g);
-	virtual	void		GetCaps(bool& draw_ent_v, bool& draw_ent_s, bool& cares_about_sel, bool& wants_clicks);
+    virtual void DrawVisualization(bool inCurrent, GUI_GraphState* g);
+    virtual void GetCaps(bool& draw_ent_v, bool& draw_ent_s, bool& cares_about_sel, bool& wants_clicks);
 
 private:
-
-	void				LoadTerrain(Bbox2& bounds);
-	std::unordered_map<std::string,terrain_t>	mTerrains;
+    void LoadTerrain(Bbox2& bounds);
+    std::unordered_map<std::string, terrain_t> mTerrains;
 };
 
 #endif /* WED_TerrainLayer_H */

@@ -29,39 +29,36 @@
 #include "GUI_TextTable.h"
 #include "WED_LibraryListAdapter.h"
 
-class	GUI_ScrollerPane;
-class	WED_LibraryMgr;
-class	WED_LibraryFilterBar;
+class GUI_ScrollerPane;
+class WED_LibraryMgr;
+class WED_LibraryFilterBar;
 
-class WED_LibraryPane : public GUI_Packer, public GUI_Commander, public GUI_Listener {
+class WED_LibraryPane : public GUI_Packer, public GUI_Commander, public GUI_Listener
+{
 public:
+    WED_LibraryPane(GUI_Commander* commander, WED_LibraryMgr* mgr);
+    virtual ~WED_LibraryPane();
 
-								 WED_LibraryPane(GUI_Commander * commander, WED_LibraryMgr * mgr);
-	virtual						~WED_LibraryPane();
+    WED_LibraryListAdapter* GetAdapter(void)
+    {
+        return &mLibraryList;
+    }
 
-	WED_LibraryListAdapter *	GetAdapter(void) { return &mLibraryList; }
+    virtual int MouseMove(int x, int y);
+    virtual void ReceiveMessage(GUI_Broadcaster* inSrc, intptr_t inMsg, intptr_t inParam);
 
-	virtual int		MouseMove(int x, int y);
-	virtual	void	ReceiveMessage(
-							GUI_Broadcaster *		inSrc,
-							intptr_t    			inMsg,
-							intptr_t				inParam);
-
-	virtual void	SetBounds(int x1, int y1, int x2, int y2);
-	virtual void	SetBounds(int inBounds[4]);
-
+    virtual void SetBounds(int x1, int y1, int x2, int y2);
+    virtual void SetBounds(int inBounds[4]);
 
 private:
+    GUI_ScrollerPane* mScroller;
+    GUI_Table* mTable;
+    GUI_Header* mHeader;
 
-	GUI_ScrollerPane *		mScroller;
-	GUI_Table *				mTable;
-	GUI_Header *			mHeader;
+    GUI_TextTable mTextTable;
 
-	GUI_TextTable			mTextTable;
-
-	WED_LibraryFilterBar *			mFilter;
-	WED_LibraryListAdapter	mLibraryList;
-
+    WED_LibraryFilterBar* mFilter;
+    WED_LibraryListAdapter mLibraryList;
 };
 
 #endif /* WED_LibraryPane_H */

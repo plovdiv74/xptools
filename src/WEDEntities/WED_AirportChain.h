@@ -27,53 +27,54 @@
 #include "WED_GISChain.h"
 #include "IHasResource.h"
 
-struct	AptMarking_t;
+struct AptMarking_t;
 
-class	WED_AirportChain : public WED_GISChain, public IHasAttr {
+class WED_AirportChain : public WED_GISChain, public IHasAttr
+{
 
-DECLARE_PERSISTENT(WED_AirportChain)
+    DECLARE_PERSISTENT(WED_AirportChain)
 
 public:
+    //	virtual	IGISPoint *		SplitSide   (int n	)		;		// Split the side from pt N to pt N + 1 in half.
+    // Return the new pt.
+    virtual bool IsClosed(void) const;
 
-//	virtual	IGISPoint *		SplitSide   (int n	)		;		// Split the side from pt N to pt N + 1 in half. Return the new pt.
-	virtual	bool			IsClosed	(void	) const	;
+    void SetClosed(int closure);
 
-			void			SetClosed(int closure);
+    // WED_Persistent
+    virtual bool ReadFrom(IOReader* reader);
+    virtual void WriteTo(IOWriter* writer);
+    // WED_Thing
+    virtual void AddExtraXML(WED_XMLElement* obj);
 
-	// WED_Persistent
-	virtual	bool 			ReadFrom(IOReader * reader);
-	virtual	void 			WriteTo(IOWriter * writer);
-	// WED_Thing
-	virtual	void			AddExtraXML(WED_XMLElement * obj);
+    virtual void StartElement(WED_XMLReader* reader, const XML_Char* name, const XML_Char** atts);
+    virtual void EndElement(void);
+    virtual void PopHandler(void);
 
-	virtual void		StartElement(
-								WED_XMLReader * reader,
-								const XML_Char *	name,
-								const XML_Char **	atts);
-	virtual	void		EndElement(void);
-	virtual	void		PopHandler(void);
+    void Import(const AptMarking_t& x, void (*print_func)(void*, const char*, ...), void* ref);
+    void Export(AptMarking_t& x) const;
 
-			void			Import(const AptMarking_t& x, void (* print_func)(void *, const char *, ...), void * ref);
-			void			Export(		 AptMarking_t& x) const;
+    virtual void GetResource(std::string& r) const;
 
-	virtual void			GetResource(std::string& r) const;
-
-	virtual const char *	HumanReadableType(void) const { return "Airport Line Marking"; }
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Airport Line Marking";
+    }
 
 protected:
-
-	virtual	bool			IsJustPoints(void) const { return false; }
+    virtual bool IsJustPoints(void) const
+    {
+        return false;
+    }
 
 private:
+    WED_PropIntEnumSetUnion lines;
+    WED_PropIntEnumSetUnion lights;
 
-	WED_PropIntEnumSetUnion	lines;
-	WED_PropIntEnumSetUnion	lights;
-
-	// Why is "closed" not a user-settable property?  Well, airport chains are used as the children of a number of
-	// entities.  Some, like taxiway pavement polygons, _cannot_ be non-closed.  So don't let the user go around manually
-	// opening up these polygons.
-	int		closed;
-
+    // Why is "closed" not a user-settable property?  Well, airport chains are used as the children of a number of
+    // entities.  Some, like taxiway pavement polygons, _cannot_ be non-closed.  So don't let the user go around
+    // manually opening up these polygons.
+    int closed;
 };
 
 #endif /* WED_AIRPORTCHAIN_H */

@@ -29,18 +29,18 @@
 #include <FL/filename.H>
 #endif
 
-void	GUI_LaunchURL(const char * url)
+void GUI_LaunchURL(const char* url)
 {
-	#if APL
-		std::string cmd = "open \"";
-		cmd += url;
-		cmd += "\"";
-		system(cmd.c_str());
-	#endif
-	#if IBM
-		ShellExecuteW(NULL,L"open",convert_str_to_utf16(url).c_str(),NULL,NULL,SW_SHOWNORMAL);
-	#endif
-	#if LIN
-		 fl_open_uri(url);
-    #endif
+#if APL
+    std::string cmd = "open \"";
+    cmd += url;
+    cmd += "\"";
+    system(cmd.c_str());
+#endif
+#if IBM
+    ShellExecuteW(NULL, L"open", convert_str_to_utf16(url).c_str(), NULL, NULL, SW_SHOWNORMAL);
+#endif
+#if LIN
+    fl_open_uri(url);
+#endif
 }

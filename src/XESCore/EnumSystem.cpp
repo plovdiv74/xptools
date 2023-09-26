@@ -22,140 +22,137 @@
  */
 #include "EnumSystem.h"
 #include "XChunkyFileUtils.h"
-#include "DEMDefs.h"	// For NO_DATA
+#include "DEMDefs.h" // For NO_DATA
 
-#define	TOKEN(x)		#x,
+#define TOKEN(x) #x,
 #define EXTRACT_TOKENS 1
 
-	const char * kDefaultTokens[] = {
+const char* kDefaultTokens[] = {
 
 #include "ParamDefs.h"
 
-	NULL
-};
+    NULL};
 
 #undef TOKEN
 #undef EXTRACT_TOKENS
 
+TokenMap gTokens;
+TokenReverseMap gReverse;
 
-TokenMap		gTokens;
-TokenReverseMap	gReverse;
-
-static bool ConfirmNotNumber(const char * t)
+static bool ConfirmNotNumber(const char* t)
 {
-	if(*t == 0) 
-		return false;
-	while(*t)
-	{
-		if(!isdigit(*t))
-			return true;
-		++t;
-	}
-	return false;
+    if (*t == 0)
+        return false;
+    while (*t)
+    {
+        if (!isdigit(*t))
+            return true;
+        ++t;
+    }
+    return false;
 }
 
 void InitEnumSystem()
 {
-	gTokens.clear();
-	for (int i = 0; i < NUMBER_OF_DEFAULT_TOKENS; ++i)
-		gTokens.push_back(kDefaultTokens[i]);
-	BuildTokenReverseMap(gTokens, gReverse);
+    gTokens.clear();
+    for (int i = 0; i < NUMBER_OF_DEFAULT_TOKENS; ++i)
+        gTokens.push_back(kDefaultTokens[i]);
+    BuildTokenReverseMap(gTokens, gReverse);
 }
 
-const char *	FetchTokenString(int x)
+const char* FetchTokenString(int x)
 {
-	if (x == DEM_NO_DATA) return "NO DATA";
-	if (x < 0 || x >= gTokens.size()) return "unknown token";
-	return gTokens[x].c_str();
+    if (x == DEM_NO_DATA)
+        return "NO DATA";
+    if (x < 0 || x >= gTokens.size())
+        return "unknown token";
+    return gTokens[x].c_str();
 }
 
-int				LookupToken(const char * inString)
+int LookupToken(const char* inString)
 {
-	if (gTokens.size() != gReverse.size())
-		BuildTokenReverseMap(gTokens, gReverse);
-	TokenReverseMap::iterator i = gReverse.find(inString);
-	if (i == gReverse.end()) return -1;
-	return i->second;
+    if (gTokens.size() != gReverse.size())
+        BuildTokenReverseMap(gTokens, gReverse);
+    TokenReverseMap::iterator i = gReverse.find(inString);
+    if (i == gReverse.end())
+        return -1;
+    return i->second;
 }
 
-int				LookupTokenCreate(const char * inString)
+int LookupTokenCreate(const char* inString)
 {
-	int n = LookupToken(inString);
-	if (n != -1) return n;
-	return NewToken(inString);
+    int n = LookupToken(inString);
+    if (n != -1)
+        return n;
+    return NewToken(inString);
 }
 
-void	BuildTokenReverseMap(
-						const TokenMap&		inTokens,
-						TokenReverseMap&	inReverse)
+void BuildTokenReverseMap(const TokenMap& inTokens, TokenReverseMap& inReverse)
 {
-	inReverse.clear();
-	for (int i = 0; i < inTokens.size(); ++i)
-	{
-		inReverse.insert(TokenReverseMap::value_type(inTokens[i], i));
-	}
+    inReverse.clear();
+    for (int i = 0; i < inTokens.size(); ++i)
+    {
+        inReverse.insert(TokenReverseMap::value_type(inTokens[i], i));
+    }
 }
 
-void	BuildTokenConversionMap(
-						TokenMap&			ioDestination,
-						const TokenMap&		inSource,
-						TokenConversionMap&	outConversion)
+void BuildTokenConversionMap(TokenMap& ioDestination, const TokenMap& inSource, TokenConversionMap& outConversion)
 {
-	TokenReverseMap	knownTokens;
-	BuildTokenReverseMap(ioDestination, knownTokens);
-	outConversion.clear();
-	for (int src = 0; src < inSource.size(); ++src)
-	{
-		TokenReverseMap::iterator knownIter = knownTokens.find(inSource[src]);
-		if (knownIter != knownTokens.end())
-		{
-			outConversion.push_back(knownIter->second);
-		} else {
-			outConversion.push_back(ioDestination.size());
-			ioDestination.push_back(inSource[src]);
-		}
-	}
+    TokenReverseMap knownTokens;
+    BuildTokenReverseMap(ioDestination, knownTokens);
+    outConversion.clear();
+    for (int src = 0; src < inSource.size(); ++src)
+    {
+        TokenReverseMap::iterator knownIter = knownTokens.find(inSource[src]);
+        if (knownIter != knownTokens.end())
+        {
+            outConversion.push_back(knownIter->second);
+        }
+        else
+        {
+            outConversion.push_back(ioDestination.size());
+            ioDestination.push_back(inSource[src]);
+        }
+    }
 }
 
-void	WriteEnumsAtomToFile(FILE * inFile, const TokenMap& inTokens, int atomCode)
+void WriteEnumsAtomToFile(FILE* inFile, const TokenMap& inTokens, int atomCode)
 {
-	StAtomWriter	tertAtom(inFile, atomCode);
-	for (TokenMap::const_iterator i = inTokens.begin(); i != inTokens.end(); ++i)
-			fwrite(i->c_str(), i->size() + 1, 1, inFile);
+    StAtomWriter tertAtom(inFile, atomCode);
+    for (TokenMap::const_iterator i = inTokens.begin(); i != inTokens.end(); ++i)
+        fwrite(i->c_str(), i->size() + 1, 1, inFile);
 }
 
-
-void	ReadEnumsAtomFromFile(XAtomContainer& inAtomContainer, TokenMap& outTokens, int atomCode)
+void ReadEnumsAtomFromFile(XAtomContainer& inAtomContainer, TokenMap& outTokens, int atomCode)
 {
-	XAtomStringTable	strings;
-	if (inAtomContainer.GetNthAtomOfID(atomCode, 0, strings))
-	{
-		outTokens.clear();
-		const char * i;
-		for (i = strings.GetFirstString(); i; i = strings.GetNextString(i))
-		{
-			outTokens.push_back(std::string(i));
-		}
-	}
+    XAtomStringTable strings;
+    if (inAtomContainer.GetNthAtomOfID(atomCode, 0, strings))
+    {
+        outTokens.clear();
+        const char* i;
+        for (i = strings.GetFirstString(); i; i = strings.GetNextString(i))
+        {
+            outTokens.push_back(std::string(i));
+        }
+    }
 }
 
-int				NewToken(const char * inString)
+int NewToken(const char* inString)
 {
-	Assert(ConfirmNotNumber(inString));
-	int v = gTokens.size();
-	gTokens.push_back(inString);
-	gReverse[inString] = gTokens.size()-1;
+    Assert(ConfirmNotNumber(inString));
+    int v = gTokens.size();
+    gTokens.push_back(inString);
+    gReverse[inString] = gTokens.size() - 1;
 
-	return v;
+    return v;
 }
 
 void EnumSystemSelfCheck(void)
 {
-	std::set<std::string>	dummy;
-	for (int n = 0; n < gTokens.size(); ++n)
-	{
-		Assert(dummy.count(gTokens[n]) == 0);
-		dummy.insert(gTokens[n]);
-	}
+    std::set<std::string> dummy;
+    for (int n = 0; n < gTokens.size(); ++n)
+    {
+        Assert(dummy.count(gTokens[n]) == 0);
+        dummy.insert(gTokens[n]);
+    }
 }
-

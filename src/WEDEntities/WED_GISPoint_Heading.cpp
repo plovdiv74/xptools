@@ -27,9 +27,8 @@
 
 TRIVIAL_COPY(WED_GISPoint_Heading, WED_GISPoint)
 
-WED_GISPoint_Heading::WED_GISPoint_Heading(WED_Archive * parent, int id) :
-	WED_GISPoint(parent, id),
-	heading(this,PROP_Name("heading", XML_Name("point","heading")),0.0,6,2)
+WED_GISPoint_Heading::WED_GISPoint_Heading(WED_Archive* parent, int id)
+    : WED_GISPoint(parent, id), heading(this, PROP_Name("heading", XML_Name("point", "heading")), 0.0, 6, 2)
 {
 }
 
@@ -37,30 +36,30 @@ WED_GISPoint_Heading::~WED_GISPoint_Heading()
 {
 }
 
-GISClass_t		WED_GISPoint_Heading::GetGISClass		(void				 ) const
+GISClass_t WED_GISPoint_Heading::GetGISClass(void) const
 {
-	return gis_Point_Heading;
+    return gis_Point_Heading;
 }
 
-double	WED_GISPoint_Heading::GetHeading(void			) const
+double WED_GISPoint_Heading::GetHeading(void) const
 {
-	return heading.value;
+    return heading.value;
 }
 
-void	WED_GISPoint_Heading::SetHeading(double h)
+void WED_GISPoint_Heading::SetHeading(double h)
 {
-	if (h != heading.value)
-	{
-		StateChanged();
-		heading.value = h;
-		CacheInval(cache_Spatial);
-		CacheBuild(cache_Spatial);
-	}
+    if (h != heading.value)
+    {
+        StateChanged();
+        heading.value = h;
+        CacheInval(cache_Spatial);
+        CacheBuild(cache_Spatial);
+    }
 }
 
-void	WED_GISPoint_Heading::Rotate			(GISLayer_t l,const Point2& center, double angle)
+void WED_GISPoint_Heading::Rotate(GISLayer_t l, const Point2& center, double angle)
 {
-	WED_GISPoint::Rotate(l,center,angle);
-	if(l == gis_Geo)
-	heading = heading.value + angle;
+    WED_GISPoint::Rotate(l, center, angle);
+    if (l == gis_Geo)
+        heading = heading.value + angle;
 }

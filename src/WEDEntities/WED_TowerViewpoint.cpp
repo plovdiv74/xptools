@@ -28,8 +28,8 @@
 DEFINE_PERSISTENT(WED_TowerViewpoint)
 TRIVIAL_COPY(WED_TowerViewpoint, WED_GISPoint)
 
-WED_TowerViewpoint::WED_TowerViewpoint(WED_Archive * a, int i) : WED_GISPoint(a,i),
-	height(this,PROP_Name("Height", XML_Name("tower_viewpoint","height")), 20, 4, 1)
+WED_TowerViewpoint::WED_TowerViewpoint(WED_Archive* a, int i)
+    : WED_GISPoint(a, i), height(this, PROP_Name("Height", XML_Name("tower_viewpoint", "height")), 20, 4, 1)
 {
 }
 
@@ -37,22 +37,22 @@ WED_TowerViewpoint::~WED_TowerViewpoint()
 {
 }
 
-void	WED_TowerViewpoint::SetHeight(double h)
+void WED_TowerViewpoint::SetHeight(double h)
 {
-	height = h;
+    height = h;
 }
 
-void		WED_TowerViewpoint::Import(const AptTowerPt_t& x, void (* print_func)(void *, const char *, ...), void * ref)
+void WED_TowerViewpoint::Import(const AptTowerPt_t& x, void (*print_func)(void*, const char*, ...), void* ref)
 {
-	SetLocation(gis_Geo,x.location);
-	height = x.height_ft * FT_TO_MTR;
-	SetName(x.name);
+    SetLocation(gis_Geo, x.location);
+    height = x.height_ft * FT_TO_MTR;
+    SetName(x.name);
 }
 
-void		WED_TowerViewpoint::Export(		 AptTowerPt_t& x) const
+void WED_TowerViewpoint::Export(AptTowerPt_t& x) const
 {
-	GetLocation(gis_Geo,x.location);
-	x.height_ft = height * MTR_TO_FT;
-	GetName(x.name);
-	x.draw_obj = 0;
+    GetLocation(gis_Geo, x.location);
+    x.height_ft = height * MTR_TO_FT;
+    GetName(x.name);
+    x.draw_obj = 0;
 }

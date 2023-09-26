@@ -24,20 +24,16 @@
 #define GEOUTILS_H
 
 // Intersect a line and a plane, returns true if they intersect
-bool	MapLineToPlane(
-			double		line_pt[3],		// Line's Pt
-			double		line_vec[3],	// Line's vector
-			double		plane[4],		// ABCD from plane equation
-			double		sect[3]);		// Where they cross
+bool MapLineToPlane(double line_pt[3],  // Line's Pt
+                    double line_vec[3], // Line's vector
+                    double plane[4],    // ABCD from plane equation
+                    double sect[3]);    // Where they cross
 
 // Intersect a line and a sphere, return trhe the closer point,
 // or false if no intersect
-bool	MapLineToSphere(
-			double		line_pt[3],
-			double		line_vec[3],
-			double		sphere[4],	// XYZR
-			double		sect[3]);
-
+bool MapLineToSphere(double line_pt[3], double line_vec[3],
+                     double sphere[4], // XYZR
+                     double sect[3]);
 
 // Given the corners of the near clipping plane in eye coordinates
 // and the distance to the near clipping plane (inNear must be positive!!)
@@ -48,37 +44,26 @@ bool	MapLineToSphere(
 // constraining to an arbitrary plane.  (Warning: if the plane is shear to
 // the viewer (e.g. looks like a line when projected) this will probably
 // explode.  The current OGL state is used.
-bool	FindPointOnPlane(
-			double		left,			// These describe our view
-			double		right,			// frustum - can't reverse these
-			double		bottom,			// from the projection matrix!
-			double		top,
-			double		inNear,
-			double		plane[4],		// Our plane in model-view coordinates
-			double		inClickX,		// The click, in "screen" coordinates.
-			double		inClickY,		// (really OS window coordinates but +Y = up)
-			double		where[3]);		// The point on the plane in model-view coordinates
+bool FindPointOnPlane(double left,   // These describe our view
+                      double right,  // frustum - can't reverse these
+                      double bottom, // from the projection matrix!
+                      double top, double inNear,
+                      double plane[4],  // Our plane in model-view coordinates
+                      double inClickX,  // The click, in "screen" coordinates.
+                      double inClickY,  // (really OS window coordinates but +Y = up)
+                      double where[3]); // The point on the plane in model-view coordinates
 
-bool	FindPointOnSphere(
-			double		left,			// These describe our view
-			double		right,			// frustum - can't reverse these
-			double		bottom,			// from the projection matrix!
-			double		top,
-			double		inNear,
-			double		sphere[4],		// Our sphere in model-view coordinates, XYZR
-			double		inClickX,		// The click, in "screen" coordinates.
-			double		inClickY,		// (really OS window coordinates but +Y = up)
-			double		where[3]);		// The point on the plane in model-view coordinates
-
+bool FindPointOnSphere(double left,   // These describe our view
+                       double right,  // frustum - can't reverse these
+                       double bottom, // from the projection matrix!
+                       double top, double inNear,
+                       double sphere[4], // Our sphere in model-view coordinates, XYZR
+                       double inClickX,  // The click, in "screen" coordinates.
+                       double inClickY,  // (really OS window coordinates but +Y = up)
+                       double where[3]); // The point on the plane in model-view coordinates
 
 // Given a point in modelview space, find the 2-d screen coords given
 // the current OGL state.
-void	ModelToScreenPt(
-			double		modelPt[3],
-			double		screenPt[2],
-			double *	outZ = NULL);
-
-
+void ModelToScreenPt(double modelPt[3], double screenPt[2], double* outZ = NULL);
 
 #endif
-

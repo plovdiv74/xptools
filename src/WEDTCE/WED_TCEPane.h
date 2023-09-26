@@ -31,49 +31,45 @@
 
 #include "WED_TCE.h"
 
-class	IDocPrefs;
-class	WED_Archive;
-class	IResolver;
-class	GUI_Commander;
-class	GUI_ToolBar;
-class	GUI_Table;
-class	GUI_TextTable;
-class	WED_ToolInfoAdapter;
+class IDocPrefs;
+class WED_Archive;
+class IResolver;
+class GUI_Commander;
+class GUI_ToolBar;
+class GUI_Table;
+class GUI_TextTable;
+class WED_ToolInfoAdapter;
 
-class WED_TCEPane  : public GUI_Packer, GUI_Listener, public GUI_Commander {
+class WED_TCEPane : public GUI_Packer, GUI_Listener, public GUI_Commander
+{
 public:
+    WED_TCEPane(GUI_Commander* cmdr, IResolver* resolver, WED_Archive* archive);
+    virtual ~WED_TCEPane();
 
-						 WED_TCEPane(GUI_Commander * cmdr, IResolver * resolver, WED_Archive * archive);
-	virtual				~WED_TCEPane();
+    void ZoomShowAll(void);
 
-			void		ZoomShowAll(void);
+    int TCE_KeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFlags);
+    int TCE_HandleCommand(int command);
+    int TCE_CanHandleCommand(int command, std::string& ioName, int& ioCheck);
 
-			int			TCE_KeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFlags);
-			int			TCE_HandleCommand(int command);
-			int			TCE_CanHandleCommand(int command, std::string& ioName, int& ioCheck);
+    void FromPrefs(IDocPrefs* prefs);
+    void ToPrefs(IDocPrefs* prefs);
 
-			void		FromPrefs(IDocPrefs * prefs);
-			void		ToPrefs(IDocPrefs * prefs);
-
-	virtual	void		ReceiveMessage(
-							GUI_Broadcaster *		inSrc,
-							intptr_t				inMsg,
-							intptr_t				inParam);
+    virtual void ReceiveMessage(GUI_Broadcaster* inSrc, intptr_t inMsg, intptr_t inParam);
 
 private:
+    WED_TCE* mTCE;
 
-	WED_TCE *				mTCE;
+    std::vector<WED_TCELayer*> mLayers;
+    std::vector<WED_TCEToolNew*> mTools;
 
-	std::vector<WED_TCELayer *>	mLayers;
-	std::vector<WED_TCEToolNew *>mTools;
+    GUI_ToolBar* mToolbar;
 
-	GUI_ToolBar *			mToolbar;
+    GUI_Table* mTable;
+    GUI_TextTable* mTextTable;
+    WED_ToolInfoAdapter* mInfoAdapter;
 
-	GUI_Table *				mTable;
-	GUI_TextTable *			mTextTable;
-	WED_ToolInfoAdapter *	mInfoAdapter;
-
-	IResolver *				mResolver;
+    IResolver* mResolver;
 };
 
 #endif /* WED_TCEPane_H */

@@ -24,12 +24,10 @@
 #include "WED_TCELayer.h"
 #include "MathUtils.h"
 
-WED_TCELayer::WED_TCELayer(GUI_Pane * h, WED_MapZoomerNew * z, IResolver * i) : mZoomer(z), mResolver(i), mHost(h)
+WED_TCELayer::WED_TCELayer(GUI_Pane* h, WED_MapZoomerNew* z, IResolver* i) : mZoomer(z), mResolver(i), mHost(h)
 {
 }
 
 WED_TCELayer::~WED_TCELayer()
 {
 }
-
-

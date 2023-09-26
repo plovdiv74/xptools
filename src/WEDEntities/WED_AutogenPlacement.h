@@ -27,36 +27,43 @@
 #include "WED_GISPolygon.h"
 #include "IHasResource.h"
 
-class WED_AutogenPlacement : public WED_GISPolygon, public IHasResource {
+class WED_AutogenPlacement : public WED_GISPolygon, public IHasResource
+{
 
-DECLARE_PERSISTENT(WED_AutogenPlacement)
+    DECLARE_PERSISTENT(WED_AutogenPlacement)
 
 public:
+    virtual bool IsClosed(void) const
+    {
+        return true;
+    }
+    bool IsAGBlock(void) const;
 
-	virtual	bool			IsClosed	(void	) const	{ return true; }
-			bool			IsAGBlock     (void) const;
+    double GetHeight(void) const;
+    void SetHeight(double h);
+    int GetSpelling(void) const;
+    void SetSpelling(int s);
 
-			double			GetHeight	(void) const;
-			void			SetHeight   (double h);
-			int				GetSpelling	(void) const;
-			void			SetSpelling (int s);
+    virtual void GetResource(std::string& r) const;
+    virtual void SetResource(const std::string& r);
 
-	virtual void			GetResource(	  std::string& r) const;
-	virtual void			SetResource(const std::string& r);
+    virtual void GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
 
-	virtual void			GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
-
-	virtual const char *	HumanReadableType(void) const { return "Autogen"; }
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Autogen";
+    }
 
 protected:
-
-	virtual	bool			IsInteriorFilled(void) const { return true; }
+    virtual bool IsInteriorFilled(void) const
+    {
+        return true;
+    }
 
 private:
-
-	WED_PropStringText			resource;
-	WED_PropDoubleTextMeters	height;
-	WED_PropIntText				spelling;
+    WED_PropStringText resource;
+    WED_PropDoubleTextMeters height;
+    WED_PropIntText spelling;
 };
 
 #endif /* WED_AutogenPlacement_H */

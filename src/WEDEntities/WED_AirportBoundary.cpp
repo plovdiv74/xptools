@@ -27,9 +27,9 @@
 DEFINE_PERSISTENT(WED_AirportBoundary)
 TRIVIAL_COPY(WED_AirportBoundary, WED_GISPolygon)
 
-WED_AirportBoundary::WED_AirportBoundary(WED_Archive * a, int i) : WED_GISPolygon(a,i),
-	lines(this,PROP_Name("Line Attributes",XML_Name("","")),	"Line Attributes", 1),
-	lights(this,PROP_Name("Light Attributes",XML_Name("","")),	"Light Attributes", 1)
+WED_AirportBoundary::WED_AirportBoundary(WED_Archive* a, int i)
+    : WED_GISPolygon(a, i), lines(this, PROP_Name("Line Attributes", XML_Name("", "")), "Line Attributes", 1),
+      lights(this, PROP_Name("Light Attributes", XML_Name("", "")), "Light Attributes", 1)
 {
 }
 
@@ -37,12 +37,12 @@ WED_AirportBoundary::~WED_AirportBoundary()
 {
 }
 
-void WED_AirportBoundary::Import(const AptBoundary_t& x, void (* print_func)(void *, const char *, ...), void * ref)
+void WED_AirportBoundary::Import(const AptBoundary_t& x, void (*print_func)(void*, const char*, ...), void* ref)
 {
-	SetName(x.name);
+    SetName(x.name);
 }
 
-void WED_AirportBoundary::Export(		 AptBoundary_t& x) const
+void WED_AirportBoundary::Export(AptBoundary_t& x) const
 {
-	GetName(x.name);
+    GetName(x.name);
 }

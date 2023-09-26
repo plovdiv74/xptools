@@ -37,32 +37,32 @@
 
 /* The directory separator is a macro and should be cased by some kind of compiler
    #define or something. */
-#if	IBM
-	#define DIR_CHAR	'\\'
-	#define DIR_STR		"\\"
-	#define TEMP_FILES_DIR_LEN MAX_PATH
+#if IBM
+#define DIR_CHAR '\\'
+#define DIR_STR "\\"
+#define TEMP_FILES_DIR_LEN MAX_PATH
 #elif APL || LIN
-		#define	DIR_CHAR	'/'
-		#define DIR_STR		"/"
-		#define TEMP_FILES_DIR_LEN 255
+#define DIR_CHAR '/'
+#define DIR_STR "/"
+#define TEMP_FILES_DIR_LEN 255
 #else
-	#error PLATFORM NOT DEFINED
+#error PLATFORM NOT DEFINED
 #endif
 
 /*
-* This routine returns a fully qualified path to the application.
-*
-*/
+ * This routine returns a fully qualified path to the application.
+ *
+ */
 std::string GetApplicationPath();
 
 /*
-* The FQP to the OS' semantically correct folder for caching files
-*/
+ * The FQP to the OS' semantically correct folder for caching files
+ */
 std::string GetCacheFolder();
 
 /*
-* Returns the FQP to the OS' "Best practices" temporary files folder
-*/
+ * Returns the FQP to the OS' "Best practices" temporary files folder
+ */
 std::string GetTempFilesFolder();
 
 /*
@@ -70,31 +70,24 @@ std::string GetTempFilesFolder();
  * to a picked file.  It returns 1 if a file was picked, 0 if the user canceled.
  *
  */
-enum {
-	getFile_Open,
-	getFile_Save,
-	getFile_PickFolder,
-	getFile_OpenImages //Only allows supported image types to be chosen, windows only
+enum
+{
+    getFile_Open,
+    getFile_Save,
+    getFile_PickFolder,
+    getFile_OpenImages // Only allows supported image types to be chosen, windows only
 };
-int		GetFilePathFromUser(
-					int					inType,
-					const char * 		inPrompt,
-					const char *		inAction,
-					int					inID,
-					char *				outFileName,
-					int					inBufSize);
+int GetFilePathFromUser(int inType, const char* inPrompt, const char* inAction, int inID, char* outFileName,
+                        int inBufSize);
 
 // 0-len-terminated list of paths, you must free!
-char *	GetMultiFilePathFromUser(
-					const char * 		inPrompt,
-					const char *		inAction,
-					int					inID);
+char* GetMultiFilePathFromUser(const char* inPrompt, const char* inAction, int inID);
 
 /*
  * DoUserAlert puts up an alert dialog box with the message and an OK button.
  * WARNING: Do not call during the middle of an operation!
  */
-void	DoUserAlert(const char * inMsg);
+void DoUserAlert(const char* inMsg);
 
 /*
  * ConfirmMessage puts up a dialog box with a message and two buttons.  The proceed
@@ -102,18 +95,18 @@ void	DoUserAlert(const char * inMsg);
  * Returns 1 if the user clicks the proceed button, 0 if the user cancels.
  *
  */
-int		ConfirmMessage(const char * inMsg, const char * proceedBtn, const char * cancelBtn);
+int ConfirmMessage(const char* inMsg, const char* proceedBtn, const char* cancelBtn);
 
-enum {
-	close_Save,
-	close_Discard,
-	close_Cancel
+enum
+{
+    close_Save,
+    close_Discard,
+    close_Cancel
 };
 /*
  *
  *
  */
-int DoSaveDiscardDialog(const char * inMessage1, const char * inMessage2);
-
+int DoSaveDiscardDialog(const char* inMessage1, const char* inMessage2);
 
 #endif

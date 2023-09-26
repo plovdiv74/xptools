@@ -24,7 +24,6 @@
 #ifndef WED_UIMeasurements_H
 #define WED_UIMeasurements_H
 
-int		WED_UIMeasurement(const char * measurement);
-
+int WED_UIMeasurement(const char* measurement);
 
 #endif /* WED_UIMeasurements_H */

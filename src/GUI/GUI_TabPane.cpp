@@ -26,84 +26,80 @@
 #include "GUI_ChangeView.h"
 #include "GUI_Messages.h"
 
-GUI_TabPane::GUI_TabPane(GUI_Commander * parent) :
-	GUI_Commander(parent), GUI_Packer()
+GUI_TabPane::GUI_TabPane(GUI_Commander* parent) : GUI_Commander(parent), GUI_Packer()
 {
-	mTabs = new GUI_TabControl;
-	int b[4] = { 0, 0, 30, mTabs->GetNaturalHeight() };
-	mTabs->SetParent(this);
-	mTabs->Show();
-	mTabs->SetBounds(b);
-	mTabs->SetMin(0.0f);
-	mTabs->SetMax(0.0f);
-	mTabs->SetValue(0.0f);
-	this->PackPane(mTabs, gui_Pack_Top);
-	mTabs->SetSticky(1,0,1,1);
+    mTabs = new GUI_TabControl;
+    int b[4] = {0, 0, 30, mTabs->GetNaturalHeight()};
+    mTabs->SetParent(this);
+    mTabs->Show();
+    mTabs->SetBounds(b);
+    mTabs->SetMin(0.0f);
+    mTabs->SetMax(0.0f);
+    mTabs->SetValue(0.0f);
+    this->PackPane(mTabs, gui_Pack_Top);
+    mTabs->SetSticky(1, 0, 1, 1);
 
-	mChangeView = new GUI_ChangeView(this);
-	mChangeView->SetParent(this);
-	mChangeView->Show();
-	this->PackPane(mChangeView, gui_Pack_Center);
-	mChangeView->SetSticky(1,1,1,1);
+    mChangeView = new GUI_ChangeView(this);
+    mChangeView->SetParent(this);
+    mChangeView->Show();
+    this->PackPane(mChangeView, gui_Pack_Center);
+    mChangeView->SetSticky(1, 1, 1, 1);
 
-	mTabs->AddListener(this);
+    mTabs->AddListener(this);
 }
 
 GUI_TabPane::~GUI_TabPane()
 {
 }
 
-void			GUI_TabPane::SetTextColor(float color[4])
+void GUI_TabPane::SetTextColor(float color[4])
 {
-	mTabs->SetTextColor(color);
+    mTabs->SetTextColor(color);
 }
 
-void			GUI_TabPane::SetTab(int n)
+void GUI_TabPane::SetTab(int n)
 {
-	mTabs->SetValue(n);
+    mTabs->SetValue(n);
 }
 
-int				GUI_TabPane::GetTab(void) const
+int GUI_TabPane::GetTab(void) const
 {
-	return mTabs->GetValue();
+    return mTabs->GetValue();
 }
 
-GUI_Commander *	GUI_TabPane::GetPaneOwner(void)
+GUI_Commander* GUI_TabPane::GetPaneOwner(void)
 {
-	return mChangeView;
+    return mChangeView;
 }
 
-void			GUI_TabPane::AddPane(GUI_Pane * who, const char * title)
+void GUI_TabPane::AddPane(GUI_Pane* who, const char* title)
 {
-	if (mTabs->GetValue() == mChangeView->CountChildren())
-		who->Show();
-	else
-		who->Hide();
+    if (mTabs->GetValue() == mChangeView->CountChildren())
+        who->Show();
+    else
+        who->Hide();
 
-	who->SetParent(mChangeView);
-	int bounds[4];
-	mChangeView->GetBounds(bounds);
-	who->SetBounds(bounds);
-	who->SetSticky(1,1,1,1);
+    who->SetParent(mChangeView);
+    int bounds[4];
+    mChangeView->GetBounds(bounds);
+    who->SetBounds(bounds);
+    who->SetSticky(1, 1, 1, 1);
 
-	mTabs->SetMax(mChangeView->CountChildren()-1);
+    mTabs->SetMax(mChangeView->CountChildren() - 1);
 
-	std::string desc;
-	mTabs->GetDescriptor(desc);
-	if (!desc.empty()) desc += "\n";
-	desc += title;
-	mTabs->SetDescriptor(desc);
+    std::string desc;
+    mTabs->GetDescriptor(desc);
+    if (!desc.empty())
+        desc += "\n";
+    desc += title;
+    mTabs->SetDescriptor(desc);
 }
 
-void	GUI_TabPane::ReceiveMessage(
-							GUI_Broadcaster *		inSrc,
-							intptr_t				inMsg,
-							intptr_t				inParam)
+void GUI_TabPane::ReceiveMessage(GUI_Broadcaster* inSrc, intptr_t inMsg, intptr_t inParam)
 {
-	if (inMsg == GUI_CONTROL_VALUE_CHANGED)
-	{
-		mChangeView->SetSubView(mTabs->GetValue());
-		BroadcastMessage(GUI_CONTROL_VALUE_CHANGED, mTabs->GetValue());
-	}
+    if (inMsg == GUI_CONTROL_VALUE_CHANGED)
+    {
+        mChangeView->SetSubView(mTabs->GetValue());
+        BroadcastMessage(GUI_CONTROL_VALUE_CHANGED, mTabs->GetValue());
+    }
 }
-

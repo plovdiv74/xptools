@@ -31,15 +31,15 @@
 #include "XESConstants.h"
 
 DEFINE_PERSISTENT(WED_ObjPlacement)
-TRIVIAL_COPY(WED_ObjPlacement,WED_GISPoint_Heading)
+TRIVIAL_COPY(WED_ObjPlacement, WED_GISPoint_Heading)
 
-WED_ObjPlacement::WED_ObjPlacement(WED_Archive * a, int i) :
-	WED_GISPoint_Heading(a,i),
-	has_msl(this,PROP_Name("Elevation Mode", XML_Name("obj_placement","custom_msl")), ObjElevationType, obj_setToGround),
-	msl    (this,PROP_Name("Elevation",     XML_Name("obj_placement","msl")), 0, 5, 3),
-	resource  (this,PROP_Name("Resource",  XML_Name("obj_placement","resource")),""),
-	show_level(this,PROP_Name("Show with", XML_Name("obj_placement","show_level")), ShowLevel, show_Level1),
-	visibleWithinDeg(-1.0)
+WED_ObjPlacement::WED_ObjPlacement(WED_Archive* a, int i)
+    : WED_GISPoint_Heading(a, i), has_msl(this, PROP_Name("Elevation Mode", XML_Name("obj_placement", "custom_msl")),
+                                          ObjElevationType, obj_setToGround),
+      msl(this, PROP_Name("Elevation", XML_Name("obj_placement", "msl")), 0, 5, 3),
+      resource(this, PROP_Name("Resource", XML_Name("obj_placement", "resource")), ""),
+      show_level(this, PROP_Name("Show with", XML_Name("obj_placement", "show_level")), ShowLevel, show_Level1),
+      visibleWithinDeg(-1.0)
 {
 }
 
@@ -47,226 +47,230 @@ WED_ObjPlacement::~WED_ObjPlacement()
 {
 }
 
-void		WED_ObjPlacement::SetShowLevel(int sl)
+void WED_ObjPlacement::SetShowLevel(int sl)
 {
-	show_level = ENUM_Import(ShowLevel,sl);
+    show_level = ENUM_Import(ShowLevel, sl);
 }
 
-int			WED_ObjPlacement::GetShowLevel(void) const
+int WED_ObjPlacement::GetShowLevel(void) const
 {
-	return ENUM_Export(show_level.value);
+    return ENUM_Export(show_level.value);
 }
 
-void		WED_ObjPlacement::GetResource(	  std::string& r) const
+void WED_ObjPlacement::GetResource(std::string& r) const
 {
-	r = resource.value;
+    r = resource.value;
 }
 
-void		WED_ObjPlacement::SetResource(const std::string& r)
+void WED_ObjPlacement::SetResource(const std::string& r)
 {
-	resource = r;
-	visibleWithinDeg = -1.0; // force re-evaluation when object is changed
+    resource = r;
+    visibleWithinDeg = -1.0; // force re-evaluation when object is changed
 }
 
-void		WED_ObjPlacement::SetHeading(double h)
+void WED_ObjPlacement::SetHeading(double h)
 {
 #if WED
-	WED_ResourceMgr * rmgr = WED_GetResourceMgr(GetArchive()->GetResolver());
-	if(rmgr)
-	{
-		const XObj8 * o;
-//			int n = GetNumVariants(resource.value);   // no need to cycle through these - only the first variant is used for preview
-		if(rmgr->GetObj(resource.value,o))
-			if(o->fixed_heading >= 0.0)
-				h = o->fixed_heading;
-	}
+    WED_ResourceMgr* rmgr = WED_GetResourceMgr(GetArchive()->GetResolver());
+    if (rmgr)
+    {
+        const XObj8* o;
+        //			int n = GetNumVariants(resource.value);   // no need to cycle through these - only the first variant
+        // is used for preview
+        if (rmgr->GetObj(resource.value, o))
+            if (o->fixed_heading >= 0.0)
+                h = o->fixed_heading;
+    }
 #endif
-	WED_GISPoint_Heading::SetHeading(h);
+    WED_GISPoint_Heading::SetHeading(h);
 }
 
-void	WED_ObjPlacement::Rotate(GISLayer_t l,const Point2& center, double angle)
+void WED_ObjPlacement::Rotate(GISLayer_t l, const Point2& center, double angle)
 {
 #if WED
-	WED_ResourceMgr * rmgr = WED_GetResourceMgr(GetArchive()->GetResolver());
-	if(rmgr)
-	{
-		const XObj8 * o;
-		if(rmgr->GetObj(resource.value,o))
-			if(o->fixed_heading >= 0.0)
-			{
-				WED_GISPoint::Rotate(l,center,angle);
-				return;
-			}
-	}
+    WED_ResourceMgr* rmgr = WED_GetResourceMgr(GetArchive()->GetResolver());
+    if (rmgr)
+    {
+        const XObj8* o;
+        if (rmgr->GetObj(resource.value, o))
+            if (o->fixed_heading >= 0.0)
+            {
+                WED_GISPoint::Rotate(l, center, angle);
+                return;
+            }
+    }
 #endif
-	WED_GISPoint_Heading::Rotate(l,center,angle);
+    WED_GISPoint_Heading::Rotate(l, center, angle);
 }
 
 double WED_ObjPlacement::GetTowerViewHgt(void)
 {
 #if WED
-	WED_ResourceMgr* rmgr = WED_GetResourceMgr(GetArchive()->GetResolver());
-	if (rmgr)
-	{
-		const XObj8* o;
-		const agp_t* a;
-		if (rmgr->GetObj(resource.value, o))
-		{
-			if (o->viewpoint_height >= 0.0)
-			{
-				return (HasCustomMSL() == 2) * GetCustomMSL() + o->viewpoint_height;
-			}
-		}
-		else if (rmgr->GetAGP(resource.value, a))      // find the first object with a viewpoint nad shift it up per scraper or delta from the .agp
-		{
-			for (const auto& ob : a->tiles.front().objs)
-			{
-				double hgt = ob.obj->viewpoint_height;
-				if (hgt >= 0.0)
-				{
-					if (ob.scp_step > 0.0 && HasCustomMSL() == 2 && GetCustomMSL() > ob.scp_min)
-						hgt += floor((min(GetCustomMSL(), (double) ob.scp_max) - ob.scp_min) / ob.scp_step) * ob.scp_step;
-					else
-						hgt += ob.z;
-					return hgt;
-				}
-			}
-		}
-	}
-	return -1.0;
+    WED_ResourceMgr* rmgr = WED_GetResourceMgr(GetArchive()->GetResolver());
+    if (rmgr)
+    {
+        const XObj8* o;
+        const agp_t* a;
+        if (rmgr->GetObj(resource.value, o))
+        {
+            if (o->viewpoint_height >= 0.0)
+            {
+                return (HasCustomMSL() == 2) * GetCustomMSL() + o->viewpoint_height;
+            }
+        }
+        else if (rmgr->GetAGP(
+                     resource.value,
+                     a)) // find the first object with a viewpoint nad shift it up per scraper or delta from the .agp
+        {
+            for (const auto& ob : a->tiles.front().objs)
+            {
+                double hgt = ob.obj->viewpoint_height;
+                if (hgt >= 0.0)
+                {
+                    if (ob.scp_step > 0.0 && HasCustomMSL() == 2 && GetCustomMSL() > ob.scp_min)
+                        hgt +=
+                            floor((min(GetCustomMSL(), (double)ob.scp_max) - ob.scp_min) / ob.scp_step) * ob.scp_step;
+                    else
+                        hgt += ob.z;
+                    return hgt;
+                }
+            }
+        }
+    }
+    return -1.0;
 
 #endif
 }
 
-
-
-double 	WED_ObjPlacement::GetVisibleDeg(void) const
+double WED_ObjPlacement::GetVisibleDeg(void) const
 {
-	// caching the objects dimension here for off-display culling in the map view. Its disregarding object rotation
-	// and any lattitude dependency in the conversion, so the value will be choosen sufficiently pessimistic.
+    // caching the objects dimension here for off-display culling in the map view. Its disregarding object rotation
+    // and any lattitude dependency in the conversion, so the value will be choosen sufficiently pessimistic.
 #if WED
-	if(visibleWithinDeg < 0.0)                            // so we only do this once for each object, ever
-	{
-		visibleWithinDeg = GLOBAL_WED_ART_ASSET_FUDGE_FACTOR;           // the old, brain-dead visibility rule of thumb
-		visibleWithinMeters = 10.0;                       // just a wild guess
-		WED_ResourceMgr * rmgr = WED_GetResourceMgr(GetArchive()->GetResolver());
-		if(rmgr)
-		{
-			const XObj8 * o;
-			const agp_t * agp;
-			Point2	my_loc;
-			GetLocation(gis_Geo,my_loc);
-			double mtr_to_lon = MTR_TO_DEG_LAT / cos(my_loc.y() * DEG_TO_RAD);
+    if (visibleWithinDeg < 0.0) // so we only do this once for each object, ever
+    {
+        visibleWithinDeg = GLOBAL_WED_ART_ASSET_FUDGE_FACTOR; // the old, brain-dead visibility rule of thumb
+        visibleWithinMeters = 10.0;                           // just a wild guess
+        WED_ResourceMgr* rmgr = WED_GetResourceMgr(GetArchive()->GetResolver());
+        if (rmgr)
+        {
+            const XObj8* o;
+            const agp_t* agp;
+            Point2 my_loc;
+            GetLocation(gis_Geo, my_loc);
+            double mtr_to_lon = MTR_TO_DEG_LAT / cos(my_loc.y() * DEG_TO_RAD);
 
-//			int n = GetNumVariants(resource.value);   // no need to cycle through these - only the first variant is used for preview
-			if (rmgr->GetObj(resource.value, o))
-			{
-				visibleWithinDeg = pythag(max(fabs(o->xyz_max[0]), fabs(o->xyz_min[0])), max(fabs(o->xyz_max[2]), fabs(o->xyz_min[2]))) * 1.2 * mtr_to_lon;
-				visibleWithinMeters = pythag(
-					max(fabs(o->xyz_max[0]), fabs(o->xyz_min[0])),
-					max(fabs(o->xyz_max[1]), fabs(o->xyz_min[1])),
-					max(fabs(o->xyz_max[2]), fabs(o->xyz_min[2])));
-			}
-			else if(rmgr->GetAGP(resource.value,agp))
-			{
-				auto ti = agp->tiles.front();
-				visibleWithinDeg = pythag(max(fabs(ti.xyz_max[0]), fabs(ti.xyz_min[0])), max(fabs(ti.xyz_max[2]), fabs(ti.xyz_min[2]))) * 1.2 * mtr_to_lon;
-				visibleWithinMeters = pythag(
-					max(fabs(ti.xyz_max[0]), fabs(ti.xyz_min[0])),
-					max(fabs(ti.xyz_max[1]), fabs(ti.xyz_min[1])),
-					max(fabs(ti.xyz_max[2]), fabs(ti.xyz_min[2])));
-			}
-		}
-	}
+            //			int n = GetNumVariants(resource.value);   // no need to cycle through these - only the first
+            // variant is used for preview
+            if (rmgr->GetObj(resource.value, o))
+            {
+                visibleWithinDeg = pythag(max(fabs(o->xyz_max[0]), fabs(o->xyz_min[0])),
+                                          max(fabs(o->xyz_max[2]), fabs(o->xyz_min[2]))) *
+                                   1.2 * mtr_to_lon;
+                visibleWithinMeters =
+                    pythag(max(fabs(o->xyz_max[0]), fabs(o->xyz_min[0])), max(fabs(o->xyz_max[1]), fabs(o->xyz_min[1])),
+                           max(fabs(o->xyz_max[2]), fabs(o->xyz_min[2])));
+            }
+            else if (rmgr->GetAGP(resource.value, agp))
+            {
+                auto ti = agp->tiles.front();
+                visibleWithinDeg = pythag(max(fabs(ti.xyz_max[0]), fabs(ti.xyz_min[0])),
+                                          max(fabs(ti.xyz_max[2]), fabs(ti.xyz_min[2]))) *
+                                   1.2 * mtr_to_lon;
+                visibleWithinMeters =
+                    pythag(max(fabs(ti.xyz_max[0]), fabs(ti.xyz_min[0])), max(fabs(ti.xyz_max[1]), fabs(ti.xyz_min[1])),
+                           max(fabs(ti.xyz_max[2]), fabs(ti.xyz_min[2])));
+            }
+        }
+    }
 #endif
 
-	return visibleWithinDeg; // one note -
+    return visibleWithinDeg; // one note -
 }
 
-double 	WED_ObjPlacement::GetVisibleMeters(void) const
+double WED_ObjPlacement::GetVisibleMeters(void) const
 {
-	GetVisibleDeg();
+    GetVisibleDeg();
 
-	return visibleWithinMeters;
+    return visibleWithinMeters;
 }
 
-bool		WED_ObjPlacement::Cull(const Bbox2& b) const
+bool WED_ObjPlacement::Cull(const Bbox2& b) const
 {
-	// Make sure visibleWithinDeg has been updated.
-	GetVisibleDeg();
+    // Make sure visibleWithinDeg has been updated.
+    GetVisibleDeg();
 
-// This adds a radical approach to culling - drop ALL visible part, like preview/structure/handles/highlight if its too small.
-// Thois will make items completely invisible, but keeps thm selectable. Very similar as the "too small to go in" apprach where whole
-// groups or airport drop out of view.
-// Results in only a verw cases in users surprises - as large group of isolated items (like forests drawn as individual tree objects).
-// This practive of drawing trees comoes a popular "bad paractive" for gateway airports now - which result in sceneries that do not scale
-// very well with rendering settings.
-// This concept could be enhanced by passing an additional parameter into the Cull() function to allow items to cull themselves differently
-// based on structure/preview or even tool views.
-//
-//	if(visibleWithinDeg < b.yspan() * 0.002) return false;      // cull objects by size as well. Makes structure/preview and handles all disappear
+    // This adds a radical approach to culling - drop ALL visible part, like preview/structure/handles/highlight if its
+    // too small. Thois will make items completely invisible, but keeps thm selectable. Very similar as the "too small
+    // to go in" apprach where whole groups or airport drop out of view. Results in only a verw cases in users surprises
+    // - as large group of isolated items (like forests drawn as individual tree objects). This practive of drawing
+    // trees comoes a popular "bad paractive" for gateway airports now - which result in sceneries that do not scale
+    // very well with rendering settings.
+    // This concept could be enhanced by passing an additional parameter into the Cull() function to allow items to cull
+    // themselves differently based on structure/preview or even tool views.
+    //
+    //	if(visibleWithinDeg < b.yspan() * 0.002) return false;      // cull objects by size as well. Makes
+    // structure/preview and handles all disappear
 
-	Point2	my_loc;
-	GetLocation(gis_Geo,my_loc);
+    Point2 my_loc;
+    GetLocation(gis_Geo, my_loc);
 
-	Bbox2	my_bounds(my_loc - Vector2(visibleWithinDeg,visibleWithinDeg),
-					  my_loc + Vector2(visibleWithinDeg,visibleWithinDeg));
+    Bbox2 my_bounds(my_loc - Vector2(visibleWithinDeg, visibleWithinDeg),
+                    my_loc + Vector2(visibleWithinDeg, visibleWithinDeg));
 
-	return b.overlap(my_bounds);
+    return b.overlap(my_bounds);
 }
 
-int		WED_ObjPlacement::HasCustomMSL(void) const
+int WED_ObjPlacement::HasCustomMSL(void) const
 {
-	return has_msl.value - obj_setToGround;
+    return has_msl.value - obj_setToGround;
 }
 
-double		WED_ObjPlacement::GetCustomMSL(void) const
+double WED_ObjPlacement::GetCustomMSL(void) const
 {
-	return msl.value;
+    return msl.value;
 }
 
-void		WED_ObjPlacement::SetCustomMSL(double in_msl, bool is_AGL)
+void WED_ObjPlacement::SetCustomMSL(double in_msl, bool is_AGL)
 {
-	has_msl = is_AGL ? obj_setAGL : obj_setMSL;
-	msl = in_msl;
+    has_msl = is_AGL ? obj_setAGL : obj_setMSL;
+    msl = in_msl;
 }
 
-void		WED_ObjPlacement::SetDefaultMSL(void)
+void WED_ObjPlacement::SetDefaultMSL(void)
 {
-	has_msl = obj_setToGround;
+    has_msl = obj_setToGround;
 }
-
 
 // the enum names for "Ground Level" and "set_MSL" are kept as "0" and "1" for xml backward compatibility.
 // Translate those names here to keep this from confusing users
 
-void	WED_ObjPlacement::GetNthPropertyDict(int n, PropertyDict_t& dict) const
+void WED_ObjPlacement::GetNthPropertyDict(int n, PropertyDict_t& dict) const
 {
-	WED_Thing::GetNthPropertyDict(n,dict);
-	if(n == PropertyItemNumber(&has_msl))
-	{
-		dict[obj_setToGround] = std::make_pair("on Ground",true);
-		dict[obj_setMSL] = std::make_pair("set_MSL",true);
-	}
+    WED_Thing::GetNthPropertyDict(n, dict);
+    if (n == PropertyItemNumber(&has_msl))
+    {
+        dict[obj_setToGround] = std::make_pair("on Ground", true);
+        dict[obj_setMSL] = std::make_pair("set_MSL", true);
+    }
 }
 
-void	WED_ObjPlacement::GetNthPropertyDictItem(int n, int e, std::string& item) const
+void WED_ObjPlacement::GetNthPropertyDictItem(int n, int e, std::string& item) const
 {
-	if(n == PropertyItemNumber(&has_msl) && e <= obj_setMSL)
-	{
-		item = (e == obj_setToGround ? "on Ground" : "set_MSL");
-	}
-	else
-		WED_Thing::GetNthPropertyDictItem(n,e,item);
+    if (n == PropertyItemNumber(&has_msl) && e <= obj_setMSL)
+    {
+        item = (e == obj_setToGround ? "on Ground" : "set_MSL");
+    }
+    else
+        WED_Thing::GetNthPropertyDictItem(n, e, item);
 }
 
-void	WED_ObjPlacement::GetNthPropertyInfo(int n, PropertyInfo_t& info) const
+void WED_ObjPlacement::GetNthPropertyInfo(int n, PropertyInfo_t& info) const
 {
-	if (has_msl.value == obj_setToGround && n == PropertyItemNumber(&msl))
-	{
-		info.prop_name = "."; // Do not show elevation property if its not relevant
-	}
-	else
-		WED_Thing::GetNthPropertyInfo(n, info);
+    if (has_msl.value == obj_setToGround && n == PropertyItemNumber(&msl))
+    {
+        info.prop_name = "."; // Do not show elevation property if its not relevant
+    }
+    else
+        WED_Thing::GetNthPropertyInfo(n, info);
 }
-

@@ -24,9 +24,8 @@
 #ifndef SCENERYPACKAGES_H
 #define SCENERYPACKAGES_H
 
-int		CreateTerrainPackage(const char * inPackage, bool make_stub_pngs, bool dry_run);
-void	CreatePackageForDSF(const char * inPackage, int lon, int lat, char * outDSFDestination);
-bool	SpreadsheetForObject(const char * inObjFile, FILE * outDstLine);
+int CreateTerrainPackage(const char* inPackage, bool make_stub_pngs, bool dry_run);
+void CreatePackageForDSF(const char* inPackage, int lon, int lat, char* outDSFDestination);
+bool SpreadsheetForObject(const char* inObjFile, FILE* outDstLine);
 
 #endif /* SCENERYPACKAGES_H */
-

@@ -26,24 +26,16 @@
 
 #include "IBase.h"
 
-typedef	void *	TexRef;
+typedef void* TexRef;
 
-class	ITexMgr : public virtual IBase {
+class ITexMgr : public virtual IBase
+{
 public:
+    virtual TexRef LookupTexture(const char* path, bool is_absolute, int flags) = 0;
+    virtual void DropTexture(const char* path) = 0;
 
-	virtual	TexRef		LookupTexture(const char * path, bool is_absolute, int flags)=0;
-	virtual	void 		DropTexture(const char * path)=0;
-
-	virtual	int			GetTexID(TexRef ref)=0;
-	virtual	void		GetTexInfo(
-								TexRef	ref,
-								int *	vis_x,
-								int *	vis_y,
-								int *	act_x,
-								int *	act_y,
-								int *	org_x,
-								int *	org_y)=0;
-
+    virtual int GetTexID(TexRef ref) = 0;
+    virtual void GetTexInfo(TexRef ref, int* vis_x, int* vis_y, int* act_x, int* act_y, int* org_x, int* org_y) = 0;
 };
 
 #endif /* ITexMgr_H */

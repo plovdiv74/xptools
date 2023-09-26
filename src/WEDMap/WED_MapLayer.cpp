@@ -33,146 +33,157 @@
 
 #include "WED_MapZoomerNew.h"
 
-WED_MapLayer::WED_MapLayer(GUI_Pane * h, WED_MapZoomerNew * z, IResolver * i) :
-	mZoomer(z), mResolver(i), mHost(h), mHideFilter(NULL), mLockFilter(NULL)
+WED_MapLayer::WED_MapLayer(GUI_Pane* h, WED_MapZoomerNew* z, IResolver* i)
+    : mZoomer(z), mResolver(i), mHost(h), mHideFilter(NULL), mLockFilter(NULL)
 
 {
-	int dims[2];
+    int dims[2];
 
-	GUI_GetImageResourceSize("map_airport.png",dims);
-	mAirportRadius = 0.5 * (double)(intmin2(dims[0],dims[1]));
+    GUI_GetImageResourceSize("map_airport.png", dims);
+    mAirportRadius = 0.5 * (double)(intmin2(dims[0], dims[1]));
 
-	GUI_GetImageResourceSize("map_towerview.png",dims);
-	mFurnitureRadius = 0.5 * (double)(intmin2(dims[0],dims[1]));
+    GUI_GetImageResourceSize("map_towerview.png", dims);
+    mFurnitureRadius = 0.5 * (double)(intmin2(dims[0], dims[1]));
 
-	// This is the scale of the icons for airports themselves.  It is a multiplier.
-	// When this is "1" one pixel of the airport icon = one meter on the map.
-	mAirportFactor = 20.0;
-	
-	// This is the scale of the icons for all of the parts of an airport - VASI lights,
-	// signs, windsocks, parking spots.  It is a multiplier.
-	// When this is "1" one pixel of the airport icon = one meter on the map.
-	mFurnitureFactor = 1.0;
-	
-	// This is the width at which we transition from full airports to icons
-	mAirportTransWidth = 20.0;
-	mVisible = true;
+    // This is the scale of the icons for airports themselves.  It is a multiplier.
+    // When this is "1" one pixel of the airport icon = one meter on the map.
+    mAirportFactor = 20.0;
+
+    // This is the scale of the icons for all of the parts of an airport - VASI lights,
+    // signs, windsocks, parking spots.  It is a multiplier.
+    // When this is "1" one pixel of the airport icon = one meter on the map.
+    mFurnitureFactor = 1.0;
+
+    // This is the width at which we transition from full airports to icons
+    mAirportTransWidth = 20.0;
+    mVisible = true;
 }
 
 WED_MapLayer::~WED_MapLayer()
 {
 }
 
-double		WED_MapLayer::GetFurnitureIconScale(void) const
+double WED_MapLayer::GetFurnitureIconScale(void) const
 {
-	return doblim(GetZoomer()->GetPPM() * mFurnitureFactor,0.001,1.0);
+    return doblim(GetZoomer()->GetPPM() * mFurnitureFactor, 0.001, 1.0);
 }
 
-double		WED_MapLayer::GetFurnitureIconRadius(void) const
+double WED_MapLayer::GetFurnitureIconRadius(void) const
 {
-	return doblim(GetZoomer()->GetPPM() * mFurnitureFactor,0.001,1.0) * mFurnitureRadius;
+    return doblim(GetZoomer()->GetPPM() * mFurnitureFactor, 0.001, 1.0) * mFurnitureRadius;
 }
 
-double		WED_MapLayer::GetAirportIconScale(void) const
+double WED_MapLayer::GetAirportIconScale(void) const
 {
-	return doblim(GetZoomer()->GetPPM() * mAirportFactor,0.5,1.0);
+    return doblim(GetZoomer()->GetPPM() * mAirportFactor, 0.5, 1.0);
 }
 
-double		WED_MapLayer::GetAirportIconRadius(void) const
+double WED_MapLayer::GetAirportIconRadius(void) const
 {
-	return doblim(GetZoomer()->GetPPM() * mAirportFactor, 0.5,1.0) * mAirportRadius;
+    return doblim(GetZoomer()->GetPPM() * mAirportFactor, 0.5, 1.0) * mAirportRadius;
 }
 
-bool		WED_MapLayer::IsVisible(void) const
+bool WED_MapLayer::IsVisible(void) const
 {
-	return mVisible;
+    return mVisible;
 }
 
-void		WED_MapLayer::SetVisible(bool visibility)
+void WED_MapLayer::SetVisible(bool visibility)
 {
-	mVisible = visibility;
+    mVisible = visibility;
 }
 
-void		WED_MapLayer::ToggleVisible(void)
+void WED_MapLayer::ToggleVisible(void)
 {
-	mVisible = !mVisible;
-	GetHost()->Refresh();
+    mVisible = !mVisible;
+    GetHost()->Refresh();
 }
 
-void		WED_MapLayer::SetFilter(const MapFilter_t * hide_filter_ptr, const MapFilter_t * lock_filter_ptr)
+void WED_MapLayer::SetFilter(const MapFilter_t* hide_filter_ptr, const MapFilter_t* lock_filter_ptr)
 {
-	mHideFilter = hide_filter_ptr;
-	mLockFilter = lock_filter_ptr;
+    mHideFilter = hide_filter_ptr;
+    mLockFilter = lock_filter_ptr;
 }
 
-static bool matches_filter(WED_Thing * thing ,const  MapFilter_t * filter )
+static bool matches_filter(WED_Thing* thing, const MapFilter_t* filter)
 {
-	if(thing == NULL) return false;
-	for(MapFilter_t::const_iterator filterit = filter->begin(); filterit != filter->end(); ++filterit)
-	{
-		bool match = true;
-		WED_Thing * parent = thing;
-		for(auto &i: filterit->e)
-		{
-			const char * type = parent->GetClass();
-			if( type == WED_Airport::sClass ) type = WED_Group::sClass;
-			if (!(type == i)) { match = false; break; }
-			parent = parent->GetParent();
-			if (parent == NULL) { match = false; break; }
-		}
-		if (match) return true;
-	}
-	return false;
+    if (thing == NULL)
+        return false;
+    for (MapFilter_t::const_iterator filterit = filter->begin(); filterit != filter->end(); ++filterit)
+    {
+        bool match = true;
+        WED_Thing* parent = thing;
+        for (auto& i : filterit->e)
+        {
+            const char* type = parent->GetClass();
+            if (type == WED_Airport::sClass)
+                type = WED_Group::sClass;
+            if (!(type == i))
+            {
+                match = false;
+                break;
+            }
+            parent = parent->GetParent();
+            if (parent == NULL)
+            {
+                match = false;
+                break;
+            }
+        }
+        if (match)
+            return true;
+    }
+    return false;
 }
 
-bool	WED_MapLayer::IsVisibleNow(IGISEntity * ent) const
+bool WED_MapLayer::IsVisibleNow(IGISEntity* ent) const
 {
-	WED_Entity * e = dynamic_cast<WED_Entity *>(ent);
-	if (!e)
-		return false;
-	else
-		return IsVisibleNow(e);
+    WED_Entity* e = dynamic_cast<WED_Entity*>(ent);
+    if (!e)
+        return false;
+    else
+        return IsVisibleNow(e);
 }
 
-bool	WED_MapLayer::IsVisibleNow(WED_Entity* ent) const
+bool WED_MapLayer::IsVisibleNow(WED_Entity* ent) const
 {
-	if (mHideFilter)
-	{
-		if (matches_filter(ent, mHideFilter))
-			return false;
-	}
-	return !ent->GetHidden();
+    if (mHideFilter)
+    {
+        if (matches_filter(ent, mHideFilter))
+            return false;
+    }
+    return !ent->GetHidden();
 }
 
-bool	WED_MapLayer::IsLockedNow(IGISEntity * ent) const
+bool WED_MapLayer::IsLockedNow(IGISEntity* ent) const
 {
-	WED_Entity * e = dynamic_cast<WED_Entity *>(ent);
-	if (!e)
-		return false;
-	if(mLockFilter)
-	{
-		if( matches_filter(e, mLockFilter ))
-			return true;
-	}
-	return IsLockedNow(e);
+    WED_Entity* e = dynamic_cast<WED_Entity*>(ent);
+    if (!e)
+        return false;
+    if (mLockFilter)
+    {
+        if (matches_filter(e, mLockFilter))
+            return true;
+    }
+    return IsLockedNow(e);
 }
 
-bool	WED_MapLayer::IsLockedNow(WED_Entity* ent) const
+bool WED_MapLayer::IsLockedNow(WED_Entity* ent) const
 {
-	if(mLockFilter)
-	{
-		if( matches_filter(ent, mLockFilter ))
-			return true;
-	}
-	return ent->GetLockedRecursive();
+    if (mLockFilter)
+    {
+        if (matches_filter(ent, mLockFilter))
+            return true;
+    }
+    return ent->GetLockedRecursive();
 }
 
-bool	WED_MapLayer::IsLocked(WED_Entity* ent) const
+bool WED_MapLayer::IsLocked(WED_Entity* ent) const
 {
-	if (mLockFilter)
-	{
-		if (matches_filter(ent, mLockFilter))
-			return true;
-	}
-	return ent->GetLocked();
+    if (mLockFilter)
+    {
+        if (matches_filter(ent, mLockFilter))
+            return true;
+    }
+    return ent->GetLocked();
 }

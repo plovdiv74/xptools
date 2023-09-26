@@ -24,12 +24,12 @@
 #include "WED_AutogenPlacement.h"
 
 DEFINE_PERSISTENT(WED_AutogenPlacement)
-TRIVIAL_COPY(WED_AutogenPlacement,WED_GISPolygon)
+TRIVIAL_COPY(WED_AutogenPlacement, WED_GISPolygon)
 
-WED_AutogenPlacement::WED_AutogenPlacement(WED_Archive * a, int i) : WED_GISPolygon(a,i),
-	height  (this,PROP_Name("Height",          XML_Name("autogen_placement","height")),10.0,3,1),
-	spelling(this,PROP_Name("Spelling",        XML_Name("autogen_placement","spelling")),0,3),
-	resource(this,PROP_Name("Resource",        XML_Name("autogen_placement","resource")), "")
+WED_AutogenPlacement::WED_AutogenPlacement(WED_Archive* a, int i)
+    : WED_GISPolygon(a, i), height(this, PROP_Name("Height", XML_Name("autogen_placement", "height")), 10.0, 3, 1),
+      spelling(this, PROP_Name("Spelling", XML_Name("autogen_placement", "spelling")), 0, 3),
+      resource(this, PROP_Name("Resource", XML_Name("autogen_placement", "resource")), "")
 {
 }
 
@@ -37,45 +37,45 @@ WED_AutogenPlacement::~WED_AutogenPlacement()
 {
 }
 
-void	WED_AutogenPlacement::GetResource(	  std::string& r) const
+void WED_AutogenPlacement::GetResource(std::string& r) const
 {
-	r = resource.value;
+    r = resource.value;
 }
 
-bool	WED_AutogenPlacement::IsAGBlock(void) const
+bool WED_AutogenPlacement::IsAGBlock(void) const
 {
-	return resource.value.back() == 'b';
+    return resource.value.back() == 'b';
 }
 
-void	WED_AutogenPlacement::SetResource(const std::string& r)
+void WED_AutogenPlacement::SetResource(const std::string& r)
 {
-	resource = r;
+    resource = r;
 }
 
-double	WED_AutogenPlacement::GetHeight(void) const
+double WED_AutogenPlacement::GetHeight(void) const
 {
-	return height.value;
+    return height.value;
 }
 
-void	WED_AutogenPlacement::SetHeight(double h)
+void WED_AutogenPlacement::SetHeight(double h)
 {
-	height = h;
+    height = h;
 }
 
-int 	WED_AutogenPlacement::GetSpelling(void) const
+int WED_AutogenPlacement::GetSpelling(void) const
 {
-	return spelling.value;
+    return spelling.value;
 }
 
-void	WED_AutogenPlacement::SetSpelling(int s)
+void WED_AutogenPlacement::SetSpelling(int s)
 {
-	spelling = s;
+    spelling = s;
 }
 
-void	WED_AutogenPlacement::GetNthPropertyInfo(int n, PropertyInfo_t& info) const
+void WED_AutogenPlacement::GetNthPropertyInfo(int n, PropertyInfo_t& info) const
 {
-	if (!IsAGBlock() && n == PropertyItemNumber(&spelling))
-		info.prop_name = "."; // Do not show elevation property if its not relevant
-	else
-		WED_Thing::GetNthPropertyInfo(n, info);
+    if (!IsAGBlock() && n == PropertyItemNumber(&spelling))
+        info.prop_name = "."; // Do not show elevation property if its not relevant
+    else
+        WED_Thing::GetNthPropertyInfo(n, info);
 }

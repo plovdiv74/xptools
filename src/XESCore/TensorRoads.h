@@ -25,30 +25,23 @@
 #define TensorRoads_H
 
 #include "MapDefs.h"
-struct	DEMGeo;
-struct	ImageInfo;
+struct DEMGeo;
+struct ImageInfo;
 
 #include "ProgressUtils.h"
 
-struct	RoadPrefs_t {
-	float		elevation_weight;
-	float		radial_weight;
-	float		density_amp;
-	float		slope_amp;
+struct RoadPrefs_t
+{
+    float elevation_weight;
+    float radial_weight;
+    float density_amp;
+    float slope_amp;
 };
 
-extern	RoadPrefs_t gRoadPrefs;
+extern RoadPrefs_t gRoadPrefs;
 
-void	BuildRoadsForFace(
-					Pmwx&			ioMap,
-					const DEMGeo&	inElevation,
-					const DEMGeo&	inSlope,
-					const DEMGeo&	inUrbanDensity,
-					const DEMGeo&	inUrbanRadial,
-					const DEMGeo&	inUrbanSquare,
-					Face_handle 	inFace,
-					ProgressFunc	inProg,
-					ImageInfo *		ioTensorImage,
-					double			outTensorBounds[4]);
+void BuildRoadsForFace(Pmwx& ioMap, const DEMGeo& inElevation, const DEMGeo& inSlope, const DEMGeo& inUrbanDensity,
+                       const DEMGeo& inUrbanRadial, const DEMGeo& inUrbanSquare, Face_handle inFace,
+                       ProgressFunc inProg, ImageInfo* ioTensorImage, double outTensorBounds[4]);
 
 #endif /* TensorRoads_H */

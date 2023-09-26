@@ -26,75 +26,64 @@
 
 #include "WED_CreateToolBase.h"
 
-class	WED_Thing;
+class WED_Thing;
 
-enum CreateTool_t {
+enum CreateTool_t
+{
 
-	create_Taxi = 0,
-	create_Boundary,
-	create_Marks,
-	create_Hole,
-	create_Facade,
+    create_Taxi = 0,
+    create_Boundary,
+    create_Marks,
+    create_Hole,
+    create_Facade,
 
-	create_Forest,
-	create_String,
-	create_Line,
-	create_Autogen,
-	create_Polygon
+    create_Forest,
+    create_String,
+    create_Line,
+    create_Autogen,
+    create_Polygon
 };
 
-class	WED_CreatePolygonTool : public WED_CreateToolBase {
+class WED_CreatePolygonTool : public WED_CreateToolBase
+{
 public:
+    WED_CreatePolygonTool(const char* tool_name, GUI_Pane* host, WED_MapZoomerNew* zoomer, IResolver* resolver,
+                          WED_Archive* archive, CreateTool_t tool_type);
+    virtual ~WED_CreatePolygonTool();
 
-						 WED_CreatePolygonTool(
-									const char *		tool_name,
-									GUI_Pane *			host,
-									WED_MapZoomerNew *	zoomer,
-									IResolver *			resolver,
-									WED_Archive *		archive,
-									CreateTool_t		tool_type);
-	virtual				~WED_CreatePolygonTool();
+    void SetResource(const std::string& r);
 
-			void				SetResource(const std::string& r);
+    // WED_MapToolNew
+    virtual const char* GetStatusText(void);
 
-	// WED_MapToolNew
-	virtual	const char *		GetStatusText(void);
-
-	virtual	void		GetNthPropertyDict(int n, PropertyDict_t& dict) const;
+    virtual void GetNthPropertyDict(int n, PropertyDict_t& dict) const;
 
 protected:
+    WED_PropIntEnum mPavement;
+    WED_PropDoubleText mRoughness;
+    WED_PropDoubleText mHeading;
+    WED_PropIntEnumSet mMarkings;
+    WED_PropIntEnumSetFilterVal mMarkingsLines;
+    WED_PropIntEnumSetFilterVal mMarkingsLights;
 
-		WED_PropIntEnum					mPavement;
-		WED_PropDoubleText				mRoughness;
-		WED_PropDoubleText				mHeading;
-		WED_PropIntEnumSet				mMarkings;
-		WED_PropIntEnumSetFilterVal		mMarkingsLines;
-		WED_PropIntEnumSetFilterVal		mMarkingsLights;
+    WED_PropStringText mResource;
+    WED_PropDoubleTextMeters mHeight;
+    WED_PropDoubleText mDensity;
 
-		WED_PropStringText				mResource;
-		WED_PropDoubleTextMeters		mHeight;
-		WED_PropDoubleText				mDensity;
+    WED_PropDoubleTextMeters mSpacing;
+    WED_PropDoubleTextMeters mAgsHght;
 
-		WED_PropDoubleTextMeters		mSpacing;
-		WED_PropDoubleTextMeters		mAgsHght;
+    WED_PropBoolText mUVMap;
+    WED_PropBoolText mPickWalls;
 
-		WED_PropBoolText				mUVMap;
-		WED_PropBoolText				mPickWalls;
+    virtual void AcceptPath(const std::vector<Point2>& pts, const std::vector<Point2>& dirs_lo,
+                            const std::vector<Point2>& dirs_hi, const std::vector<int> has_dirs,
+                            const std::vector<int> has_split, int closed);
+    virtual bool CanCreateNow(void);
 
-	virtual	void		AcceptPath(
-							const std::vector<Point2>&	pts,
-							const std::vector<Point2>&	dirs_lo,
-							const std::vector<Point2>&	dirs_hi,
-							const std::vector<int>		has_dirs,
-							const std::vector<int>		has_split,
-							int						closed);
-	virtual	bool		CanCreateNow(void);
+    WED_Thing* GetHost(int& idx);
 
-
-			WED_Thing *	GetHost(int& idx);
-
-		CreateTool_t	mType;
-
+    CreateTool_t mType;
 };
 
 #endif /* WED_CREATEPOLYGONTOOL_H */

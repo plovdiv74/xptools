@@ -28,332 +28,343 @@
 #include "ObjCUtils.h"
 #endif
 
-
-static const GUI_MenuItem_t	kAppMenu[] = {
-{ "About WED...",		0,	0,	0,	0 },
-{ "-",					0,	0,	0,	0 },
-{	NULL,				0,	0,	0,	0 },
+static const GUI_MenuItem_t kAppMenu[] = {
+    {"About WED...", 0, 0, 0, 0},
+    {"-", 0, 0, 0, 0},
+    {NULL, 0, 0, 0, 0},
 };
 
-
-static const GUI_MenuItem_t	kFileMenu[] = {
-{	"&New Package...",		'N',	gui_ControlFlag,				0,	wed_NewPackage		},
-{	"&Open Package...",		'O',	gui_ControlFlag,				0,	wed_OpenPackage		},
-{	"Change X-System Folder...",0,	0,								0,	wed_ChangeSystem	},
-{	"-",					0,  	0,								0,	0					},
-{	"&Close",				'W',	gui_ControlFlag,				0,	gui_Close			},
-{	"&Save",				'S',	gui_ControlFlag,				0,	gui_Save			},
-{	"&Revert To Saved",		0,		0,								0,	gui_Revert			},
-{	"-",					0,  	0,								0,	0					},
-{	"&Validate",			'V',	gui_ControlFlag + gui_ShiftFlag,	0,	wed_Validate		},
-{	"Target X-Plane Version",0,		0,								0,	0					},
-{	"-",					0,		0,								0,	0					},
+static const GUI_MenuItem_t kFileMenu[] = {
+    {"&New Package...", 'N', gui_ControlFlag, 0, wed_NewPackage},
+    {"&Open Package...", 'O', gui_ControlFlag, 0, wed_OpenPackage},
+    {"Change X-System Folder...", 0, 0, 0, wed_ChangeSystem},
+    {"-", 0, 0, 0, 0},
+    {"&Close", 'W', gui_ControlFlag, 0, gui_Close},
+    {"&Save", 'S', gui_ControlFlag, 0, gui_Save},
+    {"&Revert To Saved", 0, 0, 0, gui_Revert},
+    {"-", 0, 0, 0, 0},
+    {"&Validate", 'V', gui_ControlFlag + gui_ShiftFlag, 0, wed_Validate},
+    {"Target X-Plane Version", 0, 0, 0, 0},
+    {"-", 0, 0, 0, 0},
 #if HAS_GATEWAY
-{	"Import from Airport Scenery Gateway...",0,0,					0,	wed_ImportGateway	},
+    {"Import from Airport Scenery Gateway...", 0, 0, 0, wed_ImportGateway},
 #endif
 #if ROAD_EDITING
-{	"Import Roads (+AutoGen)",0,	0,								0,	wed_ImportRoads		},
+    {"Import Roads (+AutoGen)", 0, 0, 0, wed_ImportRoads},
 #endif
-{	"Import Ortho&photo...", 0,		0,								0,	wed_ImportOrtho		},
-{	"Export Scenery Pac&k",	'B',	gui_ControlFlag,				0,	wed_ExportPack		},
+    {"Import Ortho&photo...", 0, 0, 0, wed_ImportOrtho},
+    {"Export Scenery Pac&k", 'B', gui_ControlFlag, 0, wed_ExportPack},
 #if HAS_GATEWAY
-{	"Submit to Airport Scenery Gateway...",0,	0,					0,	wed_ExportToGateway	},
+    {"Submit to Airport Scenery Gateway...", 0, 0, 0, wed_ExportToGateway},
 #endif
-{	"Advanced ...",			0,		0,								0,	0					},
+    {"Advanced ...", 0, 0, 0, 0},
 #if IBM || LIN
-{	"-",					0,		0,								0,	0					},
-{	"&Preferences...",		0,		0,								0,	gui_Prefs			},
-{	"-",					0,		0,								0,	0					},
-{	"E&xit",				0,		0,								0,	gui_Quit			},
+    {"-", 0, 0, 0, 0},
+    {"&Preferences...", 0, 0, 0, gui_Prefs},
+    {"-", 0, 0, 0, 0},
+    {"E&xit", 0, 0, 0, gui_Quit},
 #endif
-{	NULL,					0,		0,								0,	0					},
+    {NULL, 0, 0, 0, 0},
 };
 
-static const GUI_MenuItem_t kExportTargetMenu[] = {
-{	"X-Plane 9.70",			0,		0,								0,	wed_Export900		},
-{	"X-Plane 10.00",		0,		0,								0,	wed_Export1000		},
-{	"X-Plane 10.21",		0,		0,								0,	wed_Export1021,		},
-{	"X-Plane 10.50",		0,		0,								0,	wed_Export1050,		},
-{	"X-Plane 11.00",		0,		0,								0,	wed_Export1100,		},
-{	"X-Plane 11.30",		0,		0,								0,	wed_Export1130,		},
-{	"X-Plane 12.00",		0,		0,								0,	wed_Export1200,		},
-{	"Airport Scenery Gateway",0,	0,								0,	wed_ExportGateway	},
-{	NULL,					0,		0,								0,	0					}
-};
+static const GUI_MenuItem_t kExportTargetMenu[] = {{"X-Plane 9.70", 0, 0, 0, wed_Export900},
+                                                   {"X-Plane 10.00", 0, 0, 0, wed_Export1000},
+                                                   {
+                                                       "X-Plane 10.21",
+                                                       0,
+                                                       0,
+                                                       0,
+                                                       wed_Export1021,
+                                                   },
+                                                   {
+                                                       "X-Plane 10.50",
+                                                       0,
+                                                       0,
+                                                       0,
+                                                       wed_Export1050,
+                                                   },
+                                                   {
+                                                       "X-Plane 11.00",
+                                                       0,
+                                                       0,
+                                                       0,
+                                                       wed_Export1100,
+                                                   },
+                                                   {
+                                                       "X-Plane 11.30",
+                                                       0,
+                                                       0,
+                                                       0,
+                                                       wed_Export1130,
+                                                   },
+                                                   {
+                                                       "X-Plane 12.00",
+                                                       0,
+                                                       0,
+                                                       0,
+                                                       wed_Export1200,
+                                                   },
+                                                   {"Airport Scenery Gateway", 0, 0, 0, wed_ExportGateway},
+                                                   {NULL, 0, 0, 0, 0}};
 
 std::string WED_GetTargetMenuName(int target)
 {
-	if (target <= wed_ExportGateway - wed_Export900)
-		return kExportTargetMenu[target].name;
-	else
-		return std::string();
+    if (target <= wed_ExportGateway - wed_Export900)
+        return kExportTargetMenu[target].name;
+    else
+        return std::string();
 }
 
 static const GUI_MenuItem_t kAdvancedMenu[] = {
-{	"&Import apt.dat...",	0,		0,								0,	wed_ImportApt		},
-{	"Import DS&F...",		0,		0,								0,	wed_ImportDSF		},
+    {"&Import apt.dat...", 0, 0, 0, wed_ImportApt},
+    {"Import DS&F...", 0, 0, 0, wed_ImportDSF},
 #if GATEWAY_IMPORT_FEATURES
-{	"Import Scenery Gateway Extracts...",0,0,						0,	wed_ImportGatewayExtract },
+    {"Import Scenery Gateway Extracts...", 0, 0, 0, wed_ImportGatewayExtract},
 #endif
-{	"&Export apt.dat...",	0,		0,								0,	wed_ExportApt		},
-{	NULL,					0,		0,								0,	0					},
+    {"&Export apt.dat...", 0, 0, 0, wed_ExportApt},
+    {NULL, 0, 0, 0, 0},
 };
 
-static const GUI_MenuItem_t	kEditMenu[] = {
-{	"&Undo",				'Z',	gui_ControlFlag,				0,	gui_Undo		},
-{	"&Redo",				'Z',	gui_ControlFlag+gui_ShiftFlag,	0,	gui_Redo		},
-{	"-",					0,  	0,								0,	0				},
-{	"Cu&t text",			'X',	gui_ControlFlag,				0,	gui_Cut			},
-{	"&Copy  text",			'C',	gui_ControlFlag,				0,	gui_Copy		},
-{	"&Paste text",			'V',	gui_ControlFlag,				0,	gui_Paste		},
-{	"Cl&ear",				0,		0,								0,	gui_Clear		},	// we could use GUI_KEY_DELETE but having del as cmd key screws up text fields.
-{	"&Duplicate",			0,	    0,                          	0,	0           	},
-{	"-",					0,  	0,								0,	0				},
-{	"&Group",				'G',	gui_ControlFlag,				0,	wed_Group		},
-{	"U&ngroup",				'G'	,	gui_ControlFlag+gui_ShiftFlag,	0,	wed_Ungroup		},
-{	"-",					0,  	0,								0,	0				},
-{	"Spl&it",				'E',	gui_ControlFlag,				0,	wed_Split		},
-{	"A&lign",				'L',	gui_ControlFlag,				0,	wed_Align		},
-{	"Match Bezier Handles",	'B',	gui_ControlFlag+gui_ShiftFlag,	0,	wed_MatchBezierHandles },
-{	"&Orthogonalize",		'Q',	gui_ControlFlag,				0,	wed_Orthogonalize },
-{	"Make Regular Poly",	'Q',	gui_ControlFlag+gui_ShiftFlag,	0,	wed_RegularPoly },
-{	"Merge",				'M',	gui_ControlFlag+gui_ShiftFlag,	0,	wed_Merge		},
-{	"Rever&se",				'R',	gui_ControlFlag+gui_ShiftFlag,	0,	wed_Reverse		},
-{	"Rotate",				'R',	gui_ControlFlag,				0,	wed_Rotate		},
-{	"Cr&op Unselected",		0,		0,								0,	wed_Crop		},
-{	"Con&vert To",			0,		0,								0,	0				},
-{	"Break Apart Agp's",	0,    	0,                              0,  wed_BreakApartAgps },
-{	"-",					0,  	0,								0,	0				},
-{	"Move &First",			'[',	gui_ControlFlag+gui_ShiftFlag,	0,	wed_MoveFirst	},
-{	"&Move Up",				'[',	gui_ControlFlag,				0,	wed_MovePrev	},
-{	"Move Do&wn",			']',	gui_ControlFlag,				0,	wed_MoveNext	},
-{	"Move &Last",			']',	gui_ControlFlag+gui_ShiftFlag,	0,	wed_MoveLast	},
-{	NULL,					0,		0,								0,	0				},
+static const GUI_MenuItem_t kEditMenu[] = {
+    {"&Undo", 'Z', gui_ControlFlag, 0, gui_Undo},
+    {"&Redo", 'Z', gui_ControlFlag + gui_ShiftFlag, 0, gui_Redo},
+    {"-", 0, 0, 0, 0},
+    {"Cu&t text", 'X', gui_ControlFlag, 0, gui_Cut},
+    {"&Copy  text", 'C', gui_ControlFlag, 0, gui_Copy},
+    {"&Paste text", 'V', gui_ControlFlag, 0, gui_Paste},
+    {"Cl&ear", 0, 0, 0, gui_Clear}, // we could use GUI_KEY_DELETE but having del as cmd key screws up text fields.
+    {"&Duplicate", 0, 0, 0, 0},
+    {"-", 0, 0, 0, 0},
+    {"&Group", 'G', gui_ControlFlag, 0, wed_Group},
+    {"U&ngroup", 'G', gui_ControlFlag + gui_ShiftFlag, 0, wed_Ungroup},
+    {"-", 0, 0, 0, 0},
+    {"Spl&it", 'E', gui_ControlFlag, 0, wed_Split},
+    {"A&lign", 'L', gui_ControlFlag, 0, wed_Align},
+    {"Match Bezier Handles", 'B', gui_ControlFlag + gui_ShiftFlag, 0, wed_MatchBezierHandles},
+    {"&Orthogonalize", 'Q', gui_ControlFlag, 0, wed_Orthogonalize},
+    {"Make Regular Poly", 'Q', gui_ControlFlag + gui_ShiftFlag, 0, wed_RegularPoly},
+    {"Merge", 'M', gui_ControlFlag + gui_ShiftFlag, 0, wed_Merge},
+    {"Rever&se", 'R', gui_ControlFlag + gui_ShiftFlag, 0, wed_Reverse},
+    {"Rotate", 'R', gui_ControlFlag, 0, wed_Rotate},
+    {"Cr&op Unselected", 0, 0, 0, wed_Crop},
+    {"Con&vert To", 0, 0, 0, 0},
+    {"Break Apart Agp's", 0, 0, 0, wed_BreakApartAgps},
+    {"-", 0, 0, 0, 0},
+    {"Move &First", '[', gui_ControlFlag + gui_ShiftFlag, 0, wed_MoveFirst},
+    {"&Move Up", '[', gui_ControlFlag, 0, wed_MovePrev},
+    {"Move Do&wn", ']', gui_ControlFlag, 0, wed_MoveNext},
+    {"Move &Last", ']', gui_ControlFlag + gui_ShiftFlag, 0, wed_MoveLast},
+    {NULL, 0, 0, 0, 0},
 };
 
 static const GUI_MenuItem_t kDuplicateMenu[] = {
-{	"&Duplicate in place",		'D',gui_ControlFlag+gui_ShiftFlag,0,gui_Duplicate	    },
-{	"Copy into current airport",0,	0,							0,	wed_CopyToAirport   },
-{	NULL,						0,	0,							0,	0					}
-};
+    {"&Duplicate in place", 'D', gui_ControlFlag + gui_ShiftFlag, 0, gui_Duplicate},
+    {"Copy into current airport", 0, 0, 0, wed_CopyToAirport},
+    {NULL, 0, 0, 0, 0}};
 
-static const GUI_MenuItem_t kConvertToMenu[] = {
-{	"Draped &Polygon",			0,	0,							0,	wed_ConvertToPolygon	},
-{	"&Taxiway",					0,	0,							0,	wed_ConvertToTaxiway	},
-{	"&Airport Line Marking",	0,	0,							0,	wed_ConvertToTaxiline	},
-{	"&Line",					0,	0,							0,	wed_ConvertToLine		},
-{	"&Object String",			0,	0,							0,	wed_ConvertToString		},
-{	"&Forest Points",			0,	0,							0,	wed_ConvertToForest		},
-{	NULL,						0,	0,							0,	0						}
-};
+static const GUI_MenuItem_t kConvertToMenu[] = {{"Draped &Polygon", 0, 0, 0, wed_ConvertToPolygon},
+                                                {"&Taxiway", 0, 0, 0, wed_ConvertToTaxiway},
+                                                {"&Airport Line Marking", 0, 0, 0, wed_ConvertToTaxiline},
+                                                {"&Line", 0, 0, 0, wed_ConvertToLine},
+                                                {"&Object String", 0, 0, 0, wed_ConvertToString},
+                                                {"&Forest Points", 0, 0, 0, wed_ConvertToForest},
+                                                {NULL, 0, 0, 0, 0}};
 
 static const GUI_MenuItem_t kViewMenu[] = {
-{	"Zoom Worl&d",				'/',gui_ControlFlag+gui_ShiftFlag,			0,	wed_ZoomWorld		},	// This conflicts with a Mac key strkoe but zoom world is not THAT useful
-{	"&Zoom Package",			'/',gui_ControlFlag+gui_OptionAltFlag,		0,	wed_ZoomAll			},
-{	"Zoom &Selection",			'/',gui_ControlFlag,						0,	wed_ZoomSelection	},	// simple cmd-slash for MOST imoprtant zoom command!
-{	"-",						0,	0,										0,	0					},
-{	"Show &Line Markings",		0,	0,										0,	wed_ToggleLines		},
-{	"Show &Vertices",			0,	0,										0,	wed_ToggleVertices	},
-{	"Pavement Transparenc&y",	0,	0,										0,	0					},
-{	"&Object Density",			0,	0,										0,	0					},
-{	"-",						0,	0,										0,	0					},
-{	"&Pick Overlay Image...",	0,	0,										0,	wed_PickOverlay		},
-{	"Toggle &World Map",		0,	0,										0,	wed_ToggleWorldMap	},
-{	"Toggle &Navaids",			0,	0,										0,	wed_ToggleNavaidMap	},
-{	"Toggle Terrain",			0,	0,										0,	wed_ToggleTerrainMap},
-{	"S&lippy Map",				0,	0,										0,	0                   },
-{	"To&ggle Preview",			0,	0,										0,	wed_TogglePreview	},
+    {"Zoom Worl&d", '/', gui_ControlFlag + gui_ShiftFlag, 0,
+     wed_ZoomWorld}, // This conflicts with a Mac key strkoe but zoom world is not THAT useful
+    {"&Zoom Package", '/', gui_ControlFlag + gui_OptionAltFlag, 0, wed_ZoomAll},
+    {"Zoom &Selection", '/', gui_ControlFlag, 0,
+     wed_ZoomSelection}, // simple cmd-slash for MOST imoprtant zoom command!
+    {"-", 0, 0, 0, 0},
+    {"Show &Line Markings", 0, 0, 0, wed_ToggleLines},
+    {"Show &Vertices", 0, 0, 0, wed_ToggleVertices},
+    {"Pavement Transparenc&y", 0, 0, 0, 0},
+    {"&Object Density", 0, 0, 0, 0},
+    {"-", 0, 0, 0, 0},
+    {"&Pick Overlay Image...", 0, 0, 0, wed_PickOverlay},
+    {"Toggle &World Map", 0, 0, 0, wed_ToggleWorldMap},
+    {"Toggle &Navaids", 0, 0, 0, wed_ToggleNavaidMap},
+    {"Toggle Terrain", 0, 0, 0, wed_ToggleTerrainMap},
+    {"S&lippy Map", 0, 0, 0, 0},
+    {"To&ggle Preview", 0, 0, 0, wed_TogglePreview},
 #if WITHNWLINK
-{	"Toggle LiveMode",		    0,	0,										0,	wed_ToggleLiveView },
+    {"Toggle LiveMode", 0, 0, 0, wed_ToggleLiveView},
 #endif
-{	"-",						0,	0,										0,	0						},
-{	"3D Preview &Window",		0,	0,										0,	0						},
-{	"&Restore Frames",			0,	0,										0,	wed_RestorePanes		},
-{	NULL,						0,	0,										0,	0						},
+    {"-", 0, 0, 0, 0},
+    {"3D Preview &Window", 0, 0, 0, 0},
+    {"&Restore Frames", 0, 0, 0, wed_RestorePanes},
+    {NULL, 0, 0, 0, 0},
 };
 
 static const GUI_MenuItem_t k3DPreviewMenu[] = {
-{	"&Toggle Window",					'P',gui_ControlFlag + gui_ShiftFlag,		0,	wed_TogglePreviewWindow			},
-{	"&Show Map Area in Preview Window", 'U',gui_ControlFlag,						0,	wed_ShowMapAreaInPreviewWindow	},
-{	"&Center Map on Preview Camera",	'U',gui_ControlFlag + gui_ShiftFlag,		0,	wed_CenterMapOnPreviewCamera	},
-{	NULL,								0,	0,										0,	0								}
-};
+    {"&Toggle Window", 'P', gui_ControlFlag + gui_ShiftFlag, 0, wed_TogglePreviewWindow},
+    {"&Show Map Area in Preview Window", 'U', gui_ControlFlag, 0, wed_ShowMapAreaInPreviewWindow},
+    {"&Center Map on Preview Camera", 'U', gui_ControlFlag + gui_ShiftFlag, 0, wed_CenterMapOnPreviewCamera},
+    {NULL, 0, 0, 0, 0}};
 
-static const GUI_MenuItem_t kSlippyMapMenu[] = {
-{	"&None",					0,	0,							0,	wed_SlippyMapNone	},
-{	"&OpenStreetMap",			0,	0,							0,	wed_SlippyMapOSM	},
-{	"&ESRI Imagery",			0,	0,							0,	wed_SlippyMapESRI	},
-{	"&Custom",					0,	0,							0,	wed_SlippyMapCustom	},
-{	NULL,						0,	0,							0,	0					}
-};
+static const GUI_MenuItem_t kSlippyMapMenu[] = {{"&None", 0, 0, 0, wed_SlippyMapNone},
+                                                {"&OpenStreetMap", 0, 0, 0, wed_SlippyMapOSM},
+                                                {"&ESRI Imagery", 0, 0, 0, wed_SlippyMapESRI},
+                                                {"&Custom", 0, 0, 0, wed_SlippyMapCustom},
+                                                {NULL, 0, 0, 0, 0}};
 
+static const GUI_MenuItem_t kPavementMenu[] = {{"&None", 0, 0, 0, wed_Pavement0},    {"&25%", 0, 0, 0, wed_Pavement25},
+                                               {"&50%", 0, 0, 0, wed_Pavement50},    {"&75%", 0, 0, 0, wed_Pavement75},
+                                               {"&Solid", 0, 0, 0, wed_Pavement100}, {NULL, 0, 0, 0, 0}};
 
-static const GUI_MenuItem_t kPavementMenu[] = {
-{	"&None",					0,	0,							0,	wed_Pavement0		},
-{	"&25%",						0,	0,							0,	wed_Pavement25		},
-{	"&50%",						0,	0,							0,	wed_Pavement50		},
-{	"&75%",						0,	0,							0,	wed_Pavement75		},
-{	"&Solid",					0,	0,							0,	wed_Pavement100		},
-{	NULL,						0,	0,							0,	0					}
-};
-
-static const GUI_MenuItem_t kObjDensityMenu[] = {
-{	"&1 Default",				'1',	gui_ControlFlag,		0,	wed_ObjDensity1		},
-{	"&2 A Lot",					'2',	gui_ControlFlag,		0,	wed_ObjDensity2		},
-{	"&3 Tons",					'3',	gui_ControlFlag,		0,	wed_ObjDensity3		},
-{	"&4 Mega Tons",				'4',	gui_ControlFlag,		0,	wed_ObjDensity4		},
-{	"&5 Too Many",				'5',	gui_ControlFlag,		0,	wed_ObjDensity5		},
-{	"&6 Totally Insane",		'6',	gui_ControlFlag,		0,	wed_ObjDensity6		},
-{	NULL,						0,		gui_ControlFlag,		0,	0					}
-};
+static const GUI_MenuItem_t kObjDensityMenu[] = {{"&1 Default", '1', gui_ControlFlag, 0, wed_ObjDensity1},
+                                                 {"&2 A Lot", '2', gui_ControlFlag, 0, wed_ObjDensity2},
+                                                 {"&3 Tons", '3', gui_ControlFlag, 0, wed_ObjDensity3},
+                                                 {"&4 Mega Tons", '4', gui_ControlFlag, 0, wed_ObjDensity4},
+                                                 {"&5 Too Many", '5', gui_ControlFlag, 0, wed_ObjDensity5},
+                                                 {"&6 Totally Insane", '6', gui_ControlFlag, 0, wed_ObjDensity6},
+                                                 {NULL, 0, gui_ControlFlag, 0, 0}};
 
 static const GUI_MenuItem_t kSelectMenu[] = {
-{	"Select &All",		'A',			gui_ControlFlag,				0,	gui_SelectAll		},
-{	"Select &None",		'D',			gui_ControlFlag,				0,	gui_SelectNone		},
-{	"-",				0,				0,								0,	0					},
-{	"Select &Parent",	GUI_KEY_UP,		gui_ControlFlag,				0,	wed_SelectParent	},
-{	"Select &Children",	GUI_KEY_DOWN,	gui_ControlFlag,				0,	wed_SelectChild		},
-{	"Select P&olygon",	GUI_KEY_UP,		gui_ControlFlag+gui_ShiftFlag,	0,	wed_SelectPoly		},
-{	"Select &Vertices",	GUI_KEY_DOWN,	gui_ControlFlag+gui_ShiftFlag,	0,	wed_SelectVertex	},
-{	"Select Conn&ected",			0,			0,							0,	wed_SelectConnected },
-{	"-",						0,			0,							0,	0					},
-{	"Select &Degenerate Edges",	0,			0,							0,	wed_SelectZeroLength },
-{	"Select Do&uble Nodes",		0,			0,							0,	wed_SelectDoubles	},
-{	"Select Crossing Ed&ges",	0,			0,							0,	wed_SelectCrossing	},
-{	"-",						0,			0,							0,	0					},
-{	"Select Local Items",		0,			0,							0,	wed_SelectLocalObjects },
-{	"Select Library Items",		0,			0,							0,	wed_SelectLibraryObjects },
-{	"Select &Laminar Library Items",0,		0,							0,	wed_SelectDefaultObjects },
-{	"Select &Third Party Library Items",0,	0,							0,	wed_SelectThirdPartyObjects },
-{	"Select &Missing Items",	0,			0,							0,	wed_SelectMissingObjects },
-{	NULL,						0,			0,							0,	0					},
+    {"Select &All", 'A', gui_ControlFlag, 0, gui_SelectAll},
+    {"Select &None", 'D', gui_ControlFlag, 0, gui_SelectNone},
+    {"-", 0, 0, 0, 0},
+    {"Select &Parent", GUI_KEY_UP, gui_ControlFlag, 0, wed_SelectParent},
+    {"Select &Children", GUI_KEY_DOWN, gui_ControlFlag, 0, wed_SelectChild},
+    {"Select P&olygon", GUI_KEY_UP, gui_ControlFlag + gui_ShiftFlag, 0, wed_SelectPoly},
+    {"Select &Vertices", GUI_KEY_DOWN, gui_ControlFlag + gui_ShiftFlag, 0, wed_SelectVertex},
+    {"Select Conn&ected", 0, 0, 0, wed_SelectConnected},
+    {"-", 0, 0, 0, 0},
+    {"Select &Degenerate Edges", 0, 0, 0, wed_SelectZeroLength},
+    {"Select Do&uble Nodes", 0, 0, 0, wed_SelectDoubles},
+    {"Select Crossing Ed&ges", 0, 0, 0, wed_SelectCrossing},
+    {"-", 0, 0, 0, 0},
+    {"Select Local Items", 0, 0, 0, wed_SelectLocalObjects},
+    {"Select Library Items", 0, 0, 0, wed_SelectLibraryObjects},
+    {"Select &Laminar Library Items", 0, 0, 0, wed_SelectDefaultObjects},
+    {"Select &Third Party Library Items", 0, 0, 0, wed_SelectThirdPartyObjects},
+    {"Select &Missing Items", 0, 0, 0, wed_SelectMissingObjects},
+    {NULL, 0, 0, 0, 0},
 };
 
 static const GUI_MenuItem_t kAirportMenu[] = {
-{	"&Create Airport",			'A',	gui_ControlFlag+gui_ShiftFlag,			0, wed_CreateApt },
-{	"Create ATC &Frequency",	'F',	gui_ControlFlag,						0, wed_AddATCFreq },
-{	"Create Airport Flow",		0,		0,										0, wed_AddATCFlow },
-{	"Create Runway Use",		0,		0,										0, wed_AddATCRunwayUse },
-{	"Create Runway Time Rule",	0,		0,										0, wed_AddATCTimeRule },
-{	"Create Runway Wind rule",	0,		0,										0, wed_AddATCWindRule },
-{	"Add &Meta Data",			0,		0,										0, 0 },
-{	"Update Metadata",			0,		0,										0, wed_UpdateMetadata},
-{	"No Airport Selected",		'E',	gui_ControlFlag+gui_ShiftFlag,			0, wed_EditApt	},
-{	"-",						0,		0,									0,	0			},
-{	"Upgrade Ramps",			0,		0,									0,	wed_UpgradeRamps},
-{	"Upgrade Jetways",			0,		0,									0,	wed_UpgradeJetways},
-{	"Upgrade Art",				0,		0,									0,	wed_UpgradeArt},
-{	"Age Pavement",				0,		0,									0,	wed_AgePavement},
-{	"Add Pavement Edges",		0,		0,									0,	wed_EdgePavement},
-{	"Mow Grass",				0,		0,									0,	wed_MowGrass},
-{	"Align Airports",			0,		0,									0,	wed_AlignApt},
-{	"Replace Vehicle Objects",	0,		0,									0,  wed_ReplaceVehicleObj	},
-{	NULL,						0,		0,										0, 0,				}
-};
+    {"&Create Airport", 'A', gui_ControlFlag + gui_ShiftFlag, 0, wed_CreateApt},
+    {"Create ATC &Frequency", 'F', gui_ControlFlag, 0, wed_AddATCFreq},
+    {"Create Airport Flow", 0, 0, 0, wed_AddATCFlow},
+    {"Create Runway Use", 0, 0, 0, wed_AddATCRunwayUse},
+    {"Create Runway Time Rule", 0, 0, 0, wed_AddATCTimeRule},
+    {"Create Runway Wind rule", 0, 0, 0, wed_AddATCWindRule},
+    {"Add &Meta Data", 0, 0, 0, 0},
+    {"Update Metadata", 0, 0, 0, wed_UpdateMetadata},
+    {"No Airport Selected", 'E', gui_ControlFlag + gui_ShiftFlag, 0, wed_EditApt},
+    {"-", 0, 0, 0, 0},
+    {"Upgrade Ramps", 0, 0, 0, wed_UpgradeRamps},
+    {"Upgrade Jetways", 0, 0, 0, wed_UpgradeJetways},
+    {"Upgrade Art", 0, 0, 0, wed_UpgradeArt},
+    {"Age Pavement", 0, 0, 0, wed_AgePavement},
+    {"Add Pavement Edges", 0, 0, 0, wed_EdgePavement},
+    {"Mow Grass", 0, 0, 0, wed_MowGrass},
+    {"Align Airports", 0, 0, 0, wed_AlignApt},
+    {"Replace Vehicle Objects", 0, 0, 0, wed_ReplaceVehicleObj},
+    {
+        NULL,
+        0,
+        0,
+        0,
+        0,
+    }};
 
 // end-begin?  YES!  Since begin is before the beginnined and end is AFTER the end this gives us ONE extra slot.
 // We NEED that slot to be the null terminator for the menu list.
-static GUI_MenuItem_t kAddMetaDataMenu[wed_AddMetaDataEnd-wed_AddMetaDataBegin] = { 0 };
+static GUI_MenuItem_t kAddMetaDataMenu[wed_AddMetaDataEnd - wed_AddMetaDataBegin] = {0};
 
-static const GUI_MenuItem_t kHelpMenu[] = {
-{	"&WED User's Guide",			0,	0,										0,	wed_HelpManual },
-{	"-",							0,	0,										0,	0				},
-{	"&X-Plane Scenery Homepage",	0,	0,										0,	wed_HelpScenery },
-{	"&OpenStreetMap Bug Fixing",	0,	0,										0,	wed_OSMFixTheMap },
-{	"&Esri Imagery Permitted Uses",	0,	0,										0,	wed_ESRIUses },
+static const GUI_MenuItem_t kHelpMenu[] = {{"&WED User's Guide", 0, 0, 0, wed_HelpManual},
+                                           {"-", 0, 0, 0, 0},
+                                           {"&X-Plane Scenery Homepage", 0, 0, 0, wed_HelpScenery},
+                                           {"&OpenStreetMap Bug Fixing", 0, 0, 0, wed_OSMFixTheMap},
+                                           {"&Esri Imagery Permitted Uses", 0, 0, 0, wed_ESRIUses},
 #if IBM || LIN
-{	"-",							0,		0,									0,	0				},
-{	"&About WED",					0,		0,									0,	gui_About		},
+                                           {"-", 0, 0, 0, 0},
+                                           {"&About WED", 0, 0, 0, gui_About},
 #endif
-{	NULL,							0,		0,									0, 0,				}
-};
+                                           {
+                                               NULL,
+                                               0,
+                                               0,
+                                               0,
+                                               0,
+                                           }};
 
 /*
-	Ben says: what Matthias and Janos have done here warrants a little bit of explanation.
-	Basically the GUI menu port isn't quite opaque to client code yet.  Unlike Win32,
-	the Qt Menus used on Linux cannot be shared by multiple windows, thus we cannot
-	really have a global std::set of menu resources (simulating the mac) that are installed
-	in every window.
+    Ben says: what Matthias and Janos have done here warrants a little bit of explanation.
+    Basically the GUI menu port isn't quite opaque to client code yet.  Unlike Win32,
+    the Qt Menus used on Linux cannot be shared by multiple windows, thus we cannot
+    really have a global std::set of menu resources (simulating the mac) that are installed
+    in every window.
 
-	So...right now we have a temporary call-out from the window code to re-generate
-	a copy of the client-specific menu content.  This effectively means we have
-	duplicate copies of the menu bar, one per window, which is what we want (since closing
-	a window releases the qt menu bar.).
+    So...right now we have a temporary call-out from the window code to re-generate
+    a copy of the client-specific menu content.  This effectively means we have
+    duplicate copies of the menu bar, one per window, which is what we want (since closing
+    a window releases the qt menu bar.).
 
-	So in the long term we probably need to do something like this:
+    So in the long term we probably need to do something like this:
 
-	1. menu creation is a virtual function called in app object - guarantees the menu
-	bar is established once before any windows are made.  (We know this because windows
-	need the app as a commander so app is always created before any windows.)  Without
-	this we have to broadcast out menu bar changes all over the place.
+    1. menu creation is a virtual function called in app object - guarantees the menu
+    bar is established once before any windows are made.  (We know this because windows
+    need the app as a commander so app is always created before any windows.)  Without
+    this we have to broadcast out menu bar changes all over the place.
 
-	2. rebuild menu item API becomes private.  In practice it is only used in
-	implementations, so exposing it to client code implies we can revise menus when
-	most clients still don't need this.
+    2. rebuild menu item API becomes private.  In practice it is only used in
+    implementations, so exposing it to client code implies we can revise menus when
+    most clients still don't need this.
 
-	(Note that clients CAN revise menus by changing the ioName param in a command
-	evaluation callback).
+    (Note that clients CAN revise menus by changing the ioName param in a command
+    evaluation callback).
 
-	3. Qt app menu code persists the menus, and clones out a copy when a window is made.
+    3. Qt app menu code persists the menus, and clones out a copy when a window is made.
 
 */
 
-void WED_MakeMenus(GUI_Application * inApp)
+void WED_MakeMenus(GUI_Application* inApp)
 {
-	GUI_Menu file_menu = inApp->CreateMenu(
-		"&File", kFileMenu, inApp->GetMenuBar(), 0);
+    GUI_Menu file_menu = inApp->CreateMenu("&File", kFileMenu, inApp->GetMenuBar(), 0);
 
-	GUI_Menu export_target_menu = inApp->CreateMenu(
-		"Target X-Plane Version", kExportTargetMenu, file_menu, 9);
+    GUI_Menu export_target_menu = inApp->CreateMenu("Target X-Plane Version", kExportTargetMenu, file_menu, 9);
 
-	GUI_Menu advanced_menu = inApp->CreateMenu(
-		"Advanced ...", kAdvancedMenu, file_menu, 13 + 2 * HAS_GATEWAY + ROAD_EDITING );
+    GUI_Menu advanced_menu =
+        inApp->CreateMenu("Advanced ...", kAdvancedMenu, file_menu, 13 + 2 * HAS_GATEWAY + ROAD_EDITING);
 
-	GUI_Menu edit_menu = inApp->CreateMenu(
-		"&Edit", kEditMenu, inApp->GetMenuBar(), 0);
+    GUI_Menu edit_menu = inApp->CreateMenu("&Edit", kEditMenu, inApp->GetMenuBar(), 0);
 
-	GUI_Menu duplicate_menu = inApp->CreateMenu(
-		"Duplicate", kDuplicateMenu, edit_menu, 7);
+    GUI_Menu duplicate_menu = inApp->CreateMenu("Duplicate", kDuplicateMenu, edit_menu, 7);
 
-	GUI_Menu convert_to_menu = inApp->CreateMenu(
-		"Con&vert To", kConvertToMenu, edit_menu, 21);
+    GUI_Menu convert_to_menu = inApp->CreateMenu("Con&vert To", kConvertToMenu, edit_menu, 21);
 
-	GUI_Menu  view_menu = inApp->CreateMenu(
-		"&View", kViewMenu, inApp->GetMenuBar(), 0);
+    GUI_Menu view_menu = inApp->CreateMenu("&View", kViewMenu, inApp->GetMenuBar(), 0);
 
-	GUI_Menu	pave_menu = inApp->CreateMenu(
-		"Pavement Transparenc&y",	kPavementMenu, view_menu, 6);
+    GUI_Menu pave_menu = inApp->CreateMenu("Pavement Transparenc&y", kPavementMenu, view_menu, 6);
 
-	GUI_Menu	objd_menu = inApp->CreateMenu(
-		"&Object Density", kObjDensityMenu, view_menu, 7);
+    GUI_Menu objd_menu = inApp->CreateMenu("&Object Density", kObjDensityMenu, view_menu, 7);
 
-	GUI_Menu	slippy_menu = inApp->CreateMenu(
-		"S&lippy Map",	kSlippyMapMenu, view_menu, 13);
+    GUI_Menu slippy_menu = inApp->CreateMenu("S&lippy Map", kSlippyMapMenu, view_menu, 13);
 
 #if WITHNWLINK
-	const int preview_window_parent = 17;
+    const int preview_window_parent = 17;
 #else
-	const int preview_window_parent = 16;
+    const int preview_window_parent = 16;
 #endif
-	GUI_Menu	preview_window_menu = inApp->CreateMenu(
-		"3D Preview &Window", k3DPreviewMenu, view_menu, preview_window_parent);
+    GUI_Menu preview_window_menu =
+        inApp->CreateMenu("3D Preview &Window", k3DPreviewMenu, view_menu, preview_window_parent);
 
-	GUI_Menu  sel_menu = inApp->CreateMenu(
-		"&Select", kSelectMenu, inApp->GetMenuBar(), 0);
+    GUI_Menu sel_menu = inApp->CreateMenu("&Select", kSelectMenu, inApp->GetMenuBar(), 0);
 
-	GUI_Menu	airport_menu = inApp->CreateMenu(
-		"&Airport", kAirportMenu, inApp->GetMenuBar(), 0);
+    GUI_Menu airport_menu = inApp->CreateMenu("&Airport", kAirportMenu, inApp->GetMenuBar(), 0);
 
-	for (KeyEnum key_enum = wed_AddMetaDataBegin + 1; key_enum < wed_AddMetaDataEnd; ++key_enum)
-	{
-		int index = key_enum - wed_AddMetaDataBegin - 1;
-		GUI_MenuItem_t menu_item = { META_KeyDisplayText(key_enum).c_str(), 0, 0, 0, key_enum };
-		kAddMetaDataMenu[index] = menu_item;
-	}
+    for (KeyEnum key_enum = wed_AddMetaDataBegin + 1; key_enum < wed_AddMetaDataEnd; ++key_enum)
+    {
+        int index = key_enum - wed_AddMetaDataBegin - 1;
+        GUI_MenuItem_t menu_item = {META_KeyDisplayText(key_enum).c_str(), 0, 0, 0, key_enum};
+        kAddMetaDataMenu[index] = menu_item;
+    }
 
-	GUI_Menu	airport_add_meta_data_menu = inApp->CreateMenu(
-		"Add &Meta Data", kAddMetaDataMenu, airport_menu, 6);//This hardcoded 6 is a reference to
-															 //kAirportMenu[6]
-	GUI_Menu	help_menu = inApp->CreateMenu(
-		"&Help", kHelpMenu, inApp->GetMenuBar(), 0);
+    GUI_Menu airport_add_meta_data_menu =
+        inApp->CreateMenu("Add &Meta Data", kAddMetaDataMenu, airport_menu, 6); // This hardcoded 6 is a reference to
+                                                                                // kAirportMenu[6]
+    GUI_Menu help_menu = inApp->CreateMenu("&Help", kHelpMenu, inApp->GetMenuBar(), 0);
 }

@@ -82,141 +82,89 @@
 
 //////////////////////////////////////////////////////////////////////
 
-
-
 #pragma once
-
-
-
-
-
-
 
 // namespace common_structures
 
-namespace common_structures {
+namespace common_structures
+{
 
-
-
-
-
-
-
-
-
-template <class T, class CmpT = std::less<T> >
+template <class T, class CmpT = std::less<T>>
 
 class heap_array
 
 {
 
 public:
+    struct heap_is_locked
+    {
+    };
 
+    // heap_array main interface. Pre = PreCondition, Post = PostCondition
 
+    heap_array() : m_Locked(false)
+    {
+    } // Post: ((size() == 0) && ! locked())
 
-	struct heap_is_locked {	};
+    void clear(); // Post: ((size() == 0) && ! locked())
 
+    void reserve(size_t Size);
 
+    size_t size() const;
 
+    bool empty() const;
 
+    bool locked() const;
 
-	// heap_array main interface. Pre = PreCondition, Post = PostCondition
+    bool removed(size_t i) const; // Pre: (valid(i))
 
+    bool valid(size_t i) const;
 
+    const T& top() const; // Pre: (! empty())
 
-	heap_array() : m_Locked(false) { }		// Post: ((size() == 0) && ! locked())
+    const T& peek(size_t i) const; // Pre: (valid(i) && ! removed(i))
 
+    const T& operator[](size_t i) const; // Pre: (valid(i) && ! removed(i))
 
+    size_t push(const T& Elem); // Pre: (! locked()) else throw (heap_is_locked)
 
-	void clear();							// Post: ((size() == 0) && ! locked())
+    void pop(); // Pre: (! empty())                  Post: (locked())
 
+    void erase(size_t i); // Pre: (valid(i) && ! removed(i))   Post: (locked())
 
-
-	void reserve(size_t Size);
-
-	size_t size() const;
-
-
-
-	bool empty() const;
-
-	bool locked() const;
-
-	bool removed(size_t i) const;			// Pre: (valid(i))
-
-	bool valid(size_t i) const;
-
-
-
-	const T & top() const;					// Pre: (! empty())
-
-	const T & peek(size_t i) const;			// Pre: (valid(i) && ! removed(i))
-
-	const T & operator [] (size_t i) const;	// Pre: (valid(i) && ! removed(i))
-
-
-
-	size_t push(const T & Elem);			// Pre: (! locked()) else throw (heap_is_locked)
-
-
-
-	void pop();								// Pre: (! empty())                  Post: (locked())
-
-	void erase(size_t i);					// Pre: (valid(i) && ! removed(i))   Post: (locked())
-
-	void update(size_t i, const T & Elem);	// Pre: (valid(i) && ! removed(i))   Post: (locked())
-
-
+    void update(size_t i, const T& Elem); // Pre: (valid(i) && ! removed(i))   Post: (locked())
 
 protected:
+    struct linker
+    {
 
+        linker(const T& Elem, size_t i) : m_Elem(Elem), m_Index(i)
+        {
+        }
 
+        T m_Elem;
 
-	struct linker {
+        size_t m_Index;
+    };
 
-		linker(const T & Elem, size_t i) : m_Elem(Elem), m_Index(i) { }
+    typedef std::vector<linker> linked_heap;
 
+    typedef std::vector<size_t> finder;
 
+    void Adjust(size_t i);
 
-		T		m_Elem;
+    void Swap(size_t a, size_t b);
 
-		size_t	m_Index;
+    bool Less(const linker& a, const linker& b) const;
 
-	};
+    linked_heap m_Heap;
 
+    finder m_Finder;
 
+    CmpT m_Compare;
 
-	typedef std::vector<linker> linked_heap;
-
-	typedef std::vector<size_t> finder;
-
-
-
-	void Adjust(size_t i);
-
-	void Swap(size_t a, size_t b);
-
-	bool Less(const linker & a, const linker & b) const;
-
-
-
-	linked_heap	m_Heap;
-
-	finder		m_Finder;
-
-	CmpT		m_Compare;
-
-	bool		m_Locked;
-
+    bool m_Locked;
 };
-
-
-
-
-
-
-
-
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -224,329 +172,224 @@ protected:
 
 //////////////////////////////////////////////////////////////////////////
 
+template <class T, class CmpT>
 
+inline void heap_array<T, CmpT>::clear()
+{
+
+    m_Heap.clear();
+
+    m_Finder.clear();
+
+    m_Locked = false;
+}
 
 template <class T, class CmpT>
 
-inline void heap_array<T, CmpT>::clear() {
+inline bool heap_array<T, CmpT>::empty() const
+{
 
-	m_Heap.clear();
-
-	m_Finder.clear();
-
-	m_Locked = false;
-
+    return m_Heap.empty();
 }
-
-
-
-
 
 template <class T, class CmpT>
 
-inline bool heap_array<T, CmpT>::empty() const {
+inline bool heap_array<T, CmpT>::locked() const
+{
 
-	return m_Heap.empty();
-
+    return m_Locked;
 }
-
-
-
-
 
 template <class T, class CmpT>
 
-inline bool heap_array<T, CmpT>::locked() const {
+inline void heap_array<T, CmpT>::reserve(size_t Size)
+{
 
-	return m_Locked;
+    m_Heap.reserve(Size);
 
+    m_Finder.reserve(Size);
 }
-
-
-
-
 
 template <class T, class CmpT>
 
-inline void heap_array<T, CmpT>::reserve(size_t Size) {
+inline size_t heap_array<T, CmpT>::size() const
+{
 
-	m_Heap.reserve(Size);
-
-	m_Finder.reserve(Size);
-
+    return m_Heap.size();
 }
-
-
-
-
 
 template <class T, class CmpT>
 
-inline size_t heap_array<T, CmpT>::size() const {
+inline const T& heap_array<T, CmpT>::top() const
+{
 
-	return m_Heap.size();
+    // Debug check to ensure heap is not empty
 
+    assert(!empty());
+
+    return m_Heap.front().m_Elem;
 }
-
-
-
-
 
 template <class T, class CmpT>
 
-inline const T & heap_array<T, CmpT>::top() const {
+inline const T& heap_array<T, CmpT>::peek(size_t i) const
+{
 
-	// Debug check to ensure heap is not empty
+    // Debug check to ensure element is still present
 
-	assert(! empty());
+    assert(!removed(i));
 
-
-
-	return m_Heap.front().m_Elem;
-
+    return (m_Heap[m_Finder[i]].m_Elem);
 }
-
-
-
-
 
 template <class T, class CmpT>
 
-inline const T & heap_array<T, CmpT>::peek(size_t i) const {
+inline const T& heap_array<T, CmpT>::operator[](size_t i) const
+{
 
-	// Debug check to ensure element is still present
-
-	assert(! removed(i));
-
-
-
-	return (m_Heap[m_Finder[i]].m_Elem);
-
+    return peek(i);
 }
-
-
-
-
 
 template <class T, class CmpT>
 
-inline const T & heap_array<T, CmpT>::operator [] (size_t i) const {
+inline void heap_array<T, CmpT>::pop()
+{
 
-	return peek(i);
+    m_Locked = true;
 
+    // Debug check to ensure heap is not empty
+
+    assert(!empty());
+
+    Swap(0, size() - 1);
+
+    m_Heap.pop_back();
+
+    Adjust(0);
 }
-
-
-
-
 
 template <class T, class CmpT>
 
-inline void heap_array<T, CmpT>::pop() {
+inline size_t heap_array<T, CmpT>::push(const T& Elem)
+{
 
-	m_Locked = true;
+    if (m_Locked)
 
+        throw heap_is_locked();
 
+    size_t Id = size();
 
-	// Debug check to ensure heap is not empty
+    m_Finder.push_back(Id);
 
-	assert(! empty());
+    m_Heap.push_back(linker(Elem, Id));
 
+    Adjust(Id);
 
-
-	Swap(0, size() - 1);
-
-	m_Heap.pop_back();
-
-	Adjust(0);
-
+    return Id;
 }
-
-
-
-
 
 template <class T, class CmpT>
 
-inline size_t heap_array<T, CmpT>::push(const T & Elem) {
+inline void heap_array<T, CmpT>::erase(size_t i)
+{
 
-	if (m_Locked)
+    m_Locked = true;
 
-		throw heap_is_locked();
+    // Debug check to ensure element is still present
 
+    assert(!removed(i));
 
+    size_t j = m_Finder[i];
 
-	size_t Id = size();
+    Swap(j, size() - 1);
 
-	m_Finder.push_back(Id);
+    m_Heap.pop_back();
 
-	m_Heap.push_back(linker(Elem, Id));
-
-	Adjust(Id);
-
-
-
-	return Id;
-
+    Adjust(j);
 }
-
-
-
-
 
 template <class T, class CmpT>
 
-inline void heap_array<T, CmpT>::erase(size_t i) {
+inline bool heap_array<T, CmpT>::removed(size_t i) const
+{
 
-	m_Locked = true;
-
-
-
-	// Debug check to ensure element is still present
-
-	assert(! removed(i));
-
-
-
-	size_t j = m_Finder[i];
-
-	Swap(j, size() - 1);
-
-	m_Heap.pop_back();
-
-	Adjust(j);
-
+    return (m_Finder[i] >= m_Heap.size());
 }
-
-
-
-
 
 template <class T, class CmpT>
 
-inline bool heap_array<T, CmpT>::removed(size_t i) const {
+inline bool heap_array<T, CmpT>::valid(size_t i) const
+{
 
-	return (m_Finder[i] >= m_Heap.size());
-
+    return (i < m_Finder.size());
 }
-
-
-
-
 
 template <class T, class CmpT>
 
-inline bool heap_array<T, CmpT>::valid(size_t i) const {
+inline void heap_array<T, CmpT>::update(size_t i, const T& Elem)
+{
 
-	return (i < m_Finder.size());
+    // Debug check to ensure element is still present
 
+    assert(!removed(i));
+
+    size_t j = m_Finder[i];
+
+    m_Heap[j].m_Elem = Elem;
+
+    Adjust(j);
 }
-
-
-
-
 
 template <class T, class CmpT>
 
-inline void heap_array<T, CmpT>::update(size_t i, const T & Elem) {
+inline void heap_array<T, CmpT>::Adjust(size_t i)
+{
 
-	// Debug check to ensure element is still present
+    size_t j;
 
-	assert(! removed(i));
+    // Check the upper part of the heap
 
+    for (j = i; (j > 0) && (Less(m_Heap[(j - 1) / 2], m_Heap[j])); j = ((j - 1) / 2))
 
+        Swap(j, (j - 1) / 2);
 
-	size_t j = m_Finder[i];
+    // Check the lower part of the heap
 
-	m_Heap[j].m_Elem = Elem;
+    for (i = j; (j = 2 * i + 1) < size(); i = j)
+    {
 
-	Adjust(j);
+        if ((j + 1 < size()) && (Less(m_Heap[j], m_Heap[j + 1])))
 
+            ++j;
+
+        if (Less(m_Heap[j], m_Heap[i]))
+
+            return;
+
+        Swap(i, j);
+    }
 }
-
-
-
-
 
 template <class T, class CmpT>
 
-inline void heap_array<T, CmpT>::Adjust(size_t i) {
+inline void heap_array<T, CmpT>::Swap(size_t a, size_t b)
+{
 
-	size_t j;
+    std::swap(m_Heap[a], m_Heap[b]);
 
+    // use (size_t &) to get rid of a bogus compile warning
 
+    (size_t&)(m_Finder[(m_Heap[a].m_Index)]) = a;
 
-	// Check the upper part of the heap
-
-	for (j = i; (j > 0) && (Less(m_Heap[(j - 1) / 2], m_Heap[j])); j = ((j - 1) / 2))
-
-		Swap(j, (j - 1) / 2);
-
-
-
-	// Check the lower part of the heap
-
-	for (i = j; (j = 2 * i + 1) < size(); i = j) {
-
- 		if ((j + 1 < size()) && (Less(m_Heap[j], m_Heap[j + 1])))
-
-			++j;
-
-
-
-		if (Less(m_Heap[j], m_Heap[i]))
-
-			return;
-
-
-
-		Swap(i, j);
-
-	}
-
+    (size_t&)(m_Finder[(m_Heap[b].m_Index)]) = b;
 }
-
-
-
-
 
 template <class T, class CmpT>
 
-inline void heap_array<T, CmpT>::Swap(size_t a, size_t b) {
+inline bool heap_array<T, CmpT>::Less(const linker& a, const linker& b) const
+{
 
-	std::swap(m_Heap[a], m_Heap[b]);
-
-
-
-	// use (size_t &) to get rid of a bogus compile warning
-
-	(size_t &) (m_Finder[(m_Heap[a].m_Index)]) = a;
-
-	(size_t &) (m_Finder[(m_Heap[b].m_Index)]) = b;
-
+    return m_Compare(a.m_Elem, b.m_Elem);
 }
-
-
-
-
-
-template <class T, class CmpT>
-
-inline bool heap_array<T, CmpT>::Less(const linker & a, const linker & b) const {
-
-	return m_Compare(a.m_Elem, b.m_Elem);
-
-}
-
-
-
-
-
-
-
-
 
 } // namespace common_structures
-
-
-

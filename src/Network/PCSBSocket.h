@@ -23,200 +23,186 @@
 #ifndef _PCSBSocket_h_
 #define _PCSBSocket_h_
 
-
-
 #if IBM
-        #include <winsock2.h>
-        #include <ws2tcpip.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #elif LIN || APL
-	#include <sys/socket.h>
-	#include <netinet/in.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 #else
-	#error YOU MUST DEFINE A PLATFORM!
+#error YOU MUST DEFINE A PLATFORM!
 #endif
 
-
-class	PCSBSocket {
+class PCSBSocket
+{
 public:
+    /* This enum defines a socket status.  A socket starts out ready to connect,
+     * connects asynchronously, is connected for a while, then is disconnected.
+     * It may also go to disconnected without ever becoming connected if the
+     * server refuses us.
+     *
+     * If an error occurs, we end up in the error state and do not recover.  Errors
+     * typically are fatal things like resource contention or API errors.
+     *
+     * Also, once disconnected, we cannot be reconnected again; destroy the socket
+     * and create a new one. */
+    enum Status
+    {
 
-	/* This enum defines a socket status.  A socket starts out ready to connect,
-	 * connects asynchronously, is connected for a while, then is disconnected.
-	 * It may also go to disconnected without ever becoming connected if the
-	 * server refuses us.
-	 *
-	 * If an error occurs, we end up in the error state and do not recover.  Errors
-	 * typically are fatal things like resource contention or API errors.
-	 *
-	 * Also, once disconnected, we cannot be reconnected again; destroy the socket
-	 * and create a new one. */
-         enum Status {
+        /* The socket is instantiated, bound, and ready	to connect. */
+        status_Ready = 1,
 
-	       /* The socket is instantiated, bound, and ready	to connect. */
-	       status_Ready = 1,
+        /* The socket is attempting to connect, but has not yet.  Or
+         * an incoming connection has come in. */
+        status_Connecting = 2,
 
-	       /* The socket is attempting to connect, but has not yet.  Or
-		* an incoming connection has come in. */
-	       status_Connecting = 2,
+        /* The socket is connected and ready to send data. */
+        status_Connected = 3,
 
-	       /* The socket is connected and ready to send data. */
-	       status_Connected = 3,
+        /* The other side is disconnected, either because the connection
+     failed, the connection was disconnected in a disorderly manner
+     from either side, or because both sides issued an orderly
+     disconnect. */
+        status_Disconnected = 4,
 
-	       /* The other side is disconnected, either because the connection
-		failed, the connection was disconnected in a disorderly manner
-		from either side, or because both sides issued an orderly
-		disconnect. */
-	       status_Disconnected = 4,
+        /* An unknown error has happened; the socket is hosed. */
+        status_Error = 5
+    };
 
-	       /* An unknown error has happened; the socket is hosed. */
-	       status_Error = 5
+    /* ConnectionData
+     *
+     * this structure contains the local and remote IP/port pairs for our
+     * socket.  Remote ones will be zero if we are not connected. */
 
-        };
+    struct ConnectionData
+    {
+        unsigned long localIP;
+        unsigned short localPort;
+        unsigned long remoteIP;
+        unsigned short remotePort;
+    };
 
+    /**********************************************************************
+     * SOCKET API
+     **********************************************************************/
 
-	/* ConnectionData
-	 *
-	 * this structure contains the local and remote IP/port pairs for our
-	 * socket.  Remote ones will be zero if we are not connected. */
+    /* Start up the networking DLL for the first time.  Returns true if
+     * the DLL is ok and sockets can be used.  Pass true in for inInitDLL
+     * to initialize the networking DLL, false to not init it.
+     * this function! */
 
-	struct ConnectionData {
-		unsigned long	localIP;
-		unsigned short	localPort;
-		unsigned long	remoteIP;
-		unsigned short	remotePort;
-	};
+    static bool StartupNetworking(bool inInitDLL);
 
-	/**********************************************************************
-	 * SOCKET API
-	 **********************************************************************/
+    /* Tear down the network.  Used when the network is all done and ready
+     * to be closed down.  You specify whether you want the networking DLL
+     * (open transport, etc.) to be closed down. */
 
-	/* Start up the networking DLL for the first time.  Returns true if
-	 * the DLL is ok and sockets can be used.  Pass true in for inInitDLL
-	 * to initialize the networking DLL, false to not init it.
-	 * this function! */
+    static void ShutdownNetworking(bool inCloseDLL);
 
-	static	bool			        StartupNetworking(bool inInitDLL);
+    /* Construct a new socket.  If the socket is to be a server listening port,
+     * Pass 0 to dynamically allocate a port or a positive number to pick a
+     * well-known one. */
 
-	/* Tear down the network.  Used when the network is all done and ready
-	 * to be closed down.  You specify whether you want the networking DLL
-	 * (open transport, etc.) to be closed down. */
+    PCSBSocket(unsigned short inPort, bool inServer);
 
-	static	void			        ShutdownNetworking(bool inCloseDLL);
+    /* Close the socket.  you will be forcefully disconnected if necessary. */
 
-	/* Construct a new socket.  If the socket is to be a server listening port,
-	 * Pass 0 to dynamically allocate a port or a positive number to pick a
-	 * well-known one. */
+    virtual ~PCSBSocket();
 
-					        PCSBSocket(unsigned short inPort, bool inServer);
+    /* Get the socket's internal status.  */
 
-	/* Close the socket.  you will be forcefully disconnected if necessary. */
+    Status GetStatus(void);
 
-	virtual					~PCSBSocket();
+    /* Whether an orderly release has been received.  Note that it may
+        not be possible to tell if one has been issued without first reading
+        buffered data. */
 
-	/* Get the socket's internal status.  */
+    bool ReceivedRelease(void);
 
-	                Status		        GetStatus(void);
+    /* Connect to a server at a port and IP as a client. */
 
-	/* Whether an orderly release has been received.  Note that it may
-		not be possible to tell if one has been issued without first reading
-		buffered data. */
+    void Connect(unsigned long inIP, unsigned short inPort);
 
-			bool			ReceivedRelease(void);
+    /* Receive an incoming connection. */
 
-	/* Connect to a server at a port and IP as a client. */
+    PCSBSocket* Accept(void);
 
-			void			Connect(unsigned long inIP, unsigned short inPort);
+    /* Read as much data from the socket as you want and is possible.
+        Positive numbers indicate a read, 0 indicates that no data is
+        available (either due to a lack of data sent or an orderly release).
+        A negative number indicates an error, either an unknown error or
+        a disconnect.  To further diagnose 0 or -1 responses, use
+        GetStatus() and ReceivedRelease(). */
 
-	/* Receive an incoming connection. */
+    long ReadData(void* outBuf, long inLength);
 
-			PCSBSocket *	        Accept(void);
+    /* Write as much data to the socket as you want and is possible.  Positive
+        numbers indicate a write, zero indicates that no data was written due to
+        flow control.  -1 indicates that an error occured, either a socket closure
+        or otherwise. */
 
-	/* Read as much data from the socket as you want and is possible.
-		Positive numbers indicate a read, 0 indicates that no data is
-		available (either due to a lack of data sent or an orderly release).
-		A negative number indicates an error, either an unknown error or
-		a disconnect.  To further diagnose 0 or -1 responses, use
-		GetStatus() and ReceivedRelease(). */
+    long WriteData(const void* inBuf, long inLength);
 
-			long			ReadData(
-								void * 			outBuf,
-								long 			inLength);
+    /* Disconnect the socket now.  This will be a disorderly disconnect */
 
-	/* Write as much data to the socket as you want and is possible.  Positive
-		numbers indicate a write, zero indicates that no data was written due to
-		flow control.  -1 indicates that an error occured, either a socket closure
-		or otherwise. */
+    void Disconnect(void);
 
-			long			WriteData(
-								const void * 	inBuf,
-								long 			inLength);
+    /* Indicate that you have no more data to send.  The socket will be
+     * closed after the other side finishes sending data.  You can still
+     * call disconnect to force the issue. */
 
-	/* Disconnect the socket now.  This will be a disorderly disconnect */
+    void Release(void);
 
-			void			Disconnect(void);
+    /* Get the local IP address of the machine and port we are bound to.
+     * Also return the remote side port and IP, or 0 if we're not connected.
+     * Pass NULL for anything you don't want. */
 
-	/* Indicate that you have no more data to send.  The socket will be
-	 * closed after the other side finishes sending data.  You can still
-	 * call disconnect to force the issue. */
+    void GetAddresses(ConnectionData* outData);
 
-			void			Release(void);
+    /**********************************************************************
+     * DNS Access
+     **********************************************************************/
 
-	/* Get the local IP address of the machine and port we are bound to.
-	 * Also return the remote side port and IP, or 0 if we're not connected.
-	 * Pass NULL for anything you don't want. */
+    /* Looks up an IP address (dot-number form or DNS form. */
 
-	 		void			GetAddresses(
-	 							ConnectionData *	outData);
+    static unsigned long LookupAddress(const char* inAddress);
 
-	/**********************************************************************
-	 * DNS Access
-	 **********************************************************************/
-
-	 /* Looks up an IP address (dot-number form or DNS form. */
-
-	 static unsigned long	LookupAddress(
-	 							const char *	inAddress);
-
-	/* This function traverses an array of PCSBSockets and returns the
-	* number of sockets that have I/O that needs to be done. The function
-	* also sets any array element to 0 that does not need work done to it.
-	* Therefore, after the function returns normally, the only array elements
-	* that are non-null are ones that need to have work done. The function
-	* shall return a -1 if the timeout has elapsed and -2 if there was a socket
-	* error.*/
-	 static int 			WaitForSockets(
-		 						PCSBSocket ** sockets,
-		 						int count,
-		 						long timeout);
+    /* This function traverses an array of PCSBSockets and returns the
+     * number of sockets that have I/O that needs to be done. The function
+     * also sets any array element to 0 that does not need work done to it.
+     * Therefore, after the function returns normally, the only array elements
+     * that are non-null are ones that need to have work done. The function
+     * shall return a -1 if the timeout has elapsed and -2 if there was a socket
+     * error.*/
+    static int WaitForSockets(PCSBSocket** sockets, int count, long timeout);
 
 private:
-
 #if IBM
-		SOCKET		mWinSocket; //our socket
-		SOCKADDR_IN	sIn; //our address struct
+    SOCKET mWinSocket; // our socket
+    SOCKADDR_IN sIn;   // our address struct
 
-		ConnectionData 	dataStruct;
-		Status		socketStatus;
-		bool		mReceivedRelease;
-		bool		mSentRelease;
-		bool		mIsAServer;
-				PCSBSocket(SOCKET inWorkerSocket);
-#else  //Linux
-		int		mLinSocket;
-	struct	sockaddr_in	sIn;
-		ConnectionData	dataStruct;
-		Status		socketStatus;
-		bool		mReceivedRelease;
-		bool		mSentRelease;
-		bool		mIsAServer;
-				PCSBSocket(int inWorkerSocket);
+    ConnectionData dataStruct;
+    Status socketStatus;
+    bool mReceivedRelease;
+    bool mSentRelease;
+    bool mIsAServer;
+    PCSBSocket(SOCKET inWorkerSocket);
+#else // Linux
+    int mLinSocket;
+    struct sockaddr_in sIn;
+    ConnectionData dataStruct;
+    Status socketStatus;
+    bool mReceivedRelease;
+    bool mSentRelease;
+    bool mIsAServer;
+    PCSBSocket(int inWorkerSocket);
 
 #endif
 
-	/* Prohibited C++ auto-geneerated ctors and operators: */
-				PCSBSocket();
-				PCSBSocket(const PCSBSocket&);
-				PCSBSocket& operator=(const PCSBSocket&);
-
+    /* Prohibited C++ auto-geneerated ctors and operators: */
+    PCSBSocket();
+    PCSBSocket(const PCSBSocket&);
+    PCSBSocket& operator=(const PCSBSocket&);
 };
 
 #endif /*INCLUDE GUARD*/

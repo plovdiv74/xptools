@@ -29,98 +29,86 @@
 #include "GUI_Messages.h"
 #include "WED_Menus.h"
 
-WED_LibraryPane::WED_LibraryPane(GUI_Commander * commander, WED_LibraryMgr * mgr) :
-	GUI_Commander(commander),
-	mTextTable(this,12,0),
-	mLibraryList(mgr)
+WED_LibraryPane::WED_LibraryPane(GUI_Commander* commander, WED_LibraryMgr* mgr)
+    : GUI_Commander(commander), mTextTable(this, 12, 0), mLibraryList(mgr)
 {
-//	int bounds[4] = { 0, 0, 100, 100 };
-//	SetBounds(bounds);
-	mScroller = new GUI_ScrollerPane(1,1);
+    //	int bounds[4] = { 0, 0, 100, 100 };
+    //	SetBounds(bounds);
+    mScroller = new GUI_ScrollerPane(1, 1);
 
-	mScroller->SetParent(this);
-	mScroller->Show();
-	mScroller->SetSticky(1,1,1,1);
+    mScroller->SetParent(this);
+    mScroller->Show();
+    mScroller->SetSticky(1, 1, 1, 1);
 
-	//Library Pane's TextTable's provider is std::set to be the Library List Adapter
-	mTextTable.SetProvider(&mLibraryList);
-	
-	mTextTable.SetGeometry(&mLibraryList);
+    // Library Pane's TextTable's provider is std::set to be the Library List Adapter
+    mTextTable.SetProvider(&mLibraryList);
 
-	mTextTable.SetColors(
-				WED_Color_RGBA(wed_Table_Gridlines),
-				WED_Color_RGBA(wed_Table_Select),
-				WED_Color_RGBA(wed_Table_Text),
-				WED_Color_RGBA(wed_Table_SelectText),
-				WED_Color_RGBA(wed_Table_Drag_Insert),
-				WED_Color_RGBA(wed_Table_Drag_Into));
-	mTextTable.SetTextFieldColors(
-				WED_Color_RGBA(wed_TextField_Text),
-				WED_Color_RGBA(wed_TextField_Hilite),
-				WED_Color_RGBA(wed_TextField_Bkgnd),
-				WED_Color_RGBA(wed_TextField_FocusRing));
+    mTextTable.SetGeometry(&mLibraryList);
 
-	mTable = new GUI_Table(true);
-	mTable->SetGeometry(&mLibraryList);
-	mTable->SetContent(&mTextTable);
-	mTable->SetParent(mScroller);
-	mTable->Show();
-	mScroller->PositionInContentArea(mTable);
-	mScroller->SetContent(mTable);
-	mTextTable.SetParentTable(mTable);
+    mTextTable.SetColors(WED_Color_RGBA(wed_Table_Gridlines), WED_Color_RGBA(wed_Table_Select),
+                         WED_Color_RGBA(wed_Table_Text), WED_Color_RGBA(wed_Table_SelectText),
+                         WED_Color_RGBA(wed_Table_Drag_Insert), WED_Color_RGBA(wed_Table_Drag_Into));
+    mTextTable.SetTextFieldColors(WED_Color_RGBA(wed_TextField_Text), WED_Color_RGBA(wed_TextField_Hilite),
+                                  WED_Color_RGBA(wed_TextField_Bkgnd), WED_Color_RGBA(wed_TextField_FocusRing));
 
-	mTextTable.AddListener(mTable);				// Table listens to text table to know when content changes in a resizing way
-	mLibraryList.AddListener(mTable);			// Table listens to actual property content to know when data itself changes
+    mTable = new GUI_Table(true);
+    mTable->SetGeometry(&mLibraryList);
+    mTable->SetContent(&mTextTable);
+    mTable->SetParent(mScroller);
+    mTable->Show();
+    mScroller->PositionInContentArea(mTable);
+    mScroller->SetContent(mTable);
+    mTextTable.SetParentTable(mTable);
 
-	mFilter = new WED_LibraryFilterBar(this, mgr);
-	mFilter->Show();
-	mFilter->SetParent(this);
-	mFilter->AddListener(this);
-	mFilter->SetSticky(1,0,1,1);
-	this->PackPane(mFilter,gui_Pack_Top);
-	this->PackPane(mScroller, gui_Pack_Center);
+    mTextTable.AddListener(mTable);   // Table listens to text table to know when content changes in a resizing way
+    mLibraryList.AddListener(mTable); // Table listens to actual property content to know when data itself changes
 
-					#if DEV
-					//PrintDebugInfo();
-					#endif
+    mFilter = new WED_LibraryFilterBar(this, mgr);
+    mFilter->Show();
+    mFilter->SetParent(this);
+    mFilter->AddListener(this);
+    mFilter->SetSticky(1, 0, 1, 1);
+    this->PackPane(mFilter, gui_Pack_Top);
+    this->PackPane(mScroller, gui_Pack_Center);
+
+#if DEV
+// PrintDebugInfo();
+#endif
 }
 
 WED_LibraryPane::~WED_LibraryPane()
 {
 }
 
-int		WED_LibraryPane::MouseMove(int x, int y)
+int WED_LibraryPane::MouseMove(int x, int y)
 {
-	int b[4];
-	GetBounds(b);
-	if(b[2] - b[0] > 0 && b[2] - b[0] < 100)
-	{
-		DispatchHandleCommand(wed_autoOpenLibPane);
-	}
-	return 1;
+    int b[4];
+    GetBounds(b);
+    if (b[2] - b[0] > 0 && b[2] - b[0] < 100)
+    {
+        DispatchHandleCommand(wed_autoOpenLibPane);
+    }
+    return 1;
 }
 
-void	WED_LibraryPane::ReceiveMessage(
-							GUI_Broadcaster *		inSrc,
-							intptr_t    			inMsg,
-							intptr_t				inParam)
+void WED_LibraryPane::ReceiveMessage(GUI_Broadcaster* inSrc, intptr_t inMsg, intptr_t inParam)
 {
-	if(inMsg == GUI_FILTER_FIELD_CHANGED)
-		mLibraryList.SetFilter(mFilter->GetText(),mFilter->GetEnumValue());
+    if (inMsg == GUI_FILTER_FIELD_CHANGED)
+        mLibraryList.SetFilter(mFilter->GetText(), mFilter->GetEnumValue());
 }
 
-void		WED_LibraryPane::SetBounds(int x1, int y1, int x2, int y2)
+void WED_LibraryPane::SetBounds(int x1, int y1, int x2, int y2)
 {
-	GUI_Packer::SetBounds(x1, y1, x2, y2);
-	int w = x2 - x1;
-	if (w > 220)
-		mLibraryList.SetCellWidth(0, max(220, w - 70));
+    GUI_Packer::SetBounds(x1, y1, x2, y2);
+    int w = x2 - x1;
+    if (w > 220)
+        mLibraryList.SetCellWidth(0, max(220, w - 70));
 }
 
-void		WED_LibraryPane::SetBounds(int inBounds[4])
+void WED_LibraryPane::SetBounds(int inBounds[4])
 {
-	GUI_Packer::SetBounds(inBounds);
-	int w = inBounds[2] - inBounds[0];
-	if (w > 220)
-		mLibraryList.SetCellWidth(0, max(220, w - 70));
+    GUI_Packer::SetBounds(inBounds);
+    int w = inBounds[2] - inBounds[0];
+    if (w > 220)
+        mLibraryList.SetCellWidth(0, max(220, w - 70));
 }

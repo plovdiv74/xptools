@@ -24,9 +24,9 @@
 #ifndef WED_ConvertCommands_H
 #define WED_ConvertCommands_H
 
-class	IResolver;
-class	WED_Archive;
-class	WED_Thing;
+class IResolver;
+class WED_Archive;
+class WED_Thing;
 
 // int		WED_DoConvertToJW(WED_Airport* apt, int statistics[4] = nullptr);
 
@@ -37,11 +37,11 @@ typedef bool (*IsTypeFunc)(WED_Thing* thing);
 typedef WED_Thing* (*CreateThingFunc)(WED_Archive* parent);
 
 // Checks whether the selected objects can be converted to the type checked for by 'isDstType'.
-int		WED_CanConvertTo(IResolver * resolver, const char* DstType);
+int WED_CanConvertTo(IResolver* resolver, const char* DstType);
 
 // Converts the selected objects to the type produced by 'create'.
-void	WED_DoConvertTo(IResolver * resolver, CreateThingFunc create, bool in_cmd = true);
+void WED_DoConvertTo(IResolver* resolver, CreateThingFunc create, bool in_cmd = true);
 
-void	WED_DoConvertToForest(IResolver* resolver);
+void WED_DoConvertToForest(IResolver* resolver);
 
 #endif /* WED_ConvertCommands_H */

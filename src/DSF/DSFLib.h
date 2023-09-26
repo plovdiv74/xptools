@@ -32,23 +32,24 @@
  *
  */
 
-enum {
-	dsf_ErrOK = 0,						/* Success																					*/
-	dsf_ErrCouldNotOpenFile,			/* The requested file could not be opened.													*/
-	dsf_ErrOutOfMemory,					/* There was not enough memory to read the file.											*/
-	dsf_ErrCouldNotReadFile,			/* The file could not be read (an I/O error).												*/
-	dsf_ErrNoAtoms,						/* This file appears to not be atomic.														*/
-	dsf_ErrBadCookie,					/* The DSF cookie at the file didn't match - probably not a DSF file!						*/
-	dsf_ErrBadVersion,					/* The DSF version is not compatible with this lib.											*/
-	dsf_ErrMissingAtom,					/* Required DSF atoms are missing.															*/
-	dsf_ErrBadProperties,				/* The properties atom is corrupted.														*/
-	dsf_ErrMisformattedCommandAtom,		/* The commands atom is corrupted.															*/
-	dsf_ErrMisformattedScalingAtom,		/* A scaling atom is corrupted.																*/
-	dsf_ErrBadCommand,					/* An unknown command index was encountered.  (Usually do to a corrupt command sequence.)   */
-	dsf_ErrUserCancel,					/* The NextPass_f callback returned false to cancel reading the next pass.					*/
-	dsf_ErrPoolOutOfRange,				/* A bad DSF point pool was selected.  (Usually a semantically corrupt file.)				*/
-	dsf_ErrBadChecksum,					/* MD5 signature is bad - indicates poorly made DSF?										*/
-	dsf_ErrCanceled						/* Client code aborted in definitions CB */
+enum
+{
+    dsf_ErrOK = 0,                  /* Success																					*/
+    dsf_ErrCouldNotOpenFile,        /* The requested file could not be opened.        */
+    dsf_ErrOutOfMemory,             /* There was not enough memory to read the file.											*/
+    dsf_ErrCouldNotReadFile,        /* The file could not be read (an I/O error).        */
+    dsf_ErrNoAtoms,                 /* This file appears to not be atomic.														*/
+    dsf_ErrBadCookie,               /* The DSF cookie at the file didn't match - probably not a DSF file!						*/
+    dsf_ErrBadVersion,              /* The DSF version is not compatible with this lib.											*/
+    dsf_ErrMissingAtom,             /* Required DSF atoms are missing.															*/
+    dsf_ErrBadProperties,           /* The properties atom is corrupted.														*/
+    dsf_ErrMisformattedCommandAtom, /* The commands atom is corrupted. */
+    dsf_ErrMisformattedScalingAtom, /* A scaling atom is corrupted. */
+    dsf_ErrBadCommand, /* An unknown command index was encountered.  (Usually do to a corrupt command sequence.)   */
+    dsf_ErrUserCancel, /* The NextPass_f callback returned false to cancel reading the next pass.					*/
+    dsf_ErrPoolOutOfRange, /* A bad DSF point pool was selected.  (Usually a semantically corrupt file.) */
+    dsf_ErrBadChecksum,    /* MD5 signature is bad - indicates poorly made DSF?										*/
+    dsf_ErrCanceled        /* Client code aborted in definitions CB */
 };
 
 /*
@@ -56,32 +57,32 @@ enum {
  *
  */
 
-enum {
-	/* DSF Triangle types. */
-	dsf_Tri,				/* DSF Triangle - three vertices form one triangle.							*/
-	dsf_TriStrip,			/* DSF Triangle Strip - N+2 vertices form N triangles (like OpenGL.)		*/
-	dsf_TriFan,				/* DSF Triangle Fan - N+2 vertices form N triangles (like OpenGL.)			*/
+enum
+{
+    /* DSF Triangle types. */
+    dsf_Tri,      /* DSF Triangle - three vertices form one triangle.							*/
+    dsf_TriStrip, /* DSF Triangle Strip - N+2 vertices form N triangles (like OpenGL.)		*/
+    dsf_TriFan,   /* DSF Triangle Fan - N+2 vertices form N triangles (like OpenGL.)			*/
 
-	/* Pass flags - these flags filter DSF callbacks when reading the file. */
-	dsf_CmdProps   = 0x01,	/* Return properties.							*/
-	dsf_CmdDefs    = 0x02,	/* Return definitions							*/
-	dsf_CmdPatches = 0x04,	/* Return Patches and triangles					*/
-	dsf_CmdVectors = 0x08,	/* Return std::vector types							*/
-	dsf_CmdPolys   = 0x10,	/* Return polygons (facades, etc.)				*/
-	dsf_CmdObjects = 0x20,	/* Return objects								*/
-	dsf_CmdSign	   = 0x40,	/* Do MD5 signature of data						*/
-	dsf_CmdRaster	=0x80,	/* Raster data									*/
-	dsf_CmdAll	   = 0xFF	/* Return everything at once.					*/
+    /* Pass flags - these flags filter DSF callbacks when reading the file. */
+    dsf_CmdProps = 0x01,   /* Return properties.							*/
+    dsf_CmdDefs = 0x02,    /* Return definitions							*/
+    dsf_CmdPatches = 0x04, /* Return Patches and triangles					*/
+    dsf_CmdVectors = 0x08, /* Return std::vector types							*/
+    dsf_CmdPolys = 0x10,   /* Return polygons (facades, etc.)				*/
+    dsf_CmdObjects = 0x20, /* Return objects								*/
+    dsf_CmdSign = 0x40,    /* Do MD5 signature of data						*/
+    dsf_CmdRaster = 0x80,  /* Raster data									*/
+    dsf_CmdAll = 0xFF      /* Return everything at once.					*/
 };
 
-enum obj_elev_mode {
+enum obj_elev_mode
+{
 
-	obj_ModeDraped = 0,	// 3 coords, lon/lat/rotation
-	obj_ModeMSL = 1,	// 4 coords, lon/lat/rotation/MSL ele
-	obj_ModeAGL = 2		// 4 coords, lon/lat/rotation/AGL ele
-
+    obj_ModeDraped = 0, // 3 coords, lon/lat/rotation
+    obj_ModeMSL = 1,    // 4 coords, lon/lat/rotation/MSL ele
+    obj_ModeAGL = 2     // 4 coords, lon/lat/rotation/AGL ele
 };
-
 
 /*
  * Error message strings
@@ -90,8 +91,7 @@ enum obj_elev_mode {
  * error returns that can be shown to the user for diagnostic purposes.
  *
  */
-extern const char *	dsfErrorMessages[];
-
+extern const char* dsfErrorMessages[];
 
 /*
  * DSFCallbacks_t
@@ -99,96 +99,61 @@ extern const char *	dsfErrorMessages[];
  * This structure contains function pointers for each feeder function.
  *
  */
-struct	DSFCallbacks_t {
+struct DSFCallbacks_t
+{
 
-	/* This is called when the lib completes before it goes on to the next pass. */
-	bool (* NextPass_f)(int finished_pass_index, void * inRef);
+    /* This is called when the lib completes before it goes on to the next pass. */
+    bool (*NextPass_f)(int finished_pass_index, void* inRef);
 
-	/* These functions accept our various definitions.  Return 1 to proceed, 0 to cancel */
-	int (*	AcceptTerrainDef_f)(const char * inPartialPath, void * inRef);
-	int (*	AcceptObjectDef_f )(const char * inPartialPath, void * inRef);
-	int (*	AcceptPolygonDef_f)(const char * inPartialPath, void * inRef);
-	int (*	AcceptNetworkDef_f)(const char * inPartialPath, void * inRef);
-	int (*	AcceptRasterDef_f )(const char * inPartialPath, void * inRef);
+    /* These functions accept our various definitions.  Return 1 to proceed, 0 to cancel */
+    int (*AcceptTerrainDef_f)(const char* inPartialPath, void* inRef);
+    int (*AcceptObjectDef_f)(const char* inPartialPath, void* inRef);
+    int (*AcceptPolygonDef_f)(const char* inPartialPath, void* inRef);
+    int (*AcceptNetworkDef_f)(const char* inPartialPath, void* inRef);
+    int (*AcceptRasterDef_f)(const char* inPartialPath, void* inRef);
 
-	/* This function accepts properties from the file. */
-	void (* AcceptProperty_f)(const char * inProp, const char * inValue, void * inRef);
+    /* This function accepts properties from the file. */
+    void (*AcceptProperty_f)(const char* inProp, const char* inValue, void* inRef);
 
-	/* These functions build patches.  You receive a start
-	 * patch, then a std::set of homogenous triangles, then an
-	 * end patch.  All patch vertices must match the number
-	 * of coordinates passed in inCoordDepth. */
-	void (* BeginPatch_f)(
-					unsigned int	inTerrainType,
-					double 			inNearLOD,
-					double 			inFarLOD,
-					unsigned char	inFlags,
-					int				inCoordDepth,
-					void *			inRef);
-	void (* BeginPrimitive_f)(
-					int				inType,
-					void *			inRef);
-	void (* AddPatchVertex_f)(
-					double			inCoordinates[],
-					void *			inRef);
-	void (* EndPrimitive_f)(
-					void *			inRef);
-	void (* EndPatch_f)(
-					void *			inRef);
+    /* These functions build patches.  You receive a start
+     * patch, then a std::set of homogenous triangles, then an
+     * end patch.  All patch vertices must match the number
+     * of coordinates passed in inCoordDepth. */
+    void (*BeginPatch_f)(unsigned int inTerrainType, double inNearLOD, double inFarLOD, unsigned char inFlags,
+                         int inCoordDepth, void* inRef);
+    void (*BeginPrimitive_f)(int inType, void* inRef);
+    void (*AddPatchVertex_f)(double inCoordinates[], void* inRef);
+    void (*EndPrimitive_f)(void* inRef);
+    void (*EndPatch_f)(void* inRef);
 
-	/* This function adds an object.  All objects take
-	 * two coordinates. */
-	void (*	AddObjectWithMode_f)(
-					unsigned int	inObjectType,
-					double			inCoordinates[4],	// Lon Lat Rot [MSL]
-					obj_elev_mode	inMode,				// Draped/AGL/MSL enum
-					void *			inRef);
+    /* This function adds an object.  All objects take
+     * two coordinates. */
+    void (*AddObjectWithMode_f)(unsigned int inObjectType,
+                                double inCoordinates[4], // Lon Lat Rot [MSL]
+                                obj_elev_mode inMode,    // Draped/AGL/MSL enum
+                                void* inRef);
 
-	/* This function adds a complete chain.  All chains
-	 * take 3 coordinates for non-curved nodes and 6
-	 * coordinates for curved nodes. */
-	void (* BeginSegment_f)(
-					unsigned int	inNetworkType,
-					unsigned int	inNetworkSubtype,
-					double			inCoordinates[],	// lon lat el, start node ID, shape lon lat el
-					bool			inCurved,
-					void *			inRef);
-	void (*	AddSegmentShapePoint_f)(
-					double			inCoordinates[],
-					bool			inCurved,
-					void *			inRef);
-	void (* EndSegment_f)(
-					double			inCoordinates[],
-					bool			inCurved,
-					void *			inRef);
+    /* This function adds a complete chain.  All chains
+     * take 3 coordinates for non-curved nodes and 6
+     * coordinates for curved nodes. */
+    void (*BeginSegment_f)(unsigned int inNetworkType, unsigned int inNetworkSubtype,
+                           double inCoordinates[], // lon lat el, start node ID, shape lon lat el
+                           bool inCurved, void* inRef);
+    void (*AddSegmentShapePoint_f)(double inCoordinates[], bool inCurved, void* inRef);
+    void (*EndSegment_f)(double inCoordinates[], bool inCurved, void* inRef);
 
-	/* These functions add polygons.  You'll get at least
-	 * one winding per polygon.  All polygons take two
-	 * coordinates. */
-	void (* BeginPolygon_f)(
-					unsigned int	inPolygonType,
-					unsigned short	inParam,
-					int				inCoordDepth,
-					void *			inRef);
-	void (* BeginPolygonWinding_f)(
-					void *			inRef);
-	void (* AddPolygonPoint_f)(
-					double *		inCoordinates,
-					void *			inRef);
-	void (* EndPolygonWinding_f)(
-					void *			inRef);
-	void (* EndPolygon_f)(
-					void *			inRef);
+    /* These functions add polygons.  You'll get at least
+     * one winding per polygon.  All polygons take two
+     * coordinates. */
+    void (*BeginPolygon_f)(unsigned int inPolygonType, unsigned short inParam, int inCoordDepth, void* inRef);
+    void (*BeginPolygonWinding_f)(void* inRef);
+    void (*AddPolygonPoint_f)(double* inCoordinates, void* inRef);
+    void (*EndPolygonWinding_f)(void* inRef);
+    void (*EndPolygon_f)(void* inRef);
 
-	void (* AddRasterData_f)(
-					DSFRasterHeader_t *	header,
-					void *				data,
-					void *				inRef);
+    void (*AddRasterData_f)(DSFRasterHeader_t* header, void* data, void* inRef);
 
-	void (* SetFilter_f)(
-					int					inFilterIndex,
-					void *				inRef);
-
+    void (*SetFilter_f)(int inFilterIndex, void* inRef);
 };
 
 /************************************************************
@@ -220,9 +185,10 @@ struct	DSFCallbacks_t {
  */
 
 /* Returns true if successful, false if not. */
-int		DSFReadFile(const char * inPath, void * (* malloc_func)(size_t s), void (* free_func)(void * ptr), DSFCallbacks_t * inCallbacks, const int * inPasses, void * inRef);
-int		DSFReadMem(const char * inStart, const char * inStop, DSFCallbacks_t * inCallbacks, const int * inPasses, void * inRef);
-int		DSFCheckSignature(const char * inPath);
+int DSFReadFile(const char* inPath, void* (*malloc_func)(size_t s), void (*free_func)(void* ptr),
+                DSFCallbacks_t* inCallbacks, const int* inPasses, void* inRef);
+int DSFReadMem(const char* inStart, const char* inStop, DSFCallbacks_t* inCallbacks, const int* inPasses, void* inRef);
+int DSFCheckSignature(const char* inPath);
 /************************************************************
  * DFS WRITING UTILS
  ************************************************************
@@ -238,9 +204,10 @@ int		DSFCheckSignature(const char * inPath);
  *
  */
 
-void *	DSFCreateWriter(double inWest, double inSouth, double inNorth, double inEast, double inElevMin, double inElevMax, int divisions);
-void	DSFGetWriterCallbacks(DSFCallbacks_t * ioCallbacks);
-void	DSFWriteToFile(const char * inPath, void * inRef);
-void	DSFDestroyWriter(void * inRef);
+void* DSFCreateWriter(double inWest, double inSouth, double inNorth, double inEast, double inElevMin, double inElevMax,
+                      int divisions);
+void DSFGetWriterCallbacks(DSFCallbacks_t* ioCallbacks);
+void DSFWriteToFile(const char* inPath, void* inRef);
+void DSFDestroyWriter(void* inRef);
 
 #endif

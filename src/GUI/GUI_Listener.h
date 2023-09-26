@@ -24,25 +24,20 @@
 #ifndef GUI_LISTENER_H
 #define GUI_LISTENER_H
 
-class	GUI_Broadcaster;
+class GUI_Broadcaster;
 
-class	GUI_Listener {
+class GUI_Listener
+{
 public:
+    GUI_Listener();
+    virtual ~GUI_Listener();
 
-					 GUI_Listener();
-	virtual			~GUI_Listener();
-
-	virtual	void	ReceiveMessage(
-							GUI_Broadcaster *		inSrc,
-							intptr_t    			inMsg,
-							intptr_t				inParam)=0;
+    virtual void ReceiveMessage(GUI_Broadcaster* inSrc, intptr_t inMsg, intptr_t inParam) = 0;
 
 private:
+    friend class GUI_Broadcaster;
 
-	friend	class	GUI_Broadcaster;
-
-	std::set<GUI_Broadcaster *>	mBroadcasters;
-
+    std::set<GUI_Broadcaster*> mBroadcasters;
 };
 
 #endif

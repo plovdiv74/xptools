@@ -26,7 +26,7 @@
 
 /*
 
-	TODO: occlusion - tell OGLE if we don't need to draw the entire visible bounds??
+    TODO: occlusion - tell OGLE if we don't need to draw the entire visible bounds??
 
 */
 
@@ -37,127 +37,92 @@
 #include "GUI_Timer.h"
 #include "GUI_Broadcaster.h"
 
-class	GUI_GraphState;
+class GUI_GraphState;
 
-class	GUI_TextField : public GUI_Pane,
-						public GUI_Commander,
-						public GUI_ScrollerPaneContent,
-						public GUI_Timer,
-						public OGLE {
+class GUI_TextField : public GUI_Pane,
+                      public GUI_Commander,
+                      public GUI_ScrollerPaneContent,
+                      public GUI_Timer,
+                      public OGLE
+{
 public:
+    GUI_TextField(int h_scroll, GUI_Commander* parent);
+    virtual ~GUI_TextField();
 
-						 GUI_TextField(int h_scroll, GUI_Commander * parent);
-	virtual				~GUI_TextField();
+    void SetKeyMsg(intptr_t msg, intptr_t param);
+    void SetFont(int font);
+    void SetColors(float text_color[4], float hilite_color[4], float bkgnd_color[4], float box_color[4]);
 
-			void		SetKeyMsg(intptr_t msg, intptr_t param);
-			void		SetFont(int font);
-			void		SetColors(float text_color[4],
-								  float hilite_color[4],
-								  float bkgnd_color[4],
-								  float box_color[4]);
+    void SetWidth(float width);
+    void SetKeyAllowed(char key, bool allowed);
+    void SetVKAllowed(int vk, bool allowed);
+    void SetMargins(float l, float b, float r, float t);
+    void SetPasswordChar(char c);
 
-			void		SetWidth(float width);
-			void		SetKeyAllowed(char key, bool allowed);
-			void		SetVKAllowed(int vk, bool allowed);
-			void		SetMargins(float l, float b, float r, float t);
-			void		SetPasswordChar(char c);
+    // GUI_Pane
+    virtual void Draw(GUI_GraphState* state);
+    virtual int MouseDown(int x, int y, int button);
+    virtual void MouseDrag(int x, int y, int button);
+    virtual void MouseUp(int x, int y, int button);
+    virtual int ScrollWheel(int x, int y, int dist, int axis);
+    virtual void SetBounds(int x1, int y1, int x2, int y2);
+    virtual void SetBounds(int inBounds[4]);
 
-	// GUI_Pane
-	virtual	void		Draw(GUI_GraphState * state);
-	virtual	int			MouseDown(int x, int y, int button);
-	virtual	void		MouseDrag(int x, int y, int button);
-	virtual	void		MouseUp(int x, int y, int button);
-	virtual	int			ScrollWheel(int x, int y, int dist, int axis);
-	virtual void		SetBounds(int x1, int y1, int x2, int y2);
-	virtual void		SetBounds(int inBounds[4]);
+    // GUI_Commander
+    virtual int HandleKeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFlags);
+    virtual int HandleCommand(int command);
+    virtual int CanHandleCommand(int command, std::string& ioName, int& ioCheck);
+    virtual int AcceptTakeFocus(void);
+    virtual int AcceptLoseFocus(int inForce);
+    virtual int AcceptFocusChain(void);
 
-	// GUI_Commander
-	virtual	int			HandleKeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFlags);
-	virtual	int			HandleCommand(int command);
-	virtual	int			CanHandleCommand(int command, std::string& ioName, int& ioCheck);
-	virtual	int			AcceptTakeFocus(void);
-	virtual int			AcceptLoseFocus(int inForce);
-	virtual	int			AcceptFocusChain(void);
+    // GUI_ScrollerPaneContent
+    virtual void GetScrollBounds(float outTotalBounds[4], float outVisibleBounds[4]);
+    virtual void ScrollH(float xOffset);
+    virtual void ScrollV(float yOffset);
 
-	// GUI_ScrollerPaneContent
-	virtual	void		GetScrollBounds(float outTotalBounds[4], float outVisibleBounds[4]);
-	virtual	void		ScrollH(float xOffset);
-	virtual	void		ScrollV(float yOffset);
-
-	// GUI_Timer
-	virtual	void		TimerFired(void);
+    // GUI_Timer
+    virtual void TimerFired(void);
 
 protected:
-
-	// OGLE
-	virtual	void			GetVisibleBounds(
-								float			bounds[4]);
-	virtual	void			GetLogicalBounds(
-								float			bounds[4]);
-	virtual	void			SetLogicalHeight(
-								float 			height);
-	virtual	void			ScrollTo(
-								float			where[4]);
-	virtual	void			GetText(
-								const char **	start_p,
-								const char **	end_p);
-	virtual	void			ReplaceText(
-								int				offset1,
-								int				offset2,
-								const char *	t1,
-								const char *	t2);
-	virtual	float			GetLineHeight(void);
-	virtual	float			MeasureString(
-								const char * 	tStart,
-								const char * 	tEnd);
-	virtual	int				FitStringFwd(
-								const char * 	tStart,
-								const char * 	tEnd,
-								float 			space);
-	virtual	int				FitStringRev(
-								const char * 	tStart,
-								const char * 	tEnd,
-								float 			space);
-	virtual	void			DrawString(
-								const char *	tStart,
-								const char *	tEnd,
-								float			x,
-								float			y);
-	virtual	void			DrawSelection(
-								float			bounds[4]);
-	virtual	const char *	WordBreak(
-								const char *	t1,
-								const char *	t2);
-	virtual	const char *	MBCS_Next(
-								const char *	ptr);
-	virtual	int				MBCS_NextPos(
-								int				pos);
-	virtual	int				MBCS_PrevPos(
-								int				pos);
+    // OGLE
+    virtual void GetVisibleBounds(float bounds[4]);
+    virtual void GetLogicalBounds(float bounds[4]);
+    virtual void SetLogicalHeight(float height);
+    virtual void ScrollTo(float where[4]);
+    virtual void GetText(const char** start_p, const char** end_p);
+    virtual void ReplaceText(int offset1, int offset2, const char* t1, const char* t2);
+    virtual float GetLineHeight(void);
+    virtual float MeasureString(const char* tStart, const char* tEnd);
+    virtual int FitStringFwd(const char* tStart, const char* tEnd, float space);
+    virtual int FitStringRev(const char* tStart, const char* tEnd, float space);
+    virtual void DrawString(const char* tStart, const char* tEnd, float x, float y);
+    virtual void DrawSelection(float bounds[4]);
+    virtual const char* WordBreak(const char* t1, const char* t2);
+    virtual const char* MBCS_Next(const char* ptr);
+    virtual int MBCS_NextPos(int pos);
+    virtual int MBCS_PrevPos(int pos);
 
 private:
+    void ConstrainLogicalBounds(void);
 
-			void			ConstrainLogicalBounds(void);
+    int mFont;
+    int mCaret;
+    int mScrollH;
+    char mPasswordChar;
+    float mLogicalBounds[4];
+    GUI_GraphState* mState;
+    std::string mText;
+    bool mAllowed[256];
+    bool mAllowedVK[256];
+    float mMargins[4];
 
-		int					mFont;
-		int					mCaret;
-		int					mScrollH;
-		char				mPasswordChar;
-		float				mLogicalBounds[4];
-		GUI_GraphState * 	mState;
-		std::string				mText;
-		bool				mAllowed[256];
-		bool				mAllowedVK[256];
-		float				mMargins[4];
+    float mColorText[4];
+    float mColorHilite[4];
+    float mColorBkgnd[4];
+    float mColorBox[4];
 
-		float				mColorText[4];
-		float				mColorHilite[4];
-		float				mColorBkgnd[4];
-		float				mColorBox[4];
-		
-		intptr_t			mMsg, mParam;
-
+    intptr_t mMsg, mParam;
 };
 
 #endif /* GUI_TEXTFIELD_H */
-

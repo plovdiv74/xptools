@@ -6,5 +6,6 @@ PointerAlignment: Left
 SortIncludes: 'false'
 TabWidth: '4'
 UseTab: Never
+AlwaysBreakTemplateDeclarations: Yes
 
 ...

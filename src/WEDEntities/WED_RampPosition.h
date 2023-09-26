@@ -26,42 +26,44 @@
 
 #include "WED_GISPoint_Heading.h"
 
-struct	AptGate_t;
+struct AptGate_t;
 
-class	WED_RampPosition : public WED_GISPoint_Heading {
+class WED_RampPosition : public WED_GISPoint_Heading
+{
 
-DECLARE_PERSISTENT(WED_RampPosition)
+    DECLARE_PERSISTENT(WED_RampPosition)
 
 public:
+    void SetType(int ramp_type);
+    void SetEquipment(const std::set<int>& et);
+    void SetWidth(int width);
+    void SetRampOperationType(int ait);
+    void SetAirlines(const std::string& airlines);
 
-	void	SetType(int		ramp_type);
-	void	SetEquipment(const std::set<int>&	et);
-	void	SetWidth(int		width);
-	void	SetRampOperationType(int ait);
-	void	SetAirlines(const std::string& airlines);
+    std::string GetAirlines() const;
+    int GetType() const;
+    int GetWidth() const;
+    void GetTips(
+        Point2 c[4]) const; // nose, tail, both wing tips. Takes heading, siize and offset(type=misc) into account
+    void GetEquipment(std::set<int>& out_eq) const;
+    int GetRampOperationType() const;
 
-	std::string  GetAirlines() const;
-	int		GetType() const;
-	int		GetWidth() const;
-	void	GetTips(Point2 c[4]) const;              // nose, tail, both wing tips. Takes heading, siize and offset(type=misc) into account
-	void	GetEquipment(std::set<int>& out_eq) const;
-	int		GetRampOperationType() const;
-	
-	static std::string CorrectAirlinesString(const std::string &a);
+    static std::string CorrectAirlinesString(const std::string& a);
 
-	void	Import(const AptGate_t& x, void (* print_func)(void *, const char *, ...), void * ref);
-	void	Export(		 AptGate_t& x) const;
+    void Import(const AptGate_t& x, void (*print_func)(void*, const char*, ...), void* ref);
+    void Export(AptGate_t& x) const;
 
-	virtual const char *	HumanReadableType(void) const { return "Ramp Start"; }
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Ramp Start";
+    }
 
 private:
-
-	WED_PropIntEnum			ramp_type;
-	WED_PropIntEnumBitfield	equip_type;
-	WED_PropIntEnum			width;
-	WED_PropIntEnum			ramp_op_type;
-	WED_PropStringText		airlines;
-
+    WED_PropIntEnum ramp_type;
+    WED_PropIntEnumBitfield equip_type;
+    WED_PropIntEnum width;
+    WED_PropIntEnum ramp_op_type;
+    WED_PropStringText airlines;
 };
 
 #endif /* WED_RAMPPOSITION_H */

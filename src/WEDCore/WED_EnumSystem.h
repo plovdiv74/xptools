@@ -28,68 +28,65 @@
 #include <set>
 #include <map>
 
+using std::map;
 using std::set;
 using std::vector;
-using std::map;
 
-struct	sqlite3;
+struct sqlite3;
 /*
-	WED_EnumSystem - THEORY OF OPERATION
+    WED_EnumSystem - THEORY OF OPERATION
 
-	Notes on enum system:
+    Notes on enum system:
 
-	All enums are non-negative ints, sequentially numbered at zero, starting with built-ins.
+    All enums are non-negative ints, sequentially numbered at zero, starting with built-ins.
 
-	All enums belong to domains, which define a subset of enums for pseudo-typing.
+    All enums belong to domains, which define a subset of enums for pseudo-typing.
 
-	All enums have std::string equivalents for export, same as C++ symbol if it exists.
+    All enums have std::string equivalents for export, same as C++ symbol if it exists.
 
-	Enums may have an "export value", which is a non-shifting permanent int, used for file format I/O
+    Enums may have an "export value", which is a non-shifting permanent int, used for file format I/O
 
 */
 
-bool				DOMAIN_Validate(int domain);
-const char *		DOMAIN_Name(int domain);
-//int					DOMAIN_LookupName(const char * domain);
-int					DOMAIN_LookupDesc(const char * domain);
-int					DOMAIN_Create(const char * domain, const char * desc);
-const char *		DOMAIN_Desc(int domain);
+bool DOMAIN_Validate(int domain);
+const char* DOMAIN_Name(int domain);
+// int					DOMAIN_LookupName(const char * domain);
+int DOMAIN_LookupDesc(const char* domain);
+int DOMAIN_Create(const char* domain, const char* desc);
+const char* DOMAIN_Desc(int domain);
 
-void				DOMAIN_Members(int domain, std::vector<int>& members);
-void				DOMAIN_Members(int domain, std::set<int>& members);
-void				DOMAIN_Members(int domain, std::map<int, std::string>& members);
+void DOMAIN_Members(int domain, std::vector<int>& members);
+void DOMAIN_Members(int domain, std::set<int>& members);
+void DOMAIN_Members(int domain, std::map<int, std::string>& members);
 
-bool				ENUM_Validate(int value);
-const char *		ENUM_Name(int value);								// Return the std::string name of an enum
-int					ENUM_Export(int value);								// Return the export value for an enum
-int					ENUM_ExportSet(const std::set<int>& members);
-//int					ENUM_LookupName(const char * value);			// Find an enum or -1 if missing
-int					ENUM_LookupDesc(int domain, const char * value);	// Find an enum or -1 if missing
-int					ENUM_Domain(int value);								// What domain are we in?
-const char *		ENUM_Desc(int value);
-int					ENUM_Create(int domain, const char * value, const char * descrip, int export_value);			// Find an enum, add if needed
-int					ENUM_Import(int domain, int export_value);
-void				ENUM_ImportSet(int domain, int export_value, std::set<int>& members);
+bool ENUM_Validate(int value);
+const char* ENUM_Name(int value); // Return the std::string name of an enum
+int ENUM_Export(int value);       // Return the export value for an enum
+int ENUM_ExportSet(const std::set<int>& members);
+// int					ENUM_LookupName(const char * value);			// Find an enum or -1 if missing
+int ENUM_LookupDesc(int domain, const char* value); // Find an enum or -1 if missing
+int ENUM_Domain(int value);                         // What domain are we in?
+const char* ENUM_Desc(int value);
+int ENUM_Create(int domain, const char* value, const char* descrip, int export_value); // Find an enum, add if needed
+int ENUM_Import(int domain, int export_value);
+void ENUM_ImportSet(int domain, int export_value, std::set<int>& members);
 
-void				ENUM_Init(void);
+void ENUM_Init(void);
 
-typedef	std::map<int,int>	enum_map_t;
+typedef std::map<int, int> enum_map_t;
 
-#define ENUM_DOMAIN(D,H)	D,
-#define ENUM(V,H,E)	V,
+#define ENUM_DOMAIN(D, H) D,
+#define ENUM(V, H, E) V,
 
-enum {
+enum
+{
 
-	#include "WED_Enums.h"
+#include "WED_Enums.h"
 
-	last_enum
-
+    last_enum
 };
 
 #undef ENUM_DOMAIN
 #undef ENUM
-
-
-
 
 #endif /* WED_ENUMSYSTEM_H */

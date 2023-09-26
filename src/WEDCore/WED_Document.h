@@ -26,145 +26,154 @@
 
 #include "WED_XMLReader.h"
 #include "GUI_Destroyable.h"
-//#include "MeshDefs.h"
+// #include "MeshDefs.h"
 #include "AptDefs.h"
 #include "ILibrarian.h"
 #include "IDocPrefs.h"
-//#include "MapDefs.h"
-//#include "DEMDefs.h"
+// #include "MapDefs.h"
+// #include "DEMDefs.h"
 #include "PlatformUtils.h"
 #include "WED_Archive.h"
 #include "WED_UndoMgr.h"
 
-
-class	WED_Thing;
-class	WED_TexMgr;
-class	WED_LibraryMgr;
-class	WED_ResourceMgr;
+class WED_Thing;
+class WED_TexMgr;
+class WED_LibraryMgr;
+class WED_ResourceMgr;
 #if WITHNWLINK
-class	WED_Server;
-class	WED_NWLinkAdapter;
+class WED_Server;
+class WED_NWLinkAdapter;
 #endif
 
 #include "GUI_Broadcaster.h"
 #include "IResolver.h"
 
 /*
-	WED_Document - THEORY OF OPERATION
+    WED_Document - THEORY OF OPERATION
 
-	UI-DATAMODEL
+    UI-DATAMODEL
 
-	Because the data model is made of persistent objects (whose pointer memory addresses may vary), we can't just pass pointers to the UI.  Instead the UI
-	finds abstract interfaces into the data model using the IResolver interface.
+    Because the data model is made of persistent objects (whose pointer memory addresses may vary), we can't just pass
+   pointers to the UI.  Instead the UI finds abstract interfaces into the data model using the IResolver interface.
 
-	In the case of the document, each component uses the IDirectory, and each array index uses the IArray interface.  In turn, WED_Thing actually implements
-	both of these, so we can index into the hierarchial datamodel by index or "thing name".
+    In the case of the document, each component uses the IDirectory, and each array index uses the IArray interface.  In
+   turn, WED_Thing actually implements both of these, so we can index into the hierarchial datamodel by index or "thing
+   name".
 
-	Object with ID 1 is by definition "the document root" - that is, it is used as a starting point for all resolutions.
+    Object with ID 1 is by definition "the document root" - that is, it is used as a starting point for all resolutions.
 
 */
 
-
-class	WED_Document : public GUI_Broadcaster, public GUI_Destroyable, public virtual IResolver, public virtual ILibrarian, public IDocPrefs, public WED_XMLHandler, public WED_UndoFatalErrorHandler {
+class WED_Document : public GUI_Broadcaster,
+                     public GUI_Destroyable,
+                     public virtual IResolver,
+                     public virtual ILibrarian,
+                     public IDocPrefs,
+                     public WED_XMLHandler,
+                     public WED_UndoFatalErrorHandler
+{
 public:
+    WED_Document(const std::string& package, double inBounds[4]);
+    ~WED_Document();
 
-						WED_Document(
-								const std::string& 		package,
-								double				inBounds[4]);
-						~WED_Document();
+    static void ReadGlobalPrefs(void);
+    static void WriteGlobalPrefs(void);
 
-	static		void	ReadGlobalPrefs(void);
-	static		void	WriteGlobalPrefs(void);
+    // Management
+    std::string GetFilePath(void) const;
 
-	// Management
-	std::string				GetFilePath(void) const;
+    void GetBounds(double bounds[4]);
 
-	void				GetBounds(double bounds[4]);
-
-	WED_Archive *		GetArchive(void);
-	WED_Thing *			GetRoot(void);
-	WED_UndoMgr *		GetUndoMgr(void);
+    WED_Archive* GetArchive(void);
+    WED_Thing* GetRoot(void);
+    WED_UndoMgr* GetUndoMgr(void);
 #if WITHNWLINK
-	WED_Server *		GetServer(void);
-	WED_NWLinkAdapter *	GetNWLink(void);
+    WED_Server* GetServer(void);
+    WED_NWLinkAdapter* GetNWLink(void);
 #endif
-//	virtual void *		QueryInterface(const char * class_id);
-	virtual	IBase *		Resolver_Find(const char * path);
-	virtual void		LookupPath(std::string& io_path);		// Input: a relative or library path
-	virtual void		ReducePath(std::string& io_path);		// Output: actual disk location
-	virtual	int			ReadIntPref(const char * in_key, int in_default, unsigned type = pref_type_doc | pref_type_global);
-	virtual	void		WriteIntPref(const char * in_key, int in_value, unsigned type = pref_type_doc | pref_type_global);
-	virtual	double		ReadDoublePref(const char * in_key, double in_default, unsigned type = pref_type_doc | pref_type_global);
-	virtual	void		WriteDoublePref(const char * in_key, double in_value, unsigned type = pref_type_doc | pref_type_global);
-	virtual	std::string		ReadStringPref(const char * in_key, const std::string& in_default, unsigned type = pref_type_doc | pref_type_global);
-	virtual	void		WriteStringPref(const char * in_key, const std::string& in_value, unsigned type = pref_type_doc | pref_type_global);
-	virtual	void		ReadIntSetPref(const char * in_key, std::set<int>& out_value);
-	virtual	void		WriteIntSetPref(const char * in_key, const std::set<int>& in_value);
+    //	virtual void *		QueryInterface(const char * class_id);
+    virtual IBase* Resolver_Find(const char* path);
+    virtual void LookupPath(std::string& io_path); // Input: a relative or library path
+    virtual void ReducePath(std::string& io_path); // Output: actual disk location
+    virtual int ReadIntPref(const char* in_key, int in_default, unsigned type = pref_type_doc | pref_type_global);
+    virtual void WriteIntPref(const char* in_key, int in_value, unsigned type = pref_type_doc | pref_type_global);
+    virtual double ReadDoublePref(const char* in_key, double in_default,
+                                  unsigned type = pref_type_doc | pref_type_global);
+    virtual void WriteDoublePref(const char* in_key, double in_value, unsigned type = pref_type_doc | pref_type_global);
+    virtual std::string ReadStringPref(const char* in_key, const std::string& in_default,
+                                       unsigned type = pref_type_doc | pref_type_global);
+    virtual void WriteStringPref(const char* in_key, const std::string& in_value,
+                                 unsigned type = pref_type_doc | pref_type_global);
+    virtual void ReadIntSetPref(const char* in_key, std::set<int>& out_value);
+    virtual void WriteIntSetPref(const char* in_key, const std::set<int>& in_value);
 
-	WED_LibraryMgr *	GetLibrary(void) { return mLibraryMgr; }
-	WED_ResourceMgr *	GetResourceMgr(void) { return mResourceMgr; }
+    WED_LibraryMgr* GetLibrary(void)
+    {
+        return mLibraryMgr;
+    }
+    WED_ResourceMgr* GetResourceMgr(void)
+    {
+        return mResourceMgr;
+    }
 
-	virtual void		StartElement(
-								WED_XMLReader * reader,
-								const XML_Char *	name,
-								const XML_Char **	atts);
-	virtual	void		EndElement(void);
-	virtual	void		PopHandler(void);
+    virtual void StartElement(WED_XMLReader* reader, const XML_Char* name, const XML_Char** atts);
+    virtual void EndElement(void);
+    virtual void PopHandler(void);
 
-	virtual	void		Panic(void);
+    virtual void Panic(void);
 
-	bool				TryClose(void);
+    bool TryClose(void);
 
-	//Saves the file, returns true if successful, false if not.
-	void				Save(void);
-	void				Revert(void);
-	bool				IsDirty(void);
-	void				SetDirty();
-	bool				IsOnDisk(void);
+    // Saves the file, returns true if successful, false if not.
+    void Save(void);
+    void Revert(void);
+    bool IsDirty(void);
+    void SetDirty();
+    bool IsOnDisk(void);
 
-	// LEGACY STUFF
+    // LEGACY STUFF
 
-//	Pmwx				gMap;
-//	DEMGeoMap			gDem;
-//	CDT					gTriangulationHi;
-//	AptVector			gApts;
-//	AptIndex			gAptIndex;
+    //	Pmwx				gMap;
+    //	DEMGeoMap			gDem;
+    //	CDT					gTriangulationHi;
+    //	AptVector			gApts;
+    //	AptIndex			gAptIndex;
 
-	static	bool	TryCloseAll(void);
+    static bool TryCloseAll(void);
 
 private:
-	bool				ReadPrefInternal(const char * in_key, unsigned type, std::string &out_value) const;
+    bool ReadPrefInternal(const char* in_key, unsigned type, std::string& out_value) const;
 
-	void				WriteXML(FILE * fi);
+    void WriteXML(FILE* fi);
 
-	//Member Variables
+    // Member Variables
 
-	double				mBounds[4];
+    double mBounds[4];
 
-	std::string				mFilePath;
-	std::string				mPackage;
-	bool				mOnDisk;
-	bool				mPrefsChanged;
+    std::string mFilePath;
+    std::string mPackage;
+    bool mOnDisk;
+    bool mPrefsChanged;
 
-	//sql_db				mDB;
-	WED_Archive			mArchive;
-	WED_UndoMgr			mUndo;
+    // sql_db				mDB;
+    WED_Archive mArchive;
+    WED_UndoMgr mUndo;
 
-	WED_TexMgr *		mTexMgr;
-	WED_LibraryMgr *	mLibraryMgr;
-	WED_ResourceMgr *	mResourceMgr;
-	//WED_Properties	mProperties;
+    WED_TexMgr* mTexMgr;
+    WED_LibraryMgr* mLibraryMgr;
+    WED_ResourceMgr* mResourceMgr;
+    // WED_Properties	mProperties;
 #if WITHNWLINK
-	WED_Server *		mServer;
-	WED_NWLinkAdapter *	mNWLink;
+    WED_Server* mServer;
+    WED_NWLinkAdapter* mNWLink;
 #endif
-	WED_Document();
-	WED_Document(const WED_Document&);
-	WED_Document& operator=(const WED_Document&);
+    WED_Document();
+    WED_Document(const WED_Document&);
+    WED_Document& operator=(const WED_Document&);
 
-	std::string						mDocPrefsActName;		// Temporary for tracking the current int-std::set on read-i.
-	std::map<std::string,std::string>			mDocPrefs;				// All std::string, int and double (non-std::set) prefs
-	std::map<std::string,std::set<int> >		mDocPrefsItems;			// The int-std::set prefs, separated out.
+    std::string mDocPrefsActName;                        // Temporary for tracking the current int-std::set on read-i.
+    std::map<std::string, std::string> mDocPrefs;        // All std::string, int and double (non-std::set) prefs
+    std::map<std::string, std::set<int>> mDocPrefsItems; // The int-std::set prefs, separated out.
 };
 
 #endif

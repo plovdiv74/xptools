@@ -24,9 +24,9 @@
 #include "WED_SimpleBezierBoundaryNode.h"
 
 DEFINE_PERSISTENT(WED_SimpleBezierBoundaryNode)
-TRIVIAL_COPY(WED_SimpleBezierBoundaryNode,WED_GISPoint_Bezier)
+TRIVIAL_COPY(WED_SimpleBezierBoundaryNode, WED_GISPoint_Bezier)
 
-WED_SimpleBezierBoundaryNode::WED_SimpleBezierBoundaryNode(WED_Archive * a, int i) : WED_GISPoint_Bezier(a,i)
+WED_SimpleBezierBoundaryNode::WED_SimpleBezierBoundaryNode(WED_Archive* a, int i) : WED_GISPoint_Bezier(a, i)
 {
 }
 

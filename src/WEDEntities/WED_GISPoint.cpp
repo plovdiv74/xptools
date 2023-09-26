@@ -28,10 +28,9 @@
 
 TRIVIAL_COPY(WED_GISPoint, WED_Entity)
 
-WED_GISPoint::WED_GISPoint(WED_Archive * parent, int id) :
-	WED_Entity(parent, id),
-	latitude (this,PROP_Name("latitude" ,XML_Name("point","latitude" )),0.0,13,9),
-	longitude(this,PROP_Name("longitude",XML_Name("point","longitude")),0.0,14,9)
+WED_GISPoint::WED_GISPoint(WED_Archive* parent, int id)
+    : WED_Entity(parent, id), latitude(this, PROP_Name("latitude", XML_Name("point", "latitude")), 0.0, 13, 9),
+      longitude(this, PROP_Name("longitude", XML_Name("point", "longitude")), 0.0, 14, 9)
 {
 }
 
@@ -39,152 +38,153 @@ WED_GISPoint::~WED_GISPoint()
 {
 }
 
-GISClass_t		WED_GISPoint::GetGISClass		(void				 ) const
+GISClass_t WED_GISPoint::GetGISClass(void) const
 {
-	return gis_Point;
+    return gis_Point;
 }
 
-const char *	WED_GISPoint::GetGISSubtype	(void				 ) const
+const char* WED_GISPoint::GetGISSubtype(void) const
 {
-	return GetClass();
+    return GetClass();
 }
 
-bool			WED_GISPoint::HasLayer(GISLayer_t l) const
+bool WED_GISPoint::HasLayer(GISLayer_t l) const
 {
-	return l == gis_Geo;
+    return l == gis_Geo;
 }
 
-void			WED_GISPoint::GetBounds		(GISLayer_t l,Bbox2&  bounds) const
+void WED_GISPoint::GetBounds(GISLayer_t l, Bbox2& bounds) const
 {
-	CacheBuild(cache_Spatial);
-	Point2	p;
-	GetLocation(l,p);
-	bounds = Bbox2(p);
+    CacheBuild(cache_Spatial);
+    Point2 p;
+    GetLocation(l, p);
+    bounds = Bbox2(p);
 }
 
-bool				WED_GISPoint::IntersectsBox	(GISLayer_t l,const Bbox2&  bounds) const
+bool WED_GISPoint::IntersectsBox(GISLayer_t l, const Bbox2& bounds) const
 {
-	Point2	p;
-	GetLocation(l,p);
-	return bounds.contains(p);
+    Point2 p;
+    GetLocation(l, p);
+    return bounds.contains(p);
 }
 
-bool				WED_GISPoint::WithinBox		(GISLayer_t l,const Bbox2&  bounds) const
+bool WED_GISPoint::WithinBox(GISLayer_t l, const Bbox2& bounds) const
 {
-	Point2	p;
-	GetLocation(l,p);
-	return bounds.contains(p);
+    Point2 p;
+    GetLocation(l, p);
+    return bounds.contains(p);
 }
 
-bool				WED_GISPoint::PtWithin		(GISLayer_t l,const Point2& p	 ) const
+bool WED_GISPoint::PtWithin(GISLayer_t l, const Point2& p) const
 {
-	return false;
+    return false;
 }
 
-bool				WED_GISPoint::PtOnFrame		(GISLayer_t l, const Point2& pt, double dist) const
+bool WED_GISPoint::PtOnFrame(GISLayer_t l, const Point2& pt, double dist) const
 {
-	Point2	p;
-	GetLocation(l,p);
-	return p.squared_distance(pt) < (dist*dist);
+    Point2 p;
+    GetLocation(l, p);
+    return p.squared_distance(pt) < (dist * dist);
 }
 
 bool WED_GISPoint::Cull(const Bbox2& b) const
 {
-	Bbox2	me;
-	GetBounds(gis_Geo, me);
-	return b.overlap(me);
+    Bbox2 me;
+    GetBounds(gis_Geo, me);
+    return b.overlap(me);
 }
 
-void			WED_GISPoint::Rescale			(GISLayer_t l,const Bbox2& old_bounds, const Bbox2& new_bounds)
+void WED_GISPoint::Rescale(GISLayer_t l, const Bbox2& old_bounds, const Bbox2& new_bounds)
 {
-	if (old_bounds != new_bounds)
-	{
-		Point2	p;
-		GetLocation(l,p);
-		p.x_ = old_bounds.rescale_to_x_projected(new_bounds,p.x_);
-		p.y_ = old_bounds.rescale_to_y(new_bounds,p.y_);
+    if (old_bounds != new_bounds)
+    {
+        Point2 p;
+        GetLocation(l, p);
+        p.x_ = old_bounds.rescale_to_x_projected(new_bounds, p.x_);
+        p.y_ = old_bounds.rescale_to_y(new_bounds, p.y_);
 
-		// Todo: Why is box 0,0 to 1,1 when dragging the airport symbol at far out zoom scales ? Its screwing our projection up. Need real coordinates
+        // Todo: Why is box 0,0 to 1,1 when dragging the airport symbol at far out zoom scales ? Its screwing our
+        // projection up. Need real coordinates
 
-		SetLocation(l,p);
-//		CacheInval(cache_Spatial);
-//		CacheBuild(cache_Spatial);
-	}
+        SetLocation(l, p);
+        //		CacheInval(cache_Spatial);
+        //		CacheBuild(cache_Spatial);
+    }
 }
 
-void	WED_GISPoint::GetLocation(GISLayer_t l,     Point2& p) const
+void WED_GISPoint::GetLocation(GISLayer_t l, Point2& p) const
 {
-	// Bit of a hack: a client can call this to build its own bounding box cache.
-	// So re-validate OUR cache here.  (Otherwise our change of location won't
-	// start a cache-inval cascade.)
-//	CacheBuild();
+    // Bit of a hack: a client can call this to build its own bounding box cache.
+    // So re-validate OUR cache here.  (Otherwise our change of location won't
+    // start a cache-inval cascade.)
+    //	CacheBuild();
 
-	// Ben says: 9/13/09 - the above comment is from WED 1.1 and seems like it is perhaps
-	// wrong.  Since we reval our cache every time we inval it (this std::pair invals our parents
-	// just once and then remembers that we did it) we should NOT ever be in a state where our
-	// own cache is invalid.  (Since we have no cache, how can it be invalid?  So we mark it as
-	// valid every time we inval, so the next inval will wrok.)
-	//
-	// So - commenting out for now.  If the caching system goes hinky on us...perhaps that will
-	// show why this was necessary?
+    // Ben says: 9/13/09 - the above comment is from WED 1.1 and seems like it is perhaps
+    // wrong.  Since we reval our cache every time we inval it (this std::pair invals our parents
+    // just once and then remembers that we did it) we should NOT ever be in a state where our
+    // own cache is invalid.  (Since we have no cache, how can it be invalid?  So we mark it as
+    // valid every time we inval, so the next inval will wrok.)
+    //
+    // So - commenting out for now.  If the caching system goes hinky on us...perhaps that will
+    // show why this was necessary?
 
-
-	if(l == gis_Geo)
-	{
-		p.x_ = longitude.value;
-		p.y_ = latitude.value;
-	} else {
-		p.x_ = p.y_ = 0.0;
-	}
+    if (l == gis_Geo)
+    {
+        p.x_ = longitude.value;
+        p.y_ = latitude.value;
+    }
+    else
+    {
+        p.x_ = p.y_ = 0.0;
+    }
 }
 
-void	WED_GISPoint::SetLocation(GISLayer_t l, const Point2& p)
+void WED_GISPoint::SetLocation(GISLayer_t l, const Point2& p)
 {
-	DebugAssert(l==gis_Geo);
+    DebugAssert(l == gis_Geo);
 
-	if (p.x() != longitude.value || p.y() != latitude.value)
-	{
-		StateChanged();
-		longitude.value = p.x();
-		latitude.value = p.y();
-		CacheInval(cache_Spatial);
-		CacheBuild(cache_Spatial);
-	}
+    if (p.x() != longitude.value || p.y() != latitude.value)
+    {
+        StateChanged();
+        longitude.value = p.x();
+        latitude.value = p.y();
+        CacheInval(cache_Spatial);
+        CacheBuild(cache_Spatial);
+    }
 }
 
-void			WED_GISPoint::Rotate			(GISLayer_t l, const Point2& ctr, double a)
+void WED_GISPoint::Rotate(GISLayer_t l, const Point2& ctr, double a)
 {
-	if (a != 0.0)
-	{
-		Point2	pt_old;
-		GetLocation(l,pt_old);
-		Vector2	v_old = VectorLLToMeters(ctr,Vector2(ctr,pt_old));
-		double old_len = sqrt(v_old.squared_length());
+    if (a != 0.0)
+    {
+        Point2 pt_old;
+        GetLocation(l, pt_old);
+        Vector2 v_old = VectorLLToMeters(ctr, Vector2(ctr, pt_old));
+        double old_len = sqrt(v_old.squared_length());
 
-		double old_ang = VectorMeters2NorthHeading(ctr,ctr,v_old);
-		Vector2	v_new;
+        double old_ang = VectorMeters2NorthHeading(ctr, ctr, v_old);
+        Vector2 v_new;
 
-		NorthHeading2VectorMeters(ctr, ctr, old_ang + a, v_new);
-		v_new.normalize();
-		v_new *= old_len;
+        NorthHeading2VectorMeters(ctr, ctr, old_ang + a, v_new);
+        v_new.normalize();
+        v_new *= old_len;
 
-		v_new = VectorMetersToLL(ctr,v_new);
+        v_new = VectorMetersToLL(ctr, v_new);
 
-		SetLocation(l,ctr + v_new);
+        SetLocation(l, ctr + v_new);
 
-		CacheInval(cache_Spatial);
-		CacheBuild(cache_Spatial);
-	}
+        CacheInval(cache_Spatial);
+        CacheBuild(cache_Spatial);
+    }
 }
 
-void		WED_GISPoint::PropEditCallback(int before)
+void WED_GISPoint::PropEditCallback(int before)
 {
-	WED_Entity::PropEditCallback(before);
+    WED_Entity::PropEditCallback(before);
 
-	if(!before)
-	{
-		CacheInval(cache_Spatial);
-		CacheBuild(cache_Spatial);
-	}
-
+    if (!before)
+    {
+        CacheInval(cache_Spatial);
+        CacheBuild(cache_Spatial);
+    }
 }

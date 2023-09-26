@@ -37,7 +37,7 @@
 #include "GISTool_Globals.h"
 
 #if OPENGL_MAP
-	#include "RF_Selection.h"
+#include "RF_Selection.h"
 #endif
 
 #if CGAL_BETA_SIMPLIFIER
@@ -63,92 +63,93 @@
 #include "WED_Globals.h"
 #endif
 
-void	RebuildMap(
-			Pmwx&			in_map,
-			Pmwx&			out_map)
+void RebuildMap(Pmwx& in_map, Pmwx& out_map)
 {
-	out_map.clear();
-	vector<X_monotone_curve_2>	curves;
-	curves.reserve(in_map.number_of_halfedges() / 2);
-	for(Pmwx::Edge_iterator i = in_map.edges_begin(); i != in_map.edges_end(); ++i)
-	{
-		curves.push_back(i->curve());
-	}
-	printf("Rebuilding %llu edges.\n",(unsigned long long)curves.size());
-	StElapsedTime rebuild_map("Rebuild_map");
-	CGAL::insert(out_map,curves.begin(),curves.end());
+    out_map.clear();
+    vector<X_monotone_curve_2> curves;
+    curves.reserve(in_map.number_of_halfedges() / 2);
+    for (Pmwx::Edge_iterator i = in_map.edges_begin(); i != in_map.edges_end(); ++i)
+    {
+        curves.push_back(i->curve());
+    }
+    printf("Rebuilding %llu edges.\n", (unsigned long long)curves.size());
+    StElapsedTime rebuild_map("Rebuild_map");
+    CGAL::insert(out_map, curves.begin(), curves.end());
 }
 
 /*
-void	CCBToPolygon(Halfedge_const_handle ccb, Polygon2& outPolygon, vector<double> * road_types, double (* weight_func)(Halfedge_const_handle edge), Bbox2 * outBounds)
+void	CCBToPolygon(Halfedge_const_handle ccb, Polygon2& outPolygon, vector<double> * road_types, double (*
+weight_func)(Halfedge_const_handle edge), Bbox2 * outBounds)
 {
-	if (road_types != NULL) DebugAssert(weight_func != NULL);
-	if (road_types == NULL) DebugAssert(weight_func == NULL);
+    if (road_types != NULL) DebugAssert(weight_func != NULL);
+    if (road_types == NULL) DebugAssert(weight_func == NULL);
 
-	outPolygon.clear();
-	if (road_types) road_types->clear();
+    outPolygon.clear();
+    if (road_types) road_types->clear();
 
-	Halfedge_const_handle iter = ccb, stop = ccb;
+    Halfedge_const_handle iter = ccb, stop = ccb;
 
-	if (outBounds)	(*outBounds) = cgal2ben(iter->source()->point());
+    if (outBounds)	(*outBounds) = cgal2ben(iter->source()->point());
 
-	do {
-		// BEN SAYS: SWITCH TO SOURCE or LU type is off by one!
-		#if !DEV
-		hello
-		#endif
-		outPolygon.push_back(cgal2ben(iter->target()->point()));
-		if (outBounds) (*outBounds) += cgal2ben(iter->target()->point());
-		if (road_types)
-			road_types->push_back(weight_func(iter));
-		iter = iter->next();
-	} while (iter != stop);
+    do {
+        // BEN SAYS: SWITCH TO SOURCE or LU type is off by one!
+        #if !DEV
+        hello
+        #endif
+        outPolygon.push_back(cgal2ben(iter->target()->point()));
+        if (outBounds) (*outBounds) += cgal2ben(iter->target()->point());
+        if (road_types)
+            road_types->push_back(weight_func(iter));
+        iter = iter->next();
+    } while (iter != stop);
 }
 
-void	FaceToComplexPolygon(Face_const_handle face, vector<Polygon2>& outPolygon, vector<vector<double> > * road_types, double (* weight_func)(Halfedge_const_handle edge), Bbox2 * outBounds)
+void	FaceToComplexPolygon(Face_const_handle face, vector<Polygon2>& outPolygon, vector<vector<double> > * road_types,
+double (* weight_func)(Halfedge_const_handle edge), Bbox2 * outBounds)
 {
-	outPolygon.clear();
-	if (road_types)	road_types->clear();
+    outPolygon.clear();
+    if (road_types)	road_types->clear();
 
-	if (!face->is_unbounded())
-	{
-		outPolygon.push_back(Polygon2());
-		if (road_types) road_types->push_back(vector<double>());
-		CCBToPolygon(face->outer_ccb(), outPolygon.back(), road_types ? &road_types->back() : NULL, weight_func, outBounds);
-	}
+    if (!face->is_unbounded())
+    {
+        outPolygon.push_back(Polygon2());
+        if (road_types) road_types->push_back(vector<double>());
+        CCBToPolygon(face->outer_ccb(), outPolygon.back(), road_types ? &road_types->back() : NULL, weight_func,
+outBounds);
+    }
 
-	for (Pmwx::Hole_const_iterator hole = face->holes_begin(); hole != face->holes_end(); ++hole)
-	{
-		outPolygon.push_back(Polygon2());
-		if (road_types) road_types->push_back(vector<double>());
-		CCBToPolygon(*hole, outPolygon.back(), road_types ? &road_types->back() : NULL, weight_func, NULL);
-	}
+    for (Pmwx::Hole_const_iterator hole = face->holes_begin(); hole != face->holes_end(); ++hole)
+    {
+        outPolygon.push_back(Polygon2());
+        if (road_types) road_types->push_back(vector<double>());
+        CCBToPolygon(*hole, outPolygon.back(), road_types ? &road_types->back() : NULL, weight_func, NULL);
+    }
 }
 
 Face_handle	ComplexPolygonToPmwx(const vector<Polygon2>& inPolygons, Pmwx& outPmwx, int inTerrain, int outTerrain)
 {
-	Face_handle outer = Face_handle();
-	outPmwx.clear();
-	outPmwx.unbounded_face()->data().mTerrainType = outTerrain;
-	for (vector<Polygon2>::const_iterator poly = inPolygons.begin(); poly != inPolygons.end(); ++poly)
-	{
-		Face_handle parent = (poly == inPolygons.begin()) ? outPmwx.unbounded_face() : outer;
-		if (poly == inPolygons.begin())
-		{
-			Face_handle new_f = SafeInsertRing(&outPmwx, parent, *poly);
-			outer = new_f;
-			new_f->data().mTerrainType = inTerrain;
+    Face_handle outer = Face_handle();
+    outPmwx.clear();
+    outPmwx.unbounded_face()->data().mTerrainType = outTerrain;
+    for (vector<Polygon2>::const_iterator poly = inPolygons.begin(); poly != inPolygons.end(); ++poly)
+    {
+        Face_handle parent = (poly == inPolygons.begin()) ? outPmwx.unbounded_face() : outer;
+        if (poly == inPolygons.begin())
+        {
+            Face_handle new_f = SafeInsertRing(&outPmwx, parent, *poly);
+            outer = new_f;
+            new_f->data().mTerrainType = inTerrain;
 
-		}
-		else
-		{
-			Polygon2	rev(*poly);
-			reverse(rev.begin(), rev.end());
-			Face_handle new_f = SafeInsertRing(&outPmwx, parent, rev);
-			new_f->data().mTerrainType = outTerrain;
-		}
-	}
-	return outer;
+        }
+        else
+        {
+            Polygon2	rev(*poly);
+            reverse(rev.begin(), rev.end());
+            Face_handle new_f = SafeInsertRing(&outPmwx, parent, rev);
+            new_f->data().mTerrainType = outTerrain;
+        }
+    }
+    return outer;
 }
 
 */
@@ -157,72 +158,60 @@ Face_handle	ComplexPolygonToPmwx(const vector<Polygon2>& inPolygons, Pmwx& outPm
  ************************************************************************************************/
 #pragma mark -
 
-static void	CutInside(
-			Pmwx&				ioMap,
-			const Polygon_2&	inBoundary,
-			bool				inWantOutside,
-			ProgressFunc		inProgress);
+static void CutInside(Pmwx& ioMap, const Polygon_2& inBoundary, bool inWantOutside, ProgressFunc inProgress);
 
-void	CropMap(
-			Pmwx&			ioMap,
-			double			inWest,
-			double			inSouth,
-			double			inEast,
-			double			inNorth,
-			bool			inKeepOutside,	// If true, keep outside crop zone (cut a hole), otherwise keep only inside (normal crop)
-			ProgressFunc	inProgress)
+void CropMap(
+    Pmwx& ioMap, double inWest, double inSouth, double inEast, double inNorth,
+    bool inKeepOutside, // If true, keep outside crop zone (cut a hole), otherwise keep only inside (normal crop)
+    ProgressFunc inProgress)
 {
-	Polygon_2	p;
-	p.push_back(Point_2(inWest,inSouth));
-	p.push_back(Point_2(inEast,inSouth));
-	p.push_back(Point_2(inEast,inNorth));
-	p.push_back(Point_2(inWest,inNorth));
-	CutInside(ioMap, p, inKeepOutside,inProgress);
+    Polygon_2 p;
+    p.push_back(Point_2(inWest, inSouth));
+    p.push_back(Point_2(inEast, inSouth));
+    p.push_back(Point_2(inEast, inNorth));
+    p.push_back(Point_2(inWest, inNorth));
+    CutInside(ioMap, p, inKeepOutside, inProgress);
 }
 
-void	CropMap(
-			Pmwx&					ioMap,
-			Pmwx&					outCutout,
-			const vector<Point_2>&	inRingCCW,
-			ProgressFunc			inProgress)
+void CropMap(Pmwx& ioMap, Pmwx& outCutout, const vector<Point_2>& inRingCCW, ProgressFunc inProgress)
 {
-	outCutout = ioMap;
-	Polygon_2 p(inRingCCW.begin(),inRingCCW.end());
-	CutInside(ioMap,p,true,inProgress);
-	CutInside(outCutout,p,false,inProgress);
+    outCutout = ioMap;
+    Polygon_2 p(inRingCCW.begin(), inRingCCW.end());
+    CutInside(ioMap, p, true, inProgress);
+    CutInside(outCutout, p, false, inProgress);
 }
 
 /*
 class	collect_edges : public data_preserver_t {
 public:
-	std::set<Halfedge_handle> *  edges;
-	bool					use_outside;
+    std::set<Halfedge_handle> *  edges;
+    bool					use_outside;
 
   virtual void after_create_edge (Halfedge_handle e)
   {
-		bool reverse = false;
+        bool reverse = false;
 //		printf("Created edge 0x%08x/0x%08x ",&*e,&*e->twin());
-		Vector_2	actual_dir(e->source()->point(),e->target()->point());
+        Vector_2	actual_dir(e->source()->point(),e->target()->point());
 
-		if(use_outside)
-		{
-			if(CGAL::angle(e->curve().target(),e->curve().source(),e->curve().source()+actual_dir)==CGAL::ACUTE)
-				reverse = true;
-			else
-				reverse = false;
-		}
-		else
-		{
-			if(CGAL::angle(e->curve().target(),e->curve().source(),e->curve().source()+actual_dir)==CGAL::ACUTE)
-				reverse = false;
-			else
-				reverse = true;
-		}
+        if(use_outside)
+        {
+            if(CGAL::angle(e->curve().target(),e->curve().source(),e->curve().source()+actual_dir)==CGAL::ACUTE)
+                reverse = true;
+            else
+                reverse = false;
+        }
+        else
+        {
+            if(CGAL::angle(e->curve().target(),e->curve().source(),e->curve().source()+actual_dir)==CGAL::ACUTE)
+                reverse = false;
+            else
+                reverse = true;
+        }
 
-		if(reverse)
-				edges->insert(e->twin());
-			else
-				edges->insert(e);
+        if(reverse)
+                edges->insert(e->twin());
+            else
+                edges->insert(e);
 
 //		printf("Got edge: %lf,%lf->%lf,%lf, reverse=%s\n",
 //			CGAL::to_double(e->source()->point().x()),
@@ -240,8 +229,8 @@ public:
 
     virtual void after_split_edge (Halfedge_handle  e1,
                                  Halfedge_handle  e2)
-	{
-		data_preserver_t::after_split_edge(e1,e2);
+    {
+        data_preserver_t::after_split_edge(e1,e2);
 //		printf("Split edge: 0x%08x/0x%08x   to make 0x%08x/0x%08x %lf,%lf->%lf,%lf and %lf,%lf->%lf,%lf\n",
 //			&*e1,&*e1->twin(),&*e2,&*e2->twin(),
 //			CGAL::to_double(e1->source()->point().x()),
@@ -266,120 +255,118 @@ public:
 
 //		DebugAssert(e1->data().mDominant != e1->twin()->data().mDominant);
 //		DebugAssert(e2->data().mDominant != e2->twin()->data().mDominant);
-		if(edges->count(e1)) edges->insert(e2);
-		if(edges->count(e1->twin())) edges->insert(e2->twin());
+        if(edges->count(e1)) edges->insert(e2);
+        if(edges->count(e1->twin())) edges->insert(e2->twin());
 
-	}
+    }
 };
 */
 
-
-void	CutInside(
-			Pmwx&				ioMap,
-			const Polygon_2&	inBoundary,
-			bool				inWantOutside,
-			ProgressFunc		inProgress)
+void CutInside(Pmwx& ioMap, const Polygon_2& inBoundary, bool inWantOutside, ProgressFunc inProgress)
 {
-//	std::set<Halfedge_handle>	edges;
-	data_preserver_t<Pmwx>	info;
-//	collect_edges		info;
-//	info.edges = &edges;
-//	info.use_outside = false;
+    //	std::set<Halfedge_handle>	edges;
+    data_preserver_t<Pmwx> info;
+    //	collect_edges		info;
+    //	info.edges = &edges;
+    //	info.use_outside = false;
 
-	info.attach(ioMap);
+    info.attach(ioMap);
 
-//	DebugAssert(CGAL::is_valid(ioMap));
-	DebugAssert(inBoundary.is_simple());
-	vector<X_monotone_curve_2> v(inBoundary.edges_begin(),inBoundary.edges_end());
+    //	DebugAssert(CGAL::is_valid(ioMap));
+    DebugAssert(inBoundary.is_simple());
+    vector<X_monotone_curve_2> v(inBoundary.edges_begin(), inBoundary.edges_end());
 
-	// Ben says: use insert_curve...insert_curves always sweeps, which is nlogn the number of
-	// half-edges in the map, which might be really huge.  With insert_curve we pay for 
-	// geometric queries, but for an AABB that's only 4 inserts, way cheaper than nlogn on
-	// 500,000 edges!!
-	for(int n = 0; n < v.size(); ++n)
-		CGAL::insert(ioMap, v[n]);
+    // Ben says: use insert_curve...insert_curves always sweeps, which is nlogn the number of
+    // half-edges in the map, which might be really huge.  With insert_curve we pay for
+    // geometric queries, but for an AABB that's only 4 inserts, way cheaper than nlogn on
+    // 500,000 edges!!
+    for (int n = 0; n < v.size(); ++n)
+        CGAL::insert(ioMap, v[n]);
 
-//	DebugAssert(CGAL::is_valid(ioMap));
+    //	DebugAssert(CGAL::is_valid(ioMap));
 
-/*
-	for(vector<X_monotone_curve_2>::iterator i = v.begin(); i != v.end(); ++i)
-	{
-		printf("INSERTING: %lf,%f->%lf,%lf\n",
-				CGAL::to_double(i->source().x()),
-				CGAL::to_double(i->source().y()),
-				CGAL::to_double(i->target().x()),
-				CGAL::to_double(i->target().y()));
-		CGAL::insert_curve(ioMap,*i);
-	}
-*/
-	info.detach();
+    /*
+        for(vector<X_monotone_curve_2>::iterator i = v.begin(); i != v.end(); ++i)
+        {
+            printf("INSERTING: %lf,%f->%lf,%lf\n",
+                    CGAL::to_double(i->source().x()),
+                    CGAL::to_double(i->source().y()),
+                    CGAL::to_double(i->target().x()),
+                    CGAL::to_double(i->target().y()));
+            CGAL::insert_curve(ioMap,*i);
+        }
+    */
+    info.detach();
 
-//		std::set<Face_handle>	interior_region;
+    //		std::set<Face_handle>	interior_region;
 
-//	FindFacesForEdgeSet(edges,interior_region);
+    //	FindFacesForEdgeSet(edges,interior_region);
 
-//	std::set<Halfedge_handle>	all_interior_edges;
+    //	std::set<Halfedge_handle>	all_interior_edges;
 
-//	for(std::set<Face_handle>::iterator f = interior_region.begin(); f != interior_region.end(); ++f)
-//	{
-//		DebugAssert(!(*f)->is_unbounded());
-//		FindEdgesForFace(*f,all_interior_edges);
-//	}
+    //	for(std::set<Face_handle>::iterator f = interior_region.begin(); f != interior_region.end(); ++f)
+    //	{
+    //		DebugAssert(!(*f)->is_unbounded());
+    //		FindEdgesForFace(*f,all_interior_edges);
+    //	}
 
-//	for(std::set<Halfedge_handle>::iterator e = edges.begin(); e != edges.end(); ++e)
-//		DebugAssert(all_interior_edges.count(*e) > 0);
+    //	for(std::set<Halfedge_handle>::iterator e = edges.begin(); e != edges.end(); ++e)
+    //		DebugAssert(all_interior_edges.count(*e) > 0);
 
-	vector<Halfedge_handle>	kill;
+    vector<Halfedge_handle> kill;
 
-//	if(!inWantOutside)
-	{
-		// this is the case where we THROW OUT the OUTSIDE - still very slow.
-		for(Pmwx::Edge_iterator e = ioMap.edges_begin(); e != ioMap.edges_end(); ++e)
-		{
-			CGAL::Bounded_side v1 = inBoundary.bounded_side(e->source()->point());
-			CGAL::Bounded_side v2 = inBoundary.bounded_side(e->target()->point());
+    //	if(!inWantOutside)
+    {
+        // this is the case where we THROW OUT the OUTSIDE - still very slow.
+        for (Pmwx::Edge_iterator e = ioMap.edges_begin(); e != ioMap.edges_end(); ++e)
+        {
+            CGAL::Bounded_side v1 = inBoundary.bounded_side(e->source()->point());
+            CGAL::Bounded_side v2 = inBoundary.bounded_side(e->target()->point());
 
-			// Sanity check - having burned in our edge, no edge should now SPAN our polygon.
-			if (v1 == CGAL::ON_BOUNDED_SIDE) DebugAssert(v2 != CGAL::ON_UNBOUNDED_SIDE);
-			if (v2 == CGAL::ON_BOUNDED_SIDE) DebugAssert(v1 != CGAL::ON_UNBOUNDED_SIDE);
+            // Sanity check - having burned in our edge, no edge should now SPAN our polygon.
+            if (v1 == CGAL::ON_BOUNDED_SIDE)
+                DebugAssert(v2 != CGAL::ON_UNBOUNDED_SIDE);
+            if (v2 == CGAL::ON_BOUNDED_SIDE)
+                DebugAssert(v1 != CGAL::ON_UNBOUNDED_SIDE);
 
-			if(inWantOutside)
-			if(v1 == CGAL::ON_BOUNDED_SIDE || v2 == CGAL::ON_BOUNDED_SIDE)	kill.push_back(e);
+            if (inWantOutside)
+                if (v1 == CGAL::ON_BOUNDED_SIDE || v2 == CGAL::ON_BOUNDED_SIDE)
+                    kill.push_back(e);
 
-			if(!inWantOutside)
-			if(v1 == CGAL::ON_UNBOUNDED_SIDE || v2 == CGAL::ON_UNBOUNDED_SIDE)	kill.push_back(e);
-		}
-	}
-//	else
-/*
-	if(inWantOutside)
-	{
-		for(std::set<Halfedge_handle>::iterator e = all_interior_edges.begin(); e != all_interior_edges.end(); ++e)
-		if(edges.count(*e) == 0)
-		if((*e)->data().mDominant)
-			if(find(kill.begin(),kill.end(),*e) == kill.end())
-			{
-				CGAL::Bounded_side v1 = inBoundary.bounded_side((*e)->source()->point());
-				CGAL::Bounded_side v2 = inBoundary.bounded_side((*e)->target()->point());
-				Halfedge_handle ee(*e);
-				printf("Lost edge: 0x%08x/0x%08x %lf,%lf->%lf,%lf  is %d,%d\n",
-						&*ee,&*ee->twin(),
-						CGAL::to_double((*e)->source()->point().x()),
-						CGAL::to_double((*e)->source()->point().y()),
-						CGAL::to_double((*e)->target()->point().x()),
-						CGAL::to_double((*e)->target()->point().y()),
-						v1,v2);
-			}
+            if (!inWantOutside)
+                if (v1 == CGAL::ON_UNBOUNDED_SIDE || v2 == CGAL::ON_UNBOUNDED_SIDE)
+                    kill.push_back(e);
+        }
+    }
+    //	else
+    /*
+        if(inWantOutside)
+        {
+            for(std::set<Halfedge_handle>::iterator e = all_interior_edges.begin(); e != all_interior_edges.end(); ++e)
+            if(edges.count(*e) == 0)
+            if((*e)->data().mDominant)
+                if(find(kill.begin(),kill.end(),*e) == kill.end())
+                {
+                    CGAL::Bounded_side v1 = inBoundary.bounded_side((*e)->source()->point());
+                    CGAL::Bounded_side v2 = inBoundary.bounded_side((*e)->target()->point());
+                    Halfedge_handle ee(*e);
+                    printf("Lost edge: 0x%08x/0x%08x %lf,%lf->%lf,%lf  is %d,%d\n",
+                            &*ee,&*ee->twin(),
+                            CGAL::to_double((*e)->source()->point().x()),
+                            CGAL::to_double((*e)->source()->point().y()),
+                            CGAL::to_double((*e)->target()->point().x()),
+                            CGAL::to_double((*e)->target()->point().y()),
+                            v1,v2);
+                }
 
-	}
-*/
-	for(vector<Halfedge_handle>::iterator k = kill.begin(); k != kill.end(); ++k)
-		ioMap.remove_edge(*k);
-//	printf("Finishde one cut inside.\n");
+        }
+    */
+    for (vector<Halfedge_handle>::iterator k = kill.begin(); k != kill.end(); ++k)
+        ioMap.remove_edge(*k);
+    //	printf("Finishde one cut inside.\n");
 
-//	DebugAssert(CGAL::is_valid(ioMap));
-	DebugAssert(inBoundary.is_simple());
-
+    //	DebugAssert(CGAL::is_valid(ioMap));
+    DebugAssert(inBoundary.is_simple());
 }
 
 #if 0
@@ -892,7 +879,7 @@ void MergeMaps(Pmwx& ioDstMap, Pmwx& ioSrcMap, bool inForceProps, std::set<Face_
 
 // Vertex hasher - to be honest I forget why this was necessary, but without it the
 // STL couldn't build the hash table.  Foo.
-#if 0 //!MSC
+#if 0 //! MSC
 struct hash_vertex {
 	typedef Vertex_handle KeyType;
 	size_t operator()(const KeyType& key) const { return (size_t) key; }
@@ -911,7 +898,7 @@ void	SwapMaps(	Pmwx& 							ioMapA,
 	std::set<Face_handle>		moveFaceFromA, moveFaceFromB;
 	std::set<Halfedge_handle>	moveEdgeFromA, moveEdgeFromB;
 	std::set<Vertex_handle >	moveVertFromA, moveVertFromB;
-#if 1 //MSC
+#if 1 // MSC
 	hash_map<Vertex_handle, Vertex_handle>	keepVertFromA, keepVertFromB;
 	hash_map<Vertex_handle, Vertex_handle>::iterator findVert;
 #else
@@ -963,7 +950,7 @@ void	SwapMaps(	Pmwx& 							ioMapA,
 		// Vertices on the CCB do NOT move since they are used by exterior stuff.
 		// We need to know the correspondence for later!  So build a map
 		// of how they relate for quick access.
-#if 1 //MSC
+#if 1 // MSC
 		keepVertFromA.insert(hash_map<Vertex_handle, Vertex_handle>::value_type(inBoundsA[n]->target(), inBoundsB[n]->target()));
 		keepVertFromB.insert(hash_map<Vertex_handle, Vertex_handle>::value_type(inBoundsB[n]->target(), inBoundsA[n]->target()));
 #else
@@ -1179,12 +1166,12 @@ static bool __epsi_intersect(const Segment_2& segA, const Segment_2& segB, doubl
 
  // Colinear check - this tells us if two points are very close to each other but not truly colinear.
 #if 0
-#define	SMALL_SEG_CUTOFF	0.01
-#define BBOX_SLOP			0.00001
+#define SMALL_SEG_CUTOFF 0.01
+#define BBOX_SLOP 0.00001
 #define NEAR_SLIVER_COLINEAR 7.7e-12
 #else
-#define	SMALL_SEG_CUTOFF	0.005
-#define BBOX_SLOP			0.00001
+#define SMALL_SEG_CUTOFF 0.005
+#define BBOX_SLOP 0.00001
 #define NEAR_SLIVER_COLINEAR 7.7e-12
 #endif
 
@@ -1621,341 +1608,365 @@ Face_handle SafeInsertRing(Pmwx * inPmwx, Face_handle parent, const vector<Point
 }
 #endif
 
-
 /************************************************************************************************
  * MAP ANALYSIS AND RASTERIZATION/ANALYSIS
  ************************************************************************************************/
 #pragma mark -
 
-void	CalcBoundingBox(
-			const Pmwx&		inMap,
-			Point_2&			sw,
-			Point_2&			ne)
+void CalcBoundingBox(const Pmwx& inMap, Point_2& sw, Point_2& ne)
 {
-	bool		inited = false;
-	Bbox2		box;
+    bool inited = false;
+    Bbox2 box;
 
-	Face_const_handle	uf = inMap.unbounded_face();
+    Face_const_handle uf = inMap.unbounded_face();
 
-	for (Pmwx::Hole_const_iterator holes = uf->holes_begin(); holes != uf->holes_end(); ++holes)
-	{
-		Pmwx::Ccb_halfedge_const_circulator	cur, last;
-		cur = last = *holes;
-		do {
+    for (Pmwx::Hole_const_iterator holes = uf->holes_begin(); holes != uf->holes_end(); ++holes)
+    {
+        Pmwx::Ccb_halfedge_const_circulator cur, last;
+        cur = last = *holes;
+        do
+        {
 
-			if (!inited)
-			{
-				box = Bbox2(cgal2ben(cur->source()->point()));
-				inited = true;
-			}
+            if (!inited)
+            {
+                box = Bbox2(cgal2ben(cur->source()->point()));
+                inited = true;
+            }
 
-			box += cgal2ben(cur->source()->point());
-			box += cgal2ben(cur->target()->point());
+            box += cgal2ben(cur->source()->point());
+            box += cgal2ben(cur->target()->point());
 
-			++cur;
-		} while (cur != last);
-	}
-	sw = ben2cgal<Point_2>(box.p1);
-	ne = ben2cgal<Point_2>(box.p2);
+            ++cur;
+        } while (cur != last);
+    }
+    sw = ben2cgal<Point_2>(box.p1);
+    ne = ben2cgal<Point_2>(box.p2);
 }
 
-
-double	GetMapFaceAreaMeters(const Face_handle f, Bbox2 * out_bounds)
+double GetMapFaceAreaMeters(const Face_handle f, Bbox2* out_bounds)
 {
-	if (f->is_unbounded()) return -1.0;
-	Polygon2	outer;
-	Pmwx::Ccb_halfedge_circulator	circ = f->outer_ccb();
-	Pmwx::Ccb_halfedge_circulator	start = circ;
-	do {
-			outer.push_back(cgal2ben(circ->source()->point()));
-		++circ;
-	} while (circ != start);
+    if (f->is_unbounded())
+        return -1.0;
+    Polygon2 outer;
+    Pmwx::Ccb_halfedge_circulator circ = f->outer_ccb();
+    Pmwx::Ccb_halfedge_circulator start = circ;
+    do
+    {
+        outer.push_back(cgal2ben(circ->source()->point()));
+        ++circ;
+    } while (circ != start);
 
-	CoordTranslator2 trans;
+    CoordTranslator2 trans;
 
-	CreateTranslatorForPolygon(outer, trans);
+    CreateTranslatorForPolygon(outer, trans);
 
-	if(out_bounds)
-	{
-		*out_bounds = Bbox2(trans.mSrcMin,trans.mSrcMax);
-	}
+    if (out_bounds)
+    {
+        *out_bounds = Bbox2(trans.mSrcMin, trans.mSrcMax);
+    }
 
-	for (int n = 0; n < outer.size(); ++n)
-	{
-		outer[n] = trans.Forward(outer[n]);
-	}
+    for (int n = 0; n < outer.size(); ++n)
+    {
+        outer[n] = trans.Forward(outer[n]);
+    }
 
-	double me = outer.area();
+    double me = outer.area();
 
-	for (Pmwx::Hole_iterator h = f->holes_begin(); h != f->holes_end(); ++h)
-	{
-		Polygon2	ib;
-		Pmwx::Ccb_halfedge_circulator	circ(*h);
-		Pmwx::Ccb_halfedge_circulator	start = circ;
-		do {
-				ib.push_back(Point2(CGAL::to_double(circ->source()->point().x()),CGAL::to_double(circ->source()->point().y())));
-			++circ;
-		} while (circ != start);
+    for (Pmwx::Hole_iterator h = f->holes_begin(); h != f->holes_end(); ++h)
+    {
+        Polygon2 ib;
+        Pmwx::Ccb_halfedge_circulator circ(*h);
+        Pmwx::Ccb_halfedge_circulator start = circ;
+        do
+        {
+            ib.push_back(
+                Point2(CGAL::to_double(circ->source()->point().x()), CGAL::to_double(circ->source()->point().y())));
+            ++circ;
+        } while (circ != start);
 
-		for (int n = 0; n < ib.size(); ++n)
-			ib[n] = trans.Forward(ib[n]);
+        for (int n = 0; n < ib.size(); ++n)
+            ib[n] = trans.Forward(ib[n]);
 
-		me += ib.area();
-	}
-	return me;
+        me += ib.area();
+    }
+    return me;
 }
 
-double	GetMapFaceAreaDegrees(const Face_handle f)
+double GetMapFaceAreaDegrees(const Face_handle f)
 {
-	if (f->is_unbounded()) return -1.0;
-	Polygon2	outer;
-	Pmwx::Ccb_halfedge_circulator	circ = f->outer_ccb();
-	Pmwx::Ccb_halfedge_circulator	start = circ;
-	do {
-			outer.push_back(cgal2ben(circ->source()->point()));
-		++circ;
-	} while (circ != start);
+    if (f->is_unbounded())
+        return -1.0;
+    Polygon2 outer;
+    Pmwx::Ccb_halfedge_circulator circ = f->outer_ccb();
+    Pmwx::Ccb_halfedge_circulator start = circ;
+    do
+    {
+        outer.push_back(cgal2ben(circ->source()->point()));
+        ++circ;
+    } while (circ != start);
 
-	double me = outer.area();
+    double me = outer.area();
 
-	for (Pmwx::Hole_iterator h = f->holes_begin(); h != f->holes_end(); ++h)
-	{
-		Polygon2	ib;
-		Pmwx::Ccb_halfedge_circulator	circ(*h);
-		Pmwx::Ccb_halfedge_circulator	start = circ;
-		do {
-				ib.push_back(Point2(CGAL::to_double(circ->source()->point().x()),CGAL::to_double(circ->source()->point().y())));
-			++circ;
-		} while (circ != start);
+    for (Pmwx::Hole_iterator h = f->holes_begin(); h != f->holes_end(); ++h)
+    {
+        Polygon2 ib;
+        Pmwx::Ccb_halfedge_circulator circ(*h);
+        Pmwx::Ccb_halfedge_circulator start = circ;
+        do
+        {
+            ib.push_back(
+                Point2(CGAL::to_double(circ->source()->point().x()), CGAL::to_double(circ->source()->point().y())));
+            ++circ;
+        } while (circ != start);
 
-		me += ib.area();
-	}
-	return me;
+        me += ib.area();
+    }
+    return me;
 }
 
-
-double	GetMapEdgeLengthMeters(const Pmwx::Halfedge_handle e)
+double GetMapEdgeLengthMeters(const Pmwx::Halfedge_handle e)
 {
-	return LonLatDistMeters(
-				CGAL::to_double(e->source()->point().x()),
-				CGAL::to_double(e->source()->point().y()),
-				CGAL::to_double(e->target()->point().x()),
-				CGAL::to_double(e->target()->point().y()));
+    return LonLatDistMeters(CGAL::to_double(e->source()->point().x()), CGAL::to_double(e->source()->point().y()),
+                            CGAL::to_double(e->target()->point().x()), CGAL::to_double(e->target()->point().y()));
 }
 
-float	GetParamAverage(const Pmwx::Face_handle f, const DEMGeo& dem, float * outMin, float * outMax)
+float GetParamAverage(const Pmwx::Face_handle f, const DEMGeo& dem, float* outMin, float* outMax)
 {
-	PolyRasterizer<double>	rast;
-	int count = 0;
-	float e;
-	float avg = 0.0;
-	int y = SetupRasterizerForDEM(f, dem, rast);
-	rast.StartScanline(y);
-	while (!rast.DoneScan())
-	{
-		int x1, x2;
-		while (rast.GetRange(x1, x2))
-		{
-			for (int x = x1; x < x2; ++x)
-			{
-				e = dem.get(x,y);
-				if (e != DEM_NO_DATA)
-				{
-					if (count == 0)
-					{
-						if (outMin) *outMin = e;
-						if (outMax) *outMax = e;
-					} else {
-						if (outMin) *outMin = min(*outMin,e);
-						if (outMax) *outMax = max(*outMax,e);
-					}
-					avg += e;
-					count++;
-				}
-			}
-		}
-		++y;
-		if (y >= dem.mHeight) break;
-		rast.AdvanceScanline(y);
-	}
-	if (count == 0)
-	{
-		Pmwx::Ccb_halfedge_const_circulator stop, i;
-		i = stop = f->outer_ccb();
-		do {
-			e = dem.value_linear(CGAL::to_double(i->source()->point().x()),CGAL::to_double(i->source()->point().y()));
-			if (e != DEM_NO_DATA)
-			{
-				if (count == 0)
-				{
-					if (outMin) *outMin = e;
-					if (outMax) *outMax = e;
-				} else {
-					if (outMin) *outMin = min(*outMin,e);
-					if (outMax) *outMax = max(*outMax,e);
-				}
-				avg += e;
-				count++;
-			}
-			++i;
-		} while (i != stop);
-	}
-	if (count > 0)
-		return avg / (float) count;
-	else
-		return DEM_NO_DATA;
+    PolyRasterizer<double> rast;
+    int count = 0;
+    float e;
+    float avg = 0.0;
+    int y = SetupRasterizerForDEM(f, dem, rast);
+    rast.StartScanline(y);
+    while (!rast.DoneScan())
+    {
+        int x1, x2;
+        while (rast.GetRange(x1, x2))
+        {
+            for (int x = x1; x < x2; ++x)
+            {
+                e = dem.get(x, y);
+                if (e != DEM_NO_DATA)
+                {
+                    if (count == 0)
+                    {
+                        if (outMin)
+                            *outMin = e;
+                        if (outMax)
+                            *outMax = e;
+                    }
+                    else
+                    {
+                        if (outMin)
+                            *outMin = min(*outMin, e);
+                        if (outMax)
+                            *outMax = max(*outMax, e);
+                    }
+                    avg += e;
+                    count++;
+                }
+            }
+        }
+        ++y;
+        if (y >= dem.mHeight)
+            break;
+        rast.AdvanceScanline(y);
+    }
+    if (count == 0)
+    {
+        Pmwx::Ccb_halfedge_const_circulator stop, i;
+        i = stop = f->outer_ccb();
+        do
+        {
+            e = dem.value_linear(CGAL::to_double(i->source()->point().x()), CGAL::to_double(i->source()->point().y()));
+            if (e != DEM_NO_DATA)
+            {
+                if (count == 0)
+                {
+                    if (outMin)
+                        *outMin = e;
+                    if (outMax)
+                        *outMax = e;
+                }
+                else
+                {
+                    if (outMin)
+                        *outMin = min(*outMin, e);
+                    if (outMax)
+                        *outMax = max(*outMax, e);
+                }
+                avg += e;
+                count++;
+            }
+            ++i;
+        } while (i != stop);
+    }
+    if (count > 0)
+        return avg / (float)count;
+    else
+        return DEM_NO_DATA;
 }
 
-int	GetParamHistogram(const Pmwx::Face_handle f, const DEMGeo& dem, std::map<float, int>& outHistogram)
+int GetParamHistogram(const Pmwx::Face_handle f, const DEMGeo& dem, std::map<float, int>& outHistogram)
 {
-	PolyRasterizer<double>	rast;
-	int count = 0;
-	int e;
-	int y = SetupRasterizerForDEM(f, dem, rast);
-	rast.StartScanline(y);
-	while (!rast.DoneScan())
-	{
-		int x1, x2;
-		while (rast.GetRange(x1, x2))
-		{
-			for (int x = x1; x < x2; ++x)
-			{
-				e = dem.get(x,y);
-				if (e != DEM_NO_DATA)
-					count++, outHistogram[e]++;
-			}
-		}
-		++y;
-		if (y >= dem.mHeight) break;
-		rast.AdvanceScanline(y);
-	}
-	if (count == 0)
-	{
-		Pmwx::Ccb_halfedge_const_circulator stop, i;
-		i = stop = f->outer_ccb();
-		do {
-			e = dem.xy_nearest(CGAL::to_double(i->source()->point().x()),CGAL::to_double(i->source()->point().y()));
-			if (e != DEM_NO_DATA)
-				count++, outHistogram[e]++;
-			++i;
-		} while (i != stop);
-	}
-	return count;
+    PolyRasterizer<double> rast;
+    int count = 0;
+    int e;
+    int y = SetupRasterizerForDEM(f, dem, rast);
+    rast.StartScanline(y);
+    while (!rast.DoneScan())
+    {
+        int x1, x2;
+        while (rast.GetRange(x1, x2))
+        {
+            for (int x = x1; x < x2; ++x)
+            {
+                e = dem.get(x, y);
+                if (e != DEM_NO_DATA)
+                    count++, outHistogram[e]++;
+            }
+        }
+        ++y;
+        if (y >= dem.mHeight)
+            break;
+        rast.AdvanceScanline(y);
+    }
+    if (count == 0)
+    {
+        Pmwx::Ccb_halfedge_const_circulator stop, i;
+        i = stop = f->outer_ccb();
+        do
+        {
+            e = dem.xy_nearest(CGAL::to_double(i->source()->point().x()), CGAL::to_double(i->source()->point().y()));
+            if (e != DEM_NO_DATA)
+                count++, outHistogram[e]++;
+            ++i;
+        } while (i != stop);
+    }
+    return count;
 }
 
-bool	ClipDEMToFaceSet(const std::set<Face_handle>& inFaces, const DEMGeo& inSrcDEM, DEMGeo& inDstDEM, int& outX1, int& outY1, int& outX2, int& outY2)
+bool ClipDEMToFaceSet(const std::set<Face_handle>& inFaces, const DEMGeo& inSrcDEM, DEMGeo& inDstDEM, int& outX1,
+                      int& outY1, int& outX2, int& outY2)
 {
-	std::set<Halfedge_handle>		allEdges, localEdges;
-	for (std::set<Face_handle>::const_iterator f = inFaces.begin(); f != inFaces.end(); ++f)
-	{
-		localEdges.clear();
-		FindEdgesForFace<Pmwx>(*f, localEdges);
-		for (std::set<Halfedge_handle>::iterator e = localEdges.begin(); e != localEdges.end(); ++e)
-		{
-			if (inFaces.count((*e)->face()) == 0 || inFaces.count((*e)->twin()->face()) == 0)
-				allEdges.insert(*e);
-		}
-	}
+    std::set<Halfedge_handle> allEdges, localEdges;
+    for (std::set<Face_handle>::const_iterator f = inFaces.begin(); f != inFaces.end(); ++f)
+    {
+        localEdges.clear();
+        FindEdgesForFace<Pmwx>(*f, localEdges);
+        for (std::set<Halfedge_handle>::iterator e = localEdges.begin(); e != localEdges.end(); ++e)
+        {
+            if (inFaces.count((*e)->face()) == 0 || inFaces.count((*e)->twin()->face()) == 0)
+                allEdges.insert(*e);
+        }
+    }
 
-	PolyRasterizer<double>	rast;
-	int x, y;
-	y = SetupRasterizerForDEM(allEdges, inSrcDEM, rast);
+    PolyRasterizer<double> rast;
+    int x, y;
+    y = SetupRasterizerForDEM(allEdges, inSrcDEM, rast);
 
-	outX1 = inSrcDEM.mWidth;
-	outX2 = 0;
-	outY1 = inSrcDEM.mHeight;
-	outY2 = 0;
-	bool ok = false;
+    outX1 = inSrcDEM.mWidth;
+    outX2 = 0;
+    outY1 = inSrcDEM.mHeight;
+    outY2 = 0;
+    bool ok = false;
 
-	rast.StartScanline(y);
-	while (!rast.DoneScan())
-	{
-		int x1, x2;
-		while (rast.GetRange(x1, x2))
-		{
-			for (x = x1; x < x2; ++x)
-			{
-				outX1 = min(outX1, x);
-				outX2 = max(outX2, x+1);
-				outY1 = min(outY1, y);
-				outY2 = max(outY2, y+1);
-				ok = true;
+    rast.StartScanline(y);
+    while (!rast.DoneScan())
+    {
+        int x1, x2;
+        while (rast.GetRange(x1, x2))
+        {
+            for (x = x1; x < x2; ++x)
+            {
+                outX1 = min(outX1, x);
+                outX2 = max(outX2, x + 1);
+                outY1 = min(outY1, y);
+                outY2 = max(outY2, y + 1);
+                ok = true;
 
-				if (inSrcDEM.get(x,y) != DEM_NO_DATA)
-					inDstDEM(x,y) = inSrcDEM(x,y);
-			}
-		}
-		++y;
-		if (y >= inSrcDEM.mHeight) break;
-		rast.AdvanceScanline(y);
-	}
-	if (outX1 < 0)	outX1 = 0;
-	if (outY1 < 0)	outY1 = 0;
-	if (outX2 > inDstDEM.mWidth) outX2 = inDstDEM.mWidth;
-	if (outY2 > inDstDEM.mHeight) outY2 = inDstDEM.mHeight;
-	return ok;
+                if (inSrcDEM.get(x, y) != DEM_NO_DATA)
+                    inDstDEM(x, y) = inSrcDEM(x, y);
+            }
+        }
+        ++y;
+        if (y >= inSrcDEM.mHeight)
+            break;
+        rast.AdvanceScanline(y);
+    }
+    if (outX1 < 0)
+        outX1 = 0;
+    if (outY1 < 0)
+        outY1 = 0;
+    if (outX2 > inDstDEM.mWidth)
+        outX2 = inDstDEM.mWidth;
+    if (outY2 > inDstDEM.mHeight)
+        outY2 = inDstDEM.mHeight;
+    return ok;
 }
 
-int		SetupRasterizerForDEM(const Pmwx::Face_handle f, const DEMGeo& dem, PolyRasterizer<double>& rasterizer)
+int SetupRasterizerForDEM(const Pmwx::Face_handle f, const DEMGeo& dem, PolyRasterizer<double>& rasterizer)
 {
-	std::set<Halfedge_handle>	all, useful;
-	FindEdgesForFace<Pmwx>(f, all);
-	for (std::set<Halfedge_handle>::iterator e = all.begin(); e != all.end(); ++e)
-	{
-		if ((*e)->face() != (*e)->twin()->face())
-			useful.insert(*e);
-	}
-	return SetupRasterizerForDEM(useful, dem, rasterizer);
+    std::set<Halfedge_handle> all, useful;
+    FindEdgesForFace<Pmwx>(f, all);
+    for (std::set<Halfedge_handle>::iterator e = all.begin(); e != all.end(); ++e)
+    {
+        if ((*e)->face() != (*e)->twin()->face())
+            useful.insert(*e);
+    }
+    return SetupRasterizerForDEM(useful, dem, rasterizer);
 }
 
-int		SetupRasterizerForDEM(const std::set<Halfedge_handle>& inEdges, const DEMGeo& dem, PolyRasterizer<double>& rasterizer)
+int SetupRasterizerForDEM(const std::set<Halfedge_handle>& inEdges, const DEMGeo& dem,
+                          PolyRasterizer<double>& rasterizer)
 {
-	for (std::set<Halfedge_handle>::const_iterator e = inEdges.begin(); e != inEdges.end(); ++e)
-	{
-		double x1 = dem.lon_to_x(CGAL::to_double((*e)->source()->point().x()));
-		double y1 = dem.lat_to_y(CGAL::to_double((*e)->source()->point().y()));
-		double x2 = dem.lon_to_x(CGAL::to_double((*e)->target()->point().x()));
-		double y2 = dem.lat_to_y(CGAL::to_double((*e)->target()->point().y()));
+    for (std::set<Halfedge_handle>::const_iterator e = inEdges.begin(); e != inEdges.end(); ++e)
+    {
+        double x1 = dem.lon_to_x(CGAL::to_double((*e)->source()->point().x()));
+        double y1 = dem.lat_to_y(CGAL::to_double((*e)->source()->point().y()));
+        double x2 = dem.lon_to_x(CGAL::to_double((*e)->target()->point().x()));
+        double y2 = dem.lat_to_y(CGAL::to_double((*e)->target()->point().y()));
 
-		rasterizer.AddEdge(x1,y1,x2,y2);
-	}
+        rasterizer.AddEdge(x1, y1, x2, y2);
+    }
 
-	rasterizer.SortMasters();
+    rasterizer.SortMasters();
 
-	if (rasterizer.masters.empty())
-		 return 0;
-	return floor(rasterizer.masters.front().y1);
+    if (rasterizer.masters.empty())
+        return 0;
+    return floor(rasterizer.masters.front().y1);
 }
 
 void DumpMapStats(const Pmwx& ioMap)
 {
-	printf("Map has %zd faces / %zd edges / %zd vertices\n",
-		   ioMap.number_of_faces(), ioMap.number_of_edges(), ioMap.number_of_vertices());
+    printf("Map has %zd faces / %zd edges / %zd vertices\n", ioMap.number_of_faces(), ioMap.number_of_edges(),
+           ioMap.number_of_vertices());
 
-	std::map<size_t, size_t> edge_histogram;
+    std::map<size_t, size_t> edge_histogram;
 
-	for (auto itFace = ioMap.faces_begin(); itFace != ioMap.faces_end(); itFace++)
-	{
-		if (itFace->is_unbounded()) continue;
+    for (auto itFace = ioMap.faces_begin(); itFace != ioMap.faces_end(); itFace++)
+    {
+        if (itFace->is_unbounded())
+            continue;
 
-		size_t outer_edges = 0;
+        size_t outer_edges = 0;
 
-		auto ccb = itFace->outer_ccb();
-		auto stop = ccb;
-		do
-		{
-			outer_edges++;
-		} while (++ccb != stop);
+        auto ccb = itFace->outer_ccb();
+        auto stop = ccb;
+        do
+        {
+            outer_edges++;
+        } while (++ccb != stop);
 
-		edge_histogram[outer_edges] += 1;
-	}
+        edge_histogram[outer_edges] += 1;
+    }
 
-	printf("edges, count\n");
-	for (auto& kv : edge_histogram) {
-		printf("%zd, %zd\n", kv.first, kv.second);
-	}
+    printf("edges, count\n");
+    for (auto& kv : edge_histogram)
+    {
+        printf("%zd, %zd\n", kv.first, kv.second);
+    }
 }
-
 
 /************************************************************************************************************************************************************************************************
  *
@@ -1966,205 +1977,223 @@ void DumpMapStats(const Pmwx& ioMap)
 
 #define DUMP_INPUT_DATA 0
 
-typedef CGAL::Simplify_polylines_2<FastKernel>		Simplify_polylines_2;
+typedef CGAL::Simplify_polylines_2<FastKernel> Simplify_polylines_2;
 
 static bool BuildEdgeString(Halfedge_handle e, vector<Point_2>& out_pts)
 {
-	out_pts.push_back(e->source()->point());
-	Vertex_handle start_v = e->source();
-	while(1)
-	{
-		e->data().mMark = true;
-		e->twin()->data().mMark = true;
-		out_pts.push_back(e->target()->point());
-		if(e->target()->degree() != 2) 
-			break;	
-		if(e->next()->data().mMark)
-			break;
-		DebugAssert(e->next() != e->twin());
-		e = e->next();
-	}
-	
-	if(e->target() == start_v)
-	{
-		DebugAssert(out_pts.size() > 1);
-		DebugAssert(out_pts.front() == out_pts.back());
-		out_pts.pop_back();
-		return true;
-	}
-	return false;
+    out_pts.push_back(e->source()->point());
+    Vertex_handle start_v = e->source();
+    while (1)
+    {
+        e->data().mMark = true;
+        e->twin()->data().mMark = true;
+        out_pts.push_back(e->target()->point());
+        if (e->target()->degree() != 2)
+            break;
+        if (e->next()->data().mMark)
+            break;
+        DebugAssert(e->next() != e->twin());
+        e = e->next();
+    }
+
+    if (e->target() == start_v)
+    {
+        DebugAssert(out_pts.size() > 1);
+        DebugAssert(out_pts.front() == out_pts.back());
+        out_pts.pop_back();
+        return true;
+    }
+    return false;
 }
 
-template <typename PS>
-class Visitor_base {
+template <typename PS> class Visitor_base
+{
 public:
-	typedef typename PS::Vertex_handle Vertex_handle;
+    typedef typename PS::Vertex_handle Vertex_handle;
 
-  virtual void OnStarted() const {} 
-  virtual void OnFinished() const {} 
-  virtual void OnStopConditionReached() const {} 
-  virtual void OnCollected( Vertex_handle const& vertex ) const {}                
-  virtual void OnSelected( Vertex_handle const& vertex, boost::optional<double> const& cost, unsigned initial_count, unsigned current_count) const {}                
-  virtual void OnRemoving( Vertex_handle const& p, Vertex_handle const& q, Vertex_handle const& r) const {}          
-  virtual void OnRemoved( Vertex_handle const& p, Vertex_handle const& r) const {}        
-  virtual void OnNonRemovable( Vertex_handle const& vertex) const {}                
+    virtual void OnStarted() const
+    {
+    }
+    virtual void OnFinished() const
+    {
+    }
+    virtual void OnStopConditionReached() const
+    {
+    }
+    virtual void OnCollected(Vertex_handle const& vertex) const
+    {
+    }
+    virtual void OnSelected(Vertex_handle const& vertex, boost::optional<double> const& cost, unsigned initial_count,
+                            unsigned current_count) const
+    {
+    }
+    virtual void OnRemoving(Vertex_handle const& p, Vertex_handle const& q, Vertex_handle const& r) const
+    {
+    }
+    virtual void OnRemoved(Vertex_handle const& p, Vertex_handle const& r) const
+    {
+    }
+    virtual void OnNonRemovable(Vertex_handle const& vertex) const
+    {
+    }
 };
 
-void debug_he_dir(Halfedge_handle he, Pmwx * pmwx)
+void debug_he_dir(Halfedge_handle he, Pmwx* pmwx)
 {
-//	cerr << "p1 = " << he->source()->point() << " and target pt is " << he->target()->point() << "\n";
-   CGAL::Comparison_result res = pmwx->geometry_traits()->compare_xy_2_object()(he->source()->point(), he->target()->point());
+    //	cerr << "p1 = " << he->source()->point() << " and target pt is " << he->target()->point() << "\n";
+    CGAL::Comparison_result res =
+        pmwx->geometry_traits()->compare_xy_2_object()(he->source()->point(), he->target()->point());
 
-  if (res == CGAL::SMALLER)
-  {
-    DebugAssert (he->direction() == CGAL::ARR_LEFT_TO_RIGHT);
-  }
-  else if (res == CGAL::LARGER)
-  {
-    DebugAssert (he->direction() == CGAL::ARR_RIGHT_TO_LEFT);
-	}
+    if (res == CGAL::SMALLER)
+    {
+        DebugAssert(he->direction() == CGAL::ARR_LEFT_TO_RIGHT);
+    }
+    else if (res == CGAL::LARGER)
+    {
+        DebugAssert(he->direction() == CGAL::ARR_RIGHT_TO_LEFT);
+    }
 }
 
 struct UpdatePmwx : public Visitor_base<Simplify_polylines_2>
 {
-	std::map<Point_2, Pmwx::Vertex_handle> *		vertex_lookup_table;
-	Pmwx *									pmwx;
+    std::map<Point_2, Pmwx::Vertex_handle>* vertex_lookup_table;
+    Pmwx* pmwx;
 
-	virtual void OnSelected( Vertex_handle const& v2, boost::optional<double> const& cost, unsigned initial_count, unsigned current_count) const
-	{
-	}
+    virtual void OnSelected(Vertex_handle const& v2, boost::optional<double> const& cost, unsigned initial_count,
+                            unsigned current_count) const
+    {
+    }
 
-	virtual void OnRemoving(Vertex_handle v1, Vertex_handle v2, Vertex_handle v3) const
-	{
-		std::map<Point_2, Pmwx::Vertex_handle>::iterator i = vertex_lookup_table->find(v2->point());
-		DebugAssert(i != vertex_lookup_table->end());
-		
-		Pmwx::Vertex_handle dead = i->second;
-		vertex_lookup_table->erase(i);
-		
-		DebugAssert(dead->degree() == 2);
-		
-		Halfedge_handle e1 = dead->incident_halfedges();
-		Halfedge_handle e2 = e1->next();
-		
-		DebugAssert(e1->target() == e2->source());
-		DebugAssert(e2->source() == dead);
-		DebugAssert(dead->point() == v2->point());
-		
-		DebugAssert(
-			(e1->source()->point() == v1->point() && e2->target()->point() == v3->point()) ||
-			(e1->source()->point() == v3->point() && e2->target()->point() == v1->point())
-		);
-		
-		if(e2->next()->target() == e1->source() ||			// Circulate both us and our twins - if our outside CCB is connected to something like a road at the point not being
-		   e1->twin()->next()->target() == e2->target())	// removed it is still legal to collapse our triangle.
-		{
-			DebugAssert(e1->face() != e1->twin()->face());
-			DebugAssert(e2->face() != e2->twin()->face());
-			DebugAssert(e1->face() == e2->face());
-			DebugAssert(e1->twin()->face() == e2->twin()->face());
-			
-			// The face we want to preserve is the one that is NOT the tiny triangle we are about to nuke.
-			// BUT: consider an isolated triangle!  We can go around the triangle whether we are on the INSIDE or the
-			// OUTSIDE.  So 
+    virtual void OnRemoving(Vertex_handle v1, Vertex_handle v2, Vertex_handle v3) const
+    {
+        std::map<Point_2, Pmwx::Vertex_handle>::iterator i = vertex_lookup_table->find(v2->point());
+        DebugAssert(i != vertex_lookup_table->end());
 
-			CGAL::Orientation o = CGAL::orientation(e1->source()->point(), dead->point(), e2->target()->point());
-			DebugAssert(o != CGAL::COLLINEAR);
-			
-			if(o == CGAL::COUNTERCLOCKWISE)
-			{
-				// CCW - e1 is "inside" the triangle.  e1 takes data from its twin (that is, the great wide world).
-				e1->face()->set_data(e1->twin()->face()->data());
-			}
-			else
-			{
-				// CW - we actually went around the outside of the triangle - outside the tri must not be touching anything at least on the part
-				// we went around.  Go the other way.
-				e1->twin()->face()->set_data(e1->face()->data());
-			}
-			Face_handle left_over = pmwx->remove_edge(e1);
-			DebugAssert(e2->face() == e2->twin()->face());
-			DebugAssert(e2->face() == left_over);			
-			pmwx->remove_edge(e2);
-			#if DEV && SHOW_REMOVALS
-				debug_mesh_point(cgal2ben(v2->point()),1,1,0);			
-			#endif
-		}
-		else
-		{			
-			Curve_2	nc(Segment_2(e1->source()->point(),e2->target()->point()));
-			
-			CGAL::Arr_halfedge_direction old_dir = e1->direction();
-			CGAL::Arr_halfedge_direction new_dir = nc.is_directed_right() ? CGAL::ARR_LEFT_TO_RIGHT : CGAL::ARR_RIGHT_TO_LEFT;
+        Pmwx::Vertex_handle dead = i->second;
+        vertex_lookup_table->erase(i);
 
-			Halfedge_handle m = pmwx->merge_edge(e1,e2,nc);
-			
-			CGAL::Arr_halfedge_direction retained_dir = m->direction();
-			
-			Halfedge_handle t = m->twin();
+        DebugAssert(dead->degree() == 2);
 
-			typedef CGAL::Arr_accessor<Pmwx>::Dcel_halfedge          DHalfedge;
+        Halfedge_handle e1 = dead->incident_halfedges();
+        Halfedge_handle e2 = e1->next();
 
-			if(new_dir != retained_dir)
-			{
-				DHalfedge * dcel_he = &(*m);
-				dcel_he->set_direction(new_dir);
-			}
-			
-			#if DEV	&& SHOW_REMOVALS
-				debug_he_dir(m, pmwx);
-				debug_he_dir(t, pmwx);
-				debug_mesh_point(cgal2ben(v2->point()), 1,0,0);
-			#endif
-		}
-	}
+        DebugAssert(e1->target() == e2->source());
+        DebugAssert(e2->source() == dead);
+        DebugAssert(dead->point() == v2->point());
+
+        DebugAssert((e1->source()->point() == v1->point() && e2->target()->point() == v3->point()) ||
+                    (e1->source()->point() == v3->point() && e2->target()->point() == v1->point()));
+
+        if (e2->next()->target() == e1->source() || // Circulate both us and our twins - if our outside CCB is connected
+                                                    // to something like a road at the point not being
+            e1->twin()->next()->target() == e2->target()) // removed it is still legal to collapse our triangle.
+        {
+            DebugAssert(e1->face() != e1->twin()->face());
+            DebugAssert(e2->face() != e2->twin()->face());
+            DebugAssert(e1->face() == e2->face());
+            DebugAssert(e1->twin()->face() == e2->twin()->face());
+
+            // The face we want to preserve is the one that is NOT the tiny triangle we are about to nuke.
+            // BUT: consider an isolated triangle!  We can go around the triangle whether we are on the INSIDE or the
+            // OUTSIDE.  So
+
+            CGAL::Orientation o = CGAL::orientation(e1->source()->point(), dead->point(), e2->target()->point());
+            DebugAssert(o != CGAL::COLLINEAR);
+
+            if (o == CGAL::COUNTERCLOCKWISE)
+            {
+                // CCW - e1 is "inside" the triangle.  e1 takes data from its twin (that is, the great wide world).
+                e1->face()->set_data(e1->twin()->face()->data());
+            }
+            else
+            {
+                // CW - we actually went around the outside of the triangle - outside the tri must not be touching
+                // anything at least on the part we went around.  Go the other way.
+                e1->twin()->face()->set_data(e1->face()->data());
+            }
+            Face_handle left_over = pmwx->remove_edge(e1);
+            DebugAssert(e2->face() == e2->twin()->face());
+            DebugAssert(e2->face() == left_over);
+            pmwx->remove_edge(e2);
+#if DEV && SHOW_REMOVALS
+            debug_mesh_point(cgal2ben(v2->point()), 1, 1, 0);
+#endif
+        }
+        else
+        {
+            Curve_2 nc(Segment_2(e1->source()->point(), e2->target()->point()));
+
+            CGAL::Arr_halfedge_direction old_dir = e1->direction();
+            CGAL::Arr_halfedge_direction new_dir =
+                nc.is_directed_right() ? CGAL::ARR_LEFT_TO_RIGHT : CGAL::ARR_RIGHT_TO_LEFT;
+
+            Halfedge_handle m = pmwx->merge_edge(e1, e2, nc);
+
+            CGAL::Arr_halfedge_direction retained_dir = m->direction();
+
+            Halfedge_handle t = m->twin();
+
+            typedef CGAL::Arr_accessor<Pmwx>::Dcel_halfedge DHalfedge;
+
+            if (new_dir != retained_dir)
+            {
+                DHalfedge* dcel_he = &(*m);
+                dcel_he->set_direction(new_dir);
+            }
+
+#if DEV && SHOW_REMOVALS
+            debug_he_dir(m, pmwx);
+            debug_he_dir(t, pmwx);
+            debug_mesh_point(cgal2ben(v2->point()), 1, 0, 0);
+#endif
+        }
+    }
 };
 
 #if DEV && 0
-void debug_poly_line(const vector<Point_2>& pts,bool loop)
+void debug_poly_line(const vector<Point_2>& pts, bool loop)
 {
-	if(loop)
-	{
-		DebugAssert(pts.size() > 2);
-		debug_mesh_line(cgal2ben(pts[0]),cgal2ben(pts[1]),0,0,1, 0,1,0);
-		for(int n = 2; n < pts.size(); ++n)
-			debug_mesh_line(cgal2ben(pts[n-1]),cgal2ben(pts[n]),1,0,0, 0,1,0);
-		debug_mesh_line(cgal2ben(pts[pts.size()-1]),cgal2ben(pts[0]),1,0,0, 1,1,1);
-	}
-	else
-	{
-		if(pts.size() == 2)
-			debug_mesh_line(cgal2ben(pts[0]),cgal2ben(pts[1]),0,0,1, 1,1,0);
-		else {
-			debug_mesh_line(cgal2ben(pts[0]),cgal2ben(pts[1]),0,0,1, 0,1,0);
-			for(int n = 2; n < pts.size()-1; ++n)
-				debug_mesh_line(cgal2ben(pts[n-1]),cgal2ben(pts[n]),1,0,0, 0,1,0);
-			debug_mesh_line(cgal2ben(pts[pts.size()-2]),cgal2ben(pts[pts.size()-1]),1,0,0, 1,1,0);
-		}
-	}
+    if (loop)
+    {
+        DebugAssert(pts.size() > 2);
+        debug_mesh_line(cgal2ben(pts[0]), cgal2ben(pts[1]), 0, 0, 1, 0, 1, 0);
+        for (int n = 2; n < pts.size(); ++n)
+            debug_mesh_line(cgal2ben(pts[n - 1]), cgal2ben(pts[n]), 1, 0, 0, 0, 1, 0);
+        debug_mesh_line(cgal2ben(pts[pts.size() - 1]), cgal2ben(pts[0]), 1, 0, 0, 1, 1, 1);
+    }
+    else
+    {
+        if (pts.size() == 2)
+            debug_mesh_line(cgal2ben(pts[0]), cgal2ben(pts[1]), 0, 0, 1, 1, 1, 0);
+        else
+        {
+            debug_mesh_line(cgal2ben(pts[0]), cgal2ben(pts[1]), 0, 0, 1, 0, 1, 0);
+            for (int n = 2; n < pts.size() - 1; ++n)
+                debug_mesh_line(cgal2ben(pts[n - 1]), cgal2ben(pts[n]), 1, 0, 0, 0, 1, 0);
+            debug_mesh_line(cgal2ben(pts[pts.size() - 2]), cgal2ben(pts[pts.size() - 1]), 1, 0, 0, 1, 1, 0);
+        }
+    }
 }
 #endif
 
 void insert_poly_line(Simplify_polylines_2& simplifier, const vector<Point_2>& pts, bool loop)
 {
-	if(!loop && simplifier.pct().number_of_vertices()==0 && pts.size() == 2)
-		printf("WE WILL CRASH.\n");
-	#if DUMP_INPUT_DATA
-	printf("pts.clear();\n");
-	for(int n = 0; n < pts.size(); ++n)
-		printf("pts.push_back(Point_2(%lf,%lf))\n",
-			CGAL::to_double(pts[n].x()),
-			CGAL::to_double(pts[n].y()));
-	if(loop)
-		printf("simplifier.insert_polygon(pts.begin(),pts.end());");
-	else
-		printf("simplifier.insert_polyline(pts.begin(),pts.end());");
-	#endif
-	
-	if(loop)
-		simplifier.insert_polygon(pts.begin(),pts.end());
-	else
-		simplifier.insert_polyline(pts.begin(),pts.end());
+    if (!loop && simplifier.pct().number_of_vertices() == 0 && pts.size() == 2)
+        printf("WE WILL CRASH.\n");
+#if DUMP_INPUT_DATA
+    printf("pts.clear();\n");
+    for (int n = 0; n < pts.size(); ++n)
+        printf("pts.push_back(Point_2(%lf,%lf))\n", CGAL::to_double(pts[n].x()), CGAL::to_double(pts[n].y()));
+    if (loop)
+        printf("simplifier.insert_polygon(pts.begin(),pts.end());");
+    else
+        printf("simplifier.insert_polyline(pts.begin(),pts.end());");
+#endif
+
+    if (loop)
+        simplifier.insert_polygon(pts.begin(), pts.end());
+    else
+        simplifier.insert_polyline(pts.begin(), pts.end());
 }
 
 #endif
@@ -2172,47 +2201,46 @@ void insert_poly_line(Simplify_polylines_2& simplifier, const vector<Point_2>& p
 #if CGAL_BETA_SIMPLIFIER
 void MapSimplify(Pmwx& pmwx, double metric)
 {
-	Simplify_polylines_2	simplifier;
-	
-	Pmwx::Halfedge_iterator e;
-	Pmwx::Vertex_iterator v;
-	Pmwx::Face_iterator f;
-	
-	std::map<Point_2, Pmwx::Vertex_handle>		vertex_lookup_table;
-	
+    Simplify_polylines_2 simplifier;
 
-	for(e = pmwx.halfedges_begin(); e != pmwx.halfedges_end(); ++e)
-		e->data().mMark = false;
+    Pmwx::Halfedge_iterator e;
+    Pmwx::Vertex_iterator v;
+    Pmwx::Face_iterator f;
 
-	for(e = pmwx.halfedges_begin(); e != pmwx.halfedges_end(); ++e)
-	if(!e->data().mMark)
-	if(e->source()->degree() != 2)
-	{
-		vector<Point_2>	pts;
-		bool loop = BuildEdgeString(e,pts);
+    std::map<Point_2, Pmwx::Vertex_handle> vertex_lookup_table;
 
-		DebugAssert(pts.size() > 1);
-//		debug_poly_line(pts,loop);		
-		insert_poly_line(simplifier,pts,loop);
-	}			
+    for (e = pmwx.halfedges_begin(); e != pmwx.halfedges_end(); ++e)
+        e->data().mMark = false;
 
-	for(e = pmwx.halfedges_begin(); e != pmwx.halfedges_end(); ++e)
-	if(!e->data().mMark)
-	{
-		vector<Point_2>	pts;
-		bool loop = BuildEdgeString(e,pts);
+    for (e = pmwx.halfedges_begin(); e != pmwx.halfedges_end(); ++e)
+        if (!e->data().mMark)
+            if (e->source()->degree() != 2)
+            {
+                vector<Point_2> pts;
+                bool loop = BuildEdgeString(e, pts);
 
-		DebugAssert(pts.size() > 2);
-		DebugAssert(loop);
-		
-//		debug_poly_line(pts,loop);
-		insert_poly_line(simplifier,pts,loop);
-	}			
+                DebugAssert(pts.size() > 1);
+                //		debug_poly_line(pts,loop);
+                insert_poly_line(simplifier, pts, loop);
+            }
 
-	#if DEV
-	for(e = pmwx.halfedges_begin(); e != pmwx.halfedges_end(); ++e)
-		DebugAssert(e->data().mMark);
-	#endif
+    for (e = pmwx.halfedges_begin(); e != pmwx.halfedges_end(); ++e)
+        if (!e->data().mMark)
+        {
+            vector<Point_2> pts;
+            bool loop = BuildEdgeString(e, pts);
+
+            DebugAssert(pts.size() > 2);
+            DebugAssert(loop);
+
+            //		debug_poly_line(pts,loop);
+            insert_poly_line(simplifier, pts, loop);
+        }
+
+#if DEV
+    for (e = pmwx.halfedges_begin(); e != pmwx.halfedges_end(); ++e)
+        DebugAssert(e->data().mMark);
+#endif
 
 #if 0
 	for(f = pmwx.faces_begin(); f != pmwx.faces_end(); ++f)
@@ -2243,680 +2271,683 @@ void MapSimplify(Pmwx& pmwx, double metric)
 			if(pts.size() > 2)
 			insert_poly_line(simplifier,pts,true);			
 		}
-	}	
-#endif	
-	
-	for(v = pmwx.vertices_begin(); v != pmwx.vertices_end(); ++v)
-	if(v->degree() > 0)
-	{
-		DebugAssert(vertex_lookup_table.count(v->point()) == 0);
-		vertex_lookup_table.insert(std::map<Point_2,Pmwx::Vertex_handle>::value_type(v->point(), v));
 	}
-	
-	CGAL::Polyline_simplification_2::Stop_below_cost_threshold stop(metric*metric);
-	CGAL::Polyline_simplification_2::Squared_distance_cost cost;
-	UpdatePmwx visitor ;
-	visitor.pmwx = &pmwx;
-	visitor.vertex_lookup_table = &vertex_lookup_table;
+#endif
 
-	simplifier.simplify(stop, cost, visitor) ;
+    for (v = pmwx.vertices_begin(); v != pmwx.vertices_end(); ++v)
+        if (v->degree() > 0)
+        {
+            DebugAssert(vertex_lookup_table.count(v->point()) == 0);
+            vertex_lookup_table.insert(std::map<Point_2, Pmwx::Vertex_handle>::value_type(v->point(), v));
+        }
+
+    CGAL::Polyline_simplification_2::Stop_below_cost_threshold stop(metric * metric);
+    CGAL::Polyline_simplification_2::Squared_distance_cost cost;
+    UpdatePmwx visitor;
+    visitor.pmwx = &pmwx;
+    visitor.vertex_lookup_table = &vertex_lookup_table;
+
+    simplifier.simplify(stop, cost, visitor);
 
 #if DEV
 //	for(v = pmwx.vertices_begin(); v != pmwx.vertices_end(); ++v)
 //	if(!pmwx._is_valid(v))
 //		debug_mesh_point(cgal2ben(v->point()),1,1,1);
-#endif		
-
+#endif
 }
 #endif
 
 bool IsFaceNotSliverFast(Pmwx::Face_handle f, double metric)
 {
-	if(f->is_unbounded()) return false;
-	PolyRasterizer<double> rasterizer;
-	
-	Pmwx::Ccb_halfedge_circulator circ,stop;
-	circ = stop = f->outer_ccb();
-	do {
+    if (f->is_unbounded())
+        return false;
+    PolyRasterizer<double> rasterizer;
 
-		double x1 = (CGAL::to_double(circ->source()->point().x()));
-		double y1 = (CGAL::to_double(circ->source()->point().y()));
-		double x2 = (CGAL::to_double(circ->target()->point().x()));
-		double y2 = (CGAL::to_double(circ->target()->point().y()));
+    Pmwx::Ccb_halfedge_circulator circ, stop;
+    circ = stop = f->outer_ccb();
+    do
+    {
 
-		rasterizer.AddEdge(x1,y1,x2,y2);
-		
-	} while (++circ != stop);
+        double x1 = (CGAL::to_double(circ->source()->point().x()));
+        double y1 = (CGAL::to_double(circ->source()->point().y()));
+        double x2 = (CGAL::to_double(circ->target()->point().x()));
+        double y2 = (CGAL::to_double(circ->target()->point().y()));
 
-	for(Pmwx::Hole_iterator h = f->holes_begin(); h != f->holes_end(); ++h)
-	{
-		circ = stop = *h;
-		do {
-			double x1 = (CGAL::to_double(circ->source()->point().x()));
-			double y1 = (CGAL::to_double(circ->source()->point().y()));
-			double x2 = (CGAL::to_double(circ->target()->point().x()));
-			double y2 = (CGAL::to_double(circ->target()->point().y()));
+        rasterizer.AddEdge(x1, y1, x2, y2);
 
-			rasterizer.	AddEdge(x1,y1,x2,y2);
-			
-		} while (++circ != stop);
-	}
+    } while (++circ != stop);
 
-	rasterizer.SortMasters();
+    for (Pmwx::Hole_iterator h = f->holes_begin(); h != f->holes_end(); ++h)
+    {
+        circ = stop = *h;
+        do
+        {
+            double x1 = (CGAL::to_double(circ->source()->point().x()));
+            double y1 = (CGAL::to_double(circ->source()->point().y()));
+            double x2 = (CGAL::to_double(circ->target()->point().x()));
+            double y2 = (CGAL::to_double(circ->target()->point().y()));
 
-	double y = rasterizer.bounds[1];
-/*	rasterizer.StartScanline(y);
-	while(!rasterizer.DoneScan())
-	{
-		vector<double> pts;
-		double yy = y;
-		y += metric;
-		rasterizer.GetLine(pts,y);
-		for(int n = 0; n < pts.size(); n += 2)
-			debug_mesh_line(Point2(pts[n], yy), Point2(pts[n+1], yy), 1,0,0,0,1,0);
-		rasterizer.AdvanceScanline(y);
-	}
+            rasterizer.AddEdge(x1, y1, x2, y2);
 
-	rasterizer.SortMasters();
-	rasterizer.actives.clear();
+        } while (++circ != stop);
+    }
 
-	y = rasterizer.bounds[1];*/
+    rasterizer.SortMasters();
 
-	BoxRasterizer<double> braster(&rasterizer);
+    double y = rasterizer.bounds[1];
+    /*	rasterizer.StartScanline(y);
+        while(!rasterizer.DoneScan())
+        {
+            vector<double> pts;
+            double yy = y;
+            y += metric;
+            rasterizer.GetLine(pts,y);
+            for(int n = 0; n < pts.size(); n += 2)
+                debug_mesh_line(Point2(pts[n], yy), Point2(pts[n+1], yy), 1,0,0,0,1,0);
+            rasterizer.AdvanceScanline(y);
+        }
 
-	braster.StartScanline(y, y + metric);
+        rasterizer.SortMasters();
+        rasterizer.actives.clear();
 
-	while(!braster.DoneScan())
-	{
-		vector<double> line;
-		braster.GetLineTrash(line);
+        y = rasterizer.bounds[1];*/
 
-		for(int n = 0; n < line.size(); n += 2)
-		{
-			if(line[n+1]-line[n] > metric)
-				return true;
-//			debug_mesh_line(Point2(line[n],y),Point2(line[n+1],y),1,1,1,1,1,1);
-//			debug_mesh_line(Point2(line[n],y+metric),Point2(line[n+1],y+metric),1,1,1,1,1,1);
-//			debug_mesh_line(Point2(line[n],y),Point2(line[n],y+metric),1,1,1,1,1,1);
-//			debug_mesh_line(Point2(line[n+1],y),Point2(line[n+1],y+metric),1,1,1,1,1,1);
-		}
-		
-		y += metric;
-		braster.AdvanceScanline(y,y+metric);
-	}
-	return false;
+    BoxRasterizer<double> braster(&rasterizer);
+
+    braster.StartScanline(y, y + metric);
+
+    while (!braster.DoneScan())
+    {
+        vector<double> line;
+        braster.GetLineTrash(line);
+
+        for (int n = 0; n < line.size(); n += 2)
+        {
+            if (line[n + 1] - line[n] > metric)
+                return true;
+            //			debug_mesh_line(Point2(line[n],y),Point2(line[n+1],y),1,1,1,1,1,1);
+            //			debug_mesh_line(Point2(line[n],y+metric),Point2(line[n+1],y+metric),1,1,1,1,1,1);
+            //			debug_mesh_line(Point2(line[n],y),Point2(line[n],y+metric),1,1,1,1,1,1);
+            //			debug_mesh_line(Point2(line[n+1],y),Point2(line[n+1],y+metric),1,1,1,1,1,1);
+        }
+
+        y += metric;
+        braster.AdvanceScanline(y, y + metric);
+    }
+    return false;
 }
 
 int MapDesliver(Pmwx& pmwx, double metric, ProgressFunc func)
 {
-	PROGRESS_START(func, 0, 1, "Deslivering...")
-	int ctr = 0, tot = pmwx.number_of_faces();
-	int chk = max(1,tot/100);
-	int ret = 0;
-	
-	int fast = 0;
-	int sliver = 0;
-	int total = 0;
-	
-	std::set<Pmwx::Face_handle> bad;
+    PROGRESS_START(func, 0, 1, "Deslivering...")
+    int ctr = 0, tot = pmwx.number_of_faces();
+    int chk = max(1, tot / 100);
+    int ret = 0;
 
-	for(Pmwx::Face_iterator f = pmwx.faces_begin(); f != pmwx.faces_end(); ++f, ++ctr)
-	if(!f->is_unbounded())
-	#if OPENGL_MAP
-//	if(gFaceSelection.empty() || gFaceSelection.count(f))
-	#endif
-	{
-		PROGRESS_CHECK(func, 0, 1, "Deslivering...", ctr, tot,chk);
-		Polygon_with_holes_2 pwh;
-		Bbox_2 bbox;
-		bool maybe_sliver = !IsFaceNotSliverFast(f, metric * 3.0);
-		bool is_sliver = false;
-		
-		int my_lu = f->data().mTerrainType;
-		
-		if(maybe_sliver)
-		{
-			PolygonFromFace(f, pwh, NULL, NULL, &bbox);
-//			if(ctr > 40259)
-			is_sliver = IsPolygonSliver(pwh, metric, bbox);
-		}
-		++total;
-		if(is_sliver) ++sliver;
-		if(!maybe_sliver) ++fast;
-//		if(is_sliver && !maybe_sliver)
-//		{
-//			bad.insert(f);
-//			printf("Bad face at: %f,%f\n",	
-//				CGAL::to_double(f->outer_ccb()->target()->point().x()),
-//				CGAL::to_double(f->outer_ccb()->target()->point().y()));
-//		}
-		
-//		is_sliver = false;
-		if(is_sliver)
-		{
-			std::set<Pmwx::Halfedge_handle>	my_edges;
-			FindEdgesForFace<Pmwx>(f,my_edges);
-			std::map<int,int>	road_lu_count;
-			std::map<int,int>	other_lu_count;
-			bool matches_something = false;
-			for(std::set<Pmwx::Halfedge_handle>::iterator e = my_edges.begin(); e != my_edges.end(); ++e)
-			if(!(*e)->twin()->face()->is_unbounded())
-			if((*e)->twin()->face() != (*e)->face())
-			{
-				int other_lu = (*e)->twin()->face()->data().mTerrainType;
-				if(other_lu == my_lu)
-				{
-					matches_something = true;
-					break;
-				}
-				
-				if(!(*e)->data().mSegments.empty() ||
-				   !(*e)->twin()->data().mSegments.empty())
-				{
-					road_lu_count[other_lu]++;
-				}
-				else
-				{
-//					DebugAssert((*e)->twin()->face()->data().mTerrainType != f->data().mTerrainType);
-					other_lu_count[other_lu]++;
-				}
-			}
-			
-			if(!matches_something)
-			{
-				if (!other_lu_count.empty())
-				{
-					++ret;
-					f->data().mTerrainType = highest_key<int,int>(other_lu_count);
-//					#if OPENGL_MAP
-//						gFaceSelection.insert(f);
-//					#endif
-					
-				}
-				else if(!road_lu_count.empty())
-				{
-					++ret;
-					f->data().mTerrainType = highest_key<int,int>(road_lu_count);
-//					#if OPENGL_MAP
-//						gFaceSelection.insert(f);
-//					#endif
-				}
-			}
-		}
-	}
-	PROGRESS_DONE(func, 0, 1, "Deslivering...")
-	printf("Fast checks: %d, slivers: %d, fixed: %d, total: %d\n", fast, sliver, ret, total);
-	
-//	gFaceSelection.insert(bad.begin(),bad.end());
-	return ret;
+    int fast = 0;
+    int sliver = 0;
+    int total = 0;
+
+    std::set<Pmwx::Face_handle> bad;
+
+    for (Pmwx::Face_iterator f = pmwx.faces_begin(); f != pmwx.faces_end(); ++f, ++ctr)
+        if (!f->is_unbounded())
+#if OPENGL_MAP
+        //	if(gFaceSelection.empty() || gFaceSelection.count(f))
+#endif
+        {
+            PROGRESS_CHECK(func, 0, 1, "Deslivering...", ctr, tot, chk);
+            Polygon_with_holes_2 pwh;
+            Bbox_2 bbox;
+            bool maybe_sliver = !IsFaceNotSliverFast(f, metric * 3.0);
+            bool is_sliver = false;
+
+            int my_lu = f->data().mTerrainType;
+
+            if (maybe_sliver)
+            {
+                PolygonFromFace(f, pwh, NULL, NULL, &bbox);
+                //			if(ctr > 40259)
+                is_sliver = IsPolygonSliver(pwh, metric, bbox);
+            }
+            ++total;
+            if (is_sliver)
+                ++sliver;
+            if (!maybe_sliver)
+                ++fast;
+            //		if(is_sliver && !maybe_sliver)
+            //		{
+            //			bad.insert(f);
+            //			printf("Bad face at: %f,%f\n",
+            //				CGAL::to_double(f->outer_ccb()->target()->point().x()),
+            //				CGAL::to_double(f->outer_ccb()->target()->point().y()));
+            //		}
+
+            //		is_sliver = false;
+            if (is_sliver)
+            {
+                std::set<Pmwx::Halfedge_handle> my_edges;
+                FindEdgesForFace<Pmwx>(f, my_edges);
+                std::map<int, int> road_lu_count;
+                std::map<int, int> other_lu_count;
+                bool matches_something = false;
+                for (std::set<Pmwx::Halfedge_handle>::iterator e = my_edges.begin(); e != my_edges.end(); ++e)
+                    if (!(*e)->twin()->face()->is_unbounded())
+                        if ((*e)->twin()->face() != (*e)->face())
+                        {
+                            int other_lu = (*e)->twin()->face()->data().mTerrainType;
+                            if (other_lu == my_lu)
+                            {
+                                matches_something = true;
+                                break;
+                            }
+
+                            if (!(*e)->data().mSegments.empty() || !(*e)->twin()->data().mSegments.empty())
+                            {
+                                road_lu_count[other_lu]++;
+                            }
+                            else
+                            {
+                                //					DebugAssert((*e)->twin()->face()->data().mTerrainType !=
+                                // f->data().mTerrainType);
+                                other_lu_count[other_lu]++;
+                            }
+                        }
+
+                if (!matches_something)
+                {
+                    if (!other_lu_count.empty())
+                    {
+                        ++ret;
+                        f->data().mTerrainType = highest_key<int, int>(other_lu_count);
+                        //					#if OPENGL_MAP
+                        //						gFaceSelection.insert(f);
+                        //					#endif
+                    }
+                    else if (!road_lu_count.empty())
+                    {
+                        ++ret;
+                        f->data().mTerrainType = highest_key<int, int>(road_lu_count);
+                        //					#if OPENGL_MAP
+                        //						gFaceSelection.insert(f);
+                        //					#endif
+                    }
+                }
+            }
+        }
+    PROGRESS_DONE(func, 0, 1, "Deslivering...")
+    printf("Fast checks: %d, slivers: %d, fixed: %d, total: %d\n", fast, sliver, ret, total);
+
+    //	gFaceSelection.insert(bad.begin(),bad.end());
+    return ret;
 }
 
 int KillSliverWater(Pmwx& pmwx, double metric, ProgressFunc func)
 {
-	PROGRESS_START(func, 0, 1, "Deslivering...")
-	int ctr = 0, tot = pmwx.number_of_faces();
-	int chk = max(1,tot/100);
-	int ret = 0;
-	
-	int fast = 0;
-	int sliver = 0;
-	int total = 0;
-	
-	std::set<Pmwx::Face_handle> bad;
+    PROGRESS_START(func, 0, 1, "Deslivering...")
+    int ctr = 0, tot = pmwx.number_of_faces();
+    int chk = max(1, tot / 100);
+    int ret = 0;
 
-	for(Pmwx::Face_iterator f = pmwx.faces_begin(); f != pmwx.faces_end(); ++f, ++ctr)
-	if(!f->is_unbounded())
-	if(f->data().IsWater())
-	#if OPENGL_MAP
-	if(gFaceSelection.empty() || gFaceSelection.count(f))
-	#endif
-	{
-		PROGRESS_CHECK(func, 0, 1, "Deslivering...", ctr, tot,chk);
-		Polygon_with_holes_2 pwh;
-		Bbox_2 bbox;
-		bool maybe_sliver = !IsFaceNotSliverFast(f, metric * 3.0);
-		bool is_sliver = false;
-		
-		if(maybe_sliver)
-		{
-			PolygonFromFace(f, pwh, NULL, NULL, &bbox);
-			is_sliver = IsPolygonSliver(pwh, metric, bbox);
-		}
-		++total;
-		if(is_sliver) ++sliver;
-		if(!maybe_sliver) ++fast;
-		if(is_sliver)
-		{
-			f->data().mTerrainType = NO_VALUE;
-		}
-	}
-	PROGRESS_DONE(func, 0, 1, "Deslivering...")
-	printf("Fast checks: %d, slivers: %d, fixed: %d, total: %d\n", fast, sliver, ret, total);
-	
-	return ret;
+    int fast = 0;
+    int sliver = 0;
+    int total = 0;
+
+    std::set<Pmwx::Face_handle> bad;
+
+    for (Pmwx::Face_iterator f = pmwx.faces_begin(); f != pmwx.faces_end(); ++f, ++ctr)
+        if (!f->is_unbounded())
+            if (f->data().IsWater())
+#if OPENGL_MAP
+                if (gFaceSelection.empty() || gFaceSelection.count(f))
+#endif
+                {
+                    PROGRESS_CHECK(func, 0, 1, "Deslivering...", ctr, tot, chk);
+                    Polygon_with_holes_2 pwh;
+                    Bbox_2 bbox;
+                    bool maybe_sliver = !IsFaceNotSliverFast(f, metric * 3.0);
+                    bool is_sliver = false;
+
+                    if (maybe_sliver)
+                    {
+                        PolygonFromFace(f, pwh, NULL, NULL, &bbox);
+                        is_sliver = IsPolygonSliver(pwh, metric, bbox);
+                    }
+                    ++total;
+                    if (is_sliver)
+                        ++sliver;
+                    if (!maybe_sliver)
+                        ++fast;
+                    if (is_sliver)
+                    {
+                        f->data().mTerrainType = NO_VALUE;
+                    }
+                }
+    PROGRESS_DONE(func, 0, 1, "Deslivering...")
+    printf("Fast checks: %d, slivers: %d, fixed: %d, total: %d\n", fast, sliver, ret, total);
+
+    return ret;
 }
 
-int KillSlopedWater(Pmwx& pmwx, 
-			DEMGeo& elev, 
-			DEMGeo& landuse, 
-			int max_horizontal_err_pix,
-			int	minimum_lu_size_pix,
-			float maximum_lu_err_rat,
-			double zlimit, 
-			ProgressFunc func)
+int KillSlopedWater(Pmwx& pmwx, DEMGeo& elev, DEMGeo& landuse, int max_horizontal_err_pix, int minimum_lu_size_pix,
+                    float maximum_lu_err_rat, double zlimit, ProgressFunc func)
 {
-	PROGRESS_START(func, 0, 1, "Deslivering...")
-	int ctr = 0, tot = pmwx.number_of_faces();
-	int chk = max(1,tot/100);
-	int ret = 0;
-	
-	DEMGeo water_up(elev.mWidth, elev.mHeight);
-	water_up=0;
-	water_up.copy_geo_from(elev);
-	water_up.mPost = elev.mPost;
-	for(int y = 0; y < landuse.mHeight; ++y)
-	for(int x = 0; x < landuse.mWidth; ++x)
-	if(landuse(x,y) == lu_globcover_WATER || landuse(x,y) == lu_globcover_WETLAND_BROADLEAVED_OPEN || 
-	   landuse(x,y) == lu_globcover_WETLAND_GRASSLAND || landuse(x,y) == lu_globcover_WETLAND_SHRUB_CLOSED)
-	{
-		int xx = water_up.map_x_from(landuse,x);
-		int yy = water_up.map_y_from(landuse,y);
-		for(int dy = -1; dy <= 1; ++dy)
-		for(int dx = -1; dx <= 1; ++dx)
-		{
-			if(water_up.valid(DEMGeo::coordinates(xx + dx, yy + dy)))
-				water_up(xx+dx,yy+dy) = 1;
-		}
-	}
-	
-	dem_erode(water_up, max_horizontal_err_pix, 1);
-	//gDem[dem_Wizard] = water_up;
-	
-	for(Pmwx::Face_iterator f = pmwx.faces_begin(); f != pmwx.faces_end(); ++f, ++ctr)
-	if(!f->is_unbounded())
-	if(f->data().IsWater())
-	if(f->data().GetParam(af_FlattenMode,FLATTEN) == NO_FLATTEN)
-	#if OPENGL_MAP
-	if(gFaceSelection.empty() || gFaceSelection.count(f))
-	#endif
-	{
-		PROGRESS_CHECK(func, 0, 1, "Deslivering...", ctr, tot,chk);
-		Bbox_2	box;
-		Polygon_2 poly;
-		float zmin, zmax;
-		Pmwx::Ccb_halfedge_const_circulator stop, circ;
-		circ = stop = f->outer_ccb();
-		zmin = zmax = elev.value_linear(CGAL::to_double(circ->source()->point().x()),CGAL::to_double(circ->source()->point().y()));
-		box = circ->source()->point().bbox();
-		do {
-			float e = elev.value_linear(CGAL::to_double(circ->source()->point().x()),CGAL::to_double(circ->source()->point().y()));
-			zmin = min(zmin, e);
-			zmax = max(zmax, e);
-			
-			box += circ->source()->point().bbox();
-		} while (stop != ++circ);
-	
-		PolyRasterizer<double>	raster;
-		int y = SetupRasterizerForDEM(f, elev, raster);
-		int x;
-		int water = 0;
-		int total = 0;
-		while(!raster.DoneScan())
-		{
-			vector<double>	l;
-			double ny;
-			raster.GetLine(l, ny);
-			DebugAssert(l.size() % 2== 0);
-			for(int i = 0; i < l.size(); i += 2)
-			{
-				double xs = l[i];
-				double xe = l[i+1];
-				
-				for(x = ceil(xs); x <= floor(xe); ++x)
-				{
-					int wet = water_up.get(x,y);
-					float e = elev.get(x,y);
+    PROGRESS_START(func, 0, 1, "Deslivering...")
+    int ctr = 0, tot = pmwx.number_of_faces();
+    int chk = max(1, tot / 100);
+    int ret = 0;
 
-					if (e != DEM_NO_DATA)
-					{
-						//debug_mesh_point(Point2(water_up.x_to_lon(x), water_up.y_to_lat(y)),1,1,0);
-						zmin = min(zmin,e);
-						zmax = max(zmax,e);
-					}
-					++total;
-					if(wet == 1)
-						++water;
-				}
-			}
-			++y;
-			raster.AdvanceScanline(y);
-		}
-		int land = total - water;
-		float err = ((float) land) / ((float) total);
+    DEMGeo water_up(elev.mWidth, elev.mHeight);
+    water_up = 0;
+    water_up.copy_geo_from(elev);
+    water_up.mPost = elev.mPost;
+    for (int y = 0; y < landuse.mHeight; ++y)
+        for (int x = 0; x < landuse.mWidth; ++x)
+            if (landuse(x, y) == lu_globcover_WATER || landuse(x, y) == lu_globcover_WETLAND_BROADLEAVED_OPEN ||
+                landuse(x, y) == lu_globcover_WETLAND_GRASSLAND || landuse(x, y) == lu_globcover_WETLAND_SHRUB_CLOSED)
+            {
+                int xx = water_up.map_x_from(landuse, x);
+                int yy = water_up.map_y_from(landuse, y);
+                for (int dy = -1; dy <= 1; ++dy)
+                    for (int dx = -1; dx <= 1; ++dx)
+                    {
+                        if (water_up.valid(DEMGeo::coordinates(xx + dx, yy + dy)))
+                            water_up(xx + dx, yy + dy) = 1;
+                    }
+            }
 
-		if(total > minimum_lu_size_pix && err > maximum_lu_err_rat && maximum_lu_err_rat <= 1.0)
-		{
-			f->data().mTerrainType = NO_VALUE;
-			++ret;
-				
-		} else {
+    dem_erode(water_up, max_horizontal_err_pix, 1);
+    // gDem[dem_Wizard] = water_up;
 
-			double DEG_TO_NM_LON = DEG_TO_NM_LAT * cos(CGAL::to_double(box.ymin()) * DEG_TO_RAD);
-			double rhs = (pow((box.xmax()-box.xmin())*DEG_TO_NM_LON*NM_TO_MTR,2) + pow((box.ymax()-box.ymin())*DEG_TO_NM_LAT*NM_TO_MTR,2));
-			double lhs = pow((double)(zmax-zmin),2);
-			#if OPENGL_MAP
-			if(!gFaceSelection.empty())
-				printf("Z limit: %f (Z^2 = %f, L^2 = %f\n", rhs / lhs, lhs, rhs);
-			#endif
-	//		fprintf(stderr," %9.0lf,%9.0lf ", rhs, lhs);
-			if (zlimit*lhs > rhs) 
-			{
-				f->data().mTerrainType = NO_VALUE;
-				++ret;
-			}
-			
-		}
-	}
-	PROGRESS_DONE(func, 0, 1, "Deslivering...")
-	
-	return ret;
-	
+    for (Pmwx::Face_iterator f = pmwx.faces_begin(); f != pmwx.faces_end(); ++f, ++ctr)
+        if (!f->is_unbounded())
+            if (f->data().IsWater())
+                if (f->data().GetParam(af_FlattenMode, FLATTEN) == NO_FLATTEN)
+#if OPENGL_MAP
+                    if (gFaceSelection.empty() || gFaceSelection.count(f))
+#endif
+                    {
+                        PROGRESS_CHECK(func, 0, 1, "Deslivering...", ctr, tot, chk);
+                        Bbox_2 box;
+                        Polygon_2 poly;
+                        float zmin, zmax;
+                        Pmwx::Ccb_halfedge_const_circulator stop, circ;
+                        circ = stop = f->outer_ccb();
+                        zmin = zmax = elev.value_linear(CGAL::to_double(circ->source()->point().x()),
+                                                        CGAL::to_double(circ->source()->point().y()));
+                        box = circ->source()->point().bbox();
+                        do
+                        {
+                            float e = elev.value_linear(CGAL::to_double(circ->source()->point().x()),
+                                                        CGAL::to_double(circ->source()->point().y()));
+                            zmin = min(zmin, e);
+                            zmax = max(zmax, e);
+
+                            box += circ->source()->point().bbox();
+                        } while (stop != ++circ);
+
+                        PolyRasterizer<double> raster;
+                        int y = SetupRasterizerForDEM(f, elev, raster);
+                        int x;
+                        int water = 0;
+                        int total = 0;
+                        while (!raster.DoneScan())
+                        {
+                            vector<double> l;
+                            double ny;
+                            raster.GetLine(l, ny);
+                            DebugAssert(l.size() % 2 == 0);
+                            for (int i = 0; i < l.size(); i += 2)
+                            {
+                                double xs = l[i];
+                                double xe = l[i + 1];
+
+                                for (x = ceil(xs); x <= floor(xe); ++x)
+                                {
+                                    int wet = water_up.get(x, y);
+                                    float e = elev.get(x, y);
+
+                                    if (e != DEM_NO_DATA)
+                                    {
+                                        // debug_mesh_point(Point2(water_up.x_to_lon(x), water_up.y_to_lat(y)),1,1,0);
+                                        zmin = min(zmin, e);
+                                        zmax = max(zmax, e);
+                                    }
+                                    ++total;
+                                    if (wet == 1)
+                                        ++water;
+                                }
+                            }
+                            ++y;
+                            raster.AdvanceScanline(y);
+                        }
+                        int land = total - water;
+                        float err = ((float)land) / ((float)total);
+
+                        if (total > minimum_lu_size_pix && err > maximum_lu_err_rat && maximum_lu_err_rat <= 1.0)
+                        {
+                            f->data().mTerrainType = NO_VALUE;
+                            ++ret;
+                        }
+                        else
+                        {
+
+                            double DEG_TO_NM_LON = DEG_TO_NM_LAT * cos(CGAL::to_double(box.ymin()) * DEG_TO_RAD);
+                            double rhs = (pow((box.xmax() - box.xmin()) * DEG_TO_NM_LON * NM_TO_MTR, 2) +
+                                          pow((box.ymax() - box.ymin()) * DEG_TO_NM_LAT * NM_TO_MTR, 2));
+                            double lhs = pow((double)(zmax - zmin), 2);
+#if OPENGL_MAP
+                            if (!gFaceSelection.empty())
+                                printf("Z limit: %f (Z^2 = %f, L^2 = %f\n", rhs / lhs, lhs, rhs);
+#endif
+                            //		fprintf(stderr," %9.0lf,%9.0lf ", rhs, lhs);
+                            if (zlimit * lhs > rhs)
+                            {
+                                f->data().mTerrainType = NO_VALUE;
+                                ++ret;
+                            }
+                        }
+                    }
+    PROGRESS_DONE(func, 0, 1, "Deslivering...")
+
+    return ret;
 }
 
-bool	convex_quad(const Point_2& p1, const Point_2& p2, const Point_2& p3, const Point_2& p4)
+bool convex_quad(const Point_2& p1, const Point_2& p2, const Point_2& p3, const Point_2& p4)
 {
-	if(CGAL::right_turn(p1,p2,p3))
-	if(CGAL::right_turn(p2,p3,p4))
-	if(CGAL::right_turn(p3,p4,p1))
-	if(CGAL::right_turn(p4,p1,p2))
-		return true;
-	return false;
+    if (CGAL::right_turn(p1, p2, p3))
+        if (CGAL::right_turn(p2, p3, p4))
+            if (CGAL::right_turn(p3, p4, p1))
+                if (CGAL::right_turn(p4, p1, p2))
+                    return true;
+    return false;
 }
 
-bool	connected_vertices(Pmwx::Vertex_handle v1, Pmwx::Vertex_handle v2)
+bool connected_vertices(Pmwx::Vertex_handle v1, Pmwx::Vertex_handle v2)
 {
-	if(v1->is_isolated()) return false;
-	Pmwx::Halfedge_around_vertex_circulator circ, stop;
-	circ=stop=v1->incident_halfedges();
-	do {
-		if(circ->source() == v2)
-			return true;
-	} while(++circ != stop);
-	return false;
+    if (v1->is_isolated())
+        return false;
+    Pmwx::Halfedge_around_vertex_circulator circ, stop;
+    circ = stop = v1->incident_halfedges();
+    do
+    {
+        if (circ->source() == v2)
+            return true;
+    } while (++circ != stop);
+    return false;
 }
-int remove_outsets_ccb(Pmwx& io_map, Pmwx::Face_handle f, Pmwx::Ccb_halfedge_circulator circ, double max_len_sq, double max_area, spatial_index_2<Pmwx::Geometry_traits_2>& idx)
+int remove_outsets_ccb(Pmwx& io_map, Pmwx::Face_handle f, Pmwx::Ccb_halfedge_circulator circ, double max_len_sq,
+                       double max_area, spatial_index_2<Pmwx::Geometry_traits_2>& idx)
 {
-	int ret = 0;
-	int tot=0,kwik=0;
-	Pmwx::Ccb_halfedge_circulator stop(circ);
-	do {
-		Pmwx::Halfedge_handle h1, h2, h3, h4, h5;
-		h1 = circ;
-		h2 = h1->next();
-		h3 = h2->next();
-		h4 = h3->next();
-		h5 = h4->next();
-		
-		Pmwx::Face_handle l = h1->twin()->face();
-		
-		if(!l->is_unbounded())
-		if(!l->data().IsWater())
-		if(h2 != h1 && h3 != h1 && h4 != h1 && h5 != h1)
-		if(h2->twin()->face() == l &&
-			h3->twin()->face() == l &&
-			h4->twin()->face() == l &&
-			h5->twin()->face() == l)
-		if(h2->target()->degree() == 2 &&	// If the outset's outer edge degree is not 2, then a lake INSIDE the land might shoot a tiny triangle THROUGH the outset's entrance
-		   h3->target()->degree() == 2)		// and yet no vertices are 'inside'.
-		if(CGAL::left_turn (h1->source()->point(),h1->target()->point(),h2->target()->point()) &&
-		   CGAL::right_turn(h2->source()->point(),h2->target()->point(),h3->target()->point()) &&
-		   CGAL::right_turn(h3->source()->point(),h3->target()->point(),h4->target()->point()) &&
-		   CGAL::left_turn (h4->source()->point(),h4->target()->point(),h5->target()->point()))
-		{
-			Point2 pts[4] = {   cgal2ben(h1->target()->point()),
-								cgal2ben(h2->target()->point()),
-								cgal2ben(h3->target()->point()),
-								cgal2ben(h4->target()->point()) };
-			
-			if (pts[0].squared_distance(pts[1]) < max_len_sq &&
-				pts[1].squared_distance(pts[2]) < max_len_sq &&
-				pts[2].squared_distance(pts[3]) < max_len_sq &&
-				pts[3].squared_distance(pts[0]) < max_len_sq)
-			{
-				if(signed_area_pt(pts,pts+4) > -max_area)
-				{					
-					if(!connected_vertices(h1->target(),h4->target()) &&
-						!squatters_in_area<Pmwx>(h1->target()->point(),h2->target()->point(),h3->target()->point(),idx) &&
-						!squatters_in_area<Pmwx>(h1->target()->point(),h3->target()->point(),h4->target()->point(),idx))
-//						|| can_insert(io_map, h1->target(),h4->target()))
-					{	
-						#if DEV && DEBUG_OUTSET_REMOVER
-							DebugAssert(can_insert(io_map, h1->target(),h4->target()));
-						#endif
-						
-						Pmwx::Vertex_handle v1(h1->target());
-						Pmwx::Vertex_handle v2(h4->target());
-						Pmwx::Halfedge_handle e = io_map.insert_at_vertices(Curve_2(Segment_2(v1->point(),v2->point())),v1,v2);
-						e->face()->set_data(f->data());			
-						++ret;	
-					}
-				} 
-//				else
-//					debug_mesh_line(pts[0],pts[3],1,1,0,1,1,0);	// area fail
-			} 
-//			else
-//				debug_mesh_line(pts[0],pts[3],0,1,0,0,1,0);	// length fail
-		}
-		
-	} while(++circ != stop);
-	return ret;
+    int ret = 0;
+    int tot = 0, kwik = 0;
+    Pmwx::Ccb_halfedge_circulator stop(circ);
+    do
+    {
+        Pmwx::Halfedge_handle h1, h2, h3, h4, h5;
+        h1 = circ;
+        h2 = h1->next();
+        h3 = h2->next();
+        h4 = h3->next();
+        h5 = h4->next();
+
+        Pmwx::Face_handle l = h1->twin()->face();
+
+        if (!l->is_unbounded())
+            if (!l->data().IsWater())
+                if (h2 != h1 && h3 != h1 && h4 != h1 && h5 != h1)
+                    if (h2->twin()->face() == l && h3->twin()->face() == l && h4->twin()->face() == l &&
+                        h5->twin()->face() == l)
+                        if (h2->target()->degree() ==
+                                2 && // If the outset's outer edge degree is not 2, then a lake INSIDE the land might
+                                     // shoot a tiny triangle THROUGH the outset's entrance
+                            h3->target()->degree() == 2) // and yet no vertices are 'inside'.
+                            if (CGAL::left_turn(h1->source()->point(), h1->target()->point(), h2->target()->point()) &&
+                                CGAL::right_turn(h2->source()->point(), h2->target()->point(), h3->target()->point()) &&
+                                CGAL::right_turn(h3->source()->point(), h3->target()->point(), h4->target()->point()) &&
+                                CGAL::left_turn(h4->source()->point(), h4->target()->point(), h5->target()->point()))
+                            {
+                                Point2 pts[4] = {cgal2ben(h1->target()->point()), cgal2ben(h2->target()->point()),
+                                                 cgal2ben(h3->target()->point()), cgal2ben(h4->target()->point())};
+
+                                if (pts[0].squared_distance(pts[1]) < max_len_sq &&
+                                    pts[1].squared_distance(pts[2]) < max_len_sq &&
+                                    pts[2].squared_distance(pts[3]) < max_len_sq &&
+                                    pts[3].squared_distance(pts[0]) < max_len_sq)
+                                {
+                                    if (signed_area_pt(pts, pts + 4) > -max_area)
+                                    {
+                                        if (!connected_vertices(h1->target(), h4->target()) &&
+                                            !squatters_in_area<Pmwx>(h1->target()->point(), h2->target()->point(),
+                                                                     h3->target()->point(), idx) &&
+                                            !squatters_in_area<Pmwx>(h1->target()->point(), h3->target()->point(),
+                                                                     h4->target()->point(), idx))
+                                        //						|| can_insert(io_map, h1->target(),h4->target()))
+                                        {
+#if DEV && DEBUG_OUTSET_REMOVER
+                                            DebugAssert(can_insert(io_map, h1->target(), h4->target()));
+#endif
+
+                                            Pmwx::Vertex_handle v1(h1->target());
+                                            Pmwx::Vertex_handle v2(h4->target());
+                                            Pmwx::Halfedge_handle e = io_map.insert_at_vertices(
+                                                Curve_2(Segment_2(v1->point(), v2->point())), v1, v2);
+                                            e->face()->set_data(f->data());
+                                            ++ret;
+                                        }
+                                    }
+                                    //				else
+                                    //					debug_mesh_line(pts[0],pts[3],1,1,0,1,1,0);	// area fail
+                                }
+                                //			else
+                                //				debug_mesh_line(pts[0],pts[3],0,1,0,0,1,0);	// length fail
+                            }
+
+    } while (++circ != stop);
+    return ret;
 }
 
 int RemoveOutsets(Pmwx& io_map, double max_len_sq, double max_area)
 {
-	if(io_map.is_empty()) return 0;
-	DebugAssert(io_map.vertices_begin() != io_map.vertices_end());
-	Point2	minc = cgal2ben(io_map.vertices_begin()->point());
-	Point2	maxc = minc;
-	for(Pmwx::Vertex_iterator v = io_map.vertices_begin(); v != io_map.vertices_end(); ++v)
-	{
-		Point2	p = cgal2ben(v->point());
-		minc.x_ = min(minc.x(),p.x());
-		minc.y_ = min(minc.y(),p.y());
-		maxc.x_ = max(maxc.x(),p.x());
-		maxc.y_ = max(maxc.y(),p.y());
-	}
-		
-	spatial_index_2<Pmwx::Geometry_traits_2>	vertex_index;
-	vertex_index.insert(io_map.vertices_begin(), io_map.vertices_end(), arr_vertex_pt_extractor<Pmwx>());
-	
-	int ret = 0;
-	data_preserver_t<Pmwx>	preserve(io_map);
-	for(Pmwx::Face_handle f = io_map.faces_begin(); f != io_map.faces_end(); ++f)
-	if(!f->is_unbounded())
-	if(f->data().IsWater())
-	{
-		ret += remove_outsets_ccb(io_map,f,f->outer_ccb(), max_len_sq, max_area,vertex_index);
-		for(Pmwx::Hole_iterator h = f->holes_begin(); h != f->holes_end(); ++h)
-			ret += remove_outsets_ccb(io_map,f,*h, max_len_sq, max_area,vertex_index);
-	}
-	return ret;
+    if (io_map.is_empty())
+        return 0;
+    DebugAssert(io_map.vertices_begin() != io_map.vertices_end());
+    Point2 minc = cgal2ben(io_map.vertices_begin()->point());
+    Point2 maxc = minc;
+    for (Pmwx::Vertex_iterator v = io_map.vertices_begin(); v != io_map.vertices_end(); ++v)
+    {
+        Point2 p = cgal2ben(v->point());
+        minc.x_ = min(minc.x(), p.x());
+        minc.y_ = min(minc.y(), p.y());
+        maxc.x_ = max(maxc.x(), p.x());
+        maxc.y_ = max(maxc.y(), p.y());
+    }
+
+    spatial_index_2<Pmwx::Geometry_traits_2> vertex_index;
+    vertex_index.insert(io_map.vertices_begin(), io_map.vertices_end(), arr_vertex_pt_extractor<Pmwx>());
+
+    int ret = 0;
+    data_preserver_t<Pmwx> preserve(io_map);
+    for (Pmwx::Face_handle f = io_map.faces_begin(); f != io_map.faces_end(); ++f)
+        if (!f->is_unbounded())
+            if (f->data().IsWater())
+            {
+                ret += remove_outsets_ccb(io_map, f, f->outer_ccb(), max_len_sq, max_area, vertex_index);
+                for (Pmwx::Hole_iterator h = f->holes_begin(); h != f->holes_end(); ++h)
+                    ret += remove_outsets_ccb(io_map, f, *h, max_len_sq, max_area, vertex_index);
+            }
+    return ret;
 }
 
 Pmwx::Face_handle containing_face(Pmwx::Ccb_halfedge_circulator circ)
 {
-	Pmwx::Ccb_halfedge_circulator stop(circ);
-	Pmwx::Face_handle ret = Pmwx::Face_handle();
-	do {
-		if(circ->twin()->face() != ret)
-		{
-			if(ret == Pmwx::Face_handle())
-				ret = circ->twin()->face();
-			else
-				return Pmwx::Face_handle();
-		}
-	} while (++circ != stop);
-	return ret;
+    Pmwx::Ccb_halfedge_circulator stop(circ);
+    Pmwx::Face_handle ret = Pmwx::Face_handle();
+    do
+    {
+        if (circ->twin()->face() != ret)
+        {
+            if (ret == Pmwx::Face_handle())
+                ret = circ->twin()->face();
+            else
+                return Pmwx::Face_handle();
+        }
+    } while (++circ != stop);
+    return ret;
 }
 
 std::tuple<int, int> RemoveIslands(Pmwx& io_map, double max_area)
 {
-	int islands_removed = 0, islands = 0;
-	for (auto f = io_map.faces_begin(); f != io_map.faces_end(); ++f)
-	{
-		if (f->is_unbounded())
-			continue;
-		if (f->holes_begin() != f->holes_end())
-			continue;
+    int islands_removed = 0, islands = 0;
+    for (auto f = io_map.faces_begin(); f != io_map.faces_end(); ++f)
+    {
+        if (f->is_unbounded())
+            continue;
+        if (f->holes_begin() != f->holes_end())
+            continue;
 
-		Pmwx::Face_handle holds_me = containing_face(f->outer_ccb());
-		if (holds_me != Pmwx::Face_handle() && !holds_me->is_unbounded())
-		{
-			double a = GetMapFaceAreaMeters(f);
-			if (a < max_area)
-			{
-				f->set_data(holds_me->data());
+        Pmwx::Face_handle holds_me = containing_face(f->outer_ccb());
+        if (holds_me != Pmwx::Face_handle() && !holds_me->is_unbounded())
+        {
+            double a = GetMapFaceAreaMeters(f);
+            if (a < max_area)
+            {
+                f->set_data(holds_me->data());
 #if SHOW_ISLAND_REMOVAL
-				Pmwx::Ccb_halfedge_circulator circ, stop;
-				circ = stop = f->outer_ccb();
-				do
-				{
-					debug_mesh_line(cgal2ben(circ->source()->point()),
-									cgal2ben(circ->target()->point()),
-									1, 0, 0, 1, 0, 0);
+                Pmwx::Ccb_halfedge_circulator circ, stop;
+                circ = stop = f->outer_ccb();
+                do
+                {
+                    debug_mesh_line(cgal2ben(circ->source()->point()), cgal2ben(circ->target()->point()), 1, 0, 0, 1, 0,
+                                    0);
 
-				} while (++circ != stop);
+                } while (++circ != stop);
 #endif
-				++islands_removed;
-			}
-			++islands;
-		}
-	}
-	return {islands_removed, islands};
+                ++islands_removed;
+            }
+            ++islands;
+        }
+    }
+    return {islands_removed, islands};
 }
 
 int KillWetAntennaRoads(Pmwx& io_map)
 {
-	int dead = 0;
-	std::set<Pmwx::Vertex_handle>	kill_q;
-	for(Pmwx::Vertex_iterator v = io_map.vertices_begin(); v != io_map.vertices_end(); ++v)
-	if(v->degree() == 1)
-	if(v->incident_halfedges()->face()->data().IsWater())
-	{
-		kill_q.insert(v);
-	}
-	
-	while(!kill_q.empty())
-	{
-		Pmwx::Vertex_handle k = *kill_q.begin();
-		kill_q.erase(kill_q.begin());
-		DebugAssert(k->degree() == 1);
-		DebugAssert(k->incident_halfedges()->face()->data().IsWater());
-		Pmwx::Halfedge_handle h = k->incident_halfedges();
-		Pmwx::Vertex_handle o(h->source());
-		bool need_o = true;
-		if(o->degree() == 1)
-		{
-			DebugAssert(kill_q.count(o));
-			kill_q.erase(o);
-			need_o = false;
-		}
-		io_map.remove_edge(h);
-		++dead;
-		if(need_o)
-		{
-			if(o->degree() == 1 && o->incident_halfedges()->face()->data().IsWater())
-			{
-				DebugAssert(kill_q.count(o) == 0);
-				kill_q.insert(o);
-			}
-		}
-	}	
-	return dead;
+    int dead = 0;
+    std::set<Pmwx::Vertex_handle> kill_q;
+    for (Pmwx::Vertex_iterator v = io_map.vertices_begin(); v != io_map.vertices_end(); ++v)
+        if (v->degree() == 1)
+            if (v->incident_halfedges()->face()->data().IsWater())
+            {
+                kill_q.insert(v);
+            }
+
+    while (!kill_q.empty())
+    {
+        Pmwx::Vertex_handle k = *kill_q.begin();
+        kill_q.erase(kill_q.begin());
+        DebugAssert(k->degree() == 1);
+        DebugAssert(k->incident_halfedges()->face()->data().IsWater());
+        Pmwx::Halfedge_handle h = k->incident_halfedges();
+        Pmwx::Vertex_handle o(h->source());
+        bool need_o = true;
+        if (o->degree() == 1)
+        {
+            DebugAssert(kill_q.count(o));
+            kill_q.erase(o);
+            need_o = false;
+        }
+        io_map.remove_edge(h);
+        ++dead;
+        if (need_o)
+        {
+            if (o->degree() == 1 && o->incident_halfedges()->face()->data().IsWater())
+            {
+                DebugAssert(kill_q.count(o) == 0);
+                kill_q.insert(o);
+            }
+        }
+    }
+    return dead;
 }
 
 bool is_strand(Pmwx::Halfedge_handle h)
 {
-	Pmwx::Halfedge_handle t(h->twin());
-	return  h->face()->data().IsWater() &&
-			t->face()->data().IsWater() &&
-			(h->data().HasGroundRoads() || t->data().HasGroundRoads()) &&
-			!h->data().HasBridgeRoads() &&
-			!t->data().HasBridgeRoads();
-			
+    Pmwx::Halfedge_handle t(h->twin());
+    return h->face()->data().IsWater() && t->face()->data().IsWater() &&
+           (h->data().HasGroundRoads() || t->data().HasGroundRoads()) && !h->data().HasBridgeRoads() &&
+           !t->data().HasBridgeRoads();
 }
 
 bool is_coast(Pmwx::Halfedge_handle h)
 {
-	Pmwx::Halfedge_handle t(h->twin());
-	return !h->face()->is_unbounded() &&
-		   !t->face()->is_unbounded() &&
-		   !h->data().HasRoads() && 
-		   !t->data().HasRoads() && 
-		   h->face()->data().IsWater() != t->face()->data().IsWater();
+    Pmwx::Halfedge_handle t(h->twin());
+    return !h->face()->is_unbounded() && !t->face()->is_unbounded() && !h->data().HasRoads() && !t->data().HasRoads() &&
+           h->face()->data().IsWater() != t->face()->data().IsWater();
 }
 
-// This doesn't work right yet...since the sliver case is general, a long thin 'sliver' between two adjacent bridges over water
-// will fill the bridge median as land.  Really we should offset only the land contours!
+// This doesn't work right yet...since the sliver case is general, a long thin 'sliver' between two adjacent bridges
+// over water will fill the bridge median as land.  Really we should offset only the land contours!
 int LandFillStrandedRoads(Pmwx& io_map, double dist_lo, double dist_hi)
 {
-	int filled = 0;
-	for(Pmwx::Face_iterator f = io_map.faces_begin(); f != io_map.faces_end(); ++f)
-	if(!f->is_unbounded())
-	if(f->data().IsWater())
-	if(f->holes_begin() == f->holes_end())
-	{
-		Pmwx::Ccb_halfedge_circulator circ, stop, next;
-		circ=stop=f->outer_ccb();
-		double strand_len = 0;
-		int sides=0;
-		int change = 0;		
-		do {
-			++sides;
-			if(circ->data().HasBridgeRoads() ||
-				circ->twin()->data().HasBridgeRoads())
-			{
-				strand_len=0.0;
-				break;
-			}
-			if(is_strand(circ))
-			{	
-				strand_len += sqrt(CGAL::to_double(CGAL::squared_distance(circ->source()->point(),circ->target()->point())));
-			} 
-			else if (is_coast(circ))
-			{
-				next =circ;
-				++next;
-				if(!is_coast(next))
-					++change;				
-			}
+    int filled = 0;
+    for (Pmwx::Face_iterator f = io_map.faces_begin(); f != io_map.faces_end(); ++f)
+        if (!f->is_unbounded())
+            if (f->data().IsWater())
+                if (f->holes_begin() == f->holes_end())
+                {
+                    Pmwx::Ccb_halfedge_circulator circ, stop, next;
+                    circ = stop = f->outer_ccb();
+                    double strand_len = 0;
+                    int sides = 0;
+                    int change = 0;
+                    do
+                    {
+                        ++sides;
+                        if (circ->data().HasBridgeRoads() || circ->twin()->data().HasBridgeRoads())
+                        {
+                            strand_len = 0.0;
+                            break;
+                        }
+                        if (is_strand(circ))
+                        {
+                            strand_len += sqrt(CGAL::to_double(
+                                CGAL::squared_distance(circ->source()->point(), circ->target()->point())));
+                        }
+                        else if (is_coast(circ))
+                        {
+                            next = circ;
+                            ++next;
+                            if (!is_coast(next))
+                                ++change;
+                        }
 
-			if(change > 1)			
-				break;
+                        if (change > 1)
+                            break;
 
-		} while(++circ != stop);
-		
-		if(change == 1 && strand_len > 0.0 && sides < 20)
-		{
-			Polygon_with_holes_2 pwh;
-			Bbox_2 bbox;
-			PolygonFromFace(f, pwh, NULL, NULL, &bbox);
-			
-			double margin = strand_len / 5.0;
-			if(margin > dist_hi) margin = dist_hi;
-			if(margin < dist_lo) margin = dist_lo;
-			
-			if(IsPolygonSliver(pwh, margin, bbox))
-			{
-//				debug_mesh_point(cgal2ben(f->outer_ccb()->source()->point()),1,1,0);
-				f->data().mTerrainType = NO_VALUE;
-				++filled;
-			}
-//			else
-//				debug_mesh_point(cgal2ben(f->outer_ccb()->source()->point()),1,0,0);
-			
-		
-		}			
-	}
-	return filled;
+                    } while (++circ != stop);
+
+                    if (change == 1 && strand_len > 0.0 && sides < 20)
+                    {
+                        Polygon_with_holes_2 pwh;
+                        Bbox_2 bbox;
+                        PolygonFromFace(f, pwh, NULL, NULL, &bbox);
+
+                        double margin = strand_len / 5.0;
+                        if (margin > dist_hi)
+                            margin = dist_hi;
+                        if (margin < dist_lo)
+                            margin = dist_lo;
+
+                        if (IsPolygonSliver(pwh, margin, bbox))
+                        {
+                            //				debug_mesh_point(cgal2ben(f->outer_ccb()->source()->point()),1,1,0);
+                            f->data().mTerrainType = NO_VALUE;
+                            ++filled;
+                        }
+                        //			else
+                        //				debug_mesh_point(cgal2ben(f->outer_ccb()->source()->point()),1,0,0);
+                    }
+                }
+    return filled;
 }

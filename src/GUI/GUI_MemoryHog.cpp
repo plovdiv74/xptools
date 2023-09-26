@@ -23,38 +23,38 @@
 
 #include "GUI_MemoryHog.h"
 #include <new>
-static std::set<GUI_MemoryHog *>	sHogs;
-static std::new_handler			sOldHandler;
-
+static std::set<GUI_MemoryHog*> sHogs;
+static std::new_handler sOldHandler;
 
 GUI_MemoryHog::GUI_MemoryHog()
 {
-	sHogs.insert(this);
+    sHogs.insert(this);
 }
 
 GUI_MemoryHog::~GUI_MemoryHog()
 {
-	sHogs.erase(this);
+    sHogs.erase(this);
 }
 
-void	GUI_MemoryHog::InstallNewHandler(void)
+void GUI_MemoryHog::InstallNewHandler(void)
 {
-	sOldHandler = std::set_new_handler(GUI_MemoryHog::our_new_handler);
+    sOldHandler = std::set_new_handler(GUI_MemoryHog::our_new_handler);
 }
 
-void	GUI_MemoryHog::RemoveNewHandler(void)
+void GUI_MemoryHog::RemoveNewHandler(void)
 {
-	std::set_new_handler(sOldHandler);
+    std::set_new_handler(sOldHandler);
 }
 
-void	GUI_MemoryHog::our_new_handler()
+void GUI_MemoryHog::our_new_handler()
 {
-	for(std::set<GUI_MemoryHog *>::iterator h = sHogs.begin(); h != sHogs.end(); ++h)
-	{
-		if ((*h)->ReleaseMemory())
-			return;
-	}
-	if (sOldHandler)	sOldHandler();
-	else				throw std::bad_alloc();
+    for (std::set<GUI_MemoryHog*>::iterator h = sHogs.begin(); h != sHogs.end(); ++h)
+    {
+        if ((*h)->ReleaseMemory())
+            return;
+    }
+    if (sOldHandler)
+        sOldHandler();
+    else
+        throw std::bad_alloc();
 }
-

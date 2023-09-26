@@ -26,51 +26,51 @@
 
 #include <string>
 #include <map>
-using std::string;
 using std::map;
-struct		ImageInfo;
+using std::string;
+struct ImageInfo;
 
-typedef void *	GUI_Resource;
+typedef void* GUI_Resource;
 
-GUI_Resource	GUI_LoadResource(const char * in_resource);
-void			GUI_UnloadResource(GUI_Resource res);
-const char *	GUI_GetResourceBegin(GUI_Resource res);
-const char *	GUI_GetResourceEnd(GUI_Resource res);
+GUI_Resource GUI_LoadResource(const char* in_resource);
+void GUI_UnloadResource(GUI_Resource res);
+const char* GUI_GetResourceBegin(GUI_Resource res);
+const char* GUI_GetResourceEnd(GUI_Resource res);
 
-bool			GUI_GetTempResourcePath(const char * in_resource, std::string& out_path);
+bool GUI_GetTempResourcePath(const char* in_resource, std::string& out_path);
 
-
-struct	GUI_TexPosition_t {
-	int		real_width;
-	int		real_height;
-	int		tex_width;
-	int		tex_height;
-	float	s_rescale;
-	float	t_rescale;
+struct GUI_TexPosition_t
+{
+    int real_width;
+    int real_height;
+    int tex_width;
+    int tex_height;
+    float s_rescale;
+    float t_rescale;
 };
 
-int GUI_GetImageResource(
-			const char *		in_resource,
-			ImageInfo *			io_image);
+int GUI_GetImageResource(const char* in_resource, ImageInfo* io_image);
 
-int	GUI_GetTextureResource(
-			const char *		in_resource,
-			int					flags,
-			GUI_TexPosition_t *	out_metrics);	// can be null
+int GUI_GetTextureResource(const char* in_resource, int flags,
+                           GUI_TexPosition_t* out_metrics); // can be null
 
-int		GUI_GetImageResourceWidth(const char * in_resource);
-int		GUI_GetImageResourceHeight(const char * in_resource);
-int		GUI_GetImageResourceSize(const char * in_resource, int dims[2]);
+int GUI_GetImageResourceWidth(const char* in_resource);
+int GUI_GetImageResourceHeight(const char* in_resource);
+int GUI_GetImageResourceSize(const char* in_resource, int dims[2]);
 
-
-inline float	GUI_Rescale_S(float s, GUI_TexPosition_t * metrics) { return s * metrics->s_rescale; }
-inline float	GUI_Rescale_T(float t, GUI_TexPosition_t * metrics) { return t * metrics->t_rescale; }
+inline float GUI_Rescale_S(float s, GUI_TexPosition_t* metrics)
+{
+    return s * metrics->s_rescale;
+}
+inline float GUI_Rescale_T(float t, GUI_TexPosition_t* metrics)
+{
+    return t * metrics->t_rescale;
+}
 
 // WordWrap a std::string by replacing spaces in it for \n.
 // If the std::string already has some \n in it, be clever as to not insert more than needed.
 // Also be clever about single words longer than the allowed width, don't truncate those.
 
-std::string WordWrap( std::string str, size_t width = 72 );
-
+std::string WordWrap(std::string str, size_t width = 72);
 
 #endif

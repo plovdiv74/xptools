@@ -16,7 +16,7 @@
  * curl_http_get_file
  *
  * curl_http_get_file runs a single asynchronous HTTP request for one file.  It provides delivery
- * in memory or on disk, and can unzip a delivery to disk.  
+ * in memory or on disk, and can unzip a delivery to disk.
  *
  * Operation is truly async - a worker thread is spawned, and the worker thread blocks on network
  * I/O; the worker is destroyed once the connection is completed.
@@ -31,83 +31,78 @@
  *
  */
 
-class	curl_http_get_file {
+class curl_http_get_file
+{
 public:
+    enum
+    {
+        in_progress = 0, // In progress - use get_progress to see percent-DL
+        done_OK = 1,     // Sucessful download - buffer or dest file is now complete.
+        done_error = 2   // Failure of some kind - err code available...
+    };
 
-	enum {
-		in_progress		= 0,		// In progress - use get_progress to see percent-DL
-		done_OK			= 1,		// Sucessful download - buffer or dest file is now complete.
-		done_error		= 2			// Failure of some kind - err code available...
-	};
+    curl_http_get_file(const std::string& inURL, const std::string& outDestFile);
 
-				curl_http_get_file(
-							const std::string&			inURL,
-							const std::string&			outDestFile);
+    curl_http_get_file(const std::string& inURL, std::vector<char>* outDestBuffer);
 
-				curl_http_get_file(
-							const std::string&			inURL,
-							std::vector<char>*			outDestBuffer);
+    curl_http_get_file(const std::string& inURL, const std::string* inPostInfo, const std::string* inPutInfo,
+                       std::vector<char>* outBuffer);
 
-				curl_http_get_file(
-							const std::string&			inURL,
-							const std::string *			inPostInfo,
-							const std::string *			inPutInfo,
-							std::vector<char>*			outBuffer);
-				
-				~curl_http_get_file();
-	
-	// True if the cURL handle has finished downloading or deciding to fail. Next, check if hndl is_okay.
-	bool		is_done(void);
-	bool		is_ok(void);			// IF done, did the op finish without error?
-	
-	//Checks if error code matches a hueristic list indicating a local (client) network problem
-	bool		is_net_fail(void);
+    ~curl_http_get_file();
 
-	float		get_progress(void);		// if nt done, progress, percent, e.g 53.4f;
-	int			get_error(void);		// If done and not ok, what is error
-	void		get_error_data(std::vector<char>& out_data);	// If an error, any stuff the server sent -- might be text, HTML, who knows!
-	const std::string&	get_url() const; //The URL we are attempted to GET from
+    // True if the cURL handle has finished downloading or deciding to fail. Next, check if hndl is_okay.
+    bool is_done(void);
+    bool is_ok(void); // IF done, did the op finish without error?
+
+    // Checks if error code matches a hueristic list indicating a local (client) network problem
+    bool is_net_fail(void);
+
+    float get_progress(void); // if nt done, progress, percent, e.g 53.4f;
+    int get_error(void);      // If done and not ok, what is error
+    void get_error_data(
+        std::vector<char>& out_data);   // If an error, any stuff the server sent -- might be text, HTML, who knows!
+    const std::string& get_url() const; // The URL we are attempted to GET from
 
 private:
+    volatile int m_progress; // Out of 100
+    volatile int m_status;
+    volatile int m_halt;
+    volatile int m_errcode;
 
-		volatile	int			m_progress;		// Out of 100
-		volatile	int			m_status;
-		volatile	int			m_halt;
-		volatile	int			m_errcode;
-		
-		#if IBM
-		HANDLE					m_thread;
-		#else
-		pthread_t				m_thread;
-		#endif
-		
-		static	size_t		write_cb(void *contents, size_t size, size_t nmemb, void *userp);
-		static	size_t		read_cb(void *contents, size_t size, size_t nmemb, void *userp);
-		static	int			progress_cb(void* ptr, double TotalToDownload, double NowDownloaded, double TotalToUpload, double NowUploaded);
+#if IBM
+    HANDLE m_thread;
+#else
+    pthread_t m_thread;
+#endif
 
-		#if IBM
-		static	DWORD WINAPI	thread_proc(void * param);
-		#else
-		static	void *		thread_proc(void * param);
-		#endif
-	
-		std::vector<char>			m_dl_buffer;
-		std::vector<char>*			m_dest_buffer;
-		
-		std::string					m_dest_path;
-		std::string					m_url;
-		std::string					m_post;
-		std::string					m_put;
-		
-		double					m_last_dl_amount;
-		time_t					m_last_data_time;
+    static size_t write_cb(void* contents, size_t size, size_t nmemb, void* userp);
+    static size_t read_cb(void* contents, size_t size, size_t nmemb, void* userp);
+    static int progress_cb(void* ptr, double TotalToDownload, double NowDownloaded, double TotalToUpload,
+                           double NowUploaded);
 
-		curl_http_get_file operator=(const curl_http_get_file & rhs);
-		curl_http_get_file (const curl_http_get_file & copy);
+#if IBM
+    static DWORD WINAPI thread_proc(void* param);
+#else
+    static void* thread_proc(void* param);
+#endif
+
+    std::vector<char> m_dl_buffer;
+    std::vector<char>* m_dest_buffer;
+
+    std::string m_dest_path;
+    std::string m_url;
+    std::string m_post;
+    std::string m_put;
+
+    double m_last_dl_amount;
+    time_t m_last_data_time;
+
+    curl_http_get_file operator=(const curl_http_get_file& rhs);
+    curl_http_get_file(const curl_http_get_file& copy);
 };
 
 // Checks a short list of things that might indicate a net connectivity problem.
-bool	UTL_http_is_error_bad_net(int err);
+bool UTL_http_is_error_bad_net(int err);
 
 #endif /* HAS_GATEWAY */
 

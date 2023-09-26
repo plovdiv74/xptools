@@ -24,16 +24,15 @@
 #define XGUIAPP_H
 
 // These are routines you call on the grinder app.
-void	XGrinder_Quit(void);
+void XGrinder_Quit(void);
 
 // These are routines you must provide!
-void	XGrindFiles(const std::vector<std::string>& fileList);
+void XGrindFiles(const std::vector<std::string>& fileList);
 
 #if LIN
-void	XGrindInit(int& argc, char* argv[]);
+void XGrindInit(int& argc, char* argv[]);
 #else
-void	XGrindInit(void);
-#endif //if LIN
+void XGrindInit(void);
+#endif // if LIN
 
 #endif
-

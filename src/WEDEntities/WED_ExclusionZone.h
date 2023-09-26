@@ -26,21 +26,22 @@
 
 #include "WED_GISBoundingBox.h"
 
-class WED_ExclusionZone : public WED_GISBoundingBox {
+class WED_ExclusionZone : public WED_GISBoundingBox
+{
 
-DECLARE_PERSISTENT(WED_ExclusionZone)
+    DECLARE_PERSISTENT(WED_ExclusionZone)
 
 public:
+    void GetExclusions(std::set<int>& excls) const;
+    void SetExclusions(const std::set<int>& excls);
 
-			void		GetExclusions(		std::set<int>& excls) const;
-			void		SetExclusions(const std::set<int>& excls)	  ;
-
-	virtual const char *	HumanReadableType(void) const { return "Exclusion Zone"; }
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Exclusion Zone";
+    }
 
 private:
-
-	WED_PropIntEnumSet	exclusions;
-
+    WED_PropIntEnumSet exclusions;
 };
 
 #endif /* WED_ExclusionZone_H */

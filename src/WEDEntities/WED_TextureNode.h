@@ -26,23 +26,24 @@
 
 #include "WED_GISPoint.h"
 
-class WED_TextureNode : public WED_GISPoint {
+class WED_TextureNode : public WED_GISPoint
+{
 
-DECLARE_PERSISTENT(WED_TextureNode)
+    DECLARE_PERSISTENT(WED_TextureNode)
 
 public:
+    virtual bool HasLayer(GISLayer_t l) const;
+    virtual void GetLocation(GISLayer_t l, Point2& p) const;
+    virtual void SetLocation(GISLayer_t l, const Point2& p);
 
-	virtual		bool		HasLayer(GISLayer_t l) const;
-	virtual		void		GetLocation	   (GISLayer_t l,      Point2& p) const;
-	virtual		void		SetLocation	   (GISLayer_t l,const Point2& p)      ;
-
-	virtual const char *	HumanReadableType(void) const { return "UV-Mapped Node"; }
+    virtual const char* HumanReadableType(void) const
+    {
+        return "UV-Mapped Node";
+    }
 
 private:
-
-	WED_PropDoubleText			mS;
-	WED_PropDoubleText			mT;
-
+    WED_PropDoubleText mS;
+    WED_PropDoubleText mT;
 };
 
 #endif /* WED_TextureNode_H */

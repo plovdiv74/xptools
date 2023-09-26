@@ -28,15 +28,15 @@
 #include "FileUtils.h"
 
 DEFINE_PERSISTENT(WED_DrapedOrthophoto)
-TRIVIAL_COPY(WED_DrapedOrthophoto,WED_GISPolygon)
+TRIVIAL_COPY(WED_DrapedOrthophoto, WED_GISPolygon)
 
-WED_DrapedOrthophoto::WED_DrapedOrthophoto(WED_Archive * a, int i) : WED_GISPolygon(a,i),
-	resource(this,PROP_Name("Resource",       XML_Name("draped_orthophoto","resource")),  ""),
-	heading (this,PROP_Name("Texture Heading",XML_Name("draped_orthophoto","heading")),   0.0,5,1),
-	top     (this,PROP_Name("Texture Top",    XML_Name("draped_orthophoto","tex_top")),   0.0,6,4),
-	bottom  (this,PROP_Name("Texture Bottom", XML_Name("draped_orthophoto","tex_bottom")),0.0,6,4),
-	left    (this,PROP_Name("Texture Left",   XML_Name("draped_orthophoto","tex_left")),  0.0,6,4),
-	right   (this,PROP_Name("Texture Right",  XML_Name("draped_orthophoto","tex_right")), 0.0,6,4)
+WED_DrapedOrthophoto::WED_DrapedOrthophoto(WED_Archive* a, int i)
+    : WED_GISPolygon(a, i), resource(this, PROP_Name("Resource", XML_Name("draped_orthophoto", "resource")), ""),
+      heading(this, PROP_Name("Texture Heading", XML_Name("draped_orthophoto", "heading")), 0.0, 5, 1),
+      top(this, PROP_Name("Texture Top", XML_Name("draped_orthophoto", "tex_top")), 0.0, 6, 4),
+      bottom(this, PROP_Name("Texture Bottom", XML_Name("draped_orthophoto", "tex_bottom")), 0.0, 6, 4),
+      left(this, PROP_Name("Texture Left", XML_Name("draped_orthophoto", "tex_left")), 0.0, 6, 4),
+      right(this, PROP_Name("Texture Right", XML_Name("draped_orthophoto", "tex_right")), 0.0, 6, 4)
 {
 }
 
@@ -44,24 +44,24 @@ WED_DrapedOrthophoto::~WED_DrapedOrthophoto()
 {
 }
 
-void		WED_DrapedOrthophoto::GetResource(	  std::string& r) const
+void WED_DrapedOrthophoto::GetResource(std::string& r) const
 {
-	r = resource.value;
+    r = resource.value;
 }
 
-void		WED_DrapedOrthophoto::SetResource(const std::string& r)
+void WED_DrapedOrthophoto::SetResource(const std::string& r)
 {
-	resource = r;
+    resource = r;
 }
 
 double WED_DrapedOrthophoto::GetHeading(void) const
 {
-	return heading.value;
+    return heading.value;
 }
 
 void WED_DrapedOrthophoto::SetHeading(double h)
 {
-	heading = h;
+    heading = h;
 }
 
 // this function tells if the resource is a .POL definition (true) or
@@ -69,34 +69,34 @@ void WED_DrapedOrthophoto::SetHeading(double h)
 // Its important, as orthophoto's are allowed to directly refer to the image. In such cases,
 // the .POL, along with a .DDS version of the image, is created when writing the .DSF
 
-bool WED_DrapedOrthophoto::IsNew(std::string * out_suffix) 
+bool WED_DrapedOrthophoto::IsNew(std::string* out_suffix)
 {
-	std::string ext = FILE_get_file_extension(resource.value);
-	
-	if(ext != "pol")
-	{
-		if(out_suffix)
-			*out_suffix = ext;
-		return true;
-	}
-	else
-		return false;
+    std::string ext = FILE_get_file_extension(resource.value);
+
+    if (ext != "pol")
+    {
+        if (out_suffix)
+            *out_suffix = ext;
+        return true;
+    }
+    else
+        return false;
 }
 
-void  WED_DrapedOrthophoto::GetSubTexture(Bbox2& b)
+void WED_DrapedOrthophoto::GetSubTexture(Bbox2& b)
 {
-	b.p1.x_ = left;
-	b.p1.y_ = bottom;
-	b.p2.x_ = right;
-	b.p2.y_ = top;
+    b.p1.x_ = left;
+    b.p1.y_ = bottom;
+    b.p2.x_ = right;
+    b.p2.y_ = top;
 }
 
-void  WED_DrapedOrthophoto::SetSubTexture(const Bbox2& b)
+void WED_DrapedOrthophoto::SetSubTexture(const Bbox2& b)
 {
-	top    = b.p2.y();
-	bottom = b.p1.y();
-	right  = b.p2.x();
-	left   = b.p1.x();
+    top = b.p2.y();
+    bottom = b.p1.y();
+    right = b.p2.x();
+    left = b.p1.x();
 }
 
 // This function recalculates the UV map, stretching the texture to fully cover the polygon.
@@ -109,114 +109,126 @@ void  WED_DrapedOrthophoto::SetSubTexture(const Bbox2& b)
 // to exactly fit the poligon with all of the texture visible.
 
 void WED_DrapedOrthophoto::Redrape(bool updProp)
-{ 
-	// need to do some sanity checking:
-	// During DSF import, properties are being std::set, even before any nodes have been read, i.e. any OuterRing is std::set
-	if (GetNthChild(0) && HasLayer(gis_UV))
-	{
-		Bbox2  ll_box;           // the lon/lat bounding box of the poly - this is what the texture needs to cover
-		Point2 ctr;
+{
+    // need to do some sanity checking:
+    // During DSF import, properties are being std::set, even before any nodes have been read, i.e. any OuterRing is
+    // std::set
+    if (GetNthChild(0) && HasLayer(gis_UV))
+    {
+        Bbox2 ll_box; // the lon/lat bounding box of the poly - this is what the texture needs to cover
+        Point2 ctr;
 
-		Bbox2  uv_box;           // the part of the texture we are actually suppposed to use.
-		GetSubTexture(uv_box);
-		if (uv_box.is_empty())
-			return;              // allows turning off the auto-update by setting the UV coordinates of the polygon to all zero.
-			                     // usefull if UV mapping is std::set by hand for each node, like it was mandatory in WED 1.5.
+        Bbox2 uv_box; // the part of the texture we are actually suppposed to use.
+        GetSubTexture(uv_box);
+        if (uv_box.is_empty())
+            return; // allows turning off the auto-update by setting the UV coordinates of the polygon to all zero.
+                    // usefull if UV mapping is std::set by hand for each node, like it was mandatory in WED 1.5.
 
-		// We want to allow for rotated textures. Thus we have to rotate the coordinates before UV calculation
-		// really doesn't matter around what point we rotate, as long it is somewehre nearby
-		double angle = GetHeading();
+        // We want to allow for rotated textures. Thus we have to rotate the coordinates before UV calculation
+        // really doesn't matter around what point we rotate, as long it is somewehre nearby
+        double angle = GetHeading();
 
-		GetOuterRing()->GetNthPoint(0)->GetLocation(gis_Geo,ctr);   // simply choose the first point as coordinate rotation center
+        GetOuterRing()->GetNthPoint(0)->GetLocation(gis_Geo,
+                                                    ctr); // simply choose the first point as coordinate rotation center
 
-		int nh = GetNumEntities();
+        int nh = GetNumEntities();
 
-		for (int h = 0; h < nh; h++)
-		{
-			IGISPointSequence *ring = h ? GetNthHole(h-1) : GetOuterRing();
-			int np = ring->GetNumPoints();
-			std::vector <BezierPoint2> pt_bak;                    // backup of the coordinates we're going to rotate
-			for(int n = 0; n < np; ++n)
-			{
-				IGISPoint_Bezier *s = dynamic_cast<IGISPoint_Bezier *> (ring->GetNthPoint(n));
-				BezierPoint2 pt;
-				if (s)
-					s->GetBezierLocation(gis_Geo,pt);
-				else
-				{
-					IGISPoint *sp = ring->GetNthPoint(n);
-					Point2 p;
-					sp->GetLocation(gis_Geo,p);
-					pt.pt = p;
-				}
-				pt_bak.push_back(pt);
-			}
-			                                        // now that we have a backup, we can mess with the original without guilt
-			ring->Rotate(gis_Geo, ctr, -angle);     // rotate coordinates to match desired texture heading
-			if (h==0)
-			{
-				ring->GetBounds(gis_Geo, ll_box);     // get the bounding box in _rotated_ coordinates
-				double w=ll_box.xspan()*DEG_TO_MTR_LAT*cos(ctr.y()*DEG_TO_RAD);
-				double l=ll_box.yspan()*DEG_TO_MTR_LAT;
-			}
-			for(int n = 0; n < np; ++n)
-			{
-				IGISPoint *src = ring->GetNthPoint(n);
-				Point2 st,uv;
-				
-				// 4-sided orthos w/no bezier nodes are special. They are always streched to these corners, i.e. distorted.
-				if(h == 0 && np == 4 && !WED_HasBezierSeq(GetOuterRing()))
-				{
-					switch (n)
-					{
-						case 0: uv=uv_box.bottom_left();  break;
-						case 1: uv=uv_box.bottom_right(); break;
-						case 2: uv=uv_box.top_right();    break;
-						case 3: uv=uv_box.top_left();
-								if (updProp)
-								{
-									st = pt_bak[3].pt;
-									double hdg = 0.0;
-									if (st.y()-ctr.y() != 0.0)
-										hdg = RAD_TO_DEG*atan((st.x()-ctr.x())*cos(ctr.y()*DEG_TO_RAD)/(st.y()-ctr.y()));  // very crude heading calculation
-									SetHeading(hdg);
-								}
-					}
-				}
-				else
-				{
-					src->GetLocation(gis_Geo,st);
-					uv = Point2((st.x() - ll_box.xmin()) / ll_box.xspan() * uv_box.xspan() + uv_box.xmin(),
-								(st.y() - ll_box.ymin()) / ll_box.yspan() * uv_box.yspan() + uv_box.ymin());
-				}
-				src->SetLocation(gis_UV,uv);
-				
-				IGISPoint_Bezier * srcb  = dynamic_cast <IGISPoint_Bezier *> (ring->GetNthPoint(n));
-				if(srcb)
-				{
-					if(srcb->GetControlHandleHi(gis_Geo,st))
-					{
-						srcb->SetControlHandleHi(gis_UV,Point2(
-							(st.x() - ll_box.xmin()) / ll_box.xspan() * uv_box.xspan() + uv_box.xmin(),
-							(st.y() - ll_box.ymin()) / ll_box.yspan() * uv_box.yspan() + uv_box.ymin()));
-					}
-					if(srcb->GetControlHandleLo(gis_Geo,st))
-					{
-						srcb->SetControlHandleLo(gis_UV,Point2(
-							(st.x() - ll_box.xmin()) / ll_box.xspan() * uv_box.xspan() + uv_box.xmin(),
-							(st.y() - ll_box.ymin()) / ll_box.yspan() * uv_box.yspan() + uv_box.ymin()));
-					}
-					srcb->SetBezierLocation(gis_Geo,pt_bak[n]);    // restore to coordinate to what they were from the backup
-				}
-				else
-					src->SetLocation(gis_Geo,pt_bak[n].pt);
-			}
-		}
-	}
+        for (int h = 0; h < nh; h++)
+        {
+            IGISPointSequence* ring = h ? GetNthHole(h - 1) : GetOuterRing();
+            int np = ring->GetNumPoints();
+            std::vector<BezierPoint2> pt_bak; // backup of the coordinates we're going to rotate
+            for (int n = 0; n < np; ++n)
+            {
+                IGISPoint_Bezier* s = dynamic_cast<IGISPoint_Bezier*>(ring->GetNthPoint(n));
+                BezierPoint2 pt;
+                if (s)
+                    s->GetBezierLocation(gis_Geo, pt);
+                else
+                {
+                    IGISPoint* sp = ring->GetNthPoint(n);
+                    Point2 p;
+                    sp->GetLocation(gis_Geo, p);
+                    pt.pt = p;
+                }
+                pt_bak.push_back(pt);
+            }
+            // now that we have a backup, we can mess with the original without guilt
+            ring->Rotate(gis_Geo, ctr, -angle); // rotate coordinates to match desired texture heading
+            if (h == 0)
+            {
+                ring->GetBounds(gis_Geo, ll_box); // get the bounding box in _rotated_ coordinates
+                double w = ll_box.xspan() * DEG_TO_MTR_LAT * cos(ctr.y() * DEG_TO_RAD);
+                double l = ll_box.yspan() * DEG_TO_MTR_LAT;
+            }
+            for (int n = 0; n < np; ++n)
+            {
+                IGISPoint* src = ring->GetNthPoint(n);
+                Point2 st, uv;
+
+                // 4-sided orthos w/no bezier nodes are special. They are always streched to these corners, i.e.
+                // distorted.
+                if (h == 0 && np == 4 && !WED_HasBezierSeq(GetOuterRing()))
+                {
+                    switch (n)
+                    {
+                    case 0:
+                        uv = uv_box.bottom_left();
+                        break;
+                    case 1:
+                        uv = uv_box.bottom_right();
+                        break;
+                    case 2:
+                        uv = uv_box.top_right();
+                        break;
+                    case 3:
+                        uv = uv_box.top_left();
+                        if (updProp)
+                        {
+                            st = pt_bak[3].pt;
+                            double hdg = 0.0;
+                            if (st.y() - ctr.y() != 0.0)
+                                hdg = RAD_TO_DEG * atan((st.x() - ctr.x()) * cos(ctr.y() * DEG_TO_RAD) /
+                                                        (st.y() - ctr.y())); // very crude heading calculation
+                            SetHeading(hdg);
+                        }
+                    }
+                }
+                else
+                {
+                    src->GetLocation(gis_Geo, st);
+                    uv = Point2((st.x() - ll_box.xmin()) / ll_box.xspan() * uv_box.xspan() + uv_box.xmin(),
+                                (st.y() - ll_box.ymin()) / ll_box.yspan() * uv_box.yspan() + uv_box.ymin());
+                }
+                src->SetLocation(gis_UV, uv);
+
+                IGISPoint_Bezier* srcb = dynamic_cast<IGISPoint_Bezier*>(ring->GetNthPoint(n));
+                if (srcb)
+                {
+                    if (srcb->GetControlHandleHi(gis_Geo, st))
+                    {
+                        srcb->SetControlHandleHi(
+                            gis_UV, Point2((st.x() - ll_box.xmin()) / ll_box.xspan() * uv_box.xspan() + uv_box.xmin(),
+                                           (st.y() - ll_box.ymin()) / ll_box.yspan() * uv_box.yspan() + uv_box.ymin()));
+                    }
+                    if (srcb->GetControlHandleLo(gis_Geo, st))
+                    {
+                        srcb->SetControlHandleLo(
+                            gis_UV, Point2((st.x() - ll_box.xmin()) / ll_box.xspan() * uv_box.xspan() + uv_box.xmin(),
+                                           (st.y() - ll_box.ymin()) / ll_box.yspan() * uv_box.yspan() + uv_box.ymin()));
+                    }
+                    srcb->SetBezierLocation(gis_Geo,
+                                            pt_bak[n]); // restore to coordinate to what they were from the backup
+                }
+                else
+                    src->SetLocation(gis_Geo, pt_bak[n].pt);
+            }
+        }
+    }
 }
 
-void  WED_DrapedOrthophoto::PropEditCallback(int before)
-{                                             // we want to catch changes of the heading property only, for now
+void WED_DrapedOrthophoto::PropEditCallback(int before)
+{     // we want to catch changes of the heading property only, for now
 #if 0 // DEV
 	static double old = 0.0;
 	if (before)                               // we will _always_ get called twice in succession. Before the edit takes place and after the update.
@@ -234,7 +246,9 @@ void  WED_DrapedOrthophoto::PropEditCallback(int before)
 		fflush(stdout);
 	}
 #else
-	if (!before) Redrape(0);  // updProp=0 prevents the function to issue any property updates.
-	                          // Since we're here in a callback called from a property update, we would get into a infinite reciursive call loop
+    if (!before)
+        Redrape(0); // updProp=0 prevents the function to issue any property updates.
+                    // Since we're here in a callback called from a property update, we would get into a infinite
+                    // reciursive call loop
 #endif
 }

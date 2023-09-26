@@ -22,137 +22,137 @@
  */
 #include "XWinGL.h"
 
-XWinGL::XWinGL(int default_dnd, XWinGL * inShare) :
-	XWin(default_dnd)
+XWinGL::XWinGL(int default_dnd, XWinGL* inShare) : XWin(default_dnd)
 {
-	mDC = ::GetDC(mWindow);
+    mDC = ::GetDC(mWindow);
 
-		PIXELFORMATDESCRIPTOR pfd;
+    PIXELFORMATDESCRIPTOR pfd;
 
-	memset(&pfd,0, sizeof(PIXELFORMATDESCRIPTOR));
-	pfd.nSize     =sizeof(PIXELFORMATDESCRIPTOR);
-	pfd.nVersion  =1;
-	pfd.dwFlags   =PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER;
-	pfd.iPixelType=PFD_TYPE_RGBA;
-	pfd.cColorBits=32;
-	pfd.cDepthBits=32;
-	pfd.iLayerType=PFD_MAIN_PLANE;
+    memset(&pfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
+    pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
+    pfd.nVersion = 1;
+    pfd.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER;
+    pfd.iPixelType = PFD_TYPE_RGBA;
+    pfd.cColorBits = 32;
+    pfd.cDepthBits = 32;
+    pfd.iLayerType = PFD_MAIN_PLANE;
 
-	int pixelFormat = ChoosePixelFormat(mDC, &pfd);
-	if (pixelFormat == 0)
-		throw "no pixel format";
+    int pixelFormat = ChoosePixelFormat(mDC, &pfd);
+    if (pixelFormat == 0)
+        throw "no pixel format";
 
-	if (!SetPixelFormat (mDC, pixelFormat, &pfd))
-		throw "can't std::set pixel format";
+    if (!SetPixelFormat(mDC, pixelFormat, &pfd))
+        throw "can't std::set pixel format";
 
-	mContext = wglCreateContext(mDC);
-	if (!mContext)
-		throw "can't make context";
+    mContext = wglCreateContext(mDC);
+    if (!mContext)
+        throw "can't make context";
 
-   if (inShare)
-	   if (!wglShareLists(inShare->mContext,mContext))
-		   throw "Can't share lists";
+    if (inShare)
+        if (!wglShareLists(inShare->mContext, mContext))
+            throw "Can't share lists";
 
-	if (!wglMakeCurrent(mDC, mContext))
-		throw "can't std::set context";
+    if (!wglMakeCurrent(mDC, mContext))
+        throw "can't std::set context";
 
-	glPixelStorei	(GL_UNPACK_ALIGNMENT,1				);
-	glPixelStorei	(GL_PACK_ALIGNMENT  ,1				);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
-	if(!inShare)
-	{
-		if(GLint err = glewInit())
-		{
-			LOG_MSG("I/WGL glewInit failed\n"); LOG_FLUSH();
-			throw "can't init glew";
-		}
-		else
-			LOG_MSG("I/WGL glewInit OK\n");
-	}
+    if (!inShare)
+    {
+        if (GLint err = glewInit())
+        {
+            LOG_MSG("I/WGL glewInit failed\n");
+            LOG_FLUSH();
+            throw "can't init glew";
+        }
+        else
+            LOG_MSG("I/WGL glewInit OK\n");
+    }
 }
 
-
-XWinGL::XWinGL(int default_dnd, const char * inTitle, int inAttributes, int inX, int inY, int inWidth, int inHeight, XWinGL * inShare) :
-	XWin(default_dnd, inTitle, inAttributes, inX, inY, inWidth, inHeight)
+XWinGL::XWinGL(int default_dnd, const char* inTitle, int inAttributes, int inX, int inY, int inWidth, int inHeight,
+               XWinGL* inShare)
+    : XWin(default_dnd, inTitle, inAttributes, inX, inY, inWidth, inHeight)
 {
-	mDC = ::GetDC(mWindow);
+    mDC = ::GetDC(mWindow);
 
-		PIXELFORMATDESCRIPTOR pfd;
+    PIXELFORMATDESCRIPTOR pfd;
 
-	memset(&pfd,0, sizeof(PIXELFORMATDESCRIPTOR));
-	pfd.nSize     =sizeof(PIXELFORMATDESCRIPTOR);
-	pfd.nVersion  =1;
-	pfd.dwFlags   =PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER;
-	pfd.iPixelType=PFD_TYPE_RGBA;
-	pfd.cColorBits=32;
-	pfd.cDepthBits=32;
-	pfd.iLayerType=PFD_MAIN_PLANE;
+    memset(&pfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
+    pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
+    pfd.nVersion = 1;
+    pfd.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER;
+    pfd.iPixelType = PFD_TYPE_RGBA;
+    pfd.cColorBits = 32;
+    pfd.cDepthBits = 32;
+    pfd.iLayerType = PFD_MAIN_PLANE;
 
-	int pixelFormat = ChoosePixelFormat(mDC, &pfd);
-	if (pixelFormat == 0)
-		throw "no pixel format";
+    int pixelFormat = ChoosePixelFormat(mDC, &pfd);
+    if (pixelFormat == 0)
+        throw "no pixel format";
 
-	if (!SetPixelFormat (mDC, pixelFormat, &pfd))
-		throw "can't std::set pixel format";
+    if (!SetPixelFormat(mDC, pixelFormat, &pfd))
+        throw "can't std::set pixel format";
 
-	mContext = wglCreateContext(mDC);
-	if (!mContext)
-		throw "can't make context";
+    mContext = wglCreateContext(mDC);
+    if (!mContext)
+        throw "can't make context";
 
-	if (inShare)
-		if (!wglShareLists(inShare->mContext,mContext))
-			throw "Can't share lists";
+    if (inShare)
+        if (!wglShareLists(inShare->mContext, mContext))
+            throw "Can't share lists";
 
-	if (!wglMakeCurrent(mDC, mContext))
-			throw "can't std::set context";
+    if (!wglMakeCurrent(mDC, mContext))
+        throw "can't std::set context";
 
-	glPixelStorei	(GL_UNPACK_ALIGNMENT,1				);
-	glPixelStorei	(GL_PACK_ALIGNMENT  ,1				);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
-	if(!inShare)
-	{
-		if(GLint err = glewInit())
-		{
-			LOG_MSG("I/WGL glewInit failed\n"); LOG_FLUSH();
-			throw "can't init glew";
-		}
-		else
-			LOG_MSG("I/WGL glewInit OK\n");
-	}
+    if (!inShare)
+    {
+        if (GLint err = glewInit())
+        {
+            LOG_MSG("I/WGL glewInit failed\n");
+            LOG_FLUSH();
+            throw "can't init glew";
+        }
+        else
+            LOG_MSG("I/WGL glewInit OK\n");
+    }
 }
 
 XWinGL::~XWinGL()
 {
-	wglDeleteContext(mContext);
-	ReleaseDC(mWindow, mDC);
+    wglDeleteContext(mContext);
+    ReleaseDC(mWindow, mDC);
 }
 
-void			XWinGL::SetGLContext(void)
+void XWinGL::SetGLContext(void)
 {
-	wglMakeCurrent(mDC, mContext);
+    wglMakeCurrent(mDC, mContext);
 }
 
-void			XWinGL::SwapBuffer(void)
+void XWinGL::SwapBuffer(void)
 {
-	SwapBuffers(mDC);
+    SwapBuffers(mDC);
 }
 
-HDC				XWinGL::GetDC(void)
+HDC XWinGL::GetDC(void)
 {
-	return mDC;
+    return mDC;
 }
 
-void			XWinGL::Resized(int inWidth, int inHeight)
+void XWinGL::Resized(int inWidth, int inHeight)
 {
-	wglMakeCurrent(mDC, mContext);
-	glViewport(0, 0, inWidth, inHeight);
-	this->GLReshaped(inWidth, inHeight);
+    wglMakeCurrent(mDC, mContext);
+    glViewport(0, 0, inWidth, inHeight);
+    this->GLReshaped(inWidth, inHeight);
 }
 
-void			XWinGL::Update(XContext ctx)
+void XWinGL::Update(XContext ctx)
 {
-	wglMakeCurrent(mDC, mContext);
-	this->GLDraw(); 
-	CHECK_GL_ERR  CHECK_GL_ERR  CHECK_GL_ERR
-	SwapBuffers(mDC);
+    wglMakeCurrent(mDC, mContext);
+    this->GLDraw();
+    CHECK_GL_ERR CHECK_GL_ERR CHECK_GL_ERR SwapBuffers(mDC);
 }

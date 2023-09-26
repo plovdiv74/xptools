@@ -23,182 +23,185 @@
 
 #include "XObjDefs.h"
 
-cmd_info	gCmds[] = {
+cmd_info gCmds[] = {
 
-{	obj_End,			type_None,		"end",				0, 1, 0 },
-{	obj_Light,			type_PtLine,	"light",			1, 1, 0 },
-{   obj_Line,			type_PtLine,    "line",				2, 1, 0 },
-{   obj_Tri,			type_Poly,		"tri",				3, 1, 0 },
-{   obj_Quad,			type_Poly,		"quad",				4, 1, 0 },
-{   obj_Quad_Cockpit,	type_Poly,		"quad_cockpit",		4, 1, 0 },
-{   obj_Quad_Hard,		type_Poly,		"quad_hard",		4, 1, 0 },
-{   obj_Smoke_Black,	type_Attr,		"smoke_black",		4, 1, 1 },
-{   obj_Smoke_White,	type_Attr,		"smoke_white",		4, 1, 1 },
-{   obj_Movie,			type_Poly,		"quad_movie",		4, 1, 0 },
-{   obj_Polygon,		type_Poly,		"polygon",			0, 1, 0 },
-{   obj_Quad_Strip,		type_Poly,		"quad_strip",		0, 1, 0 },
-{   obj_Tri_Strip,		type_Poly,		"tri_strip",		0, 1, 0 },
-{   obj_Tri_Fan,		type_Poly,		"tri_fan",			0, 1, 0 },
-{   attr_Shade_Flat,	type_Attr,		"ATTR_shade_flat",	0, 1, 1 },
-{   attr_Shade_Smooth,	type_Attr,		"ATTR_shade_smooth",0, 1, 1 },
-{   attr_Shade_Flat,	type_Attr,		"shade_flat",		0, 1, 0 },
-{   attr_Shade_Smooth,	type_Attr,		"shade_smooth",		0, 1, 0 },
-{   attr_Ambient_RGB,	type_Attr,		"ATTR_ambient_rgb",	3, 1, 1 },
-{   attr_Diffuse_RGB,	type_Attr,		"ATTR_diffuse_rgb",	3, 1, 1 },
-{   attr_Diffuse_RGB,	type_Attr,		"ATTR_difuse_rgb",	3, 1, 1 },
-{   attr_Emission_RGB,	type_Attr,		"ATTR_emission_rgb",3, 1, 1 },
-{	attr_Specular_RGB,	type_Attr,		"ATTR_specular_rgb",3, 1, 1 },
-{   attr_Shiny_Rat,		type_Attr,		"ATTR_shiny_rat",	1, 1, 1 },
-{   attr_No_Depth,		type_Attr,		"ATTR_no_depth",	0, 1, 1 },
-{	attr_Depth,			type_Attr,		"ATTR_depth",		0, 1, 1 },
-{   attr_LOD,			type_Attr,		"ATTR_LOD",			2, 1, 1 },
-{	attr_Reset,			type_Attr,		"ATTR_reset",		0, 1, 1 },
-{	attr_Cull,			type_Attr,		"ATTR_cull",		0, 1, 1 },
-{	attr_NoCull,		type_Attr,		"ATTR_no_cull",		0, 1, 1 },
-{	attr_Offset,		type_Attr,		"ATTR_poly_os",		1, 1, 1 },
+    {obj_End, type_None, "end", 0, 1, 0},
+    {obj_Light, type_PtLine, "light", 1, 1, 0},
+    {obj_Line, type_PtLine, "line", 2, 1, 0},
+    {obj_Tri, type_Poly, "tri", 3, 1, 0},
+    {obj_Quad, type_Poly, "quad", 4, 1, 0},
+    {obj_Quad_Cockpit, type_Poly, "quad_cockpit", 4, 1, 0},
+    {obj_Quad_Hard, type_Poly, "quad_hard", 4, 1, 0},
+    {obj_Smoke_Black, type_Attr, "smoke_black", 4, 1, 1},
+    {obj_Smoke_White, type_Attr, "smoke_white", 4, 1, 1},
+    {obj_Movie, type_Poly, "quad_movie", 4, 1, 0},
+    {obj_Polygon, type_Poly, "polygon", 0, 1, 0},
+    {obj_Quad_Strip, type_Poly, "quad_strip", 0, 1, 0},
+    {obj_Tri_Strip, type_Poly, "tri_strip", 0, 1, 0},
+    {obj_Tri_Fan, type_Poly, "tri_fan", 0, 1, 0},
+    {attr_Shade_Flat, type_Attr, "ATTR_shade_flat", 0, 1, 1},
+    {attr_Shade_Smooth, type_Attr, "ATTR_shade_smooth", 0, 1, 1},
+    {attr_Shade_Flat, type_Attr, "shade_flat", 0, 1, 0},
+    {attr_Shade_Smooth, type_Attr, "shade_smooth", 0, 1, 0},
+    {attr_Ambient_RGB, type_Attr, "ATTR_ambient_rgb", 3, 1, 1},
+    {attr_Diffuse_RGB, type_Attr, "ATTR_diffuse_rgb", 3, 1, 1},
+    {attr_Diffuse_RGB, type_Attr, "ATTR_difuse_rgb", 3, 1, 1},
+    {attr_Emission_RGB, type_Attr, "ATTR_emission_rgb", 3, 1, 1},
+    {attr_Specular_RGB, type_Attr, "ATTR_specular_rgb", 3, 1, 1},
+    {attr_Shiny_Rat, type_Attr, "ATTR_shiny_rat", 1, 1, 1},
+    {attr_No_Depth, type_Attr, "ATTR_no_depth", 0, 1, 1},
+    {attr_Depth, type_Attr, "ATTR_depth", 0, 1, 1},
+    {attr_LOD, type_Attr, "ATTR_LOD", 2, 1, 1},
+    {attr_Reset, type_Attr, "ATTR_reset", 0, 1, 1},
+    {attr_Cull, type_Attr, "ATTR_cull", 0, 1, 1},
+    {attr_NoCull, type_Attr, "ATTR_no_cull", 0, 1, 1},
+    {attr_Offset, type_Attr, "ATTR_poly_os", 1, 1, 1},
 
-{	obj8_Tris,			type_Indexed,	"TRIS",				2,0,1},
-{	obj8_Lines,			type_Indexed,	"LINES",			2,0,1},
-{	obj8_Lights,		type_Indexed,	"LIGHTS",			2,0,1},
-{	attr_Tex_Normal,	type_Attr,		"ATTR_no_cockpit",	0,0,1},
-{	attr_Tex_Cockpit,	type_Attr,		"ATTR_cockpit",		0,0,1},
-{	attr_No_Blend,		type_Attr,		"ATTR_no_blend",	0,0,1},
-{	attr_Blend,			type_Attr,		"ATTR_blend",		0,0,1},
-{	attr_No_Hard,		type_Attr,		"ATTR_no_hard",		0,0,1},
-{	attr_Hard,			type_Attr,		"ATTR_hard",		0,0,1},
-{	attr_Hard_Deck,		type_Attr,		"ATTR_hard_deck",	0,0,1},
-{	anim_Begin,			type_Anim,		"ANIM_begin",		0,0,1},
-{	anim_End,			type_Anim,		"ANIM_end",			0,0,1},
-{	anim_Rotate,		type_Anim,		"ANIM_rotate",		7,0,1},
-{	anim_Translate,		type_Anim,		"ANIM_trans",		8,0,1},
+    {obj8_Tris, type_Indexed, "TRIS", 2, 0, 1},
+    {obj8_Lines, type_Indexed, "LINES", 2, 0, 1},
+    {obj8_Lights, type_Indexed, "LIGHTS", 2, 0, 1},
+    {attr_Tex_Normal, type_Attr, "ATTR_no_cockpit", 0, 0, 1},
+    {attr_Tex_Cockpit, type_Attr, "ATTR_cockpit", 0, 0, 1},
+    {attr_No_Blend, type_Attr, "ATTR_no_blend", 0, 0, 1},
+    {attr_Blend, type_Attr, "ATTR_blend", 0, 0, 1},
+    {attr_No_Hard, type_Attr, "ATTR_no_hard", 0, 0, 1},
+    {attr_Hard, type_Attr, "ATTR_hard", 0, 0, 1},
+    {attr_Hard_Deck, type_Attr, "ATTR_hard_deck", 0, 0, 1},
+    {anim_Begin, type_Anim, "ANIM_begin", 0, 0, 1},
+    {anim_End, type_Anim, "ANIM_end", 0, 0, 1},
+    {anim_Rotate, type_Anim, "ANIM_rotate", 7, 0, 1},
+    {anim_Translate, type_Anim, "ANIM_trans", 8, 0, 1},
 
-{	obj8_LightCustom,	type_Cust,		"LIGHT_CUSTOM",		14,0,1},
-{	obj8_LightNamed,	type_Cust,		"LIGHT_NAMED",		4 ,0,1},
-{	attr_Layer_Group,	type_Cust,		"ATTR_layer_group",	2 ,0,1},
-{	anim_Hide,			type_Anim,		"ANIM_hide",		3,0,1},
-{	anim_Show,			type_Anim,		"ANIM_show",		3,0,1},
+    {obj8_LightCustom, type_Cust, "LIGHT_CUSTOM", 14, 0, 1},
+    {obj8_LightNamed, type_Cust, "LIGHT_NAMED", 4, 0, 1},
+    {attr_Layer_Group, type_Cust, "ATTR_layer_group", 2, 0, 1},
+    {anim_Hide, type_Anim, "ANIM_hide", 3, 0, 1},
+    {anim_Show, type_Anim, "ANIM_show", 3, 0, 1},
 
-// 900
-{	attr_Tex_Cockpit_Subregion,	type_Attr,	"ATTR_cockpit_region",	1,0,1},
-// 920
-{	attr_Manip_None,		type_Attr,	"ATTR_manip_none",			0,0,1},
-{	attr_Manip_Drag_2d,		type_Attr,	"ATTR_manip_drag_xy",		1,0,1},
-{	attr_Manip_Drag_Axis,	type_Attr,	"ATTR_manip_drag_axis",		1,0,1},
-{	attr_Manip_Command,		type_Attr,	"ATTR_manip_command",		1,0,1},
-{	attr_Manip_Command_Axis,type_Attr,	"ATTR_manip_command_axis",	1,0,1},
-{	attr_Manip_Noop,		type_Attr,	"ATTR_manip_noop",			0,0,1},
-// 930
-{	attr_Light_Level,		type_Attr,	"ATTR_light_level",			1,0,1},
-{	attr_Light_Level_Reset,	type_Attr,	"ATTR_light_level_reset",	0,0,1},
-{	attr_Draw_Disable,		type_Attr,	"ATTR_draw_disable",		0,0,1},
-{	attr_Draw_Enable,		type_Attr,	"ATTR_draw_enable",			0,0,1},
-{	attr_Solid_Wall,		type_Attr,	"ATTR_solid_camera",		0,0,1},
-{	attr_No_Solid_Wall,		type_Attr,	"ATTR_no_solid_camera",		0,0,1},
-// 1000
-{	attr_Draped,			type_Attr,	"ATTR_draped",				0,0,1},
-{	attr_NoDraped,			type_Attr,	"ATTR_no_draped",			0,0,1},
+    // 900
+    {attr_Tex_Cockpit_Subregion, type_Attr, "ATTR_cockpit_region", 1, 0, 1},
+    // 920
+    {attr_Manip_None, type_Attr, "ATTR_manip_none", 0, 0, 1},
+    {attr_Manip_Drag_2d, type_Attr, "ATTR_manip_drag_xy", 1, 0, 1},
+    {attr_Manip_Drag_Axis, type_Attr, "ATTR_manip_drag_axis", 1, 0, 1},
+    {attr_Manip_Command, type_Attr, "ATTR_manip_command", 1, 0, 1},
+    {attr_Manip_Command_Axis, type_Attr, "ATTR_manip_command_axis", 1, 0, 1},
+    {attr_Manip_Noop, type_Attr, "ATTR_manip_noop", 0, 0, 1},
+    // 930
+    {attr_Light_Level, type_Attr, "ATTR_light_level", 1, 0, 1},
+    {attr_Light_Level_Reset, type_Attr, "ATTR_light_level_reset", 0, 0, 1},
+    {attr_Draw_Disable, type_Attr, "ATTR_draw_disable", 0, 0, 1},
+    {attr_Draw_Enable, type_Attr, "ATTR_draw_enable", 0, 0, 1},
+    {attr_Solid_Wall, type_Attr, "ATTR_solid_camera", 0, 0, 1},
+    {attr_No_Solid_Wall, type_Attr, "ATTR_no_solid_camera", 0, 0, 1},
+    // 1000
+    {attr_Draped, type_Attr, "ATTR_draped", 0, 0, 1},
+    {attr_NoDraped, type_Attr, "ATTR_no_draped", 0, 0, 1},
 
-{	attr_Manip_Push,		type_Attr,	"ATTR_manip_push",			1,0,1},
-{	attr_Manip_Radio,		type_Attr,	"ATTR_manip_radio",			1,0,1},
-{	attr_Manip_Toggle,		type_Attr,	"ATTR_manip_toggle",		1,0,1},
-{	attr_Manip_Delta,		type_Attr,	"ATTR_manip_delta",			1,0,1},
-{	attr_Manip_Wrap,		type_Attr,	"ATTR_manip_wrap",			1,0,1},
+    {attr_Manip_Push, type_Attr, "ATTR_manip_push", 1, 0, 1},
+    {attr_Manip_Radio, type_Attr, "ATTR_manip_radio", 1, 0, 1},
+    {attr_Manip_Toggle, type_Attr, "ATTR_manip_toggle", 1, 0, 1},
+    {attr_Manip_Delta, type_Attr, "ATTR_manip_delta", 1, 0, 1},
+    {attr_Manip_Wrap, type_Attr, "ATTR_manip_wrap", 1, 0, 1},
 
-// 1100
+    // 1100
 
-{	attr_Cockpit_Device,					type_Attr,	"ATTR_cockpit_device",	0,	1,	1 },
-{	attr_Cockpit_Lit_Only,					type_Attr,	"ATTR_cockpit_lit_only",	0, 1, 0 },
-{	attr_Manip_Drag_Rotate,					type_Attr,	"ATTR_manip_drag_rotate",	0, 1, 1 },
-{	attr_Manip_Command_Knob2,				type_Attr,	"ATTR_manip_command_knob2",	0, 1, 1 },
-{	attr_Manip_Command_Switch_Up_Down2,		type_Attr,	"ATTR_manip_command_switch_up_down2", 0, 1, 1 },
-{	attr_Manip_Command_Switch_Left_Right2,	type_Attr,	"ATTR_manip_command_switch_left_right2", 0, 1, 1 },
-	
-	// Future particle system...
-// Particles
-{	attr_Emitter,			type_Attr,	"EMITTER",					1,0,1},
+    {attr_Cockpit_Device, type_Attr, "ATTR_cockpit_device", 0, 1, 1},
+    {attr_Cockpit_Lit_Only, type_Attr, "ATTR_cockpit_lit_only", 0, 1, 0},
+    {attr_Manip_Drag_Rotate, type_Attr, "ATTR_manip_drag_rotate", 0, 1, 1},
+    {attr_Manip_Command_Knob2, type_Attr, "ATTR_manip_command_knob2", 0, 1, 1},
+    {attr_Manip_Command_Switch_Up_Down2, type_Attr, "ATTR_manip_command_switch_up_down2", 0, 1, 1},
+    {attr_Manip_Command_Switch_Left_Right2, type_Attr, "ATTR_manip_command_switch_left_right2", 0, 1, 1},
 
-// Magnets
-{	attr_Magnet,			type_Attr,	"MAGNET",					1,0,1},
+    // Future particle system...
+    // Particles
+    {attr_Emitter, type_Attr, "EMITTER", 1, 0, 1},
 
-{   attr_Max,			type_None,		NULL,				0, 0, 0 }
+    // Magnets
+    {attr_Magnet, type_Attr, "MAGNET", 1, 0, 1},
+
+    {attr_Max, type_None, NULL, 0, 0, 0}
 
 };
 
 int gCmdCount = sizeof(gCmds) / sizeof(gCmds[0]);
 
-
-int	FindObjCmd(const char * inToken, bool obj_8)
+int FindObjCmd(const char* inToken, bool obj_8)
 {
-	int n = 0;
-	while (gCmds[n].name)
-	{
-		if (!strcmp(inToken, gCmds[n].name))
-		if ((!obj_8 && gCmds[n].v7) || (obj_8 && gCmds[n].v8))
-			return n;
-		++n;
-	}
+    int n = 0;
+    while (gCmds[n].name)
+    {
+        if (!strcmp(inToken, gCmds[n].name))
+            if ((!obj_8 && gCmds[n].v7) || (obj_8 && gCmds[n].v8))
+                return n;
+        ++n;
+    }
 
-	return sizeof(gCmds) / sizeof(gCmds[0]);
+    return sizeof(gCmds) / sizeof(gCmds[0]);
 }
 
-int	FindIndexForCmd(int inCmd)
+int FindIndexForCmd(int inCmd)
 {
-	int n = 0;
-	while (gCmds[n].name)
-	{
-		if (gCmds[n].cmd_id == inCmd)
-			return n;
-		++n;
-	}
-	return sizeof(gCmds) / sizeof(gCmds[0]);
+    int n = 0;
+    while (gCmds[n].name)
+    {
+        if (gCmds[n].cmd_id == inCmd)
+            return n;
+        ++n;
+    }
+    return sizeof(gCmds) / sizeof(gCmds[0]);
 }
 
 void ObjDataVec::clear(int depth)
 {
-	mData.clear();
-	mData.shrink_to_fit();
-	mDepth = depth;
+    mData.clear();
+    mData.shrink_to_fit();
+    mDepth = depth;
 }
 
 void ObjDataVec::resize(int pts)
 {
-	mData.resize(pts * mDepth);
+    mData.resize(pts * mDepth);
 }
 
 int ObjDataVec::append(const float pt[])
 {
-	int ret = mData.size() / mDepth;
-	mData.insert(mData.end(), pt, pt + mDepth);
-	return ret;
+    int ret = mData.size() / mDepth;
+    mData.insert(mData.end(), pt, pt + mDepth);
+    return ret;
 }
 
 void ObjDataVec::set(int n, const float pt[])
 {
-	memcpy(&mData[n * mDepth], pt, mDepth * sizeof(float));
+    memcpy(&mData[n * mDepth], pt, mDepth * sizeof(float));
 }
 
 int ObjDataVec::count(void) const
 {
-	return mData.size() / mDepth;
+    return mData.size() / mDepth;
 }
 
 const float* ObjDataVec::get(int index) const
 {
-	return &mData[index * mDepth];
+    return &mData[index * mDepth];
 }
 
 void ObjDataVec::get_minmax(float minCoords[3], float maxCoords[3]) const
 {
-	if (mData.empty()) return;
+    if (mData.empty())
+        return;
 
-	minCoords[0] = maxCoords[0] = mData[0];
-	minCoords[1] = maxCoords[1] = mData[1];
-	minCoords[2] = maxCoords[2] = mData[2];
+    minCoords[0] = maxCoords[0] = mData[0];
+    minCoords[1] = maxCoords[1] = mData[1];
+    minCoords[2] = maxCoords[2] = mData[2];
 
-	for (int n = mDepth; n < mData.size(); n += mDepth)
-	{
-		maxCoords[0] = max(maxCoords[0], mData[n + 0]);	minCoords[0] = min(minCoords[0], mData[n + 0]);
-		maxCoords[1] = max(maxCoords[1], mData[n + 1]);	minCoords[1] = min(minCoords[1], mData[n + 1]);
-		maxCoords[2] = max(maxCoords[2], mData[n + 2]);	minCoords[2] = min(minCoords[2], mData[n + 2]);
-	}
+    for (int n = mDepth; n < mData.size(); n += mDepth)
+    {
+        maxCoords[0] = max(maxCoords[0], mData[n + 0]);
+        minCoords[0] = min(minCoords[0], mData[n + 0]);
+        maxCoords[1] = max(maxCoords[1], mData[n + 1]);
+        minCoords[1] = min(minCoords[1], mData[n + 1]);
+        maxCoords[2] = max(maxCoords[2], mData[n + 2]);
+        minCoords[2] = min(minCoords[2], mData[n + 2]);
+    }
 }

@@ -25,10 +25,10 @@
 #include "WED_AutogenPlacement.h"
 
 DEFINE_PERSISTENT(WED_AutogenNode)
-TRIVIAL_COPY(WED_AutogenNode,WED_GISPoint)
+TRIVIAL_COPY(WED_AutogenNode, WED_GISPoint)
 
-WED_AutogenNode::WED_AutogenNode(WED_Archive * a, int i) : WED_GISPoint(a,i)
-	,spawning(this,PROP_Name("Spawn Tiles", XML_Name("autogen_node","spawn_tiles")), 1)
+WED_AutogenNode::WED_AutogenNode(WED_Archive* a, int i)
+    : WED_GISPoint(a, i), spawning(this, PROP_Name("Spawn Tiles", XML_Name("autogen_node", "spawn_tiles")), 1)
 {
 }
 
@@ -36,37 +36,40 @@ WED_AutogenNode::~WED_AutogenNode()
 {
 }
 
-bool	WED_AutogenNode::GetSpawning(void) const
+bool WED_AutogenNode::GetSpawning(void) const
 {
-	return spawning.value;
+    return spawning.value;
 }
 
-void	WED_AutogenNode::SetSpawning(bool sp)
+void WED_AutogenNode::SetSpawning(bool sp)
 {
-	spawning = sp;
+    spawning = sp;
 }
 
-bool	WED_AutogenNode::HasLayer		(GISLayer_t layer	) const
+bool WED_AutogenNode::HasLayer(GISLayer_t layer) const
 {
-	if(layer == gis_Param) return true;
-	return WED_GISPoint::HasLayer(layer);
+    if (layer == gis_Param)
+        return true;
+    return WED_GISPoint::HasLayer(layer);
 }
 
-void	WED_AutogenNode::GetLocation		(GISLayer_t l,       Point2& p) const
+void WED_AutogenNode::GetLocation(GISLayer_t l, Point2& p) const
 {
-	if(l == gis_Param) p = Point2(spawning.value,0.0);
-	else				WED_GISPoint::GetLocation(l, p);
+    if (l == gis_Param)
+        p = Point2(spawning.value, 0.0);
+    else
+        WED_GISPoint::GetLocation(l, p);
 }
 
-void	WED_AutogenNode::GetNthPropertyInfo(int n, PropertyInfo_t& info) const
+void WED_AutogenNode::GetNthPropertyInfo(int n, PropertyInfo_t& info) const
 {
-	if(n == PropertyItemNumber(&spawning))
-		if(auto pp = GetParent()->GetParent())
-			if(auto ags = dynamic_cast<WED_AutogenPlacement *>(pp))
-				if(ags->IsAGBlock())
-				{
-					info.prop_name = "."; // Do not show elevation property if its not relevant
-					return;
-				}
-	WED_Thing::GetNthPropertyInfo(n, info);
+    if (n == PropertyItemNumber(&spawning))
+        if (auto pp = GetParent()->GetParent())
+            if (auto ags = dynamic_cast<WED_AutogenPlacement*>(pp))
+                if (ags->IsAGBlock())
+                {
+                    info.prop_name = "."; // Do not show elevation property if its not relevant
+                    return;
+                }
+    WED_Thing::GetNthPropertyInfo(n, info);
 }

@@ -32,49 +32,69 @@
 #include <GL/gl.h>
 #endif
 
-class	GUI_GraphState;
-class	IGISPointSequence;
-class	IGISPolygon;
-class	WED_MapZoomerNew;
+class GUI_GraphState;
+class IGISPointSequence;
+class IGISPolygon;
+class WED_MapZoomerNew;
 
-inline void glVertex2(const Point2& p) { glVertex2d(p.x(),p.y()); }
-inline void glTexCoord2(const Point2& p) { glTexCoord2d(p.x(),p.y()); }
-
-inline void	glVertex2v(const Point2 * p, int n) { while(n--) { glVertex2d(p->x(),p->y()); ++p; } }
-inline void glShape2v(GLenum mode,  const Point2 * p, int n) { glBegin(mode); glVertex2v(p,n); glEnd(); }
-
-inline void glShapeOffset2v(GLenum mode,  const Point2 * pts, int n, double offset)
+inline void glVertex2(const Point2& p)
 {
-	glBegin(mode);
-	for (int i = 0; i < n; ++i)
-	{
-		Vector2	dir1,dir2;
-		if (i > 0  ) dir1 = Vector2(pts[i-1],pts[i  ]);
-		if (i < n-1) dir2 = Vector2(pts[i  ],pts[i+1]);
-		Vector2	dir = dir1+dir2;
-		dir = dir.perpendicular_ccw();
-		dir.normalize();
-		dir *= offset;
-		glVertex2d(pts[i].x() + dir.dx, pts[i].y() + dir.dy);
-	}
-	glEnd();
+    glVertex2d(p.x(), p.y());
+}
+inline void glTexCoord2(const Point2& p)
+{
+    glTexCoord2d(p.x(), p.y());
 }
 
+inline void glVertex2v(const Point2* p, int n)
+{
+    while (n--)
+    {
+        glVertex2d(p->x(), p->y());
+        ++p;
+    }
+}
+inline void glShape2v(GLenum mode, const Point2* p, int n)
+{
+    glBegin(mode);
+    glVertex2v(p, n);
+    glEnd();
+}
 
-void DrawLineAttrs(const Point2 * pts, int cnt, const std::set<int>& attrs);
-int BezierPtsCount(const Bezier2& b, WED_MapZoomerNew * z);
+inline void glShapeOffset2v(GLenum mode, const Point2* pts, int n, double offset)
+{
+    glBegin(mode);
+    for (int i = 0; i < n; ++i)
+    {
+        Vector2 dir1, dir2;
+        if (i > 0)
+            dir1 = Vector2(pts[i - 1], pts[i]);
+        if (i < n - 1)
+            dir2 = Vector2(pts[i], pts[i + 1]);
+        Vector2 dir = dir1 + dir2;
+        dir = dir.perpendicular_ccw();
+        dir.normalize();
+        dir *= offset;
+        glVertex2d(pts[i].x() + dir.dx, pts[i].y() + dir.dy);
+    }
+    glEnd();
+}
 
-// A note on UV mapping: we encode a point sequence for UV mapping as a std::pair of points, the vertex coord followed by the UV coords.
-// So it's an interleaved array.  This is what PointSequenceToVector returns too.
-void glPolygon2(const std::vector<Point2>& pts, bool has_uv, const std::vector<int>& extra_contours, bool show_all, float height = -1);
+void DrawLineAttrs(const Point2* pts, int cnt, const std::set<int>& attrs);
+int BezierPtsCount(const Bezier2& b, WED_MapZoomerNew* z);
+
+// A note on UV mapping: we encode a point sequence for UV mapping as a std::pair of points, the vertex coord followed
+// by the UV coords. So it's an interleaved array.  This is what PointSequenceToVector returns too.
+void glPolygon2(const std::vector<Point2>& pts, bool has_uv, const std::vector<int>& extra_contours, bool show_all,
+                float height = -1);
 
 // returns if points were dropped due to being indistinguishably close
 void PointSequenceToVector(IGISPointSequence* ps, WED_MapZoomerNew* z, std::vector<Point2>& pts, bool get_uv,
-	bool dupFirst = false   /* duplicate first / last node even on closed rings. Not desired to build polygons, but desired to draw lines */ 
-	);                      
+                           bool dupFirst = false /* duplicate first / last node even on closed rings. Not desired to
+                                                    build polygons, but desired to draw lines */
+);
 
-void SideToPoints(IGISPointSequence * ps, int n, WED_MapZoomerNew * z,  std::vector<Point2>& out_pts);
-void BoxToPoints(const Point2& p1, const Point2& p2, WED_MapZoomerNew * z, std::vector<Point2>& pts);
-
+void SideToPoints(IGISPointSequence* ps, int n, WED_MapZoomerNew* z, std::vector<Point2>& out_pts);
+void BoxToPoints(const Point2& p1, const Point2& p2, WED_MapZoomerNew* z, std::vector<Point2>& pts);
 
 #endif /* WED_DrawUtils_H */

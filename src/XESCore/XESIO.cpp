@@ -27,118 +27,109 @@
 #include "SimpleIO.h"
 #include "EnumSystem.h"
 
-const	int	kMapID = 'MAP1';
-const	int	kDemDirID = 'DEMd';
-const	int	kMeshID = 'MSH1';
+const int kMapID = 'MAP1';
+const int kDemDirID = 'DEMd';
+const int kMeshID = 'MSH1';
 
-const	int	kTokensID = 'TOKN';
+const int kTokensID = 'TOKN';
 
-const	int	kAptID = 'aptD';
+const int kAptID = 'aptD';
 
-void	WriteXESFile(
-				const char *	inFileName,
-				const Pmwx&		inMap,
-					  CDT&		inMesh,
-				DEMGeoMap&		inDEM,
-				const AptVector& inApts,
-				ProgressFunc	inFunc)
+void WriteXESFile(const char* inFileName, const Pmwx& inMap, CDT& inMesh, DEMGeoMap& inDEM, const AptVector& inApts,
+                  ProgressFunc inFunc)
 {
-	FILE * fi = fopen(inFileName, "wb");
-	if (!fi) return;
+    FILE* fi = fopen(inFileName, "wb");
+    if (!fi)
+        return;
 
-	WriteEnumsAtomToFile(fi, gTokens, kTokensID);
-	WriteMap(fi, inMap, inFunc, kMapID);
-	WriteMesh(fi, inMesh, kMeshID, inFunc);
+    WriteEnumsAtomToFile(fi, gTokens, kTokensID);
+    WriteMap(fi, inMap, inFunc, kMapID);
+    WriteMesh(fi, inMesh, kMeshID, inFunc);
 
-	{
-		StAtomWriter	demDir(fi, kDemDirID);
-		FileWriter		writer(fi);
-		writer.WriteInt(inDEM.size());
-		for (DEMGeoMap::iterator dem = inDEM.begin(); dem != inDEM.end(); ++dem)
-			writer.WriteInt(dem->first);
-	}
+    {
+        StAtomWriter demDir(fi, kDemDirID);
+        FileWriter writer(fi);
+        writer.WriteInt(inDEM.size());
+        for (DEMGeoMap::iterator dem = inDEM.begin(); dem != inDEM.end(); ++dem)
+            writer.WriteInt(dem->first);
+    }
 
-	if (!inApts.empty())
-	{
-		StAtomWriter	aptDir(fi, kAptID);
-		WriteAptFileOpen(fi, inApts, LATEST_APT_VERSION);
-	}
+    if (!inApts.empty())
+    {
+        StAtomWriter aptDir(fi, kAptID);
+        WriteAptFileOpen(fi, inApts, LATEST_APT_VERSION);
+    }
 
-	for (DEMGeoMap::iterator dem = inDEM.begin(); dem != inDEM.end(); ++dem)
-	{
-		StAtomWriter	demAtom(fi, dem->first);
-		FileWriter		writer(fi);
-		WriteDEM(dem->second, &writer);
-	}
+    for (DEMGeoMap::iterator dem = inDEM.begin(); dem != inDEM.end(); ++dem)
+    {
+        StAtomWriter demAtom(fi, dem->first);
+        FileWriter writer(fi);
+        WriteDEM(dem->second, &writer);
+    }
 
-	fclose(fi);
+    fclose(fi);
 }
 
-void	ReadXESFile(
-				MFMemFile *		inFile,
-				Pmwx *			inMap,
-				CDT *			inMesh,
-				DEMGeoMap *		inDEM,
-				AptVector *		inApts,
-				ProgressFunc	inFunc)
+void ReadXESFile(MFMemFile* inFile, Pmwx* inMap, CDT* inMesh, DEMGeoMap* inDEM, AptVector* inApts, ProgressFunc inFunc)
 {
-	if (inApts) inApts->clear();
+    if (inApts)
+        inApts->clear();
 
-	XAtomContainer	container;
-	container.begin = (char *) MemFile_GetBegin(inFile);
-	container.end = (char *) MemFile_GetEnd(inFile);
+    XAtomContainer container;
+    container.begin = (char*)MemFile_GetBegin(inFile);
+    container.end = (char*)MemFile_GetEnd(inFile);
 
-	TokenMap			fileTokens;
-	TokenConversionMap 	conversionMap;
+    TokenMap fileTokens;
+    TokenConversionMap conversionMap;
 
-	ReadEnumsAtomFromFile(container, fileTokens, kTokensID);
-	BuildTokenConversionMap(gTokens, fileTokens, conversionMap);
+    ReadEnumsAtomFromFile(container, fileTokens, kTokensID);
+    BuildTokenConversionMap(gTokens, fileTokens, conversionMap);
 
-	XAtom	mapAtom, demAtom, demDirAtom, aptAtom;
-	XSpan	mapAtomData, demAtomData, demDirAtomData, aptAtomData;
+    XAtom mapAtom, demAtom, demDirAtom, aptAtom;
+    XSpan mapAtomData, demAtomData, demDirAtomData, aptAtomData;
 
-	vector<int>	dems;
+    vector<int> dems;
 
-	if (inMap)
-	ReadMap(container, *inMap, inFunc, kMapID, conversionMap);
+    if (inMap)
+        ReadMap(container, *inMap, inFunc, kMapID, conversionMap);
 
-	if (inMesh)
-	ReadMesh(container, *inMesh, kMeshID, conversionMap, inFunc);
+    if (inMesh)
+        ReadMesh(container, *inMesh, kMeshID, conversionMap, inFunc);
 
-	if (container.GetNthAtomOfID(kDemDirID, 0, demDirAtom))
-	{
-		demDirAtom.GetContents(demDirAtomData);
-		MemFileReader	reader(demDirAtomData.begin, demDirAtomData.end);
-		int count, demID;
-		reader.ReadInt(count);
-		while (count--)
-		{
-			reader.ReadInt(demID);
-			dems.push_back(demID);
-		}
-	}
+    if (container.GetNthAtomOfID(kDemDirID, 0, demDirAtom))
+    {
+        demDirAtom.GetContents(demDirAtomData);
+        MemFileReader reader(demDirAtomData.begin, demDirAtomData.end);
+        int count, demID;
+        reader.ReadInt(count);
+        while (count--)
+        {
+            reader.ReadInt(demID);
+            dems.push_back(demID);
+        }
+    }
 
-	if (inApts)
-	if (container.GetNthAtomOfID(kAptID, 0, aptAtom))
-	{
-		aptAtom.GetContents(aptAtomData);
-		ReadAptFileMem(aptAtomData.begin, aptAtomData.end, *inApts);
-	}
+    if (inApts)
+        if (container.GetNthAtomOfID(kAptID, 0, aptAtom))
+        {
+            aptAtom.GetContents(aptAtomData);
+            ReadAptFileMem(aptAtomData.begin, aptAtomData.end, *inApts);
+        }
 
-	if (inDEM)
-	for (int i = 0; i < dems.size(); ++i)
-	{
-		if (container.GetNthAtomOfID(dems[i], 0, demAtom))
-		{
-			demAtom.GetContents(demAtomData);
-			MemFileReader	reader(demAtomData.begin, demAtomData.end);
-			DEMGeo	aDem;
-			ReadDEM(aDem, &reader);
-			int demID = conversionMap[dems[i]];
-			if (demID == dem_LandUse || demID == dem_Climate)	// || demID == dem_NudeColor)
-				RemapEnumDEM(aDem, conversionMap);
-			//inDEM->insert(DEMGeoMap::value_type(demID, aDem));
-			(*inDEM)[demID] = aDem;
-		}
-	}
+    if (inDEM)
+        for (int i = 0; i < dems.size(); ++i)
+        {
+            if (container.GetNthAtomOfID(dems[i], 0, demAtom))
+            {
+                demAtom.GetContents(demAtomData);
+                MemFileReader reader(demAtomData.begin, demAtomData.end);
+                DEMGeo aDem;
+                ReadDEM(aDem, &reader);
+                int demID = conversionMap[dems[i]];
+                if (demID == dem_LandUse || demID == dem_Climate) // || demID == dem_NudeColor)
+                    RemapEnumDEM(aDem, conversionMap);
+                // inDEM->insert(DEMGeoMap::value_type(demID, aDem));
+                (*inDEM)[demID] = aDem;
+            }
+        }
 }

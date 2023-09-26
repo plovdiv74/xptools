@@ -24,64 +24,78 @@
 #ifndef WED_UNDOLAYER_H
 #define WED_UNDOLAYER_H
 
-class	WED_Archive;
-class	WED_Buffer;
-class	WED_FastBuffer;
-class	WED_FastBufferGroup;
-class	WED_Persistent;
+class WED_Archive;
+class WED_Buffer;
+class WED_FastBuffer;
+class WED_FastBufferGroup;
+class WED_Persistent;
 
-#define 	UNDO_DISCARD	((WED_UndoLayer *) -1)
+#define UNDO_DISCARD ((WED_UndoLayer*)-1)
 
-
-class	WED_UndoLayer {
+class WED_UndoLayer
+{
 public:
+    WED_UndoLayer(WED_Archive* inArchive, const std::string& inName, const char* file, int line);
+    ~WED_UndoLayer(void);
 
-				WED_UndoLayer(WED_Archive * inArchive, const std::string& inName, const char * file, int line);
-				~WED_UndoLayer(void);
+    void ObjectCreated(WED_Persistent* inObject);
+    void ObjectChanged(WED_Persistent* inObject, int change_kind);
+    void ObjectDestroyed(WED_Persistent* inObject);
 
-		void 	ObjectCreated(WED_Persistent * inObject);
-		void	ObjectChanged(WED_Persistent * inObject, int change_kind);
-		void	ObjectDestroyed(WED_Persistent * inObject);
+    void Execute(void);
 
-		void	Execute(void);
+    std::string GetName(void) const
+    {
+        return mName;
+    }
+    const char* GetFile(void) const
+    {
+        return mFile;
+    }
+    int GetLine(void) const
+    {
+        return mLine;
+    }
+    bool Empty(void) const
+    {
+        return mObjects.empty();
+    }
 
-		std::string	GetName(void) const { return mName; }
-		const char * GetFile(void) const { return mFile; }
-		int		GetLine(void) const { return mLine; }
-		bool	Empty(void) const { return mObjects.empty(); }
-
-		int		GetChangeMask(void) { return mChangeMask; }
+    int GetChangeMask(void)
+    {
+        return mChangeMask;
+    }
 
 private:
+    enum LayerOp
+    {
+        op_Created,
+        op_Changed,
+        op_Destroyed
+    };
 
-	enum LayerOp {
-			op_Created,
-			op_Changed,
-			op_Destroyed
-	};
+    struct ObjInfo
+    {
+        LayerOp op;
+        int id;
+        const char* the_class;
+        WED_FastBuffer* buffer;
+    };
 
-	struct ObjInfo {
-		LayerOp				op;
-		int					id;
-		const char *		the_class;
-		WED_FastBuffer *	buffer;
-	};
+    typedef std::hash_map<int, ObjInfo> ObjInfoMap;
 
-	typedef std::hash_map<int, ObjInfo>		ObjInfoMap;
+    ObjInfoMap mObjects;
+    WED_Archive* mArchive;
+    std::string mName;
+    const char* mFile;
+    int mLine;
+    int mChangeMask;
+    WED_FastBufferGroup* mStorage;
 
-	ObjInfoMap				mObjects;
-	WED_Archive *			mArchive;
-	std::string					mName;
-	const char *			mFile;
-	int						mLine;
-	int						mChangeMask;
-	WED_FastBufferGroup *	mStorage;
-
-	// Things we do not allow
-	WED_UndoLayer();
-	WED_UndoLayer(const WED_UndoLayer&);
-	WED_UndoLayer& operator=(const WED_UndoLayer&);
-
+    // Things we do not allow
+    WED_UndoLayer();
+    WED_UndoLayer(const WED_UndoLayer&);
+    WED_UndoLayer& operator=(const WED_UndoLayer&);
 };
 
 #endif /* WED_UNDOLAYER_H */

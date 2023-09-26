@@ -27,14 +27,13 @@
 #include "GUI_Commander.h"
 #include "GUI_Pane.h"
 
-class GUI_ChangeView : public GUI_Pane, public GUI_Commander {
+class GUI_ChangeView : public GUI_Pane, public GUI_Commander
+{
 public:
+    GUI_ChangeView(GUI_Commander* parent);
+    virtual ~GUI_ChangeView();
 
-					 GUI_ChangeView(GUI_Commander * parent);
-	virtual			~GUI_ChangeView();
-
-	void			SetSubView(int n);
-
+    void SetSubView(int n);
 };
 
 #endif /* GUI_ChangeView_H */

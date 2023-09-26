@@ -25,12 +25,12 @@
 #include "WED_EnumSystem.h"
 
 DEFINE_PERSISTENT(WED_ForestPlacement)
-TRIVIAL_COPY(WED_ForestPlacement,WED_GISPolygon)
+TRIVIAL_COPY(WED_ForestPlacement, WED_GISPolygon)
 
-WED_ForestPlacement::WED_ForestPlacement(WED_Archive * a, int i) : WED_GISPolygon(a,i),
-	density(this,PROP_Name("Density",     XML_Name("forest_placement","density")),10.0,3,1),
-	fill_mode(this,PROP_Name("Fill Mode", XML_Name("forest_placement","closed")),ForestFill, forest_Fill),
-	resource(this,PROP_Name("Resource",   XML_Name("forest_placement","resource")), "")
+WED_ForestPlacement::WED_ForestPlacement(WED_Archive* a, int i)
+    : WED_GISPolygon(a, i), density(this, PROP_Name("Density", XML_Name("forest_placement", "density")), 10.0, 3, 1),
+      fill_mode(this, PROP_Name("Fill Mode", XML_Name("forest_placement", "closed")), ForestFill, forest_Fill),
+      resource(this, PROP_Name("Resource", XML_Name("forest_placement", "resource")), "")
 {
 }
 
@@ -40,30 +40,30 @@ WED_ForestPlacement::~WED_ForestPlacement()
 
 double WED_ForestPlacement::GetDensity(void) const
 {
-	return density.value;
+    return density.value;
 }
 
 void WED_ForestPlacement::SetDensity(double h)
 {
-	density = h;
+    density = h;
 }
 
-void		WED_ForestPlacement::GetResource(	  std::string& r) const
+void WED_ForestPlacement::GetResource(std::string& r) const
 {
-	r = resource.value;
+    r = resource.value;
 }
 
-void		WED_ForestPlacement::SetResource(const std::string& r)
+void WED_ForestPlacement::SetResource(const std::string& r)
 {
-	resource = r;
+    resource = r;
 }
 
-int			WED_ForestPlacement::GetFillMode(void) const
+int WED_ForestPlacement::GetFillMode(void) const
 {
-	return ENUM_Export(fill_mode.value);
+    return ENUM_Export(fill_mode.value);
 }
 
-void		WED_ForestPlacement::SetFillMode(int mode)
+void WED_ForestPlacement::SetFillMode(int mode)
 {
-	fill_mode = ENUM_Import(ForestFill, mode);
+    fill_mode = ENUM_Import(ForestFill, mode);
 }

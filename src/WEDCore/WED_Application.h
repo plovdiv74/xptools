@@ -29,55 +29,50 @@
 #include "GUI_Listener.h"
 #include "GUI_Broadcaster.h"
 #include "GUI_TextField.h"
-//#include "GUI_Destroyable.h"
+// #include "GUI_Destroyable.h"
 
 class WED_Settings;
 class GUI_Button;
 class GUI_Packer;
 
-
-class	WED_Application : public GUI_Application {
+class WED_Application : public GUI_Application
+{
 public:
 #if LIN
-	WED_Application(int & argc, char* argv[]);
+    WED_Application(int& argc, char* argv[]);
 #elif APL
-	WED_Application(int argc, char const * const * argv);
+    WED_Application(int argc, char const* const* argv);
 #else // Windows groups all of its cmdline args into a single std::string
-	WED_Application(const char * arg);
+    WED_Application(const char* arg);
 #endif
-	virtual			~WED_Application();
+    virtual ~WED_Application();
 
-	virtual	void	OpenFiles(const std::vector<std::string>& inFiles);
-	virtual	void	AboutBox(void);
-	virtual	void	Preferences(void);
-	virtual	bool	CanQuit(void);
+    virtual void OpenFiles(const std::vector<std::string>& inFiles);
+    virtual void AboutBox(void);
+    virtual void Preferences(void);
+    virtual bool CanQuit(void);
 
-	virtual	int		HandleCommand(int command);
-	virtual	int		CanHandleCommand(int command, std::string& ioName, int& ioCheck);
+    virtual int HandleCommand(int command);
+    virtual int CanHandleCommand(int command, std::string& ioName, int& ioCheck);
 
 private:
-
-	GUI_Window   * mAboutBox;
-	WED_Settings * mSettingsWin;
+    GUI_Window* mAboutBox;
+    WED_Settings* mSettingsWin;
 };
 
-class WED_Settings : public GUI_Window , public GUI_Listener, public GUI_Broadcaster {
+class WED_Settings : public GUI_Window, public GUI_Listener, public GUI_Broadcaster
+{
 public:
-						 WED_Settings(GUI_Commander * cmdr);
-	virtual				~WED_Settings() {};
-	
-	virtual bool Closed(void);
+    WED_Settings(GUI_Commander* cmdr);
+    virtual ~WED_Settings(){};
 
-	virtual	void ReceiveMessage(
-					GUI_Broadcaster *	inSrc,
-					intptr_t    		inMsg,
-					intptr_t			inParam);
+    virtual bool Closed(void);
+
+    virtual void ReceiveMessage(GUI_Broadcaster* inSrc, intptr_t inMsg, intptr_t inParam);
 
 private:
-
-	GUI_TextField * mCustom_box;
-	GUI_TextField * mFont_box;
+    GUI_TextField* mCustom_box;
+    GUI_TextField* mFont_box;
 };
 
 #endif
-

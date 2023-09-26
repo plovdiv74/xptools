@@ -28,8 +28,8 @@
 DEFINE_PERSISTENT(WED_Sealane)
 TRIVIAL_COPY(WED_Sealane, WED_GISLine_Width)
 
-WED_Sealane::WED_Sealane(WED_Archive * a, int i) : WED_GISLine_Width(a,i),
-	buoys(this,PROP_Name("Show Buoys", XML_Name("sealane","has_buoys")),1)
+WED_Sealane::WED_Sealane(WED_Archive* a, int i)
+    : WED_GISLine_Width(a, i), buoys(this, PROP_Name("Show Buoys", XML_Name("sealane", "has_buoys")), 1)
 {
 }
 
@@ -37,40 +37,38 @@ WED_Sealane::~WED_Sealane()
 {
 }
 
-void	WED_Sealane::SetBuoys(int x)
+void WED_Sealane::SetBuoys(int x)
 {
-	buoys = x;
+    buoys = x;
 }
 
-void	WED_Sealane::Import(const AptSealane_t& x, void (* print_func)(void *, const char *, ...), void * ref)
+void WED_Sealane::Import(const AptSealane_t& x, void (*print_func)(void*, const char*, ...), void* ref)
 {
-	GetSource()->SetLocation(gis_Geo,x.ends.p1  );
-	GetTarget()->SetLocation(gis_Geo,x.ends.p2  );
-				 SetWidth	(x.width_mtr);
-	std::string	full = x.id[0] + std::string("/") + x.id[1];
-	SetName(full);
-	buoys = intlim(x.has_buoys,0,1);
+    GetSource()->SetLocation(gis_Geo, x.ends.p1);
+    GetTarget()->SetLocation(gis_Geo, x.ends.p2);
+    SetWidth(x.width_mtr);
+    std::string full = x.id[0] + std::string("/") + x.id[1];
+    SetName(full);
+    buoys = intlim(x.has_buoys, 0, 1);
 }
 
-
-
-void	WED_Sealane::Export(		 AptSealane_t& x) const
+void WED_Sealane::Export(AptSealane_t& x) const
 {
-	GetSource()->GetLocation(gis_Geo,x.ends.p1  );
-	GetTarget()->GetLocation(gis_Geo,x.ends.p2  );
-							 x.width_mtr = GetWidth();
-	std::string	full;
-	GetName(full);
-	std::string::size_type p = full.find('/');
-	if (p == full.npos)
-	{
-		x.id[0] = full;
-		x.id[1] = "xxx";
-	}
-	else
-	{
-		x.id[0] = full.substr(0,p);
-		x.id[1] = full.substr(p+1);
-	}
-	x.has_buoys = intlim(buoys,0,1);
+    GetSource()->GetLocation(gis_Geo, x.ends.p1);
+    GetTarget()->GetLocation(gis_Geo, x.ends.p2);
+    x.width_mtr = GetWidth();
+    std::string full;
+    GetName(full);
+    std::string::size_type p = full.find('/');
+    if (p == full.npos)
+    {
+        x.id[0] = full;
+        x.id[1] = "xxx";
+    }
+    else
+    {
+        x.id[0] = full.substr(0, p);
+        x.id[1] = full.substr(p + 1);
+    }
+    x.has_buoys = intlim(buoys, 0, 1);
 }

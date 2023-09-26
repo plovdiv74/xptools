@@ -26,40 +26,38 @@
 
 #include "WED_GISPoint.h"
 
-class	WED_GISPoint_Bezier : public WED_GISPoint, public virtual IGISPoint_Bezier {
+class WED_GISPoint_Bezier : public WED_GISPoint, public virtual IGISPoint_Bezier
+{
 
-DECLARE_INTERMEDIATE(WED_GISPoint_Bezier)
+    DECLARE_INTERMEDIATE(WED_GISPoint_Bezier)
 
 public:
+    // IGISEntity
+    virtual GISClass_t GetGISClass(void) const;
+    virtual void Rescale(GISLayer_t l, const Bbox2& old_bounds, const Bbox2& new_bounds);
+    virtual void Rotate(GISLayer_t l, const Point2& center, double angle);
+    // IGISPoint_Bezier
 
-	// IGISEntity
-	virtual	GISClass_t		GetGISClass		(void				 ) const;
-	virtual	void			Rescale			(GISLayer_t l, const Bbox2& old_bounds, const Bbox2& new_bounds);
-	virtual	void			Rotate			(GISLayer_t l, const Point2& center, double angle);
-	// IGISPoint_Bezier
+    virtual bool GetControlHandleLo(GISLayer_t l, Point2& p) const;
+    virtual bool GetControlHandleHi(GISLayer_t l, Point2& p) const;
+    virtual bool IsSplit(void) const;
+    virtual void GetBezierLocation(GISLayer_t layer, BezierPoint2& p) const;
 
-	virtual	bool	GetControlHandleLo (GISLayer_t l,       Point2& p) const;
-	virtual	bool	GetControlHandleHi (GISLayer_t l,       Point2& p) const;
-	virtual	bool	IsSplit			   (void		   ) const;
-	virtual	void	GetBezierLocation  (GISLayer_t layer, BezierPoint2& p) const;
-
-	virtual	void	SetControlHandleLo (GISLayer_t l, const Point2& p)      ;
-	virtual	void	SetControlHandleHi (GISLayer_t l, const Point2& p)      ;
-	virtual	void	DeleteHandleLo	   (void		   )	  ;
-	virtual	void	DeleteHandleHi	   (void		   )	  ;
-	virtual	void	SetSplit		   (bool is_split  )	  ;
-	virtual	void	SetBezierLocation  (GISLayer_t layer, const BezierPoint2& p);
-//			void	Reverse_		   (void		   )	  ;
+    virtual void SetControlHandleLo(GISLayer_t l, const Point2& p);
+    virtual void SetControlHandleHi(GISLayer_t l, const Point2& p);
+    virtual void DeleteHandleLo(void);
+    virtual void DeleteHandleHi(void);
+    virtual void SetSplit(bool is_split);
+    virtual void SetBezierLocation(GISLayer_t layer, const BezierPoint2& p);
+    //			void	Reverse_		   (void		   )	  ;
 
 private:
+    WED_PropBoolText is_split;
 
-		WED_PropBoolText		is_split;
-
-		WED_PropDoubleText		ctrl_lat_lo;			// NOTE: THESE ARE STORED AS DELTAS!!!
-		WED_PropDoubleText		ctrl_lon_lo;
-		WED_PropDoubleText		ctrl_lat_hi;
-		WED_PropDoubleText		ctrl_lon_hi;
-
+    WED_PropDoubleText ctrl_lat_lo; // NOTE: THESE ARE STORED AS DELTAS!!!
+    WED_PropDoubleText ctrl_lon_lo;
+    WED_PropDoubleText ctrl_lat_hi;
+    WED_PropDoubleText ctrl_lon_hi;
 };
 
 #endif /* WED_GISPOINT_BEZIER_H */

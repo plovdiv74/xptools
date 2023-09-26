@@ -26,6 +26,6 @@
 #include "ParamDefs.h"
 #include "DEMTables.h"
 
-void	CreateBeaches(Pmwx& ioMap)
+void CreateBeaches(Pmwx& ioMap)
 {
 }

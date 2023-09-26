@@ -27,498 +27,492 @@
 #include "WED_XMLWriter.h"
 #include <algorithm>
 
-WED_Thing::WED_Thing(WED_Archive * parent, int id) :
-	WED_Persistent(parent, id),
-	type(this),
-	name(this,PROP_Name("Name", XML_Name("hierarchy","name")),"unnamed entity")
+WED_Thing::WED_Thing(WED_Archive* parent, int id)
+    : WED_Persistent(parent, id), type(this),
+      name(this, PROP_Name("Name", XML_Name("hierarchy", "name")), "unnamed entity")
 {
-	parent_id = 0;
+    parent_id = 0;
 }
 
 WED_Thing::~WED_Thing()
 {
 }
 
-void WED_Thing::CopyFrom(const WED_Thing * rhs)
+void WED_Thing::CopyFrom(const WED_Thing* rhs)
 {
-	StateChanged();
+    StateChanged();
 
-	int nn = rhs->CountChildren();
-	for (int n = 0; n < nn; ++n)
-	{
-		WED_Thing * child = rhs->GetNthChild(n);
-		WED_Thing * new_child = dynamic_cast<WED_Thing *>(child->Clone());
-		new_child->SetParent(this, n);
-	}
+    int nn = rhs->CountChildren();
+    for (int n = 0; n < nn; ++n)
+    {
+        WED_Thing* child = rhs->GetNthChild(n);
+        WED_Thing* new_child = dynamic_cast<WED_Thing*>(child->Clone());
+        new_child->SetParent(this, n);
+    }
 
-	viewer_id.clear();		// I am a clone.  No one is REALLY watching me.
+    viewer_id.clear(); // I am a clone.  No one is REALLY watching me.
 
-	source_id = rhs->source_id;
-	nn = CountSources();						// But I am YET ANOTHER observer of my sources...
-	for(int n = 0; n < nn; ++n)						// go register with my parent now!
-	{
-		WED_Thing * the_src = GetNthSource(n);
-		if(the_src->viewer_id.count(GetID())==0)
-			the_src->AddViewer(GetID());
-	}
+    source_id = rhs->source_id;
+    nn = CountSources();         // But I am YET ANOTHER observer of my sources...
+    for (int n = 0; n < nn; ++n) // go register with my parent now!
+    {
+        WED_Thing* the_src = GetNthSource(n);
+        if (the_src->viewer_id.count(GetID()) == 0)
+            the_src->AddViewer(GetID());
+    }
 
-	int pc = rhs->CountProperties();
-	for (int p = 0; p < pc; ++p)
-	{
-		PropertyInfo_t i;
-		PropertyVal_t v;
-		rhs->GetNthPropertyInfo(p, i);
-		if(i.can_edit && !i.synthetic)
-		{
-			rhs->GetNthProperty(p, v);
-			this->SetNthProperty(p, v);
-		}
-	}
+    int pc = rhs->CountProperties();
+    for (int p = 0; p < pc; ++p)
+    {
+        PropertyInfo_t i;
+        PropertyVal_t v;
+        rhs->GetNthPropertyInfo(p, i);
+        if (i.can_edit && !i.synthetic)
+        {
+            rhs->GetNthProperty(p, v);
+            this->SetNthProperty(p, v);
+        }
+    }
 }
 
-bool 			WED_Thing::ReadFrom(IOReader * reader)
+bool WED_Thing::ReadFrom(IOReader* reader)
 {
-	int ct;
-	reader->ReadInt(parent_id);
+    int ct;
+    reader->ReadInt(parent_id);
 
-	// Children
-	reader->ReadInt(ct);
-	child_id.resize(ct);
-	for (int n = 0; n < ct; ++n)
-		reader->ReadInt(child_id[n]);
+    // Children
+    reader->ReadInt(ct);
+    child_id.resize(ct);
+    for (int n = 0; n < ct; ++n)
+        reader->ReadInt(child_id[n]);
 
-	// Viewers
-	viewer_id.clear();
-	reader->ReadInt(ct);
-	for(int n = 0; n < ct; ++n)
-	{
-		int vid;
-		reader->ReadInt(vid);
-		viewer_id.insert(vid);
-	}
+    // Viewers
+    viewer_id.clear();
+    reader->ReadInt(ct);
+    for (int n = 0; n < ct; ++n)
+    {
+        int vid;
+        reader->ReadInt(vid);
+        viewer_id.insert(vid);
+    }
 
-	// Sources
-	reader->ReadInt(ct);
-	source_id.resize(ct);
-	for(int n = 0; n < ct; ++n)
-		reader->ReadInt(source_id[n]);
+    // Sources
+    reader->ReadInt(ct);
+    source_id.resize(ct);
+    for (int n = 0; n < ct; ++n)
+        reader->ReadInt(source_id[n]);
 
-	ReadPropsFrom(reader);
-	return false;
+    ReadPropsFrom(reader);
+    return false;
 }
 
-void 			WED_Thing::WriteTo(IOWriter * writer)
+void WED_Thing::WriteTo(IOWriter* writer)
 {
-	writer->WriteInt(parent_id);
+    writer->WriteInt(parent_id);
 
-	// Children
-	writer->WriteInt(child_id.size());
-	for (int n = 0; n < child_id.size(); ++n)
-		writer->WriteInt(child_id[n]);
+    // Children
+    writer->WriteInt(child_id.size());
+    for (int n = 0; n < child_id.size(); ++n)
+        writer->WriteInt(child_id[n]);
 
-	// Viewers
-	writer->WriteInt(viewer_id.size());
-	for(std::set<int>::iterator vid = viewer_id.begin(); vid != viewer_id.end(); ++vid)
-		writer->WriteInt(*vid);
+    // Viewers
+    writer->WriteInt(viewer_id.size());
+    for (std::set<int>::iterator vid = viewer_id.begin(); vid != viewer_id.end(); ++vid)
+        writer->WriteInt(*vid);
 
-	//Sources
-	writer->WriteInt(source_id.size());
-	for(int n = 0; n < source_id.size(); ++n)
-		writer->WriteInt(source_id[n]);
+    // Sources
+    writer->WriteInt(source_id.size());
+    for (int n = 0; n < source_id.size(); ++n)
+        writer->WriteInt(source_id[n]);
 
-	WritePropsTo(writer);
+    WritePropsTo(writer);
 }
 
-void			WED_Thing::ToXML(WED_XMLElement * parent)
+void WED_Thing::ToXML(WED_XMLElement* parent)
 {
-	WED_XMLElement * obj = parent->add_sub_element("object");
+    WED_XMLElement* obj = parent->add_sub_element("object");
 
-	obj->add_attr_c_str("class",this->GetClass());
-	obj->add_attr_int("id",GetID());
-	obj->add_attr_int("parent_id",parent_id);
+    obj->add_attr_c_str("class", this->GetClass());
+    obj->add_attr_int("id", GetID());
+    obj->add_attr_int("parent_id", parent_id);
 
-	if(source_id.size())
-	{
-		WED_XMLElement * src = obj->add_sub_element("sources");
-		for(int n = 0; n < source_id.size(); ++n)
-		{
-			WED_XMLElement * s = src->add_sub_element("source");
-			s->add_attr_int("id",source_id[n]);
-		}
-	}
-	if(viewer_id.size())
-	{
-		WED_XMLElement * vwr = obj->add_sub_element("viewers");
-		for(std::set<int>::iterator v = viewer_id.begin(); v != viewer_id.end(); ++v)
-		{
-			WED_XMLElement * vi = vwr->add_sub_element("viewer");
-			vi->add_attr_int("id",*v);
-		}
-	}
-//	if(child_id.size())  // would be nice to skip this, too. But wed-O-maker won't like that for now.
-	{
-		WED_XMLElement * chld = obj->add_sub_element("children");
-		for(int n = 0; n < child_id.size(); ++n)
-		{
-			WED_XMLElement * c = chld->add_sub_element("child");
-			c->add_attr_int("id",child_id[n]);
-		}
-	}
-	WED_PropertyHelper::PropsToXML(obj);
-	this->AddExtraXML(obj);
+    if (source_id.size())
+    {
+        WED_XMLElement* src = obj->add_sub_element("sources");
+        for (int n = 0; n < source_id.size(); ++n)
+        {
+            WED_XMLElement* s = src->add_sub_element("source");
+            s->add_attr_int("id", source_id[n]);
+        }
+    }
+    if (viewer_id.size())
+    {
+        WED_XMLElement* vwr = obj->add_sub_element("viewers");
+        for (std::set<int>::iterator v = viewer_id.begin(); v != viewer_id.end(); ++v)
+        {
+            WED_XMLElement* vi = vwr->add_sub_element("viewer");
+            vi->add_attr_int("id", *v);
+        }
+    }
+    //	if(child_id.size())  // would be nice to skip this, too. But wed-O-maker won't like that for now.
+    {
+        WED_XMLElement* chld = obj->add_sub_element("children");
+        for (int n = 0; n < child_id.size(); ++n)
+        {
+            WED_XMLElement* c = chld->add_sub_element("child");
+            c->add_attr_int("id", child_id[n]);
+        }
+    }
+    WED_PropertyHelper::PropsToXML(obj);
+    this->AddExtraXML(obj);
 }
 
-void	WED_Thing::FromXML(WED_XMLReader * reader, const XML_Char ** atts)
+void WED_Thing::FromXML(WED_XMLReader* reader, const XML_Char** atts)
 {
-	const XML_Char ** a = atts;
-	reader->PushHandler(this);
-	const char * pid = get_att("parent_id",atts);
-	if(!pid) reader->FailWithError("No parent ID");
-	parent_id = atoi(pid);
-	child_id.clear();
-	source_id.clear();
+    const XML_Char** a = atts;
+    reader->PushHandler(this);
+    const char* pid = get_att("parent_id", atts);
+    if (!pid)
+        reader->FailWithError("No parent ID");
+    parent_id = atoi(pid);
+    child_id.clear();
+    source_id.clear();
 }
 
-void		WED_Thing::StartElement(
-								WED_XMLReader * reader,
-								const XML_Char *	name,
-								const XML_Char **	atts)
+void WED_Thing::StartElement(WED_XMLReader* reader, const XML_Char* name, const XML_Char** atts)
 {
-	if(strcmp(name,"viewer")==0)
-	{
-		const char * id = get_att("id",atts);
-		if(!id)
-			reader->FailWithError("no id");
-		viewer_id.insert(atoi(id));
-	}
-	else if(strcmp(name,"source")==0)
-	{
-		const char * id = get_att("id",atts);
-		if(!id)
-			reader->FailWithError("no id");
-		source_id.push_back(atoi(id));
-	}
-	else if(strcmp(name,"child") == 0)
-	{
-		const char * id = get_att("id",atts);
-		if(!id)
-			reader->FailWithError("no id");
-		child_id.push_back(atoi(id));
-	}
-	else
-		WED_PropertyHelper::StartElement(reader,name,atts);
+    if (strcmp(name, "viewer") == 0)
+    {
+        const char* id = get_att("id", atts);
+        if (!id)
+            reader->FailWithError("no id");
+        viewer_id.insert(atoi(id));
+    }
+    else if (strcmp(name, "source") == 0)
+    {
+        const char* id = get_att("id", atts);
+        if (!id)
+            reader->FailWithError("no id");
+        source_id.push_back(atoi(id));
+    }
+    else if (strcmp(name, "child") == 0)
+    {
+        const char* id = get_att("id", atts);
+        if (!id)
+            reader->FailWithError("no id");
+        child_id.push_back(atoi(id));
+    }
+    else
+        WED_PropertyHelper::StartElement(reader, name, atts);
 }
 
-void		WED_Thing::EndElement(void)
-{
-}
-
-void		WED_Thing::PopHandler(void)
+void WED_Thing::EndElement(void)
 {
 }
 
-void	WED_Thing::PostChangeNotify(void)
+void WED_Thing::PopHandler(void)
 {
 }
 
-int					WED_Thing::CountChildren(void) const
+void WED_Thing::PostChangeNotify(void)
 {
-	return child_id.size();
 }
 
-WED_Thing *		WED_Thing::GetNthChild(int n) const
+int WED_Thing::CountChildren(void) const
 {
-	if (child_id.empty())     // prevent SIGSEGV
-		return NULL;
-	else
-		return STATIC_CAST(WED_Thing,FetchPeer(child_id[n]));
+    return child_id.size();
 }
 
-WED_Thing *		WED_Thing::GetNamedChild(const std::string& s) const
+WED_Thing* WED_Thing::GetNthChild(int n) const
 {
-	int c = CountChildren();
-	for (int n = 0; n < c; ++n)
-	{
-		WED_Thing * t = GetNthChild(n);
-		if (t)
-		{
-			std::string n;
-			t->GetName(n);
-			if (s==n)
-				return t;
-		}
-	}
-	return NULL;
+    if (child_id.empty()) // prevent SIGSEGV
+        return NULL;
+    else
+        return STATIC_CAST(WED_Thing, FetchPeer(child_id[n]));
 }
 
-int					WED_Thing::CountSources(void) const
+WED_Thing* WED_Thing::GetNamedChild(const std::string& s) const
 {
-	return source_id.size();
+    int c = CountChildren();
+    for (int n = 0; n < c; ++n)
+    {
+        WED_Thing* t = GetNthChild(n);
+        if (t)
+        {
+            std::string n;
+            t->GetName(n);
+            if (s == n)
+                return t;
+        }
+    }
+    return NULL;
 }
 
-WED_Thing *			WED_Thing::GetNthSource(int n) const
+int WED_Thing::CountSources(void) const
 {
-	return STATIC_CAST(WED_Thing,FetchPeer(source_id[n]));
+    return source_id.size();
 }
 
-int					WED_Thing::CountViewers(void) const
+WED_Thing* WED_Thing::GetNthSource(int n) const
 {
-	return viewer_id.size();
+    return STATIC_CAST(WED_Thing, FetchPeer(source_id[n]));
 }
 
-void WED_Thing::GetAllViewers(std::set<WED_Thing *>& out_viewers) const
+int WED_Thing::CountViewers(void) const
 {
-	out_viewers.clear();
-	for(std::set<int>::iterator i = viewer_id.begin(); i != viewer_id.end(); ++i)
-	{
-		WED_Thing * v = STATIC_CAST(WED_Thing, FetchPeer(*i));
-		DebugAssert(v);
-		if(v)
-			out_viewers.insert(v);
-	}
+    return viewer_id.size();
 }
 
-
-void	WED_Thing::GetName(std::string& n) const
+void WED_Thing::GetAllViewers(std::set<WED_Thing*>& out_viewers) const
 {
-	n = name.value;
+    out_viewers.clear();
+    for (std::set<int>::iterator i = viewer_id.begin(); i != viewer_id.end(); ++i)
+    {
+        WED_Thing* v = STATIC_CAST(WED_Thing, FetchPeer(*i));
+        DebugAssert(v);
+        if (v)
+            out_viewers.insert(v);
+    }
 }
 
-void	WED_Thing::SetName(const std::string& n)
+void WED_Thing::GetName(std::string& n) const
 {
-	name = n;
+    n = name.value;
 }
 
-WED_Thing *		WED_Thing::GetParent(void) const
+void WED_Thing::SetName(const std::string& n)
 {
-	return STATIC_CAST(WED_Thing,FetchPeer(parent_id));
+    name = n;
 }
 
-void				WED_Thing::SetParent(WED_Thing * parent, int nth)
+WED_Thing* WED_Thing::GetParent(void) const
 {
-	StateChanged(wed_Change_Topology);
-	WED_Thing * old_parent = STATIC_CAST(WED_Thing, FetchPeer(parent_id));
-	if (old_parent) old_parent->RemoveChild(GetID());
-	parent_id = parent ? parent->GetID() : 0;
-	if (parent) parent->AddChild(GetID(),nth);
+    return STATIC_CAST(WED_Thing, FetchPeer(parent_id));
 }
 
-void				WED_Thing::AddSource(WED_Thing * src, int nth)
+void WED_Thing::SetParent(WED_Thing* parent, int nth)
 {
-	DebugAssert(nth >= 0);
-	DebugAssert(nth <= source_id.size());
-	StateChanged(wed_Change_Topology);
-	source_id.insert(source_id.begin()+nth,src->GetID());
-	if(src->viewer_id.count(GetID())==0)
-		src->AddViewer(GetID());
+    StateChanged(wed_Change_Topology);
+    WED_Thing* old_parent = STATIC_CAST(WED_Thing, FetchPeer(parent_id));
+    if (old_parent)
+        old_parent->RemoveChild(GetID());
+    parent_id = parent ? parent->GetID() : 0;
+    if (parent)
+        parent->AddChild(GetID(), nth);
 }
 
-void				WED_Thing::RemoveSource(WED_Thing * src)
+void WED_Thing::AddSource(WED_Thing* src, int nth)
 {
-	std::vector<int>::iterator k = find(source_id.begin(), source_id.end(), src->GetID());
-	DebugAssert(k != source_id.end());
-	DebugAssert(src->viewer_id.count(GetID()) > 0);
-	StateChanged(wed_Change_Topology);
-
-	while(k != source_id.end())
-	{
-		source_id.erase(k);
-		k = find(source_id.begin(), source_id.end(), src->GetID());
-	}
-
-	src->RemoveViewer(GetID());
+    DebugAssert(nth >= 0);
+    DebugAssert(nth <= source_id.size());
+    StateChanged(wed_Change_Topology);
+    source_id.insert(source_id.begin() + nth, src->GetID());
+    if (src->viewer_id.count(GetID()) == 0)
+        src->AddViewer(GetID());
 }
 
-void	WED_Thing::ReplaceSource(WED_Thing * old, WED_Thing * rep)
+void WED_Thing::RemoveSource(WED_Thing* src)
 {
-	int old_id = old->GetID();
-	int new_id = rep->GetID();
-	DebugAssert(old->viewer_id.count(GetID()) > 0);
-	old->RemoveViewer(GetID());
+    std::vector<int>::iterator k = find(source_id.begin(), source_id.end(), src->GetID());
+    DebugAssert(k != source_id.end());
+    DebugAssert(src->viewer_id.count(GetID()) > 0);
+    StateChanged(wed_Change_Topology);
 
-	StateChanged();
-	int subs =0;
-	for(std::vector<int>::iterator s = source_id.begin(); s != source_id.end(); ++s)
-	if(*s == old_id)
-	{
-		++subs;
-		*s = new_id;
-	}
-	DebugAssert(subs > 0);
-	if(rep->viewer_id.count(GetID()) == 0)
-		rep->AddViewer(GetID());
+    while (k != source_id.end())
+    {
+        source_id.erase(k);
+        k = find(source_id.begin(), source_id.end(), src->GetID());
+    }
+
+    src->RemoveViewer(GetID());
 }
 
-
-int			WED_Thing::GetMyPosition(void) const
+void WED_Thing::ReplaceSource(WED_Thing* old, WED_Thing* rep)
 {
-	WED_Thing * parent = STATIC_CAST(WED_Thing, FetchPeer(parent_id));
-	if (!parent) return 0;
-	std::vector<int>::iterator i = find(parent->child_id.begin(), parent->child_id.end(), this->GetID());
-	return distance(parent->child_id.begin(), i);
+    int old_id = old->GetID();
+    int new_id = rep->GetID();
+    DebugAssert(old->viewer_id.count(GetID()) > 0);
+    old->RemoveViewer(GetID());
+
+    StateChanged();
+    int subs = 0;
+    for (std::vector<int>::iterator s = source_id.begin(); s != source_id.end(); ++s)
+        if (*s == old_id)
+        {
+            ++subs;
+            *s = new_id;
+        }
+    DebugAssert(subs > 0);
+    if (rep->viewer_id.count(GetID()) == 0)
+        rep->AddViewer(GetID());
 }
 
-void				WED_Thing::AddChild(int id, int n)
+int WED_Thing::GetMyPosition(void) const
 {
-	StateChanged(wed_Change_Topology);
-	DebugAssert(n >= 0);
-	DebugAssert(n <= child_id.size());
-	std::vector<int>::iterator i = find(child_id.begin(),child_id.end(),id);
-	DebugAssert(i == child_id.end());
-	child_id.insert(child_id.begin()+n,id);
+    WED_Thing* parent = STATIC_CAST(WED_Thing, FetchPeer(parent_id));
+    if (!parent)
+        return 0;
+    std::vector<int>::iterator i = find(parent->child_id.begin(), parent->child_id.end(), this->GetID());
+    return distance(parent->child_id.begin(), i);
 }
 
-void				WED_Thing::RemoveChild(int id)
+void WED_Thing::AddChild(int id, int n)
 {
-	StateChanged(wed_Change_Topology);
-	std::vector<int>::iterator i = find(child_id.begin(),child_id.end(),id);
-	DebugAssert(i != child_id.end());
-	child_id.erase(i);
+    StateChanged(wed_Change_Topology);
+    DebugAssert(n >= 0);
+    DebugAssert(n <= child_id.size());
+    std::vector<int>::iterator i = find(child_id.begin(), child_id.end(), id);
+    DebugAssert(i == child_id.end());
+    child_id.insert(child_id.begin() + n, id);
 }
 
-void		WED_Thing::AddViewer(int id)
+void WED_Thing::RemoveChild(int id)
 {
-	StateChanged(wed_Change_Topology);
-	DebugAssert(viewer_id.count(id) == 0);
-	viewer_id.insert(id);
+    StateChanged(wed_Change_Topology);
+    std::vector<int>::iterator i = find(child_id.begin(), child_id.end(), id);
+    DebugAssert(i != child_id.end());
+    child_id.erase(i);
 }
 
-void		WED_Thing::RemoveViewer(int id)
+void WED_Thing::AddViewer(int id)
 {
-	StateChanged(wed_Change_Topology);
-	DebugAssert(viewer_id.count(id) != 0);
-	viewer_id.erase(id);
+    StateChanged(wed_Change_Topology);
+    DebugAssert(viewer_id.count(id) == 0);
+    viewer_id.insert(id);
 }
 
-
-void		WED_Thing::PropEditCallback(int before)
+void WED_Thing::RemoveViewer(int id)
 {
-	if (before)
-		StateChanged(wed_Change_Properties);
+    StateChanged(wed_Change_Topology);
+    DebugAssert(viewer_id.count(id) != 0);
+    viewer_id.erase(id);
 }
 
-int					WED_Thing::CountSubs(void)
+void WED_Thing::PropEditCallback(int before)
 {
-	return CountChildren();
+    if (before)
+        StateChanged(wed_Change_Properties);
 }
 
-IPropertyObject *	WED_Thing::GetNthSub(int n)
+int WED_Thing::CountSubs(void)
 {
-	return GetNthChild(n);
+    return CountChildren();
 }
 
-
-int				WED_Thing::Array_Count (void )
+IPropertyObject* WED_Thing::GetNthSub(int n)
 {
-	return CountChildren();
+    return GetNthChild(n);
 }
 
-IBase *		WED_Thing::Array_GetNth(int n)
+int WED_Thing::Array_Count(void)
 {
-	return GetNthChild(n);
+    return CountChildren();
 }
 
-IBase *		WED_Thing::Directory_Find(const char * name)
+IBase* WED_Thing::Array_GetNth(int n)
 {
-	return GetNamedChild(name);
+    return GetNthChild(n);
 }
 
-void	WED_Thing::__StartOperation(const char * op_name, const char * inFile, int inLine)
+IBase* WED_Thing::Directory_Find(const char* name)
 {
-	__StartCommand(op_name, inFile, inLine);
+    return GetNamedChild(name);
 }
 
-void	WED_Thing::CommitOperation(void)
+void WED_Thing::__StartOperation(const char* op_name, const char* inFile, int inLine)
 {
-	CommitCommand();
+    __StartCommand(op_name, inFile, inLine);
 }
 
-void	WED_Thing::AbortOperation(void)
+void WED_Thing::CommitOperation(void)
 {
-	AbortCommand();
+    CommitCommand();
 }
 
-
-void	WED_Thing::Validate(void)
+void WED_Thing::AbortOperation(void)
 {
-	if(parent_id != 0)
-	{
-		WED_Thing * p = SAFE_CAST(WED_Thing,FetchPeer(parent_id));
-		DebugAssert(p);
-		std::vector<int>::iterator me = find(p->child_id.begin(),p->child_id.end(), GetID());
-		DebugAssert(me != p->child_id.end());
-	}
+    AbortCommand();
+}
 
-	for(std::vector<int>::iterator c = child_id.begin(); c != child_id.end(); ++c)
-	{
-		WED_Thing * cc = SAFE_CAST(WED_Thing,FetchPeer(*c));
-		DebugAssert(cc);
-		DebugAssert(cc->parent_id == GetID());
-	}
+void WED_Thing::Validate(void)
+{
+    if (parent_id != 0)
+    {
+        WED_Thing* p = SAFE_CAST(WED_Thing, FetchPeer(parent_id));
+        DebugAssert(p);
+        std::vector<int>::iterator me = find(p->child_id.begin(), p->child_id.end(), GetID());
+        DebugAssert(me != p->child_id.end());
+    }
 
-	for(std::vector<int>::iterator s = source_id.begin(); s != source_id.end(); ++s)
-	{
-		WED_Thing * ss = SAFE_CAST(WED_Thing,FetchPeer(*s));
-		DebugAssert(ss);
-		DebugAssert(ss->viewer_id.count(GetID()) > 0);
-	}
+    for (std::vector<int>::iterator c = child_id.begin(); c != child_id.end(); ++c)
+    {
+        WED_Thing* cc = SAFE_CAST(WED_Thing, FetchPeer(*c));
+        DebugAssert(cc);
+        DebugAssert(cc->parent_id == GetID());
+    }
 
-	for(std::set<int>::iterator v = viewer_id.begin(); v != viewer_id.end(); ++v)
-	{
-		WED_Thing * vv = SAFE_CAST(WED_Thing,FetchPeer(*v));
-		DebugAssert(vv);
-		std::vector<int>::iterator me = find(vv->source_id.begin(), vv->source_id.end(), GetID());
-		DebugAssert(me != vv->source_id.end());
-	}
+    for (std::vector<int>::iterator s = source_id.begin(); s != source_id.end(); ++s)
+    {
+        WED_Thing* ss = SAFE_CAST(WED_Thing, FetchPeer(*s));
+        DebugAssert(ss);
+        DebugAssert(ss->viewer_id.count(GetID()) > 0);
+    }
+
+    for (std::set<int>::iterator v = viewer_id.begin(); v != viewer_id.end(); ++v)
+    {
+        WED_Thing* vv = SAFE_CAST(WED_Thing, FetchPeer(*v));
+        DebugAssert(vv);
+        std::vector<int>::iterator me = find(vv->source_id.begin(), vv->source_id.end(), GetID());
+        DebugAssert(me != vv->source_id.end());
+    }
 }
 
 #pragma mark -
 
-WED_TypeField::WED_TypeField(WED_Thing * t) : WED_PropertyItem(t, "Class", 0)
+WED_TypeField::WED_TypeField(WED_Thing* t) : WED_PropertyItem(t, "Class", 0)
 {
 }
 
-
-void		WED_TypeField::GetPropertyInfo(PropertyInfo_t& info)
+void WED_TypeField::GetPropertyInfo(PropertyInfo_t& info)
 {
-	info.can_delete = false;
-	info.can_edit = 0;
-	info.prop_kind = prop_String;
-	info.prop_name = "Class";
-	info.synthetic = 0;
+    info.can_delete = false;
+    info.can_edit = 0;
+    info.prop_kind = prop_String;
+    info.prop_name = "Class";
+    info.synthetic = 0;
 }
 
-void		WED_TypeField::GetPropertyDict(PropertyDict_t& dict)
-{
-}
-
-void		WED_TypeField::GetPropertyDictItem(int e, std::string& item)
+void WED_TypeField::GetPropertyDict(PropertyDict_t& dict)
 {
 }
 
-void		WED_TypeField::GetProperty(PropertyVal_t& v) const
-{
-	v.prop_kind = prop_String;
-	v.string_val = dynamic_cast<WED_Thing*>(GetParent())->HumanReadableType();
-}
-
-void		WED_TypeField::SetProperty(const PropertyVal_t& val, WED_PropertyHelper * parent)
+void WED_TypeField::GetPropertyDictItem(int e, std::string& item)
 {
 }
 
-void 		WED_TypeField::ReadFrom(IOReader * reader)
+void WED_TypeField::GetProperty(PropertyVal_t& v) const
+{
+    v.prop_kind = prop_String;
+    v.string_val = dynamic_cast<WED_Thing*>(GetParent())->HumanReadableType();
+}
+
+void WED_TypeField::SetProperty(const PropertyVal_t& val, WED_PropertyHelper* parent)
 {
 }
 
-void 		WED_TypeField::WriteTo(IOWriter * writer)
+void WED_TypeField::ReadFrom(IOReader* reader)
 {
 }
 
-void		WED_TypeField::ToXML(WED_XMLElement * parent)
+void WED_TypeField::WriteTo(IOWriter* writer)
 {
 }
 
-bool		WED_TypeField::WantsAttribute(const char * ele, const char * att_name, const char * att_value)
+void WED_TypeField::ToXML(WED_XMLElement* parent)
 {
-	return false;
+}
+
+bool WED_TypeField::WantsAttribute(const char* ele, const char* att_name, const char* att_value)
+{
+    return false;
 }

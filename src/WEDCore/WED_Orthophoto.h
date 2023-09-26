@@ -16,7 +16,8 @@ class WED_Ring;
 class WED_MapZoomerNew;
 struct Point2;
 
-WED_Ring * WED_RingfromImage(char * path, WED_Archive * arch, WED_MapZoomerNew * zoomer, bool use_bezier, std::vector<Point2> * gcp = nullptr);
-void	WED_MakeOrthos(IResolver * in_resolver, WED_MapZoomerNew * zoomer);
+WED_Ring* WED_RingfromImage(char* path, WED_Archive* arch, WED_MapZoomerNew* zoomer, bool use_bezier,
+                            std::vector<Point2>* gcp = nullptr);
+void WED_MakeOrthos(IResolver* in_resolver, WED_MapZoomerNew* zoomer);
 
 #endif /* WED_Orthophoto_h */

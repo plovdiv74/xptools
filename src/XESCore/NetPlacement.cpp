@@ -37,7 +37,7 @@
 #endif
 
 // Move a bridge N meters to simlify it
-#define	BRIDGE_TURN_SIMPLIFY	20
+#define BRIDGE_TURN_SIMPLIFY 20
 
 #define DEBUG_BEZIERS 0
 
@@ -72,20 +72,22 @@ void	MakeHalfedgeOneway(Pmwx::Halfedge_handle he)
  ******************************************************************************************/
 #pragma mark -
 
-Net_ChainInfo_t * Net_JunctionInfo_t::get_other(Net_ChainInfo_t * me)
+Net_ChainInfo_t* Net_JunctionInfo_t::get_other(Net_ChainInfo_t* me)
 {
-	DebugAssert(chains.size() == 2);
-	Net_ChainInfoSet::iterator iter = chains.begin();
+    DebugAssert(chains.size() == 2);
+    Net_ChainInfoSet::iterator iter = chains.begin();
 
-	Net_ChainInfo_t * one = *iter++;
-	Net_ChainInfo_t * two = *iter++;
-	if (me == one) return two;
-	if (me == two) return one;
-	DebugAssert(!"Not found!");
-	return me;
+    Net_ChainInfo_t* one = *iter++;
+    Net_ChainInfo_t* two = *iter++;
+    if (me == one)
+        return two;
+    if (me == two)
+        return one;
+    DebugAssert(!"Not found!");
+    return me;
 }
 
-//double		Net_JunctionInfo_t::GetMatchingAngle(Net_ChainInfo_t * chain1, Net_ChainInfo_t * chain2)
+// double		Net_JunctionInfo_t::GetMatchingAngle(Net_ChainInfo_t * chain1, Net_ChainInfo_t * chain2)
 //{
 //	Vector3	vec1 = chain1->vector_to_junc(this);
 //	Vector3	vec2 = chain2->vector_to_junc(this);
@@ -96,133 +98,134 @@ Net_ChainInfo_t * Net_JunctionInfo_t::get_other(Net_ChainInfo_t * me)
 //	if (chain1->rep_type == chain2->rep_type)
 //		dot += 1.0;
 //	return dot;
-//}
+// }
 
-int			Net_JunctionInfo_t::GetLayerForChain(Net_ChainInfo_t * me)
+int Net_JunctionInfo_t::GetLayerForChain(Net_ChainInfo_t* me)
 {
-	if(me->start_junction == this) return me->start_layer;
-	if(me->end_junction == this) return me->end_layer;	
-		Assert(!"Not found");
-	return 0;
+    if (me->start_junction == this)
+        return me->start_layer;
+    if (me->end_junction == this)
+        return me->end_layer;
+    Assert(!"Not found");
+    return 0;
 }
 
-void		Net_JunctionInfo_t::SetLayerForChain(Net_ChainInfo_t * me, int l)
+void Net_JunctionInfo_t::SetLayerForChain(Net_ChainInfo_t* me, int l)
 {
-	if(me->start_junction == this) me->start_layer = l;
-	else if(me->end_junction == this) me->end_layer = l;
-	else	Assert(!"Not found");
+    if (me->start_junction == this)
+        me->start_layer = l;
+    else if (me->end_junction == this)
+        me->end_layer = l;
+    else
+        Assert(!"Not found");
 }
 
-Net_ChainInfo_t *		Net_JunctionInfo_t::GetNeighborLimit(Net_ChainInfo_t * me, bool is_ccw_limit)
+Net_ChainInfo_t* Net_JunctionInfo_t::GetNeighborLimit(Net_ChainInfo_t* me, bool is_ccw_limit)
 {
-	DebugAssert(chains.count(me) > 0);
-	int layer = this->GetLayerForChain(me);
-	
-	Vector2	my_dir = me->dir_out_of_junc(this);
-	my_dir.normalize();
-	
-	Net_ChainInfo_t * best = nullptr;
-	double best_dot = 0.0f;
-	
-	for(Net_ChainInfoSet::iterator c = chains.begin(); c != chains.end(); ++c)
-	if((*c != me))
-	if(this->GetLayerForChain(*c) == layer)
-	{
-		Vector2 c_dir = (*c)->dir_out_of_junc(this);
-		if(c_dir.dot(my_dir) > 0.0)
-		{
-			if((is_ccw_limit && !my_dir.right_turn(c_dir)) ||
-				(!is_ccw_limit && !my_dir.left_turn(c_dir)))
-			{
-				c_dir.normalize();
-				double c_dot = c_dir.dot(my_dir);
-				if(c_dot > best_dot)
-				{
-					best = *c;
-					best_dot = c_dot;
-				}
-			}
-		}
-	}
-	return best;
+    DebugAssert(chains.count(me) > 0);
+    int layer = this->GetLayerForChain(me);
+
+    Vector2 my_dir = me->dir_out_of_junc(this);
+    my_dir.normalize();
+
+    Net_ChainInfo_t* best = nullptr;
+    double best_dot = 0.0f;
+
+    for (Net_ChainInfoSet::iterator c = chains.begin(); c != chains.end(); ++c)
+        if ((*c != me))
+            if (this->GetLayerForChain(*c) == layer)
+            {
+                Vector2 c_dir = (*c)->dir_out_of_junc(this);
+                if (c_dir.dot(my_dir) > 0.0)
+                {
+                    if ((is_ccw_limit && !my_dir.right_turn(c_dir)) || (!is_ccw_limit && !my_dir.left_turn(c_dir)))
+                    {
+                        c_dir.normalize();
+                        double c_dot = c_dir.dot(my_dir);
+                        if (c_dot > best_dot)
+                        {
+                            best = *c;
+                            best_dot = c_dot;
+                        }
+                    }
+                }
+            }
+    return best;
 }
 
-
-void	Net_ChainInfo_t::reverse(void)
+void Net_ChainInfo_t::reverse(void)
 {
-	swap(start_junction, end_junction);
-	swap(start_layer, end_layer);
-	for (int n = 0; n < shape.size() / 2; ++n)
-	{
-		swap(shape[n], shape[shape.size()-n-1]);
-//		swap(agl[n], agl[shape.size()-n-1]);
-//		swap(power_crossing[n], power_crossing[shape.size()-n-1]);
-	}
+    swap(start_junction, end_junction);
+    swap(start_layer, end_layer);
+    for (int n = 0; n < shape.size() / 2; ++n)
+    {
+        swap(shape[n], shape[shape.size() - n - 1]);
+        //		swap(agl[n], agl[shape.size()-n-1]);
+        //		swap(power_crossing[n], power_crossing[shape.size()-n-1]);
+    }
 }
 
-//int				Net_ChainInfo_t::pt_count(void)
+// int				Net_ChainInfo_t::pt_count(void)
 //{
 //	return	shape.size() + 2;
-//}
+// }
 //
-//int				Net_ChainInfo_t::seg_count(void)
+// int				Net_ChainInfo_t::seg_count(void)
 //{
 //	return shape.size() + 1;
-//}
+// }
 //
-//Point3		Net_ChainInfo_t::nth_pt(int n)
+// Point3		Net_ChainInfo_t::nth_pt(int n)
 //{
 //	if (n == 0) return start_junction->location;
 //	if (n > shape.size()) return end_junction->location;
 //	return shape[n-1];
-//}
+// }
 
-//double		Net_ChainInfo_t::nth_agl(int n)
+// double		Net_ChainInfo_t::nth_agl(int n)
 //{
 //	if (n == 0) return start_junction->agl;
 //	if (n > shape.size()) return end_junction->agl;
 //	return agl[n-1];
-//}
+// }
 
-//Segment3		Net_ChainInfo_t::nth_seg(int n)
+// Segment3		Net_ChainInfo_t::nth_seg(int n)
 //{
 //	return Segment3(nth_pt(n), nth_pt(n+1));
-//}
+// }
 
-//Vector3		Net_ChainInfo_t::vector_to_junc(Net_JunctionInfo_t * junc)
+// Vector3		Net_ChainInfo_t::vector_to_junc(Net_JunctionInfo_t * junc)
 //{
 //	if (junc == start_junction)
 //		return Vector3(nth_pt(1), nth_pt(0));
 //	else
 //		return Vector3(nth_pt(pt_count()-2),nth_pt(pt_count()-1));
-//}
+// }
 //
-//Vector2		Net_ChainInfo_t::vector_to_junc_flat(Net_JunctionInfo_t * junc)
+// Vector2		Net_ChainInfo_t::vector_to_junc_flat(Net_JunctionInfo_t * junc)
 //{
 //	Vector3 foo = vector_to_junc(junc);
 //	return Vector2(foo.dx, foo.dy);
-//}
+// }
 
-Net_JunctionInfo_t *	Net_ChainInfo_t::other_junc(Net_JunctionInfo_t * junc)
+Net_JunctionInfo_t* Net_ChainInfo_t::other_junc(Net_JunctionInfo_t* junc)
 {
-	return (junc == start_junction) ? end_junction : start_junction;
+    return (junc == start_junction) ? end_junction : start_junction;
 }
 
-Vector2		Net_ChainInfo_t::dir_out_of_junc(Net_JunctionInfo_t * junc)
+Vector2 Net_ChainInfo_t::dir_out_of_junc(Net_JunctionInfo_t* junc)
 {
-	if(junc == start_junction)
-	{
-		return Vector2(start_junction->location, shape.empty() ? end_junction->location : shape.front());
-	}
-	else
-	{
-		return Vector2(end_junction->location, shape.empty() ? start_junction->location : shape.back());
-	}
+    if (junc == start_junction)
+    {
+        return Vector2(start_junction->location, shape.empty() ? end_junction->location : shape.front());
+    }
+    else
+    {
+        return Vector2(end_junction->location, shape.empty() ? start_junction->location : shape.back());
+    }
 }
 
-
-
-//double		Net_ChainInfo_t::meter_length(int pt_start, int pt_stop)
+// double		Net_ChainInfo_t::meter_length(int pt_start, int pt_stop)
 //{
 //	// 0, pts-1 gives total length, 0 1 gives first seg len
 //	double total = 0.0;
@@ -234,9 +237,9 @@ Vector2		Net_ChainInfo_t::dir_out_of_junc(Net_JunctionInfo_t * junc)
 //		total += LonLatDistMeters(p1.x, p1.y, p2.x, p2.y);
 //	}
 //	return total;
-//}
+// }
 //
-//double		Net_ChainInfo_t::dot_angle(int ctr_pt)
+// double		Net_ChainInfo_t::dot_angle(int ctr_pt)
 //{
 //	Point3	p1(nth_pt(ctr_pt-1));
 //	Point3	p2(nth_pt(ctr_pt  ));
@@ -248,9 +251,9 @@ Vector2		Net_ChainInfo_t::dir_out_of_junc(Net_JunctionInfo_t * junc)
 //	v1.normalize();
 //	v2.normalize();
 //	return v1.dot(v2);
-//}
+// }
 //
-//void					Net_ChainInfo_t::split_seg(int n, double rat)
+// void					Net_ChainInfo_t::split_seg(int n, double rat)
 //{
 //	Segment3	seg;
 //	seg.p1 = nth_pt(n  );
@@ -265,435 +268,439 @@ Vector2		Net_ChainInfo_t::dir_out_of_junc(Net_JunctionInfo_t * junc)
 
 #pragma mark -
 
-#define REDUCE_SHAPE_ANGLE 	0.984807753012208	// 0.9961946980917455
-#define MAX_CUT_DIST		2000
+#define REDUCE_SHAPE_ANGLE 0.984807753012208 // 0.9961946980917455
+#define MAX_CUT_DIST 2000
 
 // This routine removes shape points that form less than a certain cosine dot angle, as long
 // as the two edges forming the angle are < 2 km.  We use this to reduce the number of nodes...
 // in particular, shape points that were due to the original crossing of a road with some
 // land use change or other arbitrary vector feature will get reduced if they are no longer
 // doing any good.
-int	NukeStraightShapePoints(Net_ChainInfoSet& ioChains)
+int NukeStraightShapePoints(Net_ChainInfoSet& ioChains)
 {
-	int reduces = 0;
-	for (Net_ChainInfoSet::iterator i = ioChains.begin(); i != ioChains.end(); ++i)
-	{
-		Net_ChainInfo_t * c = *i;
-		for (int v = 0; v < c->shape.size();)
-//		if (!c->power_crossing[v])							// Do not nuke power crossings - we flag them on purpsoe and need to preserve them in the export!!
-		{
-			Point2 * p1, * p2, * p3;
-			p2 = &c->shape[v];
-			if (v == 0)
-				p1 = &c->start_junction->location;
-			else
-				p1 = &c->shape[v-1];
-			if (v == (c->shape.size()-1))
-				p3 = &c->end_junction->location;
-			else
-				p3 = &c->shape[v+1];
-			Vector2 v1(*p1, *p2);
-			Vector2 v2(*p2, *p3);
+    int reduces = 0;
+    for (Net_ChainInfoSet::iterator i = ioChains.begin(); i != ioChains.end(); ++i)
+    {
+        Net_ChainInfo_t* c = *i;
+        for (int v = 0; v < c->shape.size();)
+        //		if (!c->power_crossing[v])							// Do not nuke power crossings - we flag them on
+        // purpsoe and need to preserve them in the export!!
+        {
+            Point2 *p1, *p2, *p3;
+            p2 = &c->shape[v];
+            if (v == 0)
+                p1 = &c->start_junction->location;
+            else
+                p1 = &c->shape[v - 1];
+            if (v == (c->shape.size() - 1))
+                p3 = &c->end_junction->location;
+            else
+                p3 = &c->shape[v + 1];
+            Vector2 v1(*p1, *p2);
+            Vector2 v2(*p2, *p3);
 
-			v1.dx *= (DEG_TO_MTR_LAT * cos(p2->y() * DEG_TO_RAD));
-			v2.dx *= (DEG_TO_MTR_LAT * cos(p2->y() * DEG_TO_RAD));
-			v1.dy *= (DEG_TO_MTR_LAT);
-			v2.dy *= (DEG_TO_MTR_LAT);
-			double	d1 = sqrt(v1.dot(v1));
-			double	d2 = sqrt(v2.dot(v2));
-			v1.normalize();
-			v2.normalize();
-			double ang = v1.dot(v2);
-			if (ang > REDUCE_SHAPE_ANGLE && d1 < MAX_CUT_DIST && d2 < MAX_CUT_DIST)
-			{
-				c->shape.erase(c->shape.begin()+v);
-//				c->agl.erase(c->agl.begin()+v);
-//				c->power_crossing.erase(c->power_crossing.begin()+v);
-				++reduces;
-			} else
-				++v;
-		}
-	}
-	return reduces;
+            v1.dx *= (DEG_TO_MTR_LAT * cos(p2->y() * DEG_TO_RAD));
+            v2.dx *= (DEG_TO_MTR_LAT * cos(p2->y() * DEG_TO_RAD));
+            v1.dy *= (DEG_TO_MTR_LAT);
+            v2.dy *= (DEG_TO_MTR_LAT);
+            double d1 = sqrt(v1.dot(v1));
+            double d2 = sqrt(v2.dot(v2));
+            v1.normalize();
+            v2.normalize();
+            double ang = v1.dot(v2);
+            if (ang > REDUCE_SHAPE_ANGLE && d1 < MAX_CUT_DIST && d2 < MAX_CUT_DIST)
+            {
+                c->shape.erase(c->shape.begin() + v);
+                //				c->agl.erase(c->agl.begin()+v);
+                //				c->power_crossing.erase(c->power_crossing.begin()+v);
+                ++reduces;
+            }
+            else
+                ++v;
+        }
+    }
+    return reduces;
 }
-
 
 // This routine takes a network and combines chains that are contiguous through a junction, reducing
 // junctions and forming longer chains.
-void	OptimizeNetwork(Net_JunctionInfoSet& ioJunctions, Net_ChainInfoSet& outChains, bool water_only)
+void OptimizeNetwork(Net_JunctionInfoSet& ioJunctions, Net_ChainInfoSet& outChains, bool water_only)
 {
-	int	total_merged = 0;
-	int total_removed = 0;
+    int total_merged = 0;
+    int total_removed = 0;
 
-	// First go through and consider every jucntion...if it has 2 items and they're the same and not a
-	// loop, we can coalesce.
-	for (Net_JunctionInfoSet::iterator junc = ioJunctions.begin(); junc != ioJunctions.end(); ++junc)
-	{
-		Net_JunctionInfo_t * me = (*junc);
-		if (me->chains.size() == 2)
-		{
-			Net_ChainInfoSet::iterator i = me->chains.begin();
-			Net_ChainInfo_t * sc = *i++;
-			Net_ChainInfo_t * ec = *i++;
+    // First go through and consider every jucntion...if it has 2 items and they're the same and not a
+    // loop, we can coalesce.
+    for (Net_JunctionInfoSet::iterator junc = ioJunctions.begin(); junc != ioJunctions.end(); ++junc)
+    {
+        Net_JunctionInfo_t* me = (*junc);
+        if (me->chains.size() == 2)
+        {
+            Net_ChainInfoSet::iterator i = me->chains.begin();
+            Net_ChainInfo_t* sc = *i++;
+            Net_ChainInfo_t* ec = *i++;
 
-			if (sc->over_water || !water_only)
-			if (sc != ec && sc->rep_type == ec->rep_type &&					// Ignore layer?  YES!  If we only have 2 roads coming together, assume that differing layer does 
-						    sc->export_type == ec->export_type &&			// NOT mean that they really are hanging off.
-						    sc->over_water == ec->over_water &&
-//							sc->draped == ec->draped &&
-				sc->start_junction != sc->end_junction &&
-				ec->start_junction != ec->end_junction &&
-				sc->other_junc(me) != ec->other_junc(me))
-			{
-				// Organize so start chain feeds into end chain directionally, with
-				// us as the middle junction.
-				
-				if(sc->start_junction == me && ec->end_junction == me)
-					swap(sc,ec);
+            if (sc->over_water || !water_only)
+                if (sc != ec && sc->rep_type == ec->rep_type && // Ignore layer?  YES!  If we only have 2 roads coming
+                                                                // together, assume that differing layer does
+                    sc->export_type == ec->export_type &&       // NOT mean that they really are hanging off.
+                    sc->over_water == ec->over_water &&
+                    //							sc->draped == ec->draped &&
+                    sc->start_junction != sc->end_junction && ec->start_junction != ec->end_junction &&
+                    sc->other_junc(me) != ec->other_junc(me))
+                {
+                    // Organize so start chain feeds into end chain directionally, with
+                    // us as the middle junction.
 
-				if(!IsOneway(sc->rep_type) && sc->end_junction != me)	sc->reverse();
-				if(!IsOneway(ec->rep_type) && ec->start_junction != me)	ec->reverse();
+                    if (sc->start_junction == me && ec->end_junction == me)
+                        swap(sc, ec);
 
-				if(sc->end_junction == me && ec->start_junction == me)
-				{
-					// These junctions cap the new complete chain.
-					Net_JunctionInfo_t * sj = sc->start_junction;
-					Net_JunctionInfo_t * ej = ec->end_junction;
-					Assert (sj != me);
-					Assert (ej != me);
-					// Accumulate all shape points.
-					sc->shape.push_back(me->location);
-//					sc->agl.push_back(me->agl);
-//					sc->power_crossing.push_back(me->power_crossing);
-					sc->shape.insert(sc->shape.end(), ec->shape.begin(),ec->shape.end());
-//					sc->agl.insert(sc->agl.end(), ec->agl.begin(),ec->agl.end());
-//					sc->power_crossing.insert(sc->power_crossing.end(), ec->power_crossing.begin(), ec->power_crossing.end());
-					// We no longer have points.
-					me->chains.clear();
-					// End junction now has first chain instead of second.
-					ej->chains.erase(ec);
-					ej->chains.insert(sc);
-					// Start chain now ends at end junction, not us.
-					sc->end_junction = ej;
-					sc->end_layer = ec->end_layer;
-					// Nuke second chain, it's useless.
-					delete ec;
-					outChains.erase(ec);
-					++total_merged;
-				}
-			}
-		}
-	}
+                    if (!IsOneway(sc->rep_type) && sc->end_junction != me)
+                        sc->reverse();
+                    if (!IsOneway(ec->rep_type) && ec->start_junction != me)
+                        ec->reverse();
 
-	// Now go through and take out the trash...schedule for deletion every 0-valence
-	// junction.
-	Net_JunctionInfoSet	deadJuncs;
-	for (Net_JunctionInfoSet::iterator junc = ioJunctions.begin(); junc != ioJunctions.end(); ++junc)
-	{
-		if ((*junc)->chains.empty())
-		{
-			deadJuncs.insert(*junc);
-			++total_removed;
-		}
-	}
+                    if (sc->end_junction == me && ec->start_junction == me)
+                    {
+                        // These junctions cap the new complete chain.
+                        Net_JunctionInfo_t* sj = sc->start_junction;
+                        Net_JunctionInfo_t* ej = ec->end_junction;
+                        Assert(sj != me);
+                        Assert(ej != me);
+                        // Accumulate all shape points.
+                        sc->shape.push_back(me->location);
+                        //					sc->agl.push_back(me->agl);
+                        //					sc->power_crossing.push_back(me->power_crossing);
+                        sc->shape.insert(sc->shape.end(), ec->shape.begin(), ec->shape.end());
+                        //					sc->agl.insert(sc->agl.end(), ec->agl.begin(),ec->agl.end());
+                        //					sc->power_crossing.insert(sc->power_crossing.end(),
+                        // ec->power_crossing.begin(), ec->power_crossing.end());
+                        // We no longer have points.
+                        me->chains.clear();
+                        // End junction now has first chain instead of second.
+                        ej->chains.erase(ec);
+                        ej->chains.insert(sc);
+                        // Start chain now ends at end junction, not us.
+                        sc->end_junction = ej;
+                        sc->end_layer = ec->end_layer;
+                        // Nuke second chain, it's useless.
+                        delete ec;
+                        outChains.erase(ec);
+                        ++total_merged;
+                    }
+                }
+        }
+    }
 
-	// Finally do the actual deletion.
-	for (Net_JunctionInfoSet::iterator junc = deadJuncs.begin(); junc != deadJuncs.end(); ++junc)
-	{
-		ioJunctions.erase(*junc);
-		delete (*junc);
-	}
-	int s = 0;//NukeStraightShapePoints(outChains);
-	printf("Optimize: %d merged, %d removed, %d straight.\n", total_merged, total_removed, s);
+    // Now go through and take out the trash...schedule for deletion every 0-valence
+    // junction.
+    Net_JunctionInfoSet deadJuncs;
+    for (Net_JunctionInfoSet::iterator junc = ioJunctions.begin(); junc != ioJunctions.end(); ++junc)
+    {
+        if ((*junc)->chains.empty())
+        {
+            deadJuncs.insert(*junc);
+            ++total_removed;
+        }
+    }
 
+    // Finally do the actual deletion.
+    for (Net_JunctionInfoSet::iterator junc = deadJuncs.begin(); junc != deadJuncs.end(); ++junc)
+    {
+        ioJunctions.erase(*junc);
+        delete (*junc);
+    }
+    int s = 0; // NukeStraightShapePoints(outChains);
+    printf("Optimize: %d merged, %d removed, %d straight.\n", total_merged, total_removed, s);
 }
 
-typedef std::pair<Net_JunctionInfo_t *,Net_JunctionInfo_t *>	JuncPair;
+typedef std::pair<Net_JunctionInfo_t*, Net_JunctionInfo_t*> JuncPair;
 
-struct sort_by_sqr_dist {
-	bool operator()(const JuncPair& lhs, const JuncPair& rhs) const
-	{
-		double d1 = lhs.first->location.squared_distance(lhs.second->location);
-		double d2 = rhs.first->location.squared_distance(rhs.second->location);
-		return d1 < d2;
-	}
+struct sort_by_sqr_dist
+{
+    bool operator()(const JuncPair& lhs, const JuncPair& rhs) const
+    {
+        double d1 = lhs.first->location.squared_distance(lhs.second->location);
+        double d2 = rhs.first->location.squared_distance(rhs.second->location);
+        return d1 < d2;
+    }
 };
 
-struct sort_by_y {
-	bool operator()(Net_JunctionInfo_t * const & p1, Net_JunctionInfo_t * const & p2) const 
-	{
-		return p1->location.y() < p2->location.y(); 
-	}
+struct sort_by_y
+{
+    bool operator()(Net_JunctionInfo_t* const& p1, Net_JunctionInfo_t* const& p2) const
+    {
+        return p1->location.y() < p2->location.y();
+    }
 };
 
 inline bool within_box(const Point2& p1, const Point2& p2, double d)
 {
-	if(fabs(p1.x() - p2.x()) <= d)
-	if(fabs(p1.y() - p2.y()) <= d)
-		return true;
-	return false;
+    if (fabs(p1.x() - p2.x()) <= d)
+        if (fabs(p1.y() - p2.y()) <= d)
+            return true;
+    return false;
 }
 
-typedef std::multiset<Net_JunctionInfo_t *, sort_by_y>	y_sorted_set;
+typedef std::multiset<Net_JunctionInfo_t*, sort_by_y> y_sorted_set;
 
-void	MergeNearJunctions(Net_JunctionInfoSet& juncs, Net_ChainInfoSet& chains, double dist)
+void MergeNearJunctions(Net_JunctionInfoSet& juncs, Net_ChainInfoSet& chains, double dist)
 {
-//		ValidateNetworkTopology(juncs,chains);
+    //		ValidateNetworkTopology(juncs,chains);
 
-	printf("Before merge: %zd juncs, %zd chains.\n", juncs.size(), chains.size());
+    printf("Before merge: %zd juncs, %zd chains.\n", juncs.size(), chains.size());
 
-	while(1)
-	{
+    while (1)
+    {
 
-		bool did_work = false;
-		y_sorted_set	sorted_juncs;
-		
-		copy(juncs.begin(),juncs.end(),set_inserter(sorted_juncs));
+        bool did_work = false;
+        y_sorted_set sorted_juncs;
 
-		vector<JuncPair> kill;
-		for(y_sorted_set::iterator i = sorted_juncs.begin(); i != sorted_juncs.end(); ++i)
-		{
-			y_sorted_set::iterator j(i);
-			++j;
-			while(j != sorted_juncs.end() && (((*j)->location.y() - (*i)->location.y()) < (2.0*dist)))
-			{
-//				printf("Measuring: 0x%08x, 0x%08x\n", (*i), (*j));
-			
-				if(within_box((*i)->location,(*j)->location,dist))
-				{
-					kill.push_back(JuncPair(*i,*j));
-				}
-				++j;
-			}
-		}
-		sort(kill.begin(),kill.end(), sort_by_sqr_dist());
+        copy(juncs.begin(), juncs.end(), set_inserter(sorted_juncs));
 
-		for(vector<JuncPair>::iterator jp = kill.begin(); jp != kill.end(); ++jp)
-		{
-//			printf("Considering: 0x%08x, 0x%08x\n", jp->first, jp->second);			
-			if(juncs.count(jp->first) && juncs.count(jp->second))
-			if(within_box(jp->first->location,jp->second->location,dist))
-			{
-//				printf("Killing: 0x%08x, 0x%08x\n", jp->first, jp->second);			
-				std::list<Net_ChainInfo_t *>	dead;
-				for(Net_ChainInfoSet::iterator c = jp->first->chains.begin(); c != jp->first->chains.end(); ++c)
-				if((*c)->other_junc(jp->first) == jp->second)
-					dead.push_back(*c);
+        vector<JuncPair> kill;
+        for (y_sorted_set::iterator i = sorted_juncs.begin(); i != sorted_juncs.end(); ++i)
+        {
+            y_sorted_set::iterator j(i);
+            ++j;
+            while (j != sorted_juncs.end() && (((*j)->location.y() - (*i)->location.y()) < (2.0 * dist)))
+            {
+                //				printf("Measuring: 0x%08x, 0x%08x\n", (*i), (*j));
 
-				copy(dead.begin(),dead.end(),set_eraser(chains));
-				copy(dead.begin(),dead.end(),set_eraser(jp->first->chains));
-				
-				jp->first->location = Point2(
-								(jp->first->location.x() + jp->second->location.x()) * 0.5,
-								(jp->first->location.y() + jp->second->location.y()) * 0.5);
-				copy(jp->second->chains.begin(),jp->second->chains.end(), set_inserter(jp->first->chains));
-				
-				for(Net_ChainInfoSet::iterator c = jp->second->chains.begin(); c != jp->second->chains.end(); ++c)
-				{
-					if((*c)->start_junction == jp->second) (*c)->start_junction = jp->first;
-					if((*c)->end_junction == jp->second) (*c)->end_junction = jp->first;
-				}
-				
-				DebugAssert(juncs.count(jp->second));
-				juncs.erase(jp->second);
-				delete jp->second;
-				did_work = true;
-				// This was serious paranoia in inital implementation, but don't even have in dev, makes alg very slow.
-		//		ValidateNetworkTopology(juncs,chains);		
-			}
-		}	
-	#if DEV
-		ValidateNetworkTopology(juncs,chains);
-	#endif
-		if(!did_work)	
-			break;
-		else
-			printf("After merge: %zd juncs, %zd chains.\n", juncs.size(), chains.size());
-	}
-	
-	Net_JunctionInfo_t * bad_a = NULL, * bad_b = NULL;
+                if (within_box((*i)->location, (*j)->location, dist))
+                {
+                    kill.push_back(JuncPair(*i, *j));
+                }
+                ++j;
+            }
+        }
+        sort(kill.begin(), kill.end(), sort_by_sqr_dist());
 
-#if DEV	
-	for(Net_ChainInfoSet::iterator c = chains.begin(); c != chains.end(); ++c)
-	{
-		if(within_box((*c)->start_junction->location, (*c)->end_junction->location, dist))
-		{
-			bad_a = (*c)->start_junction; bad_b = (*c)->end_junction;
-			printf("%p: %f,%f to %f, %f\n", (*c), 
-						(*c)->start_junction->location.x(),
-						(*c)->start_junction->location.y(),
-						(*c)->end_junction->location.x(),
-						(*c)->end_junction->location.y());
-			printf("ERROR: junctions too close together (%p, %p).\n", 
-						(*c)->start_junction,(*c)->end_junction);
-		}
-	}
+        for (vector<JuncPair>::iterator jp = kill.begin(); jp != kill.end(); ++jp)
+        {
+            //			printf("Considering: 0x%08x, 0x%08x\n", jp->first, jp->second);
+            if (juncs.count(jp->first) && juncs.count(jp->second))
+                if (within_box(jp->first->location, jp->second->location, dist))
+                {
+                    //				printf("Killing: 0x%08x, 0x%08x\n", jp->first, jp->second);
+                    std::list<Net_ChainInfo_t*> dead;
+                    for (Net_ChainInfoSet::iterator c = jp->first->chains.begin(); c != jp->first->chains.end(); ++c)
+                        if ((*c)->other_junc(jp->first) == jp->second)
+                            dead.push_back(*c);
+
+                    copy(dead.begin(), dead.end(), set_eraser(chains));
+                    copy(dead.begin(), dead.end(), set_eraser(jp->first->chains));
+
+                    jp->first->location = Point2((jp->first->location.x() + jp->second->location.x()) * 0.5,
+                                                 (jp->first->location.y() + jp->second->location.y()) * 0.5);
+                    copy(jp->second->chains.begin(), jp->second->chains.end(), set_inserter(jp->first->chains));
+
+                    for (Net_ChainInfoSet::iterator c = jp->second->chains.begin(); c != jp->second->chains.end(); ++c)
+                    {
+                        if ((*c)->start_junction == jp->second)
+                            (*c)->start_junction = jp->first;
+                        if ((*c)->end_junction == jp->second)
+                            (*c)->end_junction = jp->first;
+                    }
+
+                    DebugAssert(juncs.count(jp->second));
+                    juncs.erase(jp->second);
+                    delete jp->second;
+                    did_work = true;
+                    // This was serious paranoia in inital implementation, but don't even have in dev, makes alg very
+                    // slow.
+                    //		ValidateNetworkTopology(juncs,chains);
+                }
+        }
+#if DEV
+        ValidateNetworkTopology(juncs, chains);
+#endif
+        if (!did_work)
+            break;
+        else
+            printf("After merge: %zd juncs, %zd chains.\n", juncs.size(), chains.size());
+    }
+
+    Net_JunctionInfo_t *bad_a = NULL, *bad_b = NULL;
+
+#if DEV
+    for (Net_ChainInfoSet::iterator c = chains.begin(); c != chains.end(); ++c)
+    {
+        if (within_box((*c)->start_junction->location, (*c)->end_junction->location, dist))
+        {
+            bad_a = (*c)->start_junction;
+            bad_b = (*c)->end_junction;
+            printf("%p: %f,%f to %f, %f\n", (*c), (*c)->start_junction->location.x(),
+                   (*c)->start_junction->location.y(), (*c)->end_junction->location.x(),
+                   (*c)->end_junction->location.y());
+            printf("ERROR: junctions too close together (%p, %p).\n", (*c)->start_junction, (*c)->end_junction);
+        }
+    }
 #endif
 
-/*	
-	{
-		y_sorted_set	sorted_juncs;
-		
-		copy(juncs.begin(),juncs.end(),set_inserter(sorted_juncs));
+    /*
+        {
+            y_sorted_set	sorted_juncs;
 
-		printf("Bad a: %d\n", sorted_juncs.count(bad_a));
-		printf("Bad a: %d\n", sorted_juncs.count(bad_b));
+            copy(juncs.begin(),juncs.end(),set_inserter(sorted_juncs));
 
-		vector<JuncPair> kill;
-		for(y_sorted_set::iterator i = sorted_juncs.begin(); i != sorted_juncs.end(); ++i)
-		{
-			y_sorted_set::iterator j(i);
-			++j;
-			while(j != sorted_juncs.end() && (((*j)->location.y() - (*i)->location.y()) < (2.0*dist)))
-			{
-				if(*i == bad_a || *j == bad_a ||
-				   *i == bad_b || *j == bad_b)
-				printf("Measuring: 0x%08x, 0x%08x\n", (*i), (*j));
-			
-				if(within_box((*i)->location,(*j)->location,dist))
-				{
-					if(*i == bad_a || *j == bad_a ||
-					   *i == bad_b || *j == bad_b)
-						printf("Killing: 0x%08x, 0x%08x\n", (*i), (*j));
-					kill.push_back(JuncPair(*i,*j));
-				}
-				++j;
-			}
-		}
-	}
-*/	
+            printf("Bad a: %d\n", sorted_juncs.count(bad_a));
+            printf("Bad a: %d\n", sorted_juncs.count(bad_b));
+
+            vector<JuncPair> kill;
+            for(y_sorted_set::iterator i = sorted_juncs.begin(); i != sorted_juncs.end(); ++i)
+            {
+                y_sorted_set::iterator j(i);
+                ++j;
+                while(j != sorted_juncs.end() && (((*j)->location.y() - (*i)->location.y()) < (2.0*dist)))
+                {
+                    if(*i == bad_a || *j == bad_a ||
+                       *i == bad_b || *j == bad_b)
+                    printf("Measuring: 0x%08x, 0x%08x\n", (*i), (*j));
+
+                    if(within_box((*i)->location,(*j)->location,dist))
+                    {
+                        if(*i == bad_a || *j == bad_a ||
+                           *i == bad_b || *j == bad_b)
+                            printf("Killing: 0x%08x, 0x%08x\n", (*i), (*j));
+                        kill.push_back(JuncPair(*i,*j));
+                    }
+                    ++j;
+                }
+            }
+        }
+    */
 }
 
-
-
-
 // This routine forms an original topology level 1 network from our planar map.
-void	BuildNetworkTopology(Pmwx& inMap, CDT& /*inMesh*/, Net_JunctionInfoSet& outJunctions, Net_ChainInfoSet& outChains)
+void BuildNetworkTopology(Pmwx& inMap, CDT& /*inMesh*/, Net_JunctionInfoSet& outJunctions, Net_ChainInfoSet& outChains)
 {
-	outJunctions.clear();
-	outChains.clear();
+    outJunctions.clear();
+    outChains.clear();
 
-	typedef	std::map<Pmwx::Vertex *, Net_JunctionInfo_t*>		JunctionTableType;
-	typedef	std::map<Pmwx::Halfedge_handle, Net_ChainInfo_t*>	ChainTableType;
-	JunctionTableType										junctionTable;
+    typedef std::map<Pmwx::Vertex*, Net_JunctionInfo_t*> JunctionTableType;
+    typedef std::map<Pmwx::Halfedge_handle, Net_ChainInfo_t*> ChainTableType;
+    JunctionTableType junctionTable;
 
-	CDT::Face_handle	f;
-	CDT::Locate_type	lt;
-	int					li;
+    CDT::Face_handle f;
+    CDT::Locate_type lt;
+    int li;
 
-	/************ STEP 1 - BUILD THE BASIC NETWORK ************/
-	for (Pmwx::Vertex_iterator v = inMap.vertices_begin(); v != inMap.vertices_end(); ++v)
-	{
-		bool has_any = false;
-		Pmwx::Halfedge_around_vertex_circulator circ, stop;
-		circ = stop = v->incident_halfedges();
-		do {
-			for (GISNetworkSegmentVector::iterator seg = circ->data().mSegments.begin(); seg != circ->data().mSegments.end(); ++seg)
-			if (seg->mRepType != NO_VALUE)
-			{
-				has_any = true;
-				goto hack;
-			}
+    /************ STEP 1 - BUILD THE BASIC NETWORK ************/
+    for (Pmwx::Vertex_iterator v = inMap.vertices_begin(); v != inMap.vertices_end(); ++v)
+    {
+        bool has_any = false;
+        Pmwx::Halfedge_around_vertex_circulator circ, stop;
+        circ = stop = v->incident_halfedges();
+        do
+        {
+            for (GISNetworkSegmentVector::iterator seg = circ->data().mSegments.begin();
+                 seg != circ->data().mSegments.end(); ++seg)
+                if (seg->mRepType != NO_VALUE)
+                {
+                    has_any = true;
+                    goto hack;
+                }
 
-			for (GISNetworkSegmentVector::iterator seg = circ->twin()->data().mSegments.begin(); seg != circ->twin()->data().mSegments.end(); ++seg)
-			if (seg->mRepType != NO_VALUE)
-			{
-				has_any = true;
-				goto hack;
-			}
+            for (GISNetworkSegmentVector::iterator seg = circ->twin()->data().mSegments.begin();
+                 seg != circ->twin()->data().mSegments.end(); ++seg)
+                if (seg->mRepType != NO_VALUE)
+                {
+                    has_any = true;
+                    goto hack;
+                }
 
-		} while (++circ != stop);
-		
-	hack:
-		if(!has_any)
-			continue;
-		
-		Net_JunctionInfo_t * junc = new Net_JunctionInfo_t;
-//		junc->vertical_locked = false;
-		junc->location.x_ = CGAL::to_double(v->point().x());
-		junc->location.y_ = CGAL::to_double(v->point().y());
-//		f = inMesh.locate(v->point(), lt, li, f);
-//		junc->location.z = HeightWithinTri(inMesh, f, v->point());
-		
-//		junc->power_crossing = false;
-		junctionTable.insert(JunctionTableType::value_type(&*v,junc));
-		outJunctions.insert(junc);
-		//printf("+");
-	}
-	for (Pmwx::Halfedge_iterator e = inMap.halfedges_begin(); e != inMap.halfedges_end(); ++e)
-	for (GISNetworkSegmentVector::iterator seg = e->data().mSegments.begin(); seg != e->data().mSegments.end(); ++seg)
-	if (seg->mRepType != NO_VALUE)
-	{
-		Net_ChainInfo_t *	chain = new Net_ChainInfo_t;
-		chain->rep_type = seg->mRepType;
-		chain->export_type = NO_VALUE;
-//		chain->draped = true;
-		chain->over_water = e->face()->data().IsWater() && e->twin()->face()->data().IsWater();
-		chain->start_junction = junctionTable[&*e->source()];
-		chain->end_junction = junctionTable[&*e->target()];
-		chain->start_junction->chains.insert(chain);
-		chain->end_junction->chains.insert(chain);
-		chain->start_layer = seg->mSourceHeight;
-		chain->end_layer = seg->mTargetHeight;
-		outChains.insert(chain);
-		//printf("|");
-	}
+        } while (++circ != stop);
 
-	
+    hack:
+        if (!has_any)
+            continue;
 
-//	CountNetwork(outJunctions, outChains);
-//	int nukes = NukeStraightShapePoints(outChains);
-//	CountNetwork(outJunctions, outChains);
-//	printf("Nuked %d shape points.\n", nukes);
+        Net_JunctionInfo_t* junc = new Net_JunctionInfo_t;
+        //		junc->vertical_locked = false;
+        junc->location.x_ = CGAL::to_double(v->point().x());
+        junc->location.y_ = CGAL::to_double(v->point().y());
+        //		f = inMesh.locate(v->point(), lt, li, f);
+        //		junc->location.z = HeightWithinTri(inMesh, f, v->point());
 
-	// Now we need to start sorting out the big mess we have - we have a flat topology and in reality
-	// highways don't work that way!
+        //		junc->power_crossing = false;
+        junctionTable.insert(JunctionTableType::value_type(&*v, junc));
+        outJunctions.insert(junc);
+        // printf("+");
+    }
+    for (Pmwx::Halfedge_iterator e = inMap.halfedges_begin(); e != inMap.halfedges_end(); ++e)
+        for (GISNetworkSegmentVector::iterator seg = e->data().mSegments.begin(); seg != e->data().mSegments.end();
+             ++seg)
+            if (seg->mRepType != NO_VALUE)
+            {
+                Net_ChainInfo_t* chain = new Net_ChainInfo_t;
+                chain->rep_type = seg->mRepType;
+                chain->export_type = NO_VALUE;
+                //		chain->draped = true;
+                chain->over_water = e->face()->data().IsWater() && e->twin()->face()->data().IsWater();
+                chain->start_junction = junctionTable[&*e->source()];
+                chain->end_junction = junctionTable[&*e->target()];
+                chain->start_junction->chains.insert(chain);
+                chain->end_junction->chains.insert(chain);
+                chain->start_layer = seg->mSourceHeight;
+                chain->end_layer = seg->mTargetHeight;
+                outChains.insert(chain);
+                // printf("|");
+            }
+
+    //	CountNetwork(outJunctions, outChains);
+    //	int nukes = NukeStraightShapePoints(outChains);
+    //	CountNetwork(outJunctions, outChains);
+    //	printf("Nuked %d shape points.\n", nukes);
+
+    // Now we need to start sorting out the big mess we have - we have a flat topology and in reality
+    // highways don't work that way!
 }
 
 // This routine purges the memory used for a network std::set.
-void	CleanupNetworkTopology(Net_JunctionInfoSet& outJunctions, Net_ChainInfoSet& outChains)
+void CleanupNetworkTopology(Net_JunctionInfoSet& outJunctions, Net_ChainInfoSet& outChains)
 {
-	for (Net_JunctionInfoSet::iterator i = outJunctions.begin(); i != outJunctions.end(); ++i)
-		delete (*i);
+    for (Net_JunctionInfoSet::iterator i = outJunctions.begin(); i != outJunctions.end(); ++i)
+        delete (*i);
 
-	for (Net_ChainInfoSet::iterator j = outChains.begin(); j != outChains.end(); ++j)
-		delete (*j);
+    for (Net_ChainInfoSet::iterator j = outChains.begin(); j != outChains.end(); ++j)
+        delete (*j);
 }
 
 // This routine checks the connectivity of the network for linkage and ptr errors.
-void	ValidateNetworkTopology(Net_JunctionInfoSet& outJunctions, Net_ChainInfoSet& outChains)
+void ValidateNetworkTopology(Net_JunctionInfoSet& outJunctions, Net_ChainInfoSet& outChains)
 {
-	Net_JunctionInfoSet::iterator ji;
-	Net_ChainInfoSet::iterator ci;
-	for (ji = outJunctions.begin(); ji != outJunctions.end(); ++ji)
-	{
-		for (ci = (*ji)->chains.begin(); ci != (*ji)->chains.end(); ++ci)
-		{
-			if ((*ci)->start_junction != (*ji) && (*ci)->end_junction != (*ji))
-				AssertPrintf("VALIDATION ERR - junction has a chain not pointing back at the junction.\n");
-		}
-	}
-	for (ci = outChains.begin(); ci != outChains.end(); ++ci)
-	{
-		if ((*ci)->start_junction->chains.find(*ci) == (*ci)->start_junction->chains.end())
-			AssertPrintf("VALIDATION ERROR - chain refers to a junction not pointing back at the chain.\n");
-		if ((*ci)->end_junction->chains.find(*ci) == (*ci)->end_junction->chains.end())
-			AssertPrintf("VALIDATION ERROR - chain refers to a junction not pointing back at the chain.\n");
-	}
+    Net_JunctionInfoSet::iterator ji;
+    Net_ChainInfoSet::iterator ci;
+    for (ji = outJunctions.begin(); ji != outJunctions.end(); ++ji)
+    {
+        for (ci = (*ji)->chains.begin(); ci != (*ji)->chains.end(); ++ci)
+        {
+            if ((*ci)->start_junction != (*ji) && (*ci)->end_junction != (*ji))
+                AssertPrintf("VALIDATION ERR - junction has a chain not pointing back at the junction.\n");
+        }
+    }
+    for (ci = outChains.begin(); ci != outChains.end(); ++ci)
+    {
+        if ((*ci)->start_junction->chains.find(*ci) == (*ci)->start_junction->chains.end())
+            AssertPrintf("VALIDATION ERROR - chain refers to a junction not pointing back at the chain.\n");
+        if ((*ci)->end_junction->chains.find(*ci) == (*ci)->end_junction->chains.end())
+            AssertPrintf("VALIDATION ERROR - chain refers to a junction not pointing back at the chain.\n");
+    }
 }
 
 // This routine prints the counts for all junctions, chains and shape points.
-void	CountNetwork(const Net_JunctionInfoSet& inJunctions, const Net_ChainInfoSet& inChains)
+void CountNetwork(const Net_JunctionInfoSet& inJunctions, const Net_ChainInfoSet& inChains)
 {
-	int juncs = inJunctions.size();
-	int chains = 0;
-	int segs = 0;
-	for (Net_ChainInfoSet::const_iterator i = inChains.begin(); i != inChains.end(); ++i)
-	{
-		segs += (1+(*i)->shape.size());
-		chains++;
-	}
-	printf("Junctions: %d, Chains: %d, Segs: %d\n", juncs, chains, segs);
+    int juncs = inJunctions.size();
+    int chains = 0;
+    int segs = 0;
+    for (Net_ChainInfoSet::const_iterator i = inChains.begin(); i != inChains.end(); ++i)
+    {
+        segs += (1 + (*i)->shape.size());
+        chains++;
+    }
+    printf("Junctions: %d, Chains: %d, Segs: %d\n", juncs, chains, segs);
 }
 
 #if 0
@@ -723,14 +730,14 @@ void	DrapeRoads(Net_JunctionInfoSet& ioJunctions, Net_ChainInfoSet& ioChains, CD
 			else
 			{
 				MarchHeightGo(inMesh, CDT::Point(CGAL::to_double(pt.x), CGAL::to_double(pt.y)), info, these_pts);
-				#if 0 && DEV
+#if 0 && DEV
 					Point3 prev(chain->nth_pt(n-1));
 					Bbox2	lim(prev.x,prev.y,pt.x,pt.y);
 					for(int i = 0; i < these_pts.size(); ++i)
 					{
 						DebugAssert(lim.contains(Point2(these_pts[i].x,these_pts[i].y)));
 					}
-				#endif
+#endif
 				total += (these_pts.size()-1);
 				added += (these_pts.size()-2);
 				DebugAssert(!these_pts.empty());
@@ -1288,42 +1295,45 @@ void	InterpolateRoadHeights(Net_JunctionInfoSet& ioJunctions, Net_ChainInfoSet& 
 
 #endif
 
-void	AssignExportTypes(Net_JunctionInfoSet& ioJunctions, Net_ChainInfoSet& ioChains)
+void AssignExportTypes(Net_JunctionInfoSet& ioJunctions, Net_ChainInfoSet& ioChains)
 {
-	for (Net_ChainInfoSet::iterator chain = ioChains.begin(); chain != ioChains.end(); ++chain)
-	if ((*chain)->export_type == 0)
-	{
-		/*
-		bool above_ground = false;
-		for (int n = 0; n < (*chain)->pt_count(); ++n)
-		{
-			if ((*chain)->nth_agl(n) > 0.0)
-			{
-				above_ground = true;
-				break;
-			}
-		}
-		
-		(*chain)->export_type = above_ground ?  gNetReps[(*chain)->rep_type].export_type_overpass : gNetReps[(*chain)->rep_type].export_type_normal;
-		*/
-		(*chain)->export_type = gNetReps[(*chain)->rep_type].export_type_draped;
-	}
+    for (Net_ChainInfoSet::iterator chain = ioChains.begin(); chain != ioChains.end(); ++chain)
+        if ((*chain)->export_type == 0)
+        {
+            /*
+            bool above_ground = false;
+            for (int n = 0; n < (*chain)->pt_count(); ++n)
+            {
+                if ((*chain)->nth_agl(n) > 0.0)
+                {
+                    above_ground = true;
+                    break;
+                }
+            }
+
+            (*chain)->export_type = above_ground ?  gNetReps[(*chain)->rep_type].export_type_overpass :
+            gNetReps[(*chain)->rep_type].export_type_normal;
+            */
+            (*chain)->export_type = gNetReps[(*chain)->rep_type].export_type_draped;
+        }
 }
 
 void DeleteBlankChains(Net_JunctionInfoSet& ioJunctions, Net_ChainInfoSet& ioChains)
 {
-	for (Net_ChainInfoSet::iterator chain = ioChains.begin(); chain != ioChains.end();)
-	{
-		if ((*chain)->export_type == -1)
-		{
-			(*chain)->start_junction->chains.erase(*chain);
-			(*chain)->end_junction->chains.erase(*chain);
-			delete *chain;
-			ioChains.erase(chain++);
-		} else {
-			++chain;
-		}
-	}
+    for (Net_ChainInfoSet::iterator chain = ioChains.begin(); chain != ioChains.end();)
+    {
+        if ((*chain)->export_type == -1)
+        {
+            (*chain)->start_junction->chains.erase(*chain);
+            (*chain)->end_junction->chains.erase(*chain);
+            delete *chain;
+            ioChains.erase(chain++);
+        }
+        else
+        {
+            ++chain;
+        }
+    }
 }
 
 #if 0
@@ -1409,61 +1419,53 @@ void	SpacePowerlines(Net_JunctionInfoSet& ioJunctions, Net_ChainInfoSet& ioChain
 
 #pragma mark -
 
-static void to_metric(
-				const Point2& anchor,
-				double cos_lat,
-				Point2& pt)
+static void to_metric(const Point2& anchor, double cos_lat, Point2& pt)
 {
-	pt.x_ -= anchor.x();
-	pt.y_ -= anchor.y();
-	pt.x_ *= (DEG_TO_MTR_LAT * cos_lat);
-	pt.y_ *= (DEG_TO_MTR_LAT		  );
+    pt.x_ -= anchor.x();
+    pt.y_ -= anchor.y();
+    pt.x_ *= (DEG_TO_MTR_LAT * cos_lat);
+    pt.y_ *= (DEG_TO_MTR_LAT);
 }
 
-static void from_metric(
-				const Point2& anchor,
-				double cos_lat,
-				Point2& pt)
+static void from_metric(const Point2& anchor, double cos_lat, Point2& pt)
 {
-	pt.x_ /= (DEG_TO_MTR_LAT * cos_lat);
-	pt.y_ /= (DEG_TO_MTR_LAT		  );
-	pt.x_ += anchor.x();
-	pt.y_ += anchor.y();
+    pt.x_ /= (DEG_TO_MTR_LAT * cos_lat);
+    pt.y_ /= (DEG_TO_MTR_LAT);
+    pt.x_ += anchor.x();
+    pt.y_ += anchor.y();
 }
 
 void fix_control_point(const Point2c& origin, Point2c& control_pt, const Vector2& limit_vec)
 {
-	Point2 lim_ptr = origin + limit_vec;
+    Point2 lim_ptr = origin + limit_vec;
 
-	double scale = cos(origin.y() * DEG_TO_RAD);
-	to_metric(origin,scale,control_pt);
-	to_metric(origin,scale,lim_ptr);
-	
-	Vector2 dir_limit = Vector2(Point2(0.0,0.0), lim_ptr);
-	dir_limit.normalize();
-	dir_limit *= 1.0;
-	Vector2 cross = dir_limit.perpendicular_cw();
-	
-	Vector2 fixed = dir_limit.projection(Vector2(control_pt));
-	Point2 new_pt;
-	new_pt += fixed;
-	Vector2 moved = Vector2(control_pt, new_pt);
-	if(moved.dot(cross) < 0.0)
-		cross = -cross;
-		
-	new_pt += cross;
-	
-	from_metric(origin,scale,new_pt);
-	from_metric(origin,scale,control_pt);
+    double scale = cos(origin.y() * DEG_TO_RAD);
+    to_metric(origin, scale, control_pt);
+    to_metric(origin, scale, lim_ptr);
 
-//	debug_mesh_line(control_pt,new_pt, 0.5,0,0,  1,0,0);
+    Vector2 dir_limit = Vector2(Point2(0.0, 0.0), lim_ptr);
+    dir_limit.normalize();
+    dir_limit *= 1.0;
+    Vector2 cross = dir_limit.perpendicular_cw();
 
-	control_pt = new_pt;
+    Vector2 fixed = dir_limit.projection(Vector2(control_pt));
+    Point2 new_pt;
+    new_pt += fixed;
+    Vector2 moved = Vector2(control_pt, new_pt);
+    if (moved.dot(cross) < 0.0)
+        cross = -cross;
+
+    new_pt += cross;
+
+    from_metric(origin, scale, new_pt);
+    from_metric(origin, scale, control_pt);
+
+    //	debug_mesh_line(control_pt,new_pt, 0.5,0,0,  1,0,0);
+
+    control_pt = new_pt;
 }
 
-
-
-//void categorize_turn(
+// void categorize_turn(
 //				const Point2&	a,
 //				const Point2&	b,
 //				const Point2&	c,
@@ -1481,156 +1483,150 @@ void fix_control_point(const Point2c& origin, Point2c& control_pt, const Vector2
 //	DebugAssert(len_ab > 0.0);
 //	DebugAssert(len_bc > 0.0);
 //	double angle = acos(doblim(ab.dot(bc),-1.0,1.0));
-//	
+//
 //	straight_ab = (angle / len_ab) > min_deflection;
-//	straight_bc = (angle / len_bc) > min_deflection;	
-//}
+//	straight_bc = (angle / len_bc) > min_deflection;
+// }
 
 // Given a point B that is in the middle of a road (Between A and C), insert
-void generate_bezier(
-				const Point2&	a,
-				const Point2&	b,
-				const Point2&	c,
-				double			min_deflection_deg_mtr,
-				double			crease_angle_cos,
-				std::list<Point2c>&	pts)
+void generate_bezier(const Point2& a, const Point2& b, const Point2& c, double min_deflection_deg_mtr,
+                     double crease_angle_cos, std::list<Point2c>& pts)
 {
-	//printf("Bezier for: %lf,%lf %lf,%lf %lf,%lf\n", a.x(),a.y(),b.x(),b.y(),c.x(),c.y());
-	DebugAssert(a != b);
-	DebugAssert(b != c);
-	DebugAssert(a != c);
+    // printf("Bezier for: %lf,%lf %lf,%lf %lf,%lf\n", a.x(),a.y(),b.x(),b.y(),c.x(),c.y());
+    DebugAssert(a != b);
+    DebugAssert(b != c);
+    DebugAssert(a != c);
 
-	Point2	ma(a), mb(0.0,0.0),mc(c);
-	double cos_lat = cos(b.y() * DEG_TO_RAD);
-	to_metric(b,cos_lat,ma);
-	to_metric(b,cos_lat,mc);
-	DebugAssert(ma!=mb);
-	DebugAssert(mb!=mc);
-	DebugAssert(ma!=mc);
-	Vector2 ab(ma,mb);
-	Vector2 bc(mb,mc);
-	double len_ab = ab.normalize();
-	double len_bc = bc.normalize();
-	DebugAssert(len_ab > 0.0);
-	DebugAssert(len_bc > 0.0);
-	double dot = doblim(ab.dot(bc),-1.0,1.0);
-	
-//	if(len_ab < 10.0) printf("WARNING: AB is %lf m.\n", len_ab);
-//	if(len_bc < 10.0) printf("WARNING: BC is %lf m.\n", len_bc);
-	
-	if(dot < crease_angle_cos)
-	{
-		// This is the crease case - it is a very SHARP turn - so sharp that we assume it is intentional and the road really does make a corner.
-		// Useful to make 90 degree turns at the edge of a street grid stay "sharp".
-		pts.push_back(Point2c(b,false));
-//		printf("   Crease.\n");
-	}
-	else
-	{
-		double angle = acos(doblim(ab.dot(bc),-1.0,1.0)) * RAD_TO_DEG;
-		
-		double near_angle = max(MIN_ANGLE_FOR_CURVE, 2.0 * min_deflection_deg_mtr);
-		double pull_back = (angle * 0.5) / min_deflection_deg_mtr;
-		
-		if(angle < near_angle || pull_back < MIN_PULLBACK)
-		{
-			#if DEBUG_BEZIERS
-			debug_mesh_point(b, angle < near_angle ? 1.0 : 0.0, 0.0, pull_back < MIN_PULLBACK ? 1.0 : 0.0);
-			#endif
-	
-			// This is the "barely turned" case - if the turn is really really tiny,
-			// just put one point down and hope the user can't "see" the sharp turn.
-			// This is for a, like, one-degee turn.  This also protects us from having the 
-			// pull-back case with TINY turns.
-			pts.push_back(Point2c(b,false));
-//			printf("   Near angle.\n");
-		}
-		else
-		{	
-			// The rest of the cases will all result in some kind of bezier, because the angle isn't really flat and isn't really sharp.
-			// we categorize each of our two incoming segments as "straight" if they are longer than the distance needed to complete the
-			// angular change in a sane distance.  (Really we care if we can complete half the angular turn in half the segment, since 
-			// the other turn might nede the other half.  The two halves wash out of course.)
-			// 
-			// So a straight segment means this segment shouldn't be ENTIRELY bezier...for example, a long highway stretch really is truly 
-			// straight.
-			//
-			// 0.99 = fudge factor - basically if a line is BARELY straight the two pull-back points colide near the mid-point of the vector.
-			// we want to avoid that.
-				
-			bool straight_ab = (angle / (len_ab * 0.99)) < min_deflection_deg_mtr;
-			bool straight_bc = (angle / (len_bc * 0.99)) < min_deflection_deg_mtr;	
-			if(straight_ab)
-			{
-				if(straight_bc)
-				{
-					// AB and BC are both straight, but come together at a non-crease angle.  We need to 'pull back' AB and BC
-					// to make an artificial turn.
-					// The back-pull distance is half the distance to make the turn.
-					DebugAssert(pull_back > 1.0);
-					Point2 b1 = mb - (ab * pull_back);
-					Point2 b2 = mb + (bc * pull_back);
-					from_metric(b,cos_lat,b1);
-					from_metric(b,cos_lat,b2);
-					pts.push_back(Point2c(b1,false));
-					pts.push_back(Point2c(b ,true ));		// B becomes quadratic control point - ensures nice tangents.
-					pts.push_back(Point2c(b2,false));
-					#if DEBUG_BEZIERS
-					printf("   Pull back of %lf mtrs for %lf degs.\n", pull_back, angle);
-					debug_mesh_line(b1,b,0.5,0.5,0,1,1,0);
-					debug_mesh_line(b,b2,0.5,0.5,0,1,1,0);				
-					#endif
-				}
-				else
-				{
-					// AB is straight, BC is curved.  We will start a curve after AB.
-					Point2 b2 = mb + (ab * 0.33 * len_bc);
-					from_metric(b,cos_lat,b2);
-					pts.push_back(Point2c(b ,false));
-					pts.push_back(Point2c(b2,true ));
-					#if DEBUG_BEZIERS
-					debug_mesh_line(b,b2,0,0.5,0,0,1,0);
-					printf("   straight->curve, handle is %lf.\n", 0.33 * len_bc);
-					#endif
-				}
-			}
-			else
-			{
-				if(straight_bc)
-				{
-					// AB is curved, BC is straight.  We will end the curve going into BC.
-					Point2 b1 = mb - (bc * 0.33 * len_ab);
-					from_metric(b,cos_lat,b1);
-					pts.push_back(Point2c(b1,true ));
-					pts.push_back(Point2c(b ,false));
-					#if DEBUG_BEZIERS
-					debug_mesh_line(b1,b,0.5,0,0,1,0,0);
-					printf("   curve->straight, handle is %lf.\n", 0.33 * len_ab);
-					#endif
-				}
-				else
-				{
-					// Both are curved.  Use PN-triangle-like approximation.  Add ab and bc together to get the tangent line,
-					// and assume that the crease angle protects us from ab and bc being near opposites.
-					Vector2 tangent(ab+bc);
-					tangent.normalize();
-					Point2 b1 = mb - (tangent * 0.33 * len_ab);
-					Point2 b2 = mb + (tangent * 0.33 * len_bc);
-					from_metric(b,cos_lat,b1);
-					from_metric(b,cos_lat,b2);
-					pts.push_back(Point2c(b1,true ));
-					pts.push_back(Point2c(b ,false));		// B becomes real point, with b1/b2 forming tangent controls
-					pts.push_back(Point2c(b2,true ));
-					#if DEBUG_BEZIERS
-					printf("   Flow curve, length of %lf, %lf\n", 0.33 * len_ab, 0.33 * len_bc);
-					debug_mesh_line(b1,b,0,0,0.5,0,0,1);
-					debug_mesh_line(b,b2,0,0,0.5,0,0,1);				
-					#endif
-				}
-			}
-		}
-	}
+    Point2 ma(a), mb(0.0, 0.0), mc(c);
+    double cos_lat = cos(b.y() * DEG_TO_RAD);
+    to_metric(b, cos_lat, ma);
+    to_metric(b, cos_lat, mc);
+    DebugAssert(ma != mb);
+    DebugAssert(mb != mc);
+    DebugAssert(ma != mc);
+    Vector2 ab(ma, mb);
+    Vector2 bc(mb, mc);
+    double len_ab = ab.normalize();
+    double len_bc = bc.normalize();
+    DebugAssert(len_ab > 0.0);
+    DebugAssert(len_bc > 0.0);
+    double dot = doblim(ab.dot(bc), -1.0, 1.0);
+
+    //	if(len_ab < 10.0) printf("WARNING: AB is %lf m.\n", len_ab);
+    //	if(len_bc < 10.0) printf("WARNING: BC is %lf m.\n", len_bc);
+
+    if (dot < crease_angle_cos)
+    {
+        // This is the crease case - it is a very SHARP turn - so sharp that we assume it is intentional and the road
+        // really does make a corner. Useful to make 90 degree turns at the edge of a street grid stay "sharp".
+        pts.push_back(Point2c(b, false));
+        //		printf("   Crease.\n");
+    }
+    else
+    {
+        double angle = acos(doblim(ab.dot(bc), -1.0, 1.0)) * RAD_TO_DEG;
+
+        double near_angle = max(MIN_ANGLE_FOR_CURVE, 2.0 * min_deflection_deg_mtr);
+        double pull_back = (angle * 0.5) / min_deflection_deg_mtr;
+
+        if (angle < near_angle || pull_back < MIN_PULLBACK)
+        {
+#if DEBUG_BEZIERS
+            debug_mesh_point(b, angle < near_angle ? 1.0 : 0.0, 0.0, pull_back < MIN_PULLBACK ? 1.0 : 0.0);
+#endif
+
+            // This is the "barely turned" case - if the turn is really really tiny,
+            // just put one point down and hope the user can't "see" the sharp turn.
+            // This is for a, like, one-degee turn.  This also protects us from having the
+            // pull-back case with TINY turns.
+            pts.push_back(Point2c(b, false));
+            //			printf("   Near angle.\n");
+        }
+        else
+        {
+            // The rest of the cases will all result in some kind of bezier, because the angle isn't really flat and
+            // isn't really sharp. we categorize each of our two incoming segments as "straight" if they are longer than
+            // the distance needed to complete the angular change in a sane distance.  (Really we care if we can
+            // complete half the angular turn in half the segment, since the other turn might nede the other half.  The
+            // two halves wash out of course.)
+            //
+            // So a straight segment means this segment shouldn't be ENTIRELY bezier...for example, a long highway
+            // stretch really is truly straight.
+            //
+            // 0.99 = fudge factor - basically if a line is BARELY straight the two pull-back points colide near the
+            // mid-point of the vector. we want to avoid that.
+
+            bool straight_ab = (angle / (len_ab * 0.99)) < min_deflection_deg_mtr;
+            bool straight_bc = (angle / (len_bc * 0.99)) < min_deflection_deg_mtr;
+            if (straight_ab)
+            {
+                if (straight_bc)
+                {
+                    // AB and BC are both straight, but come together at a non-crease angle.  We need to 'pull back' AB
+                    // and BC to make an artificial turn. The back-pull distance is half the distance to make the turn.
+                    DebugAssert(pull_back > 1.0);
+                    Point2 b1 = mb - (ab * pull_back);
+                    Point2 b2 = mb + (bc * pull_back);
+                    from_metric(b, cos_lat, b1);
+                    from_metric(b, cos_lat, b2);
+                    pts.push_back(Point2c(b1, false));
+                    pts.push_back(Point2c(b, true)); // B becomes quadratic control point - ensures nice tangents.
+                    pts.push_back(Point2c(b2, false));
+#if DEBUG_BEZIERS
+                    printf("   Pull back of %lf mtrs for %lf degs.\n", pull_back, angle);
+                    debug_mesh_line(b1, b, 0.5, 0.5, 0, 1, 1, 0);
+                    debug_mesh_line(b, b2, 0.5, 0.5, 0, 1, 1, 0);
+#endif
+                }
+                else
+                {
+                    // AB is straight, BC is curved.  We will start a curve after AB.
+                    Point2 b2 = mb + (ab * 0.33 * len_bc);
+                    from_metric(b, cos_lat, b2);
+                    pts.push_back(Point2c(b, false));
+                    pts.push_back(Point2c(b2, true));
+#if DEBUG_BEZIERS
+                    debug_mesh_line(b, b2, 0, 0.5, 0, 0, 1, 0);
+                    printf("   straight->curve, handle is %lf.\n", 0.33 * len_bc);
+#endif
+                }
+            }
+            else
+            {
+                if (straight_bc)
+                {
+                    // AB is curved, BC is straight.  We will end the curve going into BC.
+                    Point2 b1 = mb - (bc * 0.33 * len_ab);
+                    from_metric(b, cos_lat, b1);
+                    pts.push_back(Point2c(b1, true));
+                    pts.push_back(Point2c(b, false));
+#if DEBUG_BEZIERS
+                    debug_mesh_line(b1, b, 0.5, 0, 0, 1, 0, 0);
+                    printf("   curve->straight, handle is %lf.\n", 0.33 * len_ab);
+#endif
+                }
+                else
+                {
+                    // Both are curved.  Use PN-triangle-like approximation.  Add ab and bc together to get the tangent
+                    // line, and assume that the crease angle protects us from ab and bc being near opposites.
+                    Vector2 tangent(ab + bc);
+                    tangent.normalize();
+                    Point2 b1 = mb - (tangent * 0.33 * len_ab);
+                    Point2 b2 = mb + (tangent * 0.33 * len_bc);
+                    from_metric(b, cos_lat, b1);
+                    from_metric(b, cos_lat, b2);
+                    pts.push_back(Point2c(b1, true));
+                    pts.push_back(Point2c(b, false)); // B becomes real point, with b1/b2 forming tangent controls
+                    pts.push_back(Point2c(b2, true));
+#if DEBUG_BEZIERS
+                    printf("   Flow curve, length of %lf, %lf\n", 0.33 * len_ab, 0.33 * len_bc);
+                    debug_mesh_line(b1, b, 0, 0, 0.5, 0, 0, 1);
+                    debug_mesh_line(b, b2, 0, 0, 0.5, 0, 0, 1);
+#endif
+                }
+            }
+        }
+    }
 }
 
 #pragma mark -
-

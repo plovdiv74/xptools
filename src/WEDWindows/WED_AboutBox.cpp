@@ -30,9 +30,10 @@
 #include "BitmapUtils.h"
 #include "WED_Version.h"
 
-static int aboutbox_bounds[4] = { 0, 0, 600, 420};
+static int aboutbox_bounds[4] = {0, 0, 600, 420};
 
-WED_AboutBox::WED_AboutBox(GUI_Commander * cmdr) : GUI_Window("About WED", xwin_style_movable | xwin_style_centered | xwin_style_popup , aboutbox_bounds, cmdr)
+WED_AboutBox::WED_AboutBox(GUI_Commander* cmdr)
+    : GUI_Window("About WED", xwin_style_movable | xwin_style_centered | xwin_style_popup, aboutbox_bounds, cmdr)
 {
 }
 
@@ -40,98 +41,92 @@ WED_AboutBox::~WED_AboutBox()
 {
 }
 
-bool	WED_AboutBox::Closed(void)
+bool WED_AboutBox::Closed(void)
 {
-	Hide();
-	Stop();
+    Hide();
+    Stop();
     return false;
 }
 
-void		WED_AboutBox::Draw(GUI_GraphState * state)
+void WED_AboutBox::Draw(GUI_GraphState* state)
 {
-	int bounds[4];
-	int tile_sel[4] = { 0, 0, 1, 1 };
-	GUI_Pane::GetBounds(bounds);
-	GUI_DrawStretched(state, "about.png", bounds, tile_sel);
+    int bounds[4];
+    int tile_sel[4] = {0, 0, 1, 1};
+    GUI_Pane::GetBounds(bounds);
+    GUI_DrawStretched(state, "about.png", bounds, tile_sel);
 
-	int font = gFontSize > 14 ? font_UI_Small : font_UI_Basic;
+    int font = gFontSize > 14 ? font_UI_Small : font_UI_Basic;
 
-	float f = GUI_GetLineHeight(font);
-	float * color = WED_Color_RGBA(wed_Table_Text);
+    float f = GUI_GetLineHeight(font);
+    float* color = WED_Color_RGBA(wed_Table_Text);
 
-	const char * main_text[] = {
-		"WorldEditor " WED_VERSION_STRING_SHORT,
-		"© Copyright 2007-2021, Laminar Research",
-		"",
-		"This software is available under an open license,",
-		"for more info see http://developer.x-plane.com/code",
-		"",
-		"OSM data available under CC-BY-SA 2.0 license",
-		"from the OpenStreetMap foundation",
-		"http://www.openstreetmap.org/copyright",
-		"",
-		"The World Imagery is provided by ESRI, for",
-		"more detail see 'Permitted Uses' in the Help",
-		"menu or visit http://www.esri.com",
+    const char* main_text[] = {
+        "WorldEditor " WED_VERSION_STRING_SHORT,
+        "© Copyright 2007-2021, Laminar Research",
+        "",
+        "This software is available under an open license,",
+        "for more info see http://developer.x-plane.com/code",
+        "",
+        "OSM data available under CC-BY-SA 2.0 license",
+        "from the OpenStreetMap foundation",
+        "http://www.openstreetmap.org/copyright",
+        "",
+        "The World Imagery is provided by ESRI, for",
+        "more detail see 'Permitted Uses' in the Help",
+        "menu or visit http://www.esri.com",
 #if LIN
-		"",
-		"WED is based in part on the work of the FLTK",
-		"project hosted at http://www.fltk.org",
+        "",
+        "WED is based in part on the work of the FLTK",
+        "project hosted at http://www.fltk.org",
 #endif
-		0 };
+        0
+    };
 
-	int n = 0;
-	while(main_text[n])
-	{
-		GUI_FontDraw(state, font, color, bounds[0] * 0.62 + bounds[2] * 0.38, bounds[3] - 30 - f*n, main_text[n]);
-		++n;
-	}
+    int n = 0;
+    while (main_text[n])
+    {
+        GUI_FontDraw(state, font, color, bounds[0] * 0.62 + bounds[2] * 0.38, bounds[3] - 30 - f * n, main_text[n]);
+        ++n;
+    }
 
-	const char * info = "WorldEditor " WED_VERSION_STRING ", compiled on " __DATE__ " " __TIME__
+    const char* info = "WorldEditor " WED_VERSION_STRING ", compiled on " __DATE__ " " __TIME__
 #if TYLER_MODE
-	" with TYLER_MODE"
+                       " with TYLER_MODE"
 #endif
-	;
+        ;
 
-	GUI_FontDraw(state, font, color,
-		(bounds[0] + bounds[2]) * 0.5,
-		bounds[1] * 0.75 + bounds[3] * 0.25,
-		info, align_Center);
+    GUI_FontDraw(state, font, color, (bounds[0] + bounds[2]) * 0.5, bounds[1] * 0.75 + bounds[3] * 0.25, info,
+                 align_Center);
 
-	// Don't like how you have been acredited (or NOT acredited)?  FIX IT!  Change the code
-	// here, submit a patch, or file a bug report.
+    // Don't like how you have been acredited (or NOT acredited)?  FIX IT!  Change the code
+    // here, submit a patch, or file a bug report.
 
-	const char * credits[] = {
-		//Sorted alphabetically, no exceptions
-		"Thanks to Ben Supnik, Ted Greene, Janos Laube, Christiano Maggi,",
-		"Michael Minnhaar, Mathias Roedel, Tyler Young, Martin Boehme",
-		"and everyone else who has contributed to WorldEditor's development.",
-		0 };
-	n = 0;
-	while(credits[n])
-	{
-		GUI_FontDraw(
-			state,font,color,
-			(bounds[0] + bounds[2]) * 0.5,
-			bounds[1] * 0.85 + bounds[3] * 0.15 - n * f,
-			credits[n],align_Center);
-		++n;
-	}
+    const char* credits[] = {// Sorted alphabetically, no exceptions
+                             "Thanks to Ben Supnik, Ted Greene, Janos Laube, Christiano Maggi,",
+                             "Michael Minnhaar, Mathias Roedel, Tyler Young, Martin Boehme",
+                             "and everyone else who has contributed to WorldEditor's development.", 0};
+    n = 0;
+    while (credits[n])
+    {
+        GUI_FontDraw(state, font, color, (bounds[0] + bounds[2]) * 0.5, bounds[1] * 0.85 + bounds[3] * 0.15 - n * f,
+                     credits[n], align_Center);
+        ++n;
+    }
 }
 
-int			WED_AboutBox::MouseDown(int x, int y, int button)
+int WED_AboutBox::MouseDown(int x, int y, int button)
 {
-	return 1;
+    return 1;
 }
 
-void		WED_AboutBox::MouseUp  (int x, int y, int button)
+void WED_AboutBox::MouseUp(int x, int y, int button)
 {
-	Stop();
-	Hide();
+    Stop();
+    Hide();
 }
 
-void		WED_AboutBox::TimerFired(void)
+void WED_AboutBox::TimerFired(void)
 {
-	Stop();
-	Hide();
+    Stop();
+    Hide();
 }

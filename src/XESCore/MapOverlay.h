@@ -34,47 +34,42 @@
 // These opeations work on entire maps - they use sweep line, so they are very good for two huge maps.
 // But if one map is much smaller than the other, you eat the cost of the big map!!!
 
-
 // Merges the ocntents of A and B into result.
 // Faces are marked as contained if they were bounded faces in B.  Conflicts are resolved in favor of B.
-void	MapMerge(Pmwx& src_a, Pmwx& src_b, Pmwx& result);
+void MapMerge(Pmwx& src_a, Pmwx& src_b, Pmwx& result);
 
 // Overlays "top" on top of "bottom - all properties are taken from top UNLESS bottom is under an unbounded part of top.
 // Faces that were bounded in top ("in") top are std::set as contained, A is not.
-void	MapOverlay(Pmwx& bottom, Pmwx& top, Pmwx& result);
-
-
+void MapOverlay(Pmwx& bottom, Pmwx& top, Pmwx& result);
 
 /******************************************************************************************************************************
  * LEGACY MERGING APIS
  ******************************************************************************************************************************/
 
-// These ops insert a polygon "manually".  They are not as efficient as sweep, but computational complexity is "local" to the
-// inserted polygon, which is a big win for a tiny polygon in a huge map.
+// These ops insert a polygon "manually".  They are not as efficient as sweep, but computational complexity is "local"
+// to the inserted polygon, which is a big win for a tiny polygon in a huge map.
 
-
-// Merge the polygon into the map.  The polygon must be simple.  If desired, the entire face std::set within the polygon is returned.
-// If locator is not NULL, it must be a valid locator for the dest map.
-void			MapMergePolygon(Pmwx& io_dst, const Polygon_2& src, std::set<Face_handle> * out_faces, Locator * loc);
-void			MapMergePolygonWithHoles(Pmwx& io_dst, const Polygon_with_holes_2& src, std::set<Face_handle> * out_faces, Locator * loc);
-void			MapMergePolygonSet(Pmwx& io_dst, const Polygon_set_2& src, std::set<Face_handle> * out_faces, Locator * loc);
+// Merge the polygon into the map.  The polygon must be simple.  If desired, the entire face std::set within the polygon
+// is returned. If locator is not NULL, it must be a valid locator for the dest map.
+void MapMergePolygon(Pmwx& io_dst, const Polygon_2& src, std::set<Face_handle>* out_faces, Locator* loc);
+void MapMergePolygonWithHoles(Pmwx& io_dst, const Polygon_with_holes_2& src, std::set<Face_handle>* out_faces,
+                              Locator* loc);
+void MapMergePolygonSet(Pmwx& io_dst, const Polygon_set_2& src, std::set<Face_handle>* out_faces, Locator* loc);
 
 // Overlay the polygon, gutting anything inside it.  Polygon must be simple and non-empty!
 // If locator is not NULL, it must be a valid locator for the dest map.
-Face_handle		MapOverlayPolygon(Pmwx& io_dst, const Polygon_2& src, Locator * loc);
-Face_handle		MapOverlayPolygonWithHoles(Pmwx& io_dst, const Polygon_with_holes_2& src, Locator * loc);
-void			MapOverlayPolygonSet(Pmwx& io_dst, const Polygon_set_2& src, Locator * loc, std::set<Face_handle> * faces);
-
+Face_handle MapOverlayPolygon(Pmwx& io_dst, const Polygon_2& src, Locator* loc);
+Face_handle MapOverlayPolygonWithHoles(Pmwx& io_dst, const Polygon_with_holes_2& src, Locator* loc);
+void MapOverlayPolygonSet(Pmwx& io_dst, const Polygon_set_2& src, Locator* loc, std::set<Face_handle>* faces);
 
 /******************************************************************************************************************************
  * LEGACY MERGING APIS
  ******************************************************************************************************************************/
 
-
 // These are stubs from the old API - need to be migrated some day.  They are marked as legacy because the underlying
-// implementation is not (unlike my old code) in-place during merge...so there is a copy from a temp at the end.  This means
-// that we eat a copy of a potentially huge map each time we do this.  So _legacy is a warning when writing new code to try to
-// use the other routines.
+// implementation is not (unlike my old code) in-place during merge...so there is a copy from a temp at the end.  This
+// means that we eat a copy of a potentially huge map each time we do this.  So _legacy is a warning when writing new
+// code to try to use the other routines.
 
 /*
  * OverlayMap
@@ -84,9 +79,7 @@ void			MapOverlayPolygonSet(Pmwx& io_dst, const Polygon_set_2& src, Locator * lo
  * inDst has contents overwritten.
  *
  */
-void OverlayMap_legacy(
-			Pmwx& 	inDst,
-			Pmwx& 	inSrc);
+void OverlayMap_legacy(Pmwx& inDst, Pmwx& inSrc);
 
 /*
  * MergeMaps
@@ -114,9 +107,7 @@ void OverlayMap_legacy(
  * ended up, without having to do a bunch of fac-relocates from edge bounds.
  *
  */
-void MergeMaps_legacy(Pmwx& ioDstMap, Pmwx& ioSrcMap, bool inForceProps, std::set<Face_handle> * outFaces, bool pre_integrated, ProgressFunc func);
-
-
+void MergeMaps_legacy(Pmwx& ioDstMap, Pmwx& ioSrcMap, bool inForceProps, std::set<Face_handle>* outFaces,
+                      bool pre_integrated, ProgressFunc func);
 
 #endif /* MapOverlay_H */
-

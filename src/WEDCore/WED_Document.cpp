@@ -67,131 +67,129 @@ int gFontSize;
 std::string gCustomSlippyMap;
 int gOrthoExport;
 
-static std::set<WED_Document *> sDocuments;
-static std::map<std::string,std::string>	sGlobalPrefs;
+static std::set<WED_Document*> sDocuments;
+static std::map<std::string, std::string> sGlobalPrefs;
 
-WED_Document::WED_Document(
-	const std::string& 		package,
-	double				inBounds[4]) :
-	//	mProperties(mDB.get()),
-	mPackage(package),
-	mFilePath(gPackageMgr->ComputePath(package, "earth.wed")),
-	//	mDB(mFilePath.c_str()),
-	//	mPackage(inPackage),
+WED_Document::WED_Document(const std::string& package, double inBounds[4])
+    : //	mProperties(mDB.get()),
+      mPackage(package), mFilePath(gPackageMgr->ComputePath(package, "earth.wed")),
+//	mDB(mFilePath.c_str()),
+//	mPackage(inPackage),
 #if WITHNWLINK
-	mServer(NULL),
-	mNWLink(NULL),
-	mOnDisk(false),
+      mServer(NULL), mNWLink(NULL), mOnDisk(false),
 #endif
-	mPrefsChanged(false),
-	mUndo(&mArchive, this),
-	mArchive(this)
+      mPrefsChanged(false), mUndo(&mArchive, this), mArchive(this)
 {
 
-	mTexMgr = new WED_TexMgr(package);
-	mLibraryMgr = new WED_LibraryMgr(package);
-	mResourceMgr = new WED_ResourceMgr(mLibraryMgr);
-	sDocuments.insert(this);
-	mArchive.SetUndoManager(&mUndo);
+    mTexMgr = new WED_TexMgr(package);
+    mLibraryMgr = new WED_LibraryMgr(package);
+    mResourceMgr = new WED_ResourceMgr(mLibraryMgr);
+    sDocuments.insert(this);
+    mArchive.SetUndoManager(&mUndo);
 
-	std::string buf;
+    std::string buf;
 
-	mBounds[0] = inBounds[0];
-	mBounds[1] = inBounds[1];
-	mBounds[2] = inBounds[2];
-	mBounds[3] = inBounds[3];
+    mBounds[0] = inBounds[0];
+    mBounds[1] = inBounds[1];
+    mBounds[2] = inBounds[2];
+    mBounds[3] = inBounds[3];
 
-	Revert();
-	mUndo.PurgeUndo();
-	mUndo.PurgeRedo();
+    Revert();
+    mUndo.PurgeUndo();
+    mUndo.PurgeRedo();
 
 #if WITHNWLINK
-	if(sDocuments.size()==1)// only first document
-	{
-		mServer = new WED_Server(mPackage,ReadIntPref("network/port",10300));
-		mNWLink	= new WED_NWLinkAdapter(mServer,&mArchive);
-		mServer->AddListener(mNWLink);
-		AddListener(mNWLink);
-		mArchive.SetNWLinkAdapter(mNWLink);
-	}
+    if (sDocuments.size() == 1) // only first document
+    {
+        mServer = new WED_Server(mPackage, ReadIntPref("network/port", 10300));
+        mNWLink = new WED_NWLinkAdapter(mServer, &mArchive);
+        mServer->AddListener(mNWLink);
+        AddListener(mNWLink);
+        mArchive.SetNWLinkAdapter(mNWLink);
+    }
 #endif
 }
 
 WED_Document::~WED_Document()
 {
-	delete mTexMgr;
-	delete mResourceMgr;
-	delete mLibraryMgr;
+    delete mTexMgr;
+    delete mResourceMgr;
+    delete mLibraryMgr;
 #if WITHNWLINK
-	delete mNWLink;
-	delete mServer;
+    delete mNWLink;
+    delete mServer;
 #endif
-	sDocuments.erase(this);
-	BroadcastMessage(msg_DocumentDestroyed, 0);
+    sDocuments.erase(this);
+    BroadcastMessage(msg_DocumentDestroyed, 0);
 }
 
-std::string				WED_Document::GetFilePath(void) const
+std::string WED_Document::GetFilePath(void) const
 {
-	return mFilePath + ".xml";
+    return mFilePath + ".xml";
 }
 
-void		WED_Document::GetBounds(double bounds[4])
+void WED_Document::GetBounds(double bounds[4])
 {
-	for (int n = 0; n < 4; ++n)
-		bounds[n] = mBounds[n];
+    for (int n = 0; n < 4; ++n)
+        bounds[n] = mBounds[n];
 }
 
-WED_Archive *		WED_Document::GetArchive(void)
+WED_Archive* WED_Document::GetArchive(void)
 {
-	return &mArchive;
+    return &mArchive;
 }
 
-WED_Thing *		WED_Document::GetRoot(void)
+WED_Thing* WED_Document::GetRoot(void)
 {
-	return SAFE_CAST(WED_Thing,mArchive.Fetch(1));
+    return SAFE_CAST(WED_Thing, mArchive.Fetch(1));
 }
 
-WED_UndoMgr *	WED_Document::GetUndoMgr(void)
+WED_UndoMgr* WED_Document::GetUndoMgr(void)
 {
-	return &mUndo;
+    return &mUndo;
 }
 #if WITHNWLINK
-WED_Server *	WED_Document::GetServer(void)
+WED_Server* WED_Document::GetServer(void)
 {
-	return mServer;
+    return mServer;
 }
-WED_NWLinkAdapter *	WED_Document::GetNWLink(void)
+WED_NWLinkAdapter* WED_Document::GetNWLink(void)
 {
-	return mNWLink;
+    return mNWLink;
 }
 #endif
 
 #include <chrono>
 
-void	WED_Document::Save(void)
+void WED_Document::Save(void)
 {
-	BroadcastMessage(msg_DocWillSave, reinterpret_cast<uintptr_t>(static_cast<IDocPrefs *>(this)));
+    BroadcastMessage(msg_DocWillSave, reinterpret_cast<uintptr_t>(static_cast<IDocPrefs*>(this)));
 
-	enum {none,nobackup,both};
-	int stage = none;
+    enum
+    {
+        none,
+        nobackup,
+        both
+    };
+    int stage = none;
 
-	//Create the strings path.
-	//earth.wed.xml,
-	//earth.wed.bak.xml,
-	//earth.wed.bak.bak.xml, deleted before the user sees it.
+    // Create the strings path.
+    // earth.wed.xml,
+    // earth.wed.bak.xml,
+    // earth.wed.bak.bak.xml, deleted before the user sees it.
 
-	//All or some of these are used through out
+    // All or some of these are used through out
 
-	std::string xml = mFilePath;
-	xml += ".xml";
+    std::string xml = mFilePath;
+    xml += ".xml";
 
-	std::string bakXML = xml;
-	bakXML = bakXML.insert((bakXML.length()-4),".bak");
+    std::string bakXML = xml;
+    bakXML = bakXML.insert((bakXML.length() - 4), ".bak");
 
-	std::string tempBakBak = bakXML;
-	tempBakBak = tempBakBak.insert((bakXML.length()-4),".bak");
+    std::string tempBakBak = bakXML;
+    tempBakBak = tempBakBak.insert((bakXML.length() - 4), ".bak");
 
-	auto t0 = std::chrono::high_resolution_clock::now();
+    auto t0 = std::chrono::high_resolution_clock::now();
 
 #if 0
 	bool earth_wed_xml = FILE_exists(xml.c_str());
@@ -230,42 +228,42 @@ void	WED_Document::Save(void)
 		break;
 	}
 #else
-	rename(xml.c_str(), bakXML.c_str());
+    rename(xml.c_str(), bakXML.c_str());
 #endif
-		auto t1 = std::chrono::high_resolution_clock::now();
-	chrono::duration<double> elapsed = t1 - t0;
-	LOG_MSG("\nrename b4 save %.3lf s\n", elapsed.count());
-	t0 = t1;
+    auto t1 = std::chrono::high_resolution_clock::now();
+    chrono::duration<double> elapsed = t1 - t0;
+    LOG_MSG("\nrename b4 save %.3lf s\n", elapsed.count());
+    t0 = t1;
 
-	//Create an xml file by opening the file located on the hard drive (windows)
-	//open a file for writing creating/nukeing if neccessary
+    // Create an xml file by opening the file located on the hard drive (windows)
+    // open a file for writing creating/nukeing if neccessary
 
-	FILE * xml_file = fopen(xml.c_str(),"w");
+    FILE* xml_file = fopen(xml.c_str(), "w");
 
-	if(xml_file == NULL)
-	{
-		std::string msg = "Can not open '" + xml + "' for writing.";
-		DoUserAlert(msg.c_str());
-		return;
-	}
+    if (xml_file == NULL)
+    {
+        std::string msg = "Can not open '" + xml + "' for writing.";
+        DoUserAlert(msg.c_str());
+        return;
+    }
 
-	int ferrorErr = ferror(xml_file);
-		//If everything else has worked
-	if(ferrorErr == 0)
-	{
-		WriteXML(xml_file);
-	}
+    int ferrorErr = ferror(xml_file);
+    // If everything else has worked
+    if (ferrorErr == 0)
+    {
+        WriteXML(xml_file);
+    }
 
-	int fcloseErr = fclose(xml_file);
+    int fcloseErr = fclose(xml_file);
 
-	t1 = std::chrono::high_resolution_clock::now();
-	elapsed = t1 - t0;
-	LOG_MSG("xml write %.3lf s\n", elapsed.count());
-	t0 = t1;
+    t1 = std::chrono::high_resolution_clock::now();
+    elapsed = t1 - t0;
+    LOG_MSG("xml write %.3lf s\n", elapsed.count());
+    t0 = t1;
 
-	if(ferrorErr != 0 || fcloseErr != 0)
-	{
-		std::string msg =  "Error while writing '" + xml + "'";
+    if (ferrorErr != 0 || fcloseErr != 0)
+    {
+        std::string msg = "Error while writing '" + xml + "'";
 #if 0
 		switch(stage)
 		{
@@ -292,17 +290,17 @@ void	WED_Document::Save(void)
 				break;
 		}
 #else
-		rename(bakXML.c_str(), xml.c_str());
+        rename(bakXML.c_str(), xml.c_str());
 #endif
-		msg += "'.";
-		DoUserAlert(msg.c_str());
-	}
-	else
-	{
-		// This is the save-was-okay case.
-		mOnDisk=true;
-		mPrefsChanged=false;
-	}
+        msg += "'.";
+        DoUserAlert(msg.c_str());
+    }
+    else
+    {
+        // This is the save-was-okay case.
+        mOnDisk = true;
+        mPrefsChanged = false;
+    }
 #if 0
 	//if the second backup still exists after the error handling
 	if(FILE_exists(tempBakBak.c_str()) == true)
@@ -311,470 +309,492 @@ void	WED_Document::Save(void)
 		FILE_delete_file(tempBakBak.c_str(), false);
 	}
 #endif
-	t1 = std::chrono::high_resolution_clock::now();
-	elapsed = t1 - t0;
-	LOG_MSG("delete aft save %.3lf s\n", elapsed.count());
+    t1 = std::chrono::high_resolution_clock::now();
+    elapsed = t1 - t0;
+    LOG_MSG("delete aft save %.3lf s\n", elapsed.count());
 }
 
-void	WED_Document::Revert(void)
+void WED_Document::Revert(void)
 {
-	if(this->IsDirty())
-	{
-		std::string msg = "Are you sure you want to revert the document '" + mPackage + "' to the saved version on disk?";
-		if(!ConfirmMessage(msg.c_str(),"Revert","Cancel"))
-			return;
-	}
+    if (this->IsDirty())
+    {
+        std::string msg =
+            "Are you sure you want to revert the document '" + mPackage + "' to the saved version on disk?";
+        if (!ConfirmMessage(msg.c_str(), "Revert", "Cancel"))
+            return;
+    }
 
-	mDocPrefs.clear();
-	mUndo.__StartCommand("Revert from Saved.",__FILE__,__LINE__);
+    mDocPrefs.clear();
+    mUndo.__StartCommand("Revert from Saved.", __FILE__, __LINE__);
 
-	try {
-		WED_XMLReader	reader;
-		reader.PushHandler(this);
-		std::string fname(mFilePath);
-		fname+=".xml";
-		mArchive.ClearAll();
+    try
+    {
+        WED_XMLReader reader;
+        reader.PushHandler(this);
+        std::string fname(mFilePath);
+        fname += ".xml";
+        mArchive.ClearAll();
 
-		// First: try to IO the XML file.
-		bool xml_exists;
-		LOG_MSG("I/Doc reading XML from %s\n", fname.c_str());
+        // First: try to IO the XML file.
+        bool xml_exists;
+        LOG_MSG("I/Doc reading XML from %s\n", fname.c_str());
 
-		std::string result = reader.ReadFile(fname.c_str(),&xml_exists);
+        std::string result = reader.ReadFile(fname.c_str(), &xml_exists);
 
-		for (auto sp : mDocPrefs)
-			LOG_MSG("I/Doc prefs %s = %s\n", sp.first.c_str(), sp.second.c_str());
-		LOG_FLUSH();
+        for (auto sp : mDocPrefs)
+            LOG_MSG("I/Doc prefs %s = %s\n", sp.first.c_str(), sp.second.c_str());
+        LOG_FLUSH();
 
-		if(xml_exists && !result.empty())
-		{
-			LOG_MSG("E/Doc Error reading XML %s",result.c_str());
-			WED_ThrowPrintf("Unable to open XML file: %s",result.c_str());
-		}
-		if(xml_exists)
-		{
-			mOnDisk=true;
-			mPrefsChanged = false;
-		}
-		else
-		{
-				/* We have a brand new blank doc.  In WED 1.0, we ran a SQL script that built the core objects,
-				 * then we IO-ed it in.  In WED 1.1 we just build the world and the few named objs immediately. */
+        if (xml_exists && !result.empty())
+        {
+            LOG_MSG("E/Doc Error reading XML %s", result.c_str());
+            WED_ThrowPrintf("Unable to open XML file: %s", result.c_str());
+        }
+        if (xml_exists)
+        {
+            mOnDisk = true;
+            mPrefsChanged = false;
+        }
+        else
+        {
+            /* We have a brand new blank doc.  In WED 1.0, we ran a SQL script that built the core objects,
+             * then we IO-ed it in.  In WED 1.1 we just build the world and the few named objs immediately. */
 
-				// BASIC DOCUMENT STRUCTURE:
-				// The first object ever made gets ID 1 and is the "root" - the one known object.  The WED doc goes
-				// to "object 1" to get started.
-				// THEN the root contains three well-known objects by name - so their order isn't super-important as
-				// children or in the archive.  The "World" is the outer most spatial group, the "selection" is our one
-				// and only selection object, and "choices" is our key-value dictionary for various random crap we'll
-				// need.  (Currently only current airprt is std::set in the key-value lookup.)
+            // BASIC DOCUMENT STRUCTURE:
+            // The first object ever made gets ID 1 and is the "root" - the one known object.  The WED doc goes
+            // to "object 1" to get started.
+            // THEN the root contains three well-known objects by name - so their order isn't super-important as
+            // children or in the archive.  The "World" is the outer most spatial group, the "selection" is our one
+            // and only selection object, and "choices" is our key-value dictionary for various random crap we'll
+            // need.  (Currently only current airprt is std::set in the key-value lookup.)
 
-				WED_Root * root = WED_Root::CreateTyped(&mArchive);				// Root object anchors all WED things and supports named searches.
-				WED_Select * sel = WED_Select::CreateTyped(&mArchive);			// Sel and key-choice objs are known by name in the root!
-				WED_KeyObjects * key = WED_KeyObjects::CreateTyped(&mArchive);
-				WED_Group * wrl = WED_Group::CreateTyped(&mArchive);			// The world is a group of name "world" inside the root.
-				sel->SetParent(root,0);
-				key->SetParent(root,1);
-				wrl->SetParent(root,2);
-				root->SetName("root");
-				sel->SetName("selection");
-				key->SetName("choices");
-				wrl->SetName("world");
-				LOG_MSG("I/Doc brand new empty doc\n");
-		}
-	} catch(...) {
-		// don't bail out of the load loop without aborting the command - otherwise undo mgr goes ape.
-		mUndo.AbortCommand();
-		throw;
-	}
-	mUndo.CommitCommand();
+            WED_Root* root =
+                WED_Root::CreateTyped(&mArchive); // Root object anchors all WED things and supports named searches.
+            WED_Select* sel =
+                WED_Select::CreateTyped(&mArchive); // Sel and key-choice objs are known by name in the root!
+            WED_KeyObjects* key = WED_KeyObjects::CreateTyped(&mArchive);
+            WED_Group* wrl = WED_Group::CreateTyped(&mArchive); // The world is a group of name "world" inside the root.
+            sel->SetParent(root, 0);
+            key->SetParent(root, 1);
+            wrl->SetParent(root, 2);
+            root->SetName("root");
+            sel->SetName("selection");
+            key->SetName("choices");
+            wrl->SetName("world");
+            LOG_MSG("I/Doc brand new empty doc\n");
+        }
+    }
+    catch (...)
+    {
+        // don't bail out of the load loop without aborting the command - otherwise undo mgr goes ape.
+        mUndo.AbortCommand();
+        throw;
+    }
+    mUndo.CommitCommand();
 
-	if(WED_Repair(this))
-	{
-		std::string msg = std::string("Warning: the package '") + mPackage + std::string("' has some corrupt contents."
-					"They have been deleted so that the document can be opened.  If you have a better backup of the project, do not save these changes.");
-		DoUserAlert(msg.c_str());
-		mUndo.PurgeUndo();
-	}
+    if (WED_Repair(this))
+    {
+        std::string msg = std::string("Warning: the package '") + mPackage +
+                          std::string("' has some corrupt contents."
+                                      "They have been deleted so that the document can be opened.  If you have a "
+                                      "better backup of the project, do not save these changes.");
+        DoUserAlert(msg.c_str());
+        mUndo.PurgeUndo();
+    }
 
-	BroadcastMessage(msg_DocLoaded, reinterpret_cast<uintptr_t>(static_cast<IDocPrefs *>(this)));
+    BroadcastMessage(msg_DocLoaded, reinterpret_cast<uintptr_t>(static_cast<IDocPrefs*>(this)));
 }
 
-bool	WED_Document::IsDirty(void)
+bool WED_Document::IsDirty(void)
 {
-	return mArchive.IsDirty() != 0 || mPrefsChanged;
+    return mArchive.IsDirty() != 0 || mPrefsChanged;
 }
 
-void	WED_Document::SetDirty(void)
+void WED_Document::SetDirty(void)
 {
-	mPrefsChanged = true;
+    mPrefsChanged = true;
 }
 
-bool	WED_Document::IsOnDisk(void)
+bool WED_Document::IsOnDisk(void)
 {
-	return mOnDisk;
+    return mOnDisk;
 }
 
-bool	WED_Document::TryClose(void)
+bool WED_Document::TryClose(void)
 {
-	if (IsDirty())
-	{
-		std::string msg = std::string("Save changes to scenery package ") + mPackage + std::string(" before closing?");
+    if (IsDirty())
+    {
+        std::string msg = std::string("Save changes to scenery package ") + mPackage + std::string(" before closing?");
 
-		switch(DoSaveDiscardDialog("Save changes before closing...",msg.c_str())) {
-		case close_Save:	Save();	break;
-		case close_Discard:			break;
-		case close_Cancel:	return false;
-		}
-	}
+        switch (DoSaveDiscardDialog("Save changes before closing...", msg.c_str()))
+        {
+        case close_Save:
+            Save();
+            break;
+        case close_Discard:
+            break;
+        case close_Cancel:
+            return false;
+        }
+    }
 #if WITHNWLINK
-	if(mServer)
-	{
-		mServer->DoStop();
-		WriteIntPref("network/port", mServer->GetPort());
-	}
+    if (mServer)
+    {
+        mServer->DoStop();
+        WriteIntPref("network/port", mServer->GetPort());
+    }
 #endif
-	AsyncDestroy();     // This prevents most class deconstructors from being executed.
+    AsyncDestroy(); // This prevents most class deconstructors from being executed.
 
-	delete this;        // So we do that ... its needed by WED_ResourceMgr
-	return true;
+    delete this; // So we do that ... its needed by WED_ResourceMgr
+    return true;
 }
 
-
-IBase *	WED_Document::Resolver_Find(const char * in_path)
+IBase* WED_Document::Resolver_Find(const char* in_path)
 {
-	const char * sp = in_path;
-	const char * ep;
+    const char* sp = in_path;
+    const char* ep;
 
-	if (strcmp(in_path,"librarian")==0) return (ILibrarian *) this;
-	if (strcmp(in_path,"texmgr")==0) return (ITexMgr *) mTexMgr;
-	if (strcmp(in_path,"resmgr")==0) return (WED_ResourceMgr *) mResourceMgr;
-	if (strcmp(in_path,"libmgr")==0) return (WED_LibraryMgr *) mLibraryMgr;
-	if (strcmp(in_path,"docprefs")==0) return (IDocPrefs *) this;
+    if (strcmp(in_path, "librarian") == 0)
+        return (ILibrarian*)this;
+    if (strcmp(in_path, "texmgr") == 0)
+        return (ITexMgr*)mTexMgr;
+    if (strcmp(in_path, "resmgr") == 0)
+        return (WED_ResourceMgr*)mResourceMgr;
+    if (strcmp(in_path, "libmgr") == 0)
+        return (WED_LibraryMgr*)mLibraryMgr;
+    if (strcmp(in_path, "docprefs") == 0)
+        return (IDocPrefs*)this;
 
-	IBase * who = mArchive.Fetch(1);
+    IBase* who = mArchive.Fetch(1);
 
-	while(*sp != 0)
-	{
-		if(*sp == '[')
-		{
-			++sp;
-			int idx = atoi(sp);
-			while(*sp != 0 && *sp != ']') ++sp;
-			if (*sp == 0) return NULL;
-			++sp;
+    while (*sp != 0)
+    {
+        if (*sp == '[')
+        {
+            ++sp;
+            int idx = atoi(sp);
+            while (*sp != 0 && *sp != ']')
+                ++sp;
+            if (*sp == 0)
+                return NULL;
+            ++sp;
 
-			IArray * arr = SAFE_CAST(IArray, who);
-			if(arr == NULL) return NULL;
-			who = arr->Array_GetNth(idx);
-			if (who == NULL) return NULL;
+            IArray* arr = SAFE_CAST(IArray, who);
+            if (arr == NULL)
+                return NULL;
+            who = arr->Array_GetNth(idx);
+            if (who == NULL)
+                return NULL;
 
-			if (*sp == '.') ++sp;
-		}
-		else
-		{
-			ep = sp;
-			while (*ep != 0 && *ep != '[' && *ep != '.') ++ep;
-			std::string comp(sp,ep);
+            if (*sp == '.')
+                ++sp;
+        }
+        else
+        {
+            ep = sp;
+            while (*ep != 0 && *ep != '[' && *ep != '.')
+                ++ep;
+            std::string comp(sp, ep);
 
-			IDirectory * dir = SAFE_CAST(IDirectory,who);
-			if (dir == NULL) return NULL;
-			who = dir->Directory_Find(comp.c_str());
-			if (who == NULL) return NULL;
-			sp = ep;
+            IDirectory* dir = SAFE_CAST(IDirectory, who);
+            if (dir == NULL)
+                return NULL;
+            who = dir->Directory_Find(comp.c_str());
+            if (who == NULL)
+                return NULL;
+            sp = ep;
 
-			if (*sp == '.') ++sp;
-		}
-	}
-	return who;
+            if (*sp == '.')
+                ++sp;
+        }
+    }
+    return who;
 }
 
 /*
 void *		WED_Document::QueryInterface(const char * class_id)
 {
-	if (strcmp(class_id,"IResolver")==0)
-		return (IResolver *) this;
-	return NULL;
+    if (strcmp(class_id,"IResolver")==0)
+        return (IResolver *) this;
+    return NULL;
 }
 
 */
 
-bool	WED_Document::TryCloseAll(void)
+bool WED_Document::TryCloseAll(void)
 {
-	std::set<WED_Document *>	documents(sDocuments);
-	for (std::set<WED_Document *>::iterator p = documents.begin(); p != documents.end(); ++p)
-	{
-		if (!(*p)->TryClose()) return false;
-	}
-	return true;
+    std::set<WED_Document*> documents(sDocuments);
+    for (std::set<WED_Document*>::iterator p = documents.begin(); p != documents.end(); ++p)
+    {
+        if (!(*p)->TryClose())
+            return false;
+    }
+    return true;
 }
 
-
-
-void	WED_Document::LookupPath(std::string& io_path)
+void WED_Document::LookupPath(std::string& io_path)
 {
-	io_path = gPackageMgr->ComputePath(mPackage, io_path);
+    io_path = gPackageMgr->ComputePath(mPackage, io_path);
 }
 
-void	WED_Document::ReducePath(std::string& io_path)
+void WED_Document::ReducePath(std::string& io_path)
 {
-	io_path = gPackageMgr->ReducePath(mPackage, io_path);
+    io_path = gPackageMgr->ReducePath(mPackage, io_path);
 }
 
-
-int			WED_Document::ReadIntPref(const char * in_key, int in_default, unsigned type)
+int WED_Document::ReadIntPref(const char* in_key, int in_default, unsigned type)
 {
-	std::string value;
-	if ((type & pref_type_doc) && ReadPrefInternal(in_key, pref_type_doc, value))
-	{
-		return atoi(value.c_str());
-	}
-	else if ((type & pref_type_global) && ReadPrefInternal(in_key, pref_type_global, value))
-	{
-		if (strcmp(in_key, "doc/export_target") == 0)        // ignore a few things when creating new, empty docs. Too many users get confused by inheriting "unusual" settings
-			return wet_latest_xplane;
-		else if (strcmp(in_key, "map/obj_density") == 0)
-			return in_default;
-		else
-			return atoi(value.c_str());
-	}
-	else
-	{
-		return in_default;
-	}
+    std::string value;
+    if ((type & pref_type_doc) && ReadPrefInternal(in_key, pref_type_doc, value))
+    {
+        return atoi(value.c_str());
+    }
+    else if ((type & pref_type_global) && ReadPrefInternal(in_key, pref_type_global, value))
+    {
+        if (strcmp(in_key, "doc/export_target") == 0) // ignore a few things when creating new, empty docs. Too many
+                                                      // users get confused by inheriting "unusual" settings
+            return wet_latest_xplane;
+        else if (strcmp(in_key, "map/obj_density") == 0)
+            return in_default;
+        else
+            return atoi(value.c_str());
+    }
+    else
+    {
+        return in_default;
+    }
 }
 
-void		WED_Document::WriteIntPref(const char * in_key, int in_value, unsigned type)
+void WED_Document::WriteIntPref(const char* in_key, int in_value, unsigned type)
 {
-	char buf[256];
-	sprintf(buf,"%d",in_value);
-	WriteStringPref(in_key, buf, type);
+    char buf[256];
+    sprintf(buf, "%d", in_value);
+    WriteStringPref(in_key, buf, type);
 }
 
-double			WED_Document::ReadDoublePref(const char * in_key, double in_default, unsigned type)
+double WED_Document::ReadDoublePref(const char* in_key, double in_default, unsigned type)
 {
-	std::string value;
-	if (ReadPrefInternal(in_key, type, value))
-		return atof(value.c_str());
-	else
-		return in_default;
+    std::string value;
+    if (ReadPrefInternal(in_key, type, value))
+        return atof(value.c_str());
+    else
+        return in_default;
 }
 
-void		WED_Document::WriteDoublePref(const char * in_key, double in_value, unsigned type)
+void WED_Document::WriteDoublePref(const char* in_key, double in_value, unsigned type)
 {
-	char buf[256];
-	sprintf(buf,"%lf",in_value);
-	WriteStringPref(in_key, buf, type);
+    char buf[256];
+    sprintf(buf, "%lf", in_value);
+    WriteStringPref(in_key, buf, type);
 }
 
-std::string			WED_Document::ReadStringPref(const char * in_key, const std::string& in_default, unsigned type)
+std::string WED_Document::ReadStringPref(const char* in_key, const std::string& in_default, unsigned type)
 {
-	std::string value;
-	if (ReadPrefInternal(in_key, type, value))
-		return value;
-	else
-		return in_default;
+    std::string value;
+    if (ReadPrefInternal(in_key, type, value))
+        return value;
+    else
+        return in_default;
 }
 
-void		WED_Document::WriteStringPref(const char * in_key, const std::string& in_value, unsigned type)
+void WED_Document::WriteStringPref(const char* in_key, const std::string& in_value, unsigned type)
 {
-	if (type & pref_type_doc)
-		mDocPrefs[in_key] = in_value;
-	if (type & pref_type_global)
-		sGlobalPrefs[in_key] = in_value;
+    if (type & pref_type_doc)
+        mDocPrefs[in_key] = in_value;
+    if (type & pref_type_global)
+        sGlobalPrefs[in_key] = in_value;
 }
 
-void		WED_Document::ReadIntSetPref(const char * in_key, std::set<int>& out_value)
+void WED_Document::ReadIntSetPref(const char* in_key, std::set<int>& out_value)
 {
-	std::string key(in_key);
-	std::map<std::string,std::set<int> >::iterator i = mDocPrefsItems.find(key);
-	if (i == mDocPrefsItems.end()) return;
-	out_value = i->second;
+    std::string key(in_key);
+    std::map<std::string, std::set<int>>::iterator i = mDocPrefsItems.find(key);
+    if (i == mDocPrefsItems.end())
+        return;
+    out_value = i->second;
 }
 
-void		WED_Document::WriteIntSetPref(const char * in_key, const std::set<int>& in_value)
+void WED_Document::WriteIntSetPref(const char* in_key, const std::set<int>& in_value)
 {
-	mDocPrefsItems[in_key] = in_value;
+    mDocPrefsItems[in_key] = in_value;
 }
 
-static void PrefCB(const char * key, const char * value, void * ref)
+static void PrefCB(const char* key, const char* value, void* ref)
 {
-	sGlobalPrefs[key] = value;
+    sGlobalPrefs[key] = value;
 }
 
-
-void	WED_Document::ReadGlobalPrefs(void)
+void WED_Document::ReadGlobalPrefs(void)
 {
-	GUI_EnumSection("doc_prefs", PrefCB, NULL);
+    GUI_EnumSection("doc_prefs", PrefCB, NULL);
 
-	gIsFeet  = atoi(GUI_GetPrefString("preferences","use_feet","0"));
-	gInfoDMS = atoi(GUI_GetPrefString("preferences","InfoDMS","0"));
-	gCustomSlippyMap = GUI_GetPrefString("preferences","CustomSlippyMap","");
-	int FontSize = atoi(GUI_GetPrefString("preferences","FontSize","12"));
-	gFontSize = intlim(FontSize, 10, 18);
-	GUI_SetFontSizes(gFontSize);
-	gOrthoExport = atoi(GUI_GetPrefString("preferences","OrthoExport","1"));
+    gIsFeet = atoi(GUI_GetPrefString("preferences", "use_feet", "0"));
+    gInfoDMS = atoi(GUI_GetPrefString("preferences", "InfoDMS", "0"));
+    gCustomSlippyMap = GUI_GetPrefString("preferences", "CustomSlippyMap", "");
+    int FontSize = atoi(GUI_GetPrefString("preferences", "FontSize", "12"));
+    gFontSize = intlim(FontSize, 10, 18);
+    GUI_SetFontSizes(gFontSize);
+    gOrthoExport = atoi(GUI_GetPrefString("preferences", "OrthoExport", "1"));
 }
 
-void	WED_Document::WriteGlobalPrefs(void)
+void WED_Document::WriteGlobalPrefs(void)
 {
-	GUI_SetPrefString("preferences","use_feet",gIsFeet ? "1" : "0");
-	GUI_SetPrefString("preferences","InfoDMS",gInfoDMS ? "1" : "0");
-	GUI_SetPrefString("preferences","CustomSlippyMap",gCustomSlippyMap.c_str());
-	std::string FontSize(std::to_string(gFontSize));
-	GUI_SetPrefString("preferences","FontSize",FontSize.c_str());
-	GUI_SetPrefString("preferences","OrthoExport",gOrthoExport ? "1" : "0");
+    GUI_SetPrefString("preferences", "use_feet", gIsFeet ? "1" : "0");
+    GUI_SetPrefString("preferences", "InfoDMS", gInfoDMS ? "1" : "0");
+    GUI_SetPrefString("preferences", "CustomSlippyMap", gCustomSlippyMap.c_str());
+    std::string FontSize(std::to_string(gFontSize));
+    GUI_SetPrefString("preferences", "FontSize", FontSize.c_str());
+    GUI_SetPrefString("preferences", "OrthoExport", gOrthoExport ? "1" : "0");
 
-	for (std::map<std::string,std::string>::iterator i = sGlobalPrefs.begin(); i != sGlobalPrefs.end(); ++i)
-		if(i->first != "doc/xml_compatibility")          // why NOT write that ? Cuz WED 2.0 ... 2.2 read that and if an PRE wed-2.0 document
-			                                             // is opened - it uses this instead, resulting in false warnings
-			GUI_SetPrefString("doc_prefs", i->first.c_str(), i->second.c_str());
+    for (std::map<std::string, std::string>::iterator i = sGlobalPrefs.begin(); i != sGlobalPrefs.end(); ++i)
+        if (i->first !=
+            "doc/xml_compatibility") // why NOT write that ? Cuz WED 2.0 ... 2.2 read that and if an PRE wed-2.0
+                                     // document is opened - it uses this instead, resulting in false warnings
+            GUI_SetPrefString("doc_prefs", i->first.c_str(), i->second.c_str());
 }
 
-void		WED_Document::StartElement(
-								WED_XMLReader * reader,
-								const XML_Char *	name,
-								const XML_Char **	atts)
+void WED_Document::StartElement(WED_XMLReader* reader, const XML_Char* name, const XML_Char** atts)
 {
-	const char * n = NULL, * v = NULL;
+    const char *n = NULL, *v = NULL;
 
-	if(strcmp(name,"objects")==0)
-	{
-		reader->PushHandler(&mArchive);
-	}
-	if(strcmp(name,"prefs")==0)
-	{
-		mDocPrefs.clear();
-		mDocPrefsItems.clear();
-		mDocPrefsActName = "";
-	}
-	else if(strcmp(name,"pref")==0)
-	{
-		while(*atts)
-		{
-			if(strcmp(*atts, "name")==0)
-			{
-				++atts;
-				n = *atts;
-				++atts;
-			}
-			else if(strcmp(*atts,"value")==0)
-			{
-				++atts;
-				v = *atts;
-				++atts;
-			}
-			else
-			{
-				++atts;
-				++atts;
-			}
-		}
-		if(n && v)
-		{
-				mDocPrefs[n] = v;
-		}
-		else if(n)
-		{
-			mDocPrefsActName = n;
-		}
-		else
-			reader->FailWithError("Invalid pref: missing key or value.");
-	}
-	else if(strcmp(name,"item")==0)
-	{
-        while(*atts)
-		{
-			if(strcmp(*atts,"value")==0)
-			{
-				++atts;
-				v = *atts;
-				++atts;
-			}
-			else
-			{
-				++atts;
-				++atts;
-			}
-		}
-		if(v)
-		{
-			std::set<int>& ip(mDocPrefsItems[mDocPrefsActName]);
-			ip.insert(atoi(v));
-		}
-		else
-			reader->FailWithError("Invalid item: missing  value.");
-	}
+    if (strcmp(name, "objects") == 0)
+    {
+        reader->PushHandler(&mArchive);
+    }
+    if (strcmp(name, "prefs") == 0)
+    {
+        mDocPrefs.clear();
+        mDocPrefsItems.clear();
+        mDocPrefsActName = "";
+    }
+    else if (strcmp(name, "pref") == 0)
+    {
+        while (*atts)
+        {
+            if (strcmp(*atts, "name") == 0)
+            {
+                ++atts;
+                n = *atts;
+                ++atts;
+            }
+            else if (strcmp(*atts, "value") == 0)
+            {
+                ++atts;
+                v = *atts;
+                ++atts;
+            }
+            else
+            {
+                ++atts;
+                ++atts;
+            }
+        }
+        if (n && v)
+        {
+            mDocPrefs[n] = v;
+        }
+        else if (n)
+        {
+            mDocPrefsActName = n;
+        }
+        else
+            reader->FailWithError("Invalid pref: missing key or value.");
+    }
+    else if (strcmp(name, "item") == 0)
+    {
+        while (*atts)
+        {
+            if (strcmp(*atts, "value") == 0)
+            {
+                ++atts;
+                v = *atts;
+                ++atts;
+            }
+            else
+            {
+                ++atts;
+                ++atts;
+            }
+        }
+        if (v)
+        {
+            std::set<int>& ip(mDocPrefsItems[mDocPrefsActName]);
+            ip.insert(atoi(v));
+        }
+        else
+            reader->FailWithError("Invalid item: missing  value.");
+    }
 }
 
-void		WED_Document::EndElement(void)
+void WED_Document::EndElement(void)
 {
 }
-void		WED_Document::PopHandler(void)
+void WED_Document::PopHandler(void)
 {
 }
 
 void WED_Document::Panic(void)
 {
-	// Panic case: means undo system blew up.  Try to save off the current project with a special "crash" extension - if we get lucky,
-	// we save the user's work.
-	std::string xml = mFilePath;
-	xml += ".crash.xml";
+    // Panic case: means undo system blew up.  Try to save off the current project with a special "crash" extension - if
+    // we get lucky, we save the user's work.
+    std::string xml = mFilePath;
+    xml += ".crash.xml";
 
-	FILE * xml_file = fopen(xml.c_str(),"w");
-	if(xml_file)
-	{
-		WriteXML(xml_file);
-		fclose(xml_file);
-	}
+    FILE* xml_file = fopen(xml.c_str(), "w");
+    if (xml_file)
+    {
+        WriteXML(xml_file);
+        fclose(xml_file);
+    }
 }
 
-bool		WED_Document::ReadPrefInternal(const char * in_key, unsigned type, std::string &out_value) const
+bool WED_Document::ReadPrefInternal(const char* in_key, unsigned type, std::string& out_value) const
 {
-	std::string key(in_key);
-	std::map<std::string, std::string>::const_iterator i;
-	bool found = false;
-	if (type & pref_type_doc)
-	{
-		i = mDocPrefs.find(key);
-		found = (i != mDocPrefs.end());
-	}
-	if (!found && (type & pref_type_global))
-	{
-		i = sGlobalPrefs.find(key);
-		found = (i != sGlobalPrefs.end());
-	}
-	if (found)
-		out_value = i->second;
-	return found;
+    std::string key(in_key);
+    std::map<std::string, std::string>::const_iterator i;
+    bool found = false;
+    if (type & pref_type_doc)
+    {
+        i = mDocPrefs.find(key);
+        found = (i != mDocPrefs.end());
+    }
+    if (!found && (type & pref_type_global))
+    {
+        i = sGlobalPrefs.find(key);
+        found = (i != sGlobalPrefs.end());
+    }
+    if (found)
+        out_value = i->second;
+    return found;
 }
 
-void		WED_Document::WriteXML(FILE * xml_file)
+void WED_Document::WriteXML(FILE* xml_file)
 {
-	//print to file the xml file passed in with the following encoding
-	fprintf(xml_file,"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-	fprintf(xml_file,"<!-- written by WED " WED_VERSION_STRING " -->\n");
-	{
-		WED_XMLElement	top_level("doc",0,xml_file);
-		mArchive.SaveToXML(&top_level);
-		WED_XMLElement * pref;
-		WED_XMLElement * prefs = top_level.add_sub_element("prefs");
-		for(std::map<std::string,std::set<int> >::iterator pi = mDocPrefsItems.begin(); pi != mDocPrefsItems.end(); ++pi)
-		{
-			pref = prefs->add_sub_element("pref");
-			pref->add_attr_stl_str("name",pi->first);
-			for(std::set<int>::iterator i = pi->second.begin(); i != pi->second.end(); ++i)
-			{
-				WED_XMLElement *item = pref->add_sub_element("item");
-				item->add_attr_int("value",*i);
-			}
-		}
-		for(std::map<std::string,std::string>::iterator p = mDocPrefs.begin(); p != mDocPrefs.end(); ++p)
-		{
-			pref = prefs->add_sub_element("pref");
-			pref->add_attr_stl_str("name",p->first);
-			pref->add_attr_stl_str("value",p->second);
-		}
-	}
+    // print to file the xml file passed in with the following encoding
+    fprintf(xml_file, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+    fprintf(xml_file, "<!-- written by WED " WED_VERSION_STRING " -->\n");
+    {
+        WED_XMLElement top_level("doc", 0, xml_file);
+        mArchive.SaveToXML(&top_level);
+        WED_XMLElement* pref;
+        WED_XMLElement* prefs = top_level.add_sub_element("prefs");
+        for (std::map<std::string, std::set<int>>::iterator pi = mDocPrefsItems.begin(); pi != mDocPrefsItems.end();
+             ++pi)
+        {
+            pref = prefs->add_sub_element("pref");
+            pref->add_attr_stl_str("name", pi->first);
+            for (std::set<int>::iterator i = pi->second.begin(); i != pi->second.end(); ++i)
+            {
+                WED_XMLElement* item = pref->add_sub_element("item");
+                item->add_attr_int("value", *i);
+            }
+        }
+        for (std::map<std::string, std::string>::iterator p = mDocPrefs.begin(); p != mDocPrefs.end(); ++p)
+        {
+            pref = prefs->add_sub_element("pref");
+            pref->add_attr_stl_str("name", p->first);
+            pref->add_attr_stl_str("value", p->second);
+        }
+    }
 }
-
-

@@ -27,17 +27,17 @@
 #include "GUI_Window.h"
 #include "GUI_Timer.h"
 
-class WED_AboutBox : public GUI_Window, public GUI_Timer {
+class WED_AboutBox : public GUI_Window, public GUI_Timer
+{
 public:
-						 WED_AboutBox(GUI_Commander * cmdr);
-	virtual				~WED_AboutBox();
+    WED_AboutBox(GUI_Commander* cmdr);
+    virtual ~WED_AboutBox();
 
-	virtual	bool		Closed(void);
-	virtual	void		Draw(GUI_GraphState * state);
-	virtual	int			MouseDown(int x, int y, int button);
-	virtual	void		MouseUp  (int x, int y, int button);
-	virtual	void		TimerFired(void);
-
+    virtual bool Closed(void);
+    virtual void Draw(GUI_GraphState* state);
+    virtual int MouseDown(int x, int y, int button);
+    virtual void MouseUp(int x, int y, int button);
+    virtual void TimerFired(void);
 };
 
 #endif /* WED_AboutBox_H */

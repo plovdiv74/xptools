@@ -23,91 +23,73 @@
 #ifndef XUTILS_H
 #define XUTILS_H
 
-struct	XObjCmd;
-struct	XObj;
+struct XObjCmd;
+struct XObj;
 
 #include <string>
 #include <vector>
 using namespace std;
 
-class	StTextFileScanner {
+class StTextFileScanner
+{
 public:
+    StTextFileScanner(const char* inFileName, bool skip_blanks);
+    ~StTextFileScanner();
 
-	StTextFileScanner(const char * inFileName, bool skip_blanks);
-	~StTextFileScanner();
-
-	void	skip_blanks(bool skip_blanks);
-	bool	done();
-	void	next();
-	std::string	get();
+    void skip_blanks(bool skip_blanks);
+    bool done();
+    void next();
+    std::string get();
 
 private:
+    void read_next(void);
 
-	void	read_next(void);
-
-	FILE *	mFile;
-	std::string	mBuf;
-	bool	mDone;
-	bool	mSkipBlanks;
+    FILE* mFile;
+    std::string mBuf;
+    bool mDone;
+    bool mSkipBlanks;
 };
 
-void	BreakString(const std::string& line, std::vector<std::string>& words);
+void BreakString(const std::string& line, std::vector<std::string>& words);
 
-void	StringToUpper(std::string&);
+void StringToUpper(std::string&);
 
-bool	HasExtNoCase(const std::string& inStr, const char * inExt);
+bool HasExtNoCase(const std::string& inStr, const char* inExt);
 
-bool	GetNextNoComments(StTextFileScanner& f, std::string& s);
+bool GetNextNoComments(StTextFileScanner& f, std::string& s);
 
+void StripPath(std::string& ioPath);
+void StripPathCP(std::string& ioPath);
+void ExtractPath(std::string& ioPath);
 
-void	StripPath(std::string& ioPath);
-void	StripPathCP(std::string& ioPath);
-void	ExtractPath(std::string& ioPath);
+int PickRandom(std::vector<double>& chances);
+bool RollDice(double inProb);
+double RandRange(double mmin, double mmax);
+double RandRangeBias(double mmin, double mmax, double biasRatio, double randomAmount);
 
-int		PickRandom(std::vector<double>& chances);
-bool	RollDice(double inProb);
-double	RandRange(double mmin, double mmax);
-double	RandRangeBias(double mmin, double mmax, double biasRatio, double randomAmount);
+void ExtractFixedRecordString(const std::string& inLine, int inBegin, int inEnd, std::string& outString);
 
+bool ExtractFixedRecordLong(const std::string& inLine, int inBegin, int inEnd, long& outLong);
 
-void	ExtractFixedRecordString(
-				const std::string&		inLine,
-				int					inBegin,
-				int					inEnd,
-				std::string&				outString);
+bool ExtractFixedRecordUnsignedLong(const std::string& inLine, int inBegin, int inEnd, unsigned long& outUnsignedLong);
 
-bool	ExtractFixedRecordLong(
-				const std::string&		inLine,
-				int					inBegin,
-				int					inEnd,
-				long&				outLong);
-
-bool	ExtractFixedRecordUnsignedLong(
-				const std::string&		inLine,
-				int					inBegin,
-				int					inEnd,
-				unsigned long&		outUnsignedLong);
-
-class	XPointPool {
+class XPointPool
+{
 public:
-
-			XPointPool();
-			~XPointPool();
-	void	clear();
-	int		accumulate(const float xyz[3], const float st[2]);
-	int		count(void);
-	void	get(int index, float xyz[3], float st[2]);
+    XPointPool();
+    ~XPointPool();
+    void clear();
+    int accumulate(const float xyz[3], const float st[2]);
+    int count(void);
+    void get(int index, float xyz[3], float st[2]);
 
 private:
+    XPointPool(const XPointPool&);
+    XPointPool& operator=(const XPointPool&);
 
-	XPointPool(const XPointPool&);
-	XPointPool& operator=(const XPointPool&);
+    struct XPointPoolImp;
 
-	struct	XPointPoolImp;
-
-	XPointPoolImp * mImp;
-
+    XPointPoolImp* mImp;
 };
 
 #endif
-

@@ -28,27 +28,25 @@
 #include "GUI_Defs.h"
 #include "IPropertyObject.h"
 
-class WED_TCEToolNew: public WED_TCELayer, public IPropertyObject {
+class WED_TCEToolNew : public WED_TCELayer, public IPropertyObject
+{
 public:
+    WED_TCEToolNew(const char* tool_name, GUI_Pane* host, WED_MapZoomerNew* zoomer, IResolver* resolver);
+    virtual ~WED_TCEToolNew();
 
-						 		 WED_TCEToolNew(const char * tool_name, GUI_Pane * host, WED_MapZoomerNew * zoomer, IResolver * resolver);
-	virtual						~WED_TCEToolNew();
+    virtual int HandleClickDown(int inX, int inY, int inButton, GUI_KeyFlags modifiers) = 0;
+    virtual void HandleClickDrag(int inX, int inY, int inButton, GUI_KeyFlags modifiers) = 0;
+    virtual void HandleClickUp(int inX, int inY, int inButton, GUI_KeyFlags modifiers) = 0;
+    virtual int HandleToolKeyPress(char inKey, int inVK, GUI_KeyFlags inFlags) = 0;
+    virtual void KillOperation(
+        bool mouse_is_down) = 0; // Called when another tool is picked.  If a shape is half built, ABORT!
 
-	virtual	int					HandleClickDown(int inX, int inY, int inButton, GUI_KeyFlags modifiers)=0;
-	virtual	void				HandleClickDrag(int inX, int inY, int inButton, GUI_KeyFlags modifiers)=0;
-	virtual	void				HandleClickUp  (int inX, int inY, int inButton, GUI_KeyFlags modifiers)=0;
-	virtual	int					HandleToolKeyPress(char inKey, int inVK, GUI_KeyFlags inFlags			  )=0;
-	virtual	void				KillOperation(bool mouse_is_down)=0;		// Called when another tool is picked.  If a shape is half built, ABORT!
+    virtual const char* GetStatusText(void) = 0;
 
-	virtual	const char *		GetStatusText(void)=0;
-
-			const char *		GetToolName(void) const;
+    const char* GetToolName(void) const;
 
 private:
-
-	std::string	tool_name;
-
-
+    std::string tool_name;
 };
 
 #endif /* WED_TCEToolNew_H */

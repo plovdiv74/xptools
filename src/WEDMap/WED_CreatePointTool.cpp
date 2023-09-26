@@ -42,61 +42,58 @@
 #include "WED_TruckDestination.h"
 #include "WED_TruckParkingLocation.h"
 
-static int kIsToolDirectional[] = { 0, 1, 1, 1, 1, 0, 0, 1, 1, 1 };
-static int kIsAirport[]			= { 1, 1, 1, 1, 1, 1, 1, 0, 1, 1 };
-static const char * kCreateCmds[] = {
-	"Airport Beacon",
-	"Taxiway Sign",
-	"Helipad",
-	"Light Fixture",
-	"Ramp Start",
-	"Tower Viewpoint",
-	"Windsock",
-	"Object",
-	"Service Truck",
-	"Service Truck Destination"
-};
+static int kIsToolDirectional[] = {0, 1, 1, 1, 1, 0, 0, 1, 1, 1};
+static int kIsAirport[] = {1, 1, 1, 1, 1, 1, 1, 0, 1, 1};
+static const char* kCreateCmds[] = {
+    "Airport Beacon",  "Taxiway Sign", "Helipad", "Light Fixture", "Ramp Start",
+    "Tower Viewpoint", "Windsock",     "Object",  "Service Truck", "Service Truck Destination"};
 
-WED_CreatePointTool::WED_CreatePointTool(
-									const char *		tool_name,
-									GUI_Pane *			host,
-									WED_MapZoomerNew *	zoomer,
-									IResolver *			resolver,
-									WED_Archive *		archive,
-									CreatePoint_t		tool) :
-	WED_CreateToolBase(tool_name,host, zoomer, resolver,archive,
-	1,								// min pts
-	1,								// max pts
-	kIsToolDirectional[tool],		// curve allowed
-	kIsToolDirectional[tool],		// curve required?
-	0,								// close allowed
-	0),								// close required?
-	mType(tool),
-		beacon_kind		(tool==create_Beacon		?this:NULL,PROP_Name("Kind",		XML_Name("","")),Airport_Beacon,beacon_Airport),
-		sign_text		(tool==create_Sign			?this:NULL,PROP_Name("Text",		XML_Name("","")),"{@L}A"),
-		sign_style		(tool==create_Sign			?this:NULL,PROP_Name("Style",		XML_Name("","")),Sign_Style,style_Default),
-		sign_height		(tool==create_Sign			?this:NULL,PROP_Name("Size",		XML_Name("","")),Sign_Size,size_MediumTaxi),
-		heli_surface	(tool==create_Helipad		?this:NULL,PROP_Name("Surface",		XML_Name("","")),Surface_Type,surf_Concrete),
-		heli_markings	(tool==create_Helipad		?this:NULL,PROP_Name("Markings",	XML_Name("","")),Helipad_Markings,heli_Mark_Default),
-		heli_shoulder	(tool==create_Helipad		?this:NULL,PROP_Name("Shoulder",	XML_Name("","")),Shoulder_Type,shoulder_None),
-		heli_roughness	(tool==create_Helipad		?this:NULL,PROP_Name("Roughness",	XML_Name("","")),0.25,4,2),
-		heli_edgelights	(tool==create_Helipad		?this:NULL,PROP_Name("Edge Lights",	XML_Name("","")),Heli_Lights,heli_Yellow),
-		light_kind		(tool==create_Lights		?this:NULL,PROP_Name("Fixture Type",XML_Name("","")),Light_Fixt,light_VASI),
-		light_angle		(tool==create_Lights		?this:NULL,PROP_Name("Approach Angle",XML_Name("","")),3.0,4,2),
-		tower_height	(tool==create_TowerViewpoint?this:NULL,PROP_Name("Tower Height",XML_Name("","")),25.0,5,1),
-		windsock_lit	(tool==create_Windsock		?this:NULL,PROP_Name("Lit",			XML_Name("","")),0),
-		resource		(tool==create_Object		?this:NULL,PROP_Name("Object",		XML_Name("","")),""),
-		show_level		(tool==create_Object		?this:NULL,PROP_Name("Show with",	XML_Name("","")),ShowLevel,show_Level1),
-		min_hdg			(tool == create_Object		?this:NULL, PROP_Name("min Heading", XML_Name("", "")), 0.0, 3, 0),
-		max_hdg			(tool == create_Object		?this:NULL, PROP_Name("max Heading", XML_Name("", "")), 0.0, 3, 0),
-		ramp_type		(tool==create_RampStart		?this:NULL,PROP_Name("Ramp Start Type",XML_Name("","")),ATCRampType, atc_Ramp_Misc),
-		equip_type		(tool==create_RampStart		?this:NULL,PROP_Name("Equipment Type",XML_Name("","")), ATCTrafficType, 0),
-		width			(tool==create_RampStart		?this:NULL,PROP_Name("Size",	    XML_Name("","")),   ATCIcaoWidth, width_E),
-		ramp_op_type	(tool==create_RampStart		?this:NULL,PROP_Name("Ramp Operation Type",XML_Name("","")), RampOperationType, ramp_operation_None),
-		airlines		(tool==create_RampStart		?this:NULL,PROP_Name("Airlines",    XML_Name("","")),""),
-		truck_type		(tool==create_TruckParking	?this:NULL,PROP_Name("Truck Type",  XML_Name("","")),  ATCServiceTruckType, atc_ServiceTruck_FuelTruck_Prop),
-		baggage_car_count(tool==create_TruckParking	?this:NULL,PROP_Name("Baggage Cars",XML_Name("","")), 3, 1),
-		truck_types		(tool==create_TruckDestination?this:NULL,PROP_Name("Truck Types",XML_Name("","")),  ATCServiceTruckType, 0)
+WED_CreatePointTool::WED_CreatePointTool(const char* tool_name, GUI_Pane* host, WED_MapZoomerNew* zoomer,
+                                         IResolver* resolver, WED_Archive* archive, CreatePoint_t tool)
+    : WED_CreateToolBase(tool_name, host, zoomer, resolver, archive,
+                         1,                        // min pts
+                         1,                        // max pts
+                         kIsToolDirectional[tool], // curve allowed
+                         kIsToolDirectional[tool], // curve required?
+                         0,                        // close allowed
+                         0),                       // close required?
+      mType(tool), beacon_kind(tool == create_Beacon ? this : NULL, PROP_Name("Kind", XML_Name("", "")), Airport_Beacon,
+                               beacon_Airport),
+      sign_text(tool == create_Sign ? this : NULL, PROP_Name("Text", XML_Name("", "")), "{@L}A"),
+      sign_style(tool == create_Sign ? this : NULL, PROP_Name("Style", XML_Name("", "")), Sign_Style, style_Default),
+      sign_height(tool == create_Sign ? this : NULL, PROP_Name("Size", XML_Name("", "")), Sign_Size, size_MediumTaxi),
+      heli_surface(tool == create_Helipad ? this : NULL, PROP_Name("Surface", XML_Name("", "")), Surface_Type,
+                   surf_Concrete),
+      heli_markings(tool == create_Helipad ? this : NULL, PROP_Name("Markings", XML_Name("", "")), Helipad_Markings,
+                    heli_Mark_Default),
+      heli_shoulder(tool == create_Helipad ? this : NULL, PROP_Name("Shoulder", XML_Name("", "")), Shoulder_Type,
+                    shoulder_None),
+      heli_roughness(tool == create_Helipad ? this : NULL, PROP_Name("Roughness", XML_Name("", "")), 0.25, 4, 2),
+      heli_edgelights(tool == create_Helipad ? this : NULL, PROP_Name("Edge Lights", XML_Name("", "")), Heli_Lights,
+                      heli_Yellow),
+      light_kind(tool == create_Lights ? this : NULL, PROP_Name("Fixture Type", XML_Name("", "")), Light_Fixt,
+                 light_VASI),
+      light_angle(tool == create_Lights ? this : NULL, PROP_Name("Approach Angle", XML_Name("", "")), 3.0, 4, 2),
+      tower_height(tool == create_TowerViewpoint ? this : NULL, PROP_Name("Tower Height", XML_Name("", "")), 25.0, 5,
+                   1),
+      windsock_lit(tool == create_Windsock ? this : NULL, PROP_Name("Lit", XML_Name("", "")), 0),
+      resource(tool == create_Object ? this : NULL, PROP_Name("Object", XML_Name("", "")), ""),
+      show_level(tool == create_Object ? this : NULL, PROP_Name("Show with", XML_Name("", "")), ShowLevel, show_Level1),
+      min_hdg(tool == create_Object ? this : NULL, PROP_Name("min Heading", XML_Name("", "")), 0.0, 3, 0),
+      max_hdg(tool == create_Object ? this : NULL, PROP_Name("max Heading", XML_Name("", "")), 0.0, 3, 0),
+      ramp_type(tool == create_RampStart ? this : NULL, PROP_Name("Ramp Start Type", XML_Name("", "")), ATCRampType,
+                atc_Ramp_Misc),
+      equip_type(tool == create_RampStart ? this : NULL, PROP_Name("Equipment Type", XML_Name("", "")), ATCTrafficType,
+                 0),
+      width(tool == create_RampStart ? this : NULL, PROP_Name("Size", XML_Name("", "")), ATCIcaoWidth, width_E),
+      ramp_op_type(tool == create_RampStart ? this : NULL, PROP_Name("Ramp Operation Type", XML_Name("", "")),
+                   RampOperationType, ramp_operation_None),
+      airlines(tool == create_RampStart ? this : NULL, PROP_Name("Airlines", XML_Name("", "")), ""),
+      truck_type(tool == create_TruckParking ? this : NULL, PROP_Name("Truck Type", XML_Name("", "")),
+                 ATCServiceTruckType, atc_ServiceTruck_FuelTruck_Prop),
+      baggage_car_count(tool == create_TruckParking ? this : NULL, PROP_Name("Baggage Cars", XML_Name("", "")), 3, 1),
+      truck_types(tool == create_TruckDestination ? this : NULL, PROP_Name("Truck Types", XML_Name("", "")),
+                  ATCServiceTruckType, 0)
 {
 }
 
@@ -104,193 +101,187 @@ WED_CreatePointTool::~WED_CreatePointTool()
 {
 }
 
-void	WED_CreatePointTool::AcceptPath(
-							const std::vector<Point2>&	pts,
-							const std::vector<Point2>&	dirs_lo,
-							const std::vector<Point2>&	dirs_hi,
-							const std::vector<int>		has_dirs,
-							const std::vector<int>		has_split,
-							int						closed)
+void WED_CreatePointTool::AcceptPath(const std::vector<Point2>& pts, const std::vector<Point2>& dirs_lo,
+                                     const std::vector<Point2>& dirs_hi, const std::vector<int> has_dirs,
+                                     const std::vector<int> has_split, int closed)
 {
-		char buf[256];
+    char buf[256];
 
-	sprintf(buf, "Create %s",kCreateCmds[mType]);
+    sprintf(buf, "Create %s", kCreateCmds[mType]);
 
-	GetArchive()->StartCommand(buf);
+    GetArchive()->StartCommand(buf);
 
-	int idx;
-	WED_Thing * host = WED_GetCreateHost(GetResolver(), kIsAirport[mType], true, idx);
+    int idx;
+    WED_Thing* host = WED_GetCreateHost(GetResolver(), kIsAirport[mType], true, idx);
 
-	WED_GISPoint * new_pt_obj = NULL;
-	WED_GISPoint_Heading * new_pt_h = NULL;
+    WED_GISPoint* new_pt_obj = NULL;
+    WED_GISPoint_Heading* new_pt_h = NULL;
 
-	WED_AirportBeacon * beacon;
-	WED_AirportSign * sign;
-	WED_Helipad * helipad;
-	WED_LightFixture * lights;
-	WED_RampPosition * ramp;
-	WED_TowerViewpoint * tower;
-	WED_Windsock * sock;
-	WED_ObjPlacement * obj;
-		std::string ct;
+    WED_AirportBeacon* beacon;
+    WED_AirportSign* sign;
+    WED_Helipad* helipad;
+    WED_LightFixture* lights;
+    WED_RampPosition* ramp;
+    WED_TowerViewpoint* tower;
+    WED_Windsock* sock;
+    WED_ObjPlacement* obj;
+    std::string ct;
 
-	switch(mType) {
-	case create_Beacon:
-		new_pt_obj = beacon = WED_AirportBeacon::CreateTyped(GetArchive());
-		beacon->SetKind(beacon_kind.value);
-		break;
-	case create_Sign:
-		new_pt_obj = new_pt_h = sign = WED_AirportSign::CreateTyped(GetArchive());
-		sign->SetStyle(sign_style.value);
-		sign->SetHeight(sign_height.value);
-		sign->SetName(sign_text.value);
-		break;
-	case create_Helipad:
-		new_pt_obj = new_pt_h = helipad = WED_Helipad::CreateTyped(GetArchive());
-		helipad->SetWidth(50.0);
-		helipad->SetLength(50.0);
-		helipad->SetSurface(heli_surface.value);
-		helipad->SetMarkings(heli_markings.value);
-		helipad->SetShoulder(heli_shoulder.value);
-		helipad->SetRoughness(heli_roughness.value);
-		helipad->SetEdgeLights(heli_edgelights.value);
-		break;
-	case create_Lights:
-		new_pt_obj = new_pt_h = lights = WED_LightFixture::CreateTyped(GetArchive());
-		lights->SetLightType(light_kind.value);
-		lights->SetAngle(light_angle.value);
-		break;
-	case create_RampStart:
-		new_pt_obj = new_pt_h = ramp = WED_RampPosition::CreateTyped(GetArchive());
-		ramp->SetType(ramp_type.value);
-		ramp->SetEquipment(equip_type.value);
-		ramp->SetWidth(width.value);
-		ramp->SetRampOperationType(ramp_op_type.value);
-		ramp->SetAirlines(airlines.value);
-		break;
-	case create_TowerViewpoint:
-		new_pt_obj = tower = WED_TowerViewpoint::CreateTyped(GetArchive());
-		tower->SetHeight(tower_height.value);
-		break;
-	case create_Windsock:
-		new_pt_obj = sock = WED_Windsock::CreateTyped(GetArchive());
-		sock->SetLit(windsock_lit.value);
-		break;
-	case create_Object:
-		{
-			new_pt_obj = new_pt_h = obj = WED_ObjPlacement::CreateTyped(GetArchive());
-			obj->SetResource(resource.value);
-			obj->SetShowLevel(ENUM_Export(show_level.value));
-			std::string n = resource.value;
-			std::string::size_type p = n.find_last_of("/\\:");
-			if(p != n.npos) n.erase(0,p+1);
-			obj->SetName(n);
-		}
-		break;
-	case create_TruckParking:
-		{
-			WED_TruckParkingLocation * t;
-			new_pt_obj = new_pt_h = t = WED_TruckParkingLocation::CreateTyped(GetArchive());
-			t->SetTruckType(truck_type.value);
-			t->SetNumberOfCars(baggage_car_count.value);
-		}
-		break;
-	case create_TruckDestination:
-		{
-			WED_TruckDestination * t;
-			new_pt_obj = new_pt_h = t = WED_TruckDestination::CreateTyped(GetArchive());
-			t->SetTruckTypes(truck_types.value);			
-		}
-		break;
-	}
+    switch (mType)
+    {
+    case create_Beacon:
+        new_pt_obj = beacon = WED_AirportBeacon::CreateTyped(GetArchive());
+        beacon->SetKind(beacon_kind.value);
+        break;
+    case create_Sign:
+        new_pt_obj = new_pt_h = sign = WED_AirportSign::CreateTyped(GetArchive());
+        sign->SetStyle(sign_style.value);
+        sign->SetHeight(sign_height.value);
+        sign->SetName(sign_text.value);
+        break;
+    case create_Helipad:
+        new_pt_obj = new_pt_h = helipad = WED_Helipad::CreateTyped(GetArchive());
+        helipad->SetWidth(50.0);
+        helipad->SetLength(50.0);
+        helipad->SetSurface(heli_surface.value);
+        helipad->SetMarkings(heli_markings.value);
+        helipad->SetShoulder(heli_shoulder.value);
+        helipad->SetRoughness(heli_roughness.value);
+        helipad->SetEdgeLights(heli_edgelights.value);
+        break;
+    case create_Lights:
+        new_pt_obj = new_pt_h = lights = WED_LightFixture::CreateTyped(GetArchive());
+        lights->SetLightType(light_kind.value);
+        lights->SetAngle(light_angle.value);
+        break;
+    case create_RampStart:
+        new_pt_obj = new_pt_h = ramp = WED_RampPosition::CreateTyped(GetArchive());
+        ramp->SetType(ramp_type.value);
+        ramp->SetEquipment(equip_type.value);
+        ramp->SetWidth(width.value);
+        ramp->SetRampOperationType(ramp_op_type.value);
+        ramp->SetAirlines(airlines.value);
+        break;
+    case create_TowerViewpoint:
+        new_pt_obj = tower = WED_TowerViewpoint::CreateTyped(GetArchive());
+        tower->SetHeight(tower_height.value);
+        break;
+    case create_Windsock:
+        new_pt_obj = sock = WED_Windsock::CreateTyped(GetArchive());
+        sock->SetLit(windsock_lit.value);
+        break;
+    case create_Object: {
+        new_pt_obj = new_pt_h = obj = WED_ObjPlacement::CreateTyped(GetArchive());
+        obj->SetResource(resource.value);
+        obj->SetShowLevel(ENUM_Export(show_level.value));
+        std::string n = resource.value;
+        std::string::size_type p = n.find_last_of("/\\:");
+        if (p != n.npos)
+            n.erase(0, p + 1);
+        obj->SetName(n);
+    }
+    break;
+    case create_TruckParking: {
+        WED_TruckParkingLocation* t;
+        new_pt_obj = new_pt_h = t = WED_TruckParkingLocation::CreateTyped(GetArchive());
+        t->SetTruckType(truck_type.value);
+        t->SetNumberOfCars(baggage_car_count.value);
+    }
+    break;
+    case create_TruckDestination: {
+        WED_TruckDestination* t;
+        new_pt_obj = new_pt_h = t = WED_TruckDestination::CreateTyped(GetArchive());
+        t->SetTruckTypes(truck_types.value);
+    }
+    break;
+    }
 
-	DebugAssert((kIsToolDirectional[mType] && new_pt_h != NULL) || (!kIsToolDirectional[mType] && new_pt_h == NULL));
+    DebugAssert((kIsToolDirectional[mType] && new_pt_h != NULL) || (!kIsToolDirectional[mType] && new_pt_h == NULL));
 
-	new_pt_obj->SetLocation(gis_Geo,pts[0]);
-	if (new_pt_h)
-	{
-		double hdg;
-		if (mType == create_Object && pts[0] == dirs_hi[0])
-			hdg = min_hdg.value + (max_hdg.value - min_hdg.value) * rand() / RAND_MAX;
-		else
-			hdg = VectorDegs2NorthHeading(pts[0], pts[0], Vector2(pts[0], dirs_hi[0]));
-		new_pt_h->SetHeading(hdg);
-	}
-	static int n = 0;
-	new_pt_obj->SetParent(host, idx);
-	if (mType == create_Helipad)
-		sprintf(buf,"H%d",++n);
-	else
-		sprintf(buf,"New %s %d",kCreateCmds[mType],++n);
-	if (mType != create_Sign && mType != create_Object)
-		new_pt_obj->SetName(buf);
+    new_pt_obj->SetLocation(gis_Geo, pts[0]);
+    if (new_pt_h)
+    {
+        double hdg;
+        if (mType == create_Object && pts[0] == dirs_hi[0])
+            hdg = min_hdg.value + (max_hdg.value - min_hdg.value) * rand() / RAND_MAX;
+        else
+            hdg = VectorDegs2NorthHeading(pts[0], pts[0], Vector2(pts[0], dirs_hi[0]));
+        new_pt_h->SetHeading(hdg);
+    }
+    static int n = 0;
+    new_pt_obj->SetParent(host, idx);
+    if (mType == create_Helipad)
+        sprintf(buf, "H%d", ++n);
+    else
+        sprintf(buf, "New %s %d", kCreateCmds[mType], ++n);
+    if (mType != create_Sign && mType != create_Object)
+        new_pt_obj->SetName(buf);
 
-	ISelection * sel = WED_GetSelect(GetResolver());
-	sel->Clear();
-	sel->Select(new_pt_obj);
+    ISelection* sel = WED_GetSelect(GetResolver());
+    sel->Clear();
+    sel->Select(new_pt_obj);
 
-	GetArchive()->CommitCommand();
-
+    GetArchive()->CommitCommand();
 }
 
-const char *	WED_CreatePointTool::GetStatusText(void)
+const char* WED_CreatePointTool::GetStatusText(void)
 {
-	static char buf[256];
-	if (WED_GetCurrentAirport(GetResolver()) == NULL && kIsAirport[mType])
-	{
-		sprintf(buf,"You must create an airport before you can add a %s.",kCreateCmds[mType]);
-		return buf;
-	}
-	return NULL;
+    static char buf[256];
+    if (WED_GetCurrentAirport(GetResolver()) == NULL && kIsAirport[mType])
+    {
+        sprintf(buf, "You must create an airport before you can add a %s.", kCreateCmds[mType]);
+        return buf;
+    }
+    return NULL;
 }
 
-bool		WED_CreatePointTool::CanCreateNow(void)
+bool WED_CreatePointTool::CanCreateNow(void)
 {
-	return WED_GetCurrentAirport(GetResolver()) != NULL || !kIsAirport[mType];
+    return WED_GetCurrentAirport(GetResolver()) != NULL || !kIsAirport[mType];
 }
 
-void		WED_CreatePointTool::SetResource(const std::string& r)
+void WED_CreatePointTool::SetResource(const std::string& r)
 {
-	resource.value = r;
+    resource.value = r;
 }
 
-void		WED_CreatePointTool::GetNthPropertyInfo(int n, PropertyInfo_t& info) const
+void WED_CreatePointTool::GetNthPropertyInfo(int n, PropertyInfo_t& info) const
 {
-	WED_CreateToolBase::GetNthPropertyInfo(n, info);
-	if(n == PropertyItemNumber(&sign_text))
-	{
-		DebugAssert(info.prop_kind == prop_String);
-		info.prop_kind = prop_TaxiSign;
-	}
-	
-	//Disable the baggage car count text field if the type is not Baggage_Train
-	PropertyVal_t prop;
-	truck_type.GetProperty(prop);
-	if (prop.int_val != atc_ServiceTruck_Baggage_Train && n == PropertyItemNumber(&baggage_car_count))
-	{
-		info.prop_name = "."; //The special hardcoded "disable me" std::string, see IPropertyObject.h
-		info.can_edit = false;
-		info.can_delete = false;
-	}
+    WED_CreateToolBase::GetNthPropertyInfo(n, info);
+    if (n == PropertyItemNumber(&sign_text))
+    {
+        DebugAssert(info.prop_kind == prop_String);
+        info.prop_kind = prop_TaxiSign;
+    }
+
+    // Disable the baggage car count text field if the type is not Baggage_Train
+    PropertyVal_t prop;
+    truck_type.GetProperty(prop);
+    if (prop.int_val != atc_ServiceTruck_Baggage_Train && n == PropertyItemNumber(&baggage_car_count))
+    {
+        info.prop_name = "."; // The special hardcoded "disable me" std::string, see IPropertyObject.h
+        info.can_edit = false;
+        info.can_delete = false;
+    }
 }
 
-void		WED_CreatePointTool::GetNthProperty(int n, PropertyVal_t& val) const
+void WED_CreatePointTool::GetNthProperty(int n, PropertyVal_t& val) const
 {
-	WED_CreateToolBase::GetNthProperty(n, val);
-	if(n == PropertyItemNumber(&sign_text))
-	{
-		DebugAssert(val.prop_kind == prop_String);
-		val.prop_kind = prop_TaxiSign;
-	}
+    WED_CreateToolBase::GetNthProperty(n, val);
+    if (n == PropertyItemNumber(&sign_text))
+    {
+        DebugAssert(val.prop_kind == prop_String);
+        val.prop_kind = prop_TaxiSign;
+    }
 }
 
-void		WED_CreatePointTool::SetNthProperty(int n, const PropertyVal_t& val)
+void WED_CreatePointTool::SetNthProperty(int n, const PropertyVal_t& val)
 {
-	PropertyVal_t v(val);
-	if(n == PropertyItemNumber(&sign_text))
-	{
-		DebugAssert(v.prop_kind == prop_TaxiSign);
-		v.prop_kind = prop_String;
-	}
-	WED_CreateToolBase::SetNthProperty(n, v);
+    PropertyVal_t v(val);
+    if (n == PropertyItemNumber(&sign_text))
+    {
+        DebugAssert(v.prop_kind == prop_TaxiSign);
+        v.prop_kind = prop_String;
+    }
+    WED_CreateToolBase::SetNthProperty(n, v);
 }

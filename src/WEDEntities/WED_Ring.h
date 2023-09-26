@@ -26,28 +26,34 @@
 
 /*
 
-	WED_Ring - THEORY OF OPERATION
+    WED_Ring - THEORY OF OPERATION
 
-	WED_Ring is an internal implementation class...a polygon has multiple rings - this provides a "dummy" ring - it's only
-	purpose is to be closed (always) and contain other points.  We can use this any time we need to implement a polygon;
-	the ring has no semantics about what it is contained in.
+    WED_Ring is an internal implementation class...a polygon has multiple rings - this provides a "dummy" ring - it's
+   only purpose is to be closed (always) and contain other points.  We can use this any time we need to implement a
+   polygon; the ring has no semantics about what it is contained in.
 
 */
 
 #include "WED_GISChain.h"
 
-class WED_Ring  : public WED_GISChain {
+class WED_Ring : public WED_GISChain
+{
 
-DECLARE_PERSISTENT(WED_Ring)
+    DECLARE_PERSISTENT(WED_Ring)
 
 public:
+    //	virtual	IGISPoint *		SplitSide   (int n	)		;		// Split the side from pt N to pt N + 1 in half.
+    // Return the new pt.
+    virtual bool IsClosed(void) const;
+    virtual bool IsJustPoints(void) const
+    {
+        return false;
+    }
 
-//	virtual	IGISPoint *		SplitSide   (int n	)		;		// Split the side from pt N to pt N + 1 in half. Return the new pt.
-	virtual	bool			IsClosed	(void	) const	;
-	virtual	bool			IsJustPoints(void) const { return false; }
-
-	virtual const char *	HumanReadableType(void) const { return "Boundary"; }
-
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Boundary";
+    }
 };
 
 #endif /* WED_Ring_H */

@@ -26,46 +26,39 @@
 
 #include "AptDefs.h"
 
-class	WED_Thing;
-class	WED_Archive;
-class	IResolver;
-class	WED_Document;
-class	WED_MapPane;
-class	WED_Airport;
-class	WED_TaxiRoute;
+class WED_Thing;
+class WED_Archive;
+class IResolver;
+class WED_Document;
+class WED_MapPane;
+class WED_Airport;
+class WED_TaxiRoute;
 
-void	WED_AptImport(
-				WED_Archive *			archive,
-				WED_Thing *				container,
-				const std::string&			file_path,		// For logging errors
-				AptVector&				apts,			// Not const because "convert forward" called - destructive.
-				std::vector<WED_Airport *> *	out_airports);
-				
+void WED_AptImport(WED_Archive* archive, WED_Thing* container,
+                   const std::string& file_path, // For logging errors
+                   AptVector& apts,              // Not const because "convert forward" called - destructive.
+                   std::vector<WED_Airport*>* out_airports);
+
 // Main apt export AIP - we can write to a file path or to a stream via a print func.
 
-void	WED_AptExport(WED_Thing * container, const char * file_path, bool DockingJetways = true);
+void WED_AptExport(WED_Thing* container, const char* file_path, bool DockingJetways = true);
 
-void	WED_AptExport(
-				WED_Thing *		container,
-				int (*			print_func)(void *, const char *, ...),
-				void *			ref);
+void WED_AptExport(WED_Thing* container, int (*print_func)(void*, const char*, ...), void* ref);
 
 // Given a "WED_thing", add it to the apts as needed.
 // A little bit dangerous but this can be a good way
 // to convert a selection into an aptdefs.h construct.
 // This is really an internal utility.
-void	AptExportRecursive(WED_Thing * what, AptVector& apts, std::vector<WED_TaxiRoute *>& edges, bool DockingJetways);
+void AptExportRecursive(WED_Thing* what, AptVector& apts, std::vector<WED_TaxiRoute*>& edges, bool DockingJetways);
 
-int		WED_CanExportApt(IResolver * resolver);
-void	WED_DoExportApt(WED_Document * resolver, WED_MapPane * pane);
+int WED_CanExportApt(IResolver* resolver);
+void WED_DoExportApt(WED_Document* resolver, WED_MapPane* pane);
 
-int		WED_CanImportApt(IResolver * resolver);
-void	WED_DoImportApt(WED_Document * resolver, WED_Archive * archive, WED_MapPane * pane);
+int WED_CanImportApt(IResolver* resolver);
+void WED_DoImportApt(WED_Document* resolver, WED_Archive* archive, WED_MapPane* pane);
 
 // Given a WED_thing, put airports at file path into it - must be called inside an undo operation!
-void	WED_ImportOneAptFile(
-				const std::string&			in_path,
-				WED_Thing *				in_parent,
-				std::vector<WED_Airport *> *	out_apts = nullptr);
+void WED_ImportOneAptFile(const std::string& in_path, WED_Thing* in_parent,
+                          std::vector<WED_Airport*>* out_apts = nullptr);
 
 #endif /* WED_AptIE_H */

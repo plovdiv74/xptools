@@ -27,20 +27,19 @@
 #include "WED_MapLayer.h"
 class ITexMgr;
 
-class WED_WorldMapLayer : public WED_MapLayer {
+class WED_WorldMapLayer : public WED_MapLayer
+{
 public:
+    WED_WorldMapLayer(GUI_Pane* host, WED_MapZoomerNew* zoomer, IResolver* resolver);
+    virtual ~WED_WorldMapLayer();
 
-						 WED_WorldMapLayer(GUI_Pane * host, WED_MapZoomerNew * zoomer, IResolver * resolver);
-	virtual				~WED_WorldMapLayer();
-
-	virtual	void		DrawVisualization		(bool inCurrent, GUI_GraphState * g);
-	virtual	void		GetCaps(bool& draw_ent_v, bool& draw_ent_s, bool& cares_about_sel, bool& wants_clicks);
+    virtual void DrawVisualization(bool inCurrent, GUI_GraphState* g);
+    virtual void GetCaps(bool& draw_ent_v, bool& draw_ent_s, bool& cares_about_sel, bool& wants_clicks);
 
 private:
-
-	bool			mVisible;
-	ITexMgr *		mTexMgr;
-	std::string			mBitmapPath;
+    bool mVisible;
+    ITexMgr* mTexMgr;
+    std::string mBitmapPath;
 };
 
 #endif /* WED_WorldMapLayer_H */

@@ -11,35 +11,35 @@
 
 #include "WED_GISPoint_Heading.h"
 
-struct	AptTruckParking_t;
+struct AptTruckParking_t;
 
-class	WED_TruckParkingLocation : public WED_GISPoint_Heading {
+class WED_TruckParkingLocation : public WED_GISPoint_Heading
+{
 
-DECLARE_PERSISTENT(WED_TruckParkingLocation)
+    DECLARE_PERSISTENT(WED_TruckParkingLocation)
 
 public:
+    void SetTruckType(int truckType);
+    int GetTruckType(void) const;
+    std::string GetTruckCustom(void) const;
 
-	void	SetTruckType(int truckType);
-	int		GetTruckType(void) const;
-	std::string	GetTruckCustom(void) const;
+    void SetNumberOfCars(int numberOfCars);
+    int GetNumberOfCars(void) const;
 
-	void	SetNumberOfCars(int numberOfCars);
-	int		GetNumberOfCars(void) const;
+    void Import(const AptTruckParking_t& x, void (*print_func)(void*, const char*, ...), void* ref);
+    void Export(AptTruckParking_t& x) const;
 
-	void	Import(const AptTruckParking_t& x, void (* print_func)(void *, const char *, ...), void * ref);
-	void	Export(		 AptTruckParking_t& x) const;
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Truck Parking Location";
+    }
 
-	virtual const char *	HumanReadableType(void) const { return "Truck Parking Location"; }
-
-	virtual void		GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
+    virtual void GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
 
 private:
-
-	WED_PropIntEnum			truck_type;
-	WED_PropIntText			number_of_cars;
-	WED_PropStringText		custom_vehicle;
+    WED_PropIntEnum truck_type;
+    WED_PropIntText number_of_cars;
+    WED_PropStringText custom_vehicle;
 };
-
-
 
 #endif /* WED_TruckParkingLocation_h */

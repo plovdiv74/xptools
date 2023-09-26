@@ -26,8 +26,9 @@
 DEFINE_PERSISTENT(WED_ExclusionZone)
 TRIVIAL_COPY(WED_ExclusionZone, WED_GISBoundingBox)
 
-WED_ExclusionZone::WED_ExclusionZone(WED_Archive * a, int i) : WED_GISBoundingBox(a,i),
-	exclusions(this,PROP_Name("Exclusions", XML_Name("excluzions","exclusion")),ExclusionTypes, 0)
+WED_ExclusionZone::WED_ExclusionZone(WED_Archive* a, int i)
+    : WED_GISBoundingBox(a, i),
+      exclusions(this, PROP_Name("Exclusions", XML_Name("excluzions", "exclusion")), ExclusionTypes, 0)
 {
 }
 
@@ -35,12 +36,12 @@ WED_ExclusionZone::~WED_ExclusionZone()
 {
 }
 
-void	WED_ExclusionZone::SetExclusions(const std::set<int>& in_exclusions)
+void WED_ExclusionZone::SetExclusions(const std::set<int>& in_exclusions)
 {
-	exclusions = in_exclusions;
+    exclusions = in_exclusions;
 }
 
-void		WED_ExclusionZone::GetExclusions(std::set<int>& out_exclusions) const
+void WED_ExclusionZone::GetExclusions(std::set<int>& out_exclusions) const
 {
-	out_exclusions = exclusions.value;
+    out_exclusions = exclusions.value;
 }

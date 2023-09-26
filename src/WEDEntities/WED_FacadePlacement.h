@@ -30,58 +30,61 @@
 struct fac_info_t;
 struct Jetway_t;
 
-class	WED_FacadePlacement : public WED_GISPolygon, public IHasResource {
+class WED_FacadePlacement : public WED_GISPolygon, public IHasResource
+{
 
-DECLARE_PERSISTENT(WED_FacadePlacement)
+    DECLARE_PERSISTENT(WED_FacadePlacement)
 
 public:
+    enum TopoMode
+    {
+        topo_Area = 0,
+        topo_Ring = 1,
+        topo_Chain = 2
+    };
 
-	enum TopoMode {
-		topo_Area = 0,
-		topo_Ring = 1,
-		topo_Chain = 2
-	};
+    virtual bool HasLayer(GISLayer_t layer) const;
 
-	virtual	bool			HasLayer		(GISLayer_t layer							  ) const;
+    double GetHeight(void) const;
+    void SetHeight(double h);
 
-			double		GetHeight(void) const;
-			void		SetHeight(double h);
+    virtual void GetResource(std::string& r) const;
+    virtual void SetResource(const std::string& r);
 
-	virtual void		GetResource(	  std::string& r) const;
-	virtual void		SetResource(const std::string& r);
+    TopoMode GetTopoMode(void) const;
 
-			TopoMode	GetTopoMode(void) const;
+    int GetNumWallChoices(void) const;
+    int GetType(void) const;
+    const std::vector<float> GetHeightChoices(void) const;
+    bool HasCustomWalls(void) const;
+    void SetCustomWalls(bool has);
 
-			int			GetNumWallChoices(void) const;
-			int			GetType(void) const;
-	const std::vector<float>	GetHeightChoices(void) const;
-			bool		HasCustomWalls(void) const;
-			void		SetCustomWalls(bool has);
+    void SetShowLevel(int show_level);
+    int GetShowLevel(void) const;
 
-			void		SetShowLevel(int show_level);
-			int			GetShowLevel(void) const;
+    bool IsJetway(int* cabin = nullptr, int* tunnel = nullptr) const;
+    bool HasDockingCabin(void) const;
+    void ExportJetway(Jetway_t& apt_data);
+    void ImportJetway(const Jetway_t& apt_data, void (*print_func)(void*, const char*, ...), void* ref);
 
-			bool		IsJetway(int * cabin = nullptr, int * tunnel = nullptr) const;
-			bool		HasDockingCabin(void) const;
-			void		ExportJetway(Jetway_t& apt_data);
-			void		ImportJetway(const Jetway_t& apt_data, void(*print_func)(void *, const char *, ...), void * ref);
-
-	virtual const char *	HumanReadableType(void) const { return "Facade"; }
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Facade";
+    }
 
 protected:
-
-	virtual	bool		IsInteriorFilled(void) const { return GetTopoMode() == 0; }
+    virtual bool IsInteriorFilled(void) const
+    {
+        return GetTopoMode() == 0;
+    }
 
 private:
+    const fac_info_t* GetFacInfo(void) const;
 
-	const fac_info_t * 		GetFacInfo(void) const;
-
-	WED_PropDoubleText		height;
-	WED_PropStringText		resource;
-	WED_PropBoolText			pick_walls;
-	WED_PropIntEnum			show_level;
-
+    WED_PropDoubleText height;
+    WED_PropStringText resource;
+    WED_PropBoolText pick_walls;
+    WED_PropIntEnum show_level;
 };
-
 
 #endif /* WED_FacadePlacement_H */

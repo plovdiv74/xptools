@@ -28,261 +28,294 @@
 #include "MathUtils.h"
 
 #if PHONE
-	#define WANT_PVR 1
-	#define WANT_ATI IBM
+#define WANT_PVR 1
+#define WANT_ATI IBM
 #else
-	#define WANT_PVR 0
-	#define WANT_ATI 0
+#define WANT_PVR 0
+#define WANT_ATI 0
 #endif
 
-
-
 #if PHONE
-	#if WANT_ATI
-		#include "ATI_Compress.h"
-	#endif
-	#include "MathUtils.h"
+#if WANT_ATI
+#include "ATI_Compress.h"
+#endif
+#include "MathUtils.h"
 #endif
 
 /*
 
-	WHAT IS ALL OF THIS PHONE STUFF???
+    WHAT IS ALL OF THIS PHONE STUFF???
 
-	DDSTool is mainly used by the X-Plane community to convert PNGs to DDS/DXT files so that the texture compression they get is high quality/produced offline.
+    DDSTool is mainly used by the X-Plane community to convert PNGs to DDS/DXT files so that the texture compression
+   they get is high quality/produced offline.
 
-	But...LR also uses DDSTool and XGrinder to prepare content for the iphone apps.  The iphone uses "pvr" files, an image container for use with PowerVR's
-	PVRTC compressed format.  In other words, the iphone has its own file formats and its own compression.  When PHONE is defined to 1, the tools compile
-	with iphone options enabled...that's what most of this junk is.  Normally we ship the tools with phone features off because they are (1) completely useless
-	to desktop users and (2) likely to create confusion.
+    But...LR also uses DDSTool and XGrinder to prepare content for the iphone apps.  The iphone uses "pvr" files, an
+   image container for use with PowerVR's PVRTC compressed format.  In other words, the iphone has its own file formats
+   and its own compression.  When PHONE is defined to 1, the tools compile with iphone options enabled...that's what
+   most of this junk is.  Normally we ship the tools with phone features off because they are (1) completely useless to
+   desktop users and (2) likely to create confusion.
 
 */
 
-enum {
-	raw_16 = 0,
-	raw_24 = 1,
-	pvr_2 = 2,
-	pvr_4 = 3
+enum
+{
+    raw_16 = 0,
+    raw_24 = 1,
+    pvr_2 = 2,
+    pvr_4 = 3
 };
 static int exp_mode = pvr_2;
 
 typedef struct PVR_Header_Texture_TAG
 {
-        unsigned int dwHeaderSize;                      /*!< size of the structure */
-        unsigned int dwHeight;                          /*!< height of surface to be created */
-        unsigned int dwWidth;                           /*!< width of input surface */
-        unsigned int dwMipMapCount;                     /*!< number of mip-map levels requested */
-        unsigned int dwpfFlags;                         /*!< pixel format flags */
-        unsigned int dwTextureDataSize;                                 /*!< Total size in bytes */
-        unsigned int dwBitCount;                        /*!< number of bits per pixel  */
-        unsigned int dwRBitMask;                        /*!< mask for red bit */
-        unsigned int dwGBitMask;                        /*!< mask for green bits */
-        unsigned int dwBBitMask;                        /*!< mask for blue bits */
-        unsigned int dwAlphaBitMask;                                    /*!< mask for alpha channel */
-        unsigned int dwPVR;                             /*!< magic number identifying pvr file */
-        unsigned int dwNumSurfs;                        /*!< the number of surfaces present in the pvr */
+    unsigned int dwHeaderSize;      /*!< size of the structure */
+    unsigned int dwHeight;          /*!< height of surface to be created */
+    unsigned int dwWidth;           /*!< width of input surface */
+    unsigned int dwMipMapCount;     /*!< number of mip-map levels requested */
+    unsigned int dwpfFlags;         /*!< pixel format flags */
+    unsigned int dwTextureDataSize; /*!< Total size in bytes */
+    unsigned int dwBitCount;        /*!< number of bits per pixel  */
+    unsigned int dwRBitMask;        /*!< mask for red bit */
+    unsigned int dwGBitMask;        /*!< mask for green bits */
+    unsigned int dwBBitMask;        /*!< mask for blue bits */
+    unsigned int dwAlphaBitMask;    /*!< mask for alpha channel */
+    unsigned int dwPVR;             /*!< magic number identifying pvr file */
+    unsigned int dwNumSurfs;        /*!< the number of surfaces present in the pvr */
 } PVR_Texture_Header;
 
 #if PHONE
 typedef struct ATC_Header_Texture_TAG
 {
-		unsigned int signature;
-		unsigned int width;
-		unsigned int height;
-		unsigned int flags;
-		unsigned int dataOffset;  // From start of header/file
-		unsigned int reserved1;
-		unsigned int reserved2;
-		unsigned int reserved3;
+    unsigned int signature;
+    unsigned int width;
+    unsigned int height;
+    unsigned int flags;
+    unsigned int dataOffset; // From start of header/file
+    unsigned int reserved1;
+    unsigned int reserved2;
+    unsigned int reserved3;
 } ATC_Texture_Header;
 #endif
 
-enum {
-		OGL_RGBA_4444= 0x10,
-        OGL_RGBA_5551,
-        OGL_RGBA_8888,
-        OGL_RGB_565,
-        OGL_RGB_555,
-        OGL_RGB_888,
-        OGL_I_8,
-        OGL_AI_88,
-        OGL_PVRTC2,
-        OGL_PVRTC4,
-        OGL_PVRTC2_2,
-        OGL_PVRTC2_4,
+enum
+{
+    OGL_RGBA_4444 = 0x10,
+    OGL_RGBA_5551,
+    OGL_RGBA_8888,
+    OGL_RGB_565,
+    OGL_RGB_555,
+    OGL_RGB_888,
+    OGL_I_8,
+    OGL_AI_88,
+    OGL_PVRTC2,
+    OGL_PVRTC4,
+    OGL_PVRTC2_2,
+    OGL_PVRTC2_4,
 };
 
 #if PHONE
-enum {
-		ATC_RGB   			= 0x01,
-		ATC_RGBA  			= 0x02,
-		ATC_TILED 			= 0x04,
-		ATC_INTERP_RGBA		= 0x12,
-		ATC_RAW_RGBA_4444	= 0x20,		// From here down, these are formats that WE made up
-		ATC_RAW_RGBA_8888,				// They are NOT part of the ATITC spec.
-		ATC_RAW_RGB_565,
-		ATC_RAW_RGB_888,
-		ATC_RAW_I_8
+enum
+{
+    ATC_RGB = 0x01,
+    ATC_RGBA = 0x02,
+    ATC_TILED = 0x04,
+    ATC_INTERP_RGBA = 0x12,
+    ATC_RAW_RGBA_4444 = 0x20, // From here down, these are formats that WE made up
+    ATC_RAW_RGBA_8888,        // They are NOT part of the ATITC spec.
+    ATC_RAW_RGB_565,
+    ATC_RAW_RGB_888,
+    ATC_RAW_I_8
 };
 #endif
 
 static int size_for_image(int x, int y, int bpp, int min_bytes)
 {
-	return max(x * y * bpp / 8, min_bytes);
+    return max(x * y * bpp / 8, min_bytes);
 }
 static int size_for_mipmap(int x, int y, int bpp, int min_bytes)
 {
-	int total = 0;
-	while (1)
-	{
-		total += size_for_image(x,y,bpp, min_bytes);
-		if (x == 1 && y == 1)
-			break;
-		if (x > 1) x >>= 1;
-		if (y > 1) y >>= 1;
-	}
-	return total;
+    int total = 0;
+    while (1)
+    {
+        total += size_for_image(x, y, bpp, min_bytes);
+        if (x == 1 && y == 1)
+            break;
+        if (x > 1)
+            x >>= 1;
+        if (y > 1)
+            y >>= 1;
+    }
+    return total;
 }
 
 #if PHONE
-static int WriteToRaw(const ImageInfo& info, const char * outf, int s_raw_16_bit, bool isPvr, int mip_count)
+static int WriteToRaw(const ImageInfo& info, const char* outf, int s_raw_16_bit, bool isPvr, int mip_count)
 {
-	PVR_Texture_Header	h 			= { 0 };
-	ATC_Texture_Header	atcHdr 		= { 0 };
-	unsigned int 		totalSize 	= 0;
-	unsigned int		hdrSize 	= 0;
-	void*				hdr			= NULL;
-	int					bpp = 8;
-	ImageInfo			img(info);				/// copy so we can advance the mip stack.
+    PVR_Texture_Header h = {0};
+    ATC_Texture_Header atcHdr = {0};
+    unsigned int totalSize = 0;
+    unsigned int hdrSize = 0;
+    void* hdr = NULL;
+    int bpp = 8;
+    ImageInfo img(info); /// copy so we can advance the mip stack.
 
-	switch(info.channels) {
-	case 1:		bpp = 8;						break;
-	case 3:		bpp = s_raw_16_bit ? 16 : 24;	break;
-	case 4:		bpp = s_raw_16_bit ? 16 : 32;	break;
-	}
-	totalSize = (mip_count > 1) ? size_for_mipmap(info.width, info.height, bpp, 1) : size_for_image(info.width,info.height,bpp,1);
+    switch (info.channels)
+    {
+    case 1:
+        bpp = 8;
+        break;
+    case 3:
+        bpp = s_raw_16_bit ? 16 : 24;
+        break;
+    case 4:
+        bpp = s_raw_16_bit ? 16 : 32;
+        break;
+    }
+    totalSize = (mip_count > 1) ? size_for_mipmap(info.width, info.height, bpp, 1)
+                                : size_for_image(info.width, info.height, bpp, 1);
 
-	if(isPvr)
-	{
-		h.dwHeaderSize = sizeof(h);
-		h.dwHeight = info.height;
-		h.dwWidth = info.width;
-		h.dwMipMapCount = mip_count;
-		h.dwTextureDataSize = totalSize;
-		h.dwPVR = 0x21525650;
-		if(s_raw_16_bit)
-		switch(info.channels) {
-		case 1: h.dwpfFlags =	OGL_I_8;		break;
-		case 3: h.dwpfFlags =	OGL_RGB_565;	break;
-		case 4: h.dwpfFlags =	OGL_RGBA_4444;	break;
-		}
-		else
-		switch(info.channels) {
-		case 1: h.dwpfFlags =	OGL_I_8;		break;
-		case 3: h.dwpfFlags =	OGL_RGB_888;	break;
-		case 4: h.dwpfFlags =	OGL_RGBA_8888;	break;
-		}
+    if (isPvr)
+    {
+        h.dwHeaderSize = sizeof(h);
+        h.dwHeight = info.height;
+        h.dwWidth = info.width;
+        h.dwMipMapCount = mip_count;
+        h.dwTextureDataSize = totalSize;
+        h.dwPVR = 0x21525650;
+        if (s_raw_16_bit)
+            switch (info.channels)
+            {
+            case 1:
+                h.dwpfFlags = OGL_I_8;
+                break;
+            case 3:
+                h.dwpfFlags = OGL_RGB_565;
+                break;
+            case 4:
+                h.dwpfFlags = OGL_RGBA_4444;
+                break;
+            }
+        else
+            switch (info.channels)
+            {
+            case 1:
+                h.dwpfFlags = OGL_I_8;
+                break;
+            case 3:
+                h.dwpfFlags = OGL_RGB_888;
+                break;
+            case 4:
+                h.dwpfFlags = OGL_RGBA_8888;
+                break;
+            }
 
-		hdrSize = h.dwHeaderSize;
-		hdr = &h;
-	}
-	// We must be ATC then if we're not PVR
-	else
-	{
-		atcHdr.signature = 0xCCC40002;
-		atcHdr.width = info.width;
-		atcHdr.height = info.height;
-		atcHdr.dataOffset = sizeof(atcHdr);
+        hdrSize = h.dwHeaderSize;
+        hdr = &h;
+    }
+    // We must be ATC then if we're not PVR
+    else
+    {
+        atcHdr.signature = 0xCCC40002;
+        atcHdr.width = info.width;
+        atcHdr.height = info.height;
+        atcHdr.dataOffset = sizeof(atcHdr);
 
-		if(s_raw_16_bit)
-		switch(info.channels) {
-		case 1: atcHdr.flags =	ATC_RAW_I_8;		break;
-		case 3: atcHdr.flags =	ATC_RAW_RGB_565;	break;
-		case 4: atcHdr.flags =	ATC_RAW_RGBA_4444;	break;
-		}
-		else
-		switch(info.channels) {
-		case 1: atcHdr.flags =	ATC_RAW_I_8;		break;
-		case 3: atcHdr.flags =	ATC_RAW_RGB_888;	break;
-		case 4: atcHdr.flags =	ATC_RAW_RGBA_8888;	break;
-		}
+        if (s_raw_16_bit)
+            switch (info.channels)
+            {
+            case 1:
+                atcHdr.flags = ATC_RAW_I_8;
+                break;
+            case 3:
+                atcHdr.flags = ATC_RAW_RGB_565;
+                break;
+            case 4:
+                atcHdr.flags = ATC_RAW_RGBA_4444;
+                break;
+            }
+        else
+            switch (info.channels)
+            {
+            case 1:
+                atcHdr.flags = ATC_RAW_I_8;
+                break;
+            case 3:
+                atcHdr.flags = ATC_RAW_RGB_888;
+                break;
+            case 4:
+                atcHdr.flags = ATC_RAW_RGBA_8888;
+                break;
+            }
 
-		hdrSize = sizeof(atcHdr);
-		hdr = &atcHdr;
-	}
+        hdrSize = sizeof(atcHdr);
+        hdr = &atcHdr;
+    }
 
-	int sbp = info.channels;
-	int dbp = bpp / 8;
+    int sbp = info.channels;
+    int dbp = bpp / 8;
 
-	unsigned char * storage = (unsigned char *) malloc(totalSize);
-	unsigned char * base_ptr = storage;
+    unsigned char* storage = (unsigned char*)malloc(totalSize);
+    unsigned char* base_ptr = storage;
 
-	while(mip_count--)
-	{
-		for(int y = 0; y < img.height; ++y)
-		for(int x = 0; x < img.width; ++x)
-		{
-			unsigned char * srcb = (unsigned char*)img.data + img.width * sbp * y + x * sbp;
-			unsigned char * dstb = base_ptr + img.width * dbp * y + dbp * x;
-			if(img.channels == 1)
-			{
-				*dstb = *srcb;
-			}
-			else if (img.channels == 3)
-			{
-				if(s_raw_16_bit)
-				*((unsigned short *) dstb) =
-				((srcb[2] & 0xF8) << 8) |
-				((srcb[1] & 0xFC) << 3) |
-				((srcb[0] & 0xF8) >> 3);
-				else
-					dstb[0]=srcb[2],
-					dstb[1]=srcb[1],
-					dstb[2]=srcb[0];
-			}
-			else if (img.channels == 4)
-			{
-				if(s_raw_16_bit)
-				*((unsigned short *) dstb) =
-				((srcb[2] & 0xF0) << 8) |
-				((srcb[1] & 0xF0) << 4) |
-				((srcb[0] & 0xF0) << 0) |
-				((srcb[3] & 0xF0) >> 4);
-				else
-					dstb[0]=srcb[2],
-					dstb[1]=srcb[1],
-					dstb[2]=srcb[0],
-					dstb[3]=srcb[3];
-			}
-		}
+    while (mip_count--)
+    {
+        for (int y = 0; y < img.height; ++y)
+            for (int x = 0; x < img.width; ++x)
+            {
+                unsigned char* srcb = (unsigned char*)img.data + img.width * sbp * y + x * sbp;
+                unsigned char* dstb = base_ptr + img.width * dbp * y + dbp * x;
+                if (img.channels == 1)
+                {
+                    *dstb = *srcb;
+                }
+                else if (img.channels == 3)
+                {
+                    if (s_raw_16_bit)
+                        *((unsigned short*)dstb) =
+                            ((srcb[2] & 0xF8) << 8) | ((srcb[1] & 0xFC) << 3) | ((srcb[0] & 0xF8) >> 3);
+                    else
+                        dstb[0] = srcb[2], dstb[1] = srcb[1], dstb[2] = srcb[0];
+                }
+                else if (img.channels == 4)
+                {
+                    if (s_raw_16_bit)
+                        *((unsigned short*)dstb) = ((srcb[2] & 0xF0) << 8) | ((srcb[1] & 0xF0) << 4) |
+                                                   ((srcb[0] & 0xF0) << 0) | ((srcb[3] & 0xF0) >> 4);
+                    else
+                        dstb[0] = srcb[2], dstb[1] = srcb[1], dstb[2] = srcb[0], dstb[3] = srcb[3];
+                }
+            }
 
-		base_ptr += size_for_image(img.width,img.height,bpp,1);
-		AdvanceMipmapStack(&img);
-	}
+        base_ptr += size_for_image(img.width, img.height, bpp, 1);
+        AdvanceMipmapStack(&img);
+    }
 
-	FILE * fi = fopen(outf,"wb");
-	if(fi)
-	{
-		fwrite(hdr,1,hdrSize,fi);
-		fwrite(storage,1,totalSize,fi);
-		fclose(fi);
-	}
-	free(storage);
-	return 0;
+    FILE* fi = fopen(outf, "wb");
+    if (fi)
+    {
+        fwrite(hdr, 1, hdrSize, fi);
+        fwrite(storage, 1, totalSize, fi);
+        fclose(fi);
+    }
+    free(storage);
+    return 0;
 }
 #endif
 
 int pow2_up(int n)
 {
-	int o = 1;
-	while(o < n) o *= 2;
-	return o;
+    int o = 1;
+    while (o < n)
+        o *= 2;
+    return o;
 }
 
 int pow2_down(int n)
 {
-	int o = 65536;
-	while(o > n) o /= 2;
-	return o;
+    int o = 65536;
+    while (o > n)
+        o /= 2;
+    return o;
 }
 
 // Resizes the image to meet our constraints.
@@ -295,639 +328,712 @@ int pow2_down(int n)
 // original (unusable) form.
 static bool HandleScale(ImageInfo& info, bool up, bool down, bool half, bool square)
 {
-	int nx = down ? pow2_down(info.width) : pow2_up(info.width);
-	int ny = down ? pow2_down(info.height) : pow2_up(info.height);
-	if(half) nx /= 2.0;
-	if(half) ny /= 2.0;
+    int nx = down ? pow2_down(info.width) : pow2_up(info.width);
+    int ny = down ? pow2_down(info.height) : pow2_up(info.height);
+    if (half)
+        nx /= 2.0;
+    if (half)
+        ny /= 2.0;
 
-	if(square && up	 ) nx = ny = max(nx,ny);
-	if(square && down) nx = ny = min(nx, ny);
+    if (square && up)
+        nx = ny = max(nx, ny);
+    if (square && down)
+        nx = ny = min(nx, ny);
 
-	if(nx == info.width && ny == info.height)
-		return true;
+    if (nx == info.width && ny == info.height)
+        return true;
 
+    if (!up && !down && !half)
+        return false;
 
+    ImageInfo n;
+    CreateNewBitmap(nx, ny, info.channels, &n);
+    CopyBitmapSection(&info, &n, 0, 0, info.width, info.height, 0, 0, nx, ny);
+    std::swap(n, info);
+    DestroyBitmap(&n);
 
-	if(!up && !down && !half)
-		return false;
-
-	ImageInfo	n;
-	CreateNewBitmap(nx,ny,info.channels, &n);
-	CopyBitmapSection(&info, &n, 0, 0, info.width, info.height, 0, 0, nx, ny);
-	std::swap(n, info);
-	DestroyBitmap(&n);
-
-	return false;
+    return false;
 }
-
 
 unsigned char night_filter(unsigned char src[], int count, int channel, int level)
 {
-	int total = 0;
-	for(int i = 0; i < count; ++i)
-		total += (int) src[i];
-	total *= 2;
-	return min(255,total / count);
+    int total = 0;
+    for (int i = 0; i < count; ++i)
+        total += (int)src[i];
+    total *= 2;
+    return min(255, total / count);
 }
 
 unsigned char fade_filter(unsigned char src[], int count, int channel, int level)
 {
-	int total = 0;
-	for(int i = 0; i < count; ++i)
-		total += (int) src[i];
-	total /= count;
-	if (channel == 3)
-	{
-		float alpha = interp(3,1.0,6,0.0,level);
-		total = (float) total * alpha;
-	}
+    int total = 0;
+    for (int i = 0; i < count; ++i)
+        total += (int)src[i];
+    total /= count;
+    if (channel == 3)
+    {
+        float alpha = interp(3, 1.0, 6, 0.0, level);
+        total = (float)total * alpha;
+    }
 
-	return total;
+    return total;
 }
 
 unsigned char fade_2_black_filter(unsigned char src[], int count, int channel, int level)
 {
-	int total = 0;
-	for(int i = 0; i < count; ++i)
-		total += (int) src[i];
-	total /= count;
-	{
-		float alpha = interp(3,1.0,6,0.0,level);
-		total = (float) total * alpha;
-	}
+    int total = 0;
+    for (int i = 0; i < count; ++i)
+        total += (int)src[i];
+    total /= count;
+    {
+        float alpha = interp(3, 1.0, 6, 0.0, level);
+        total = (float)total * alpha;
+    }
 
-	return total;
+    return total;
 }
 
-
-int main(int argc, char * argv[])
+int main(int argc, char* argv[])
 {
-	char	my_dir[2048];
-	strcpy(my_dir,argv[0]);
-	char * last_slash = my_dir;
-	char * p = my_dir;
-	while(*p)
-	{
-		if(*p=='/') last_slash = p;
-		++p;
-	}
-	last_slash[1] = 0;
+    char my_dir[2048];
+    strcpy(my_dir, argv[0]);
+    char* last_slash = my_dir;
+    char* p = my_dir;
+    while (*p)
+    {
+        if (*p == '/')
+            last_slash = p;
+        ++p;
+    }
+    last_slash[1] = 0;
 
-	// DDSTool --png2dds <infile> <outfile>
+    // DDSTool --png2dds <infile> <outfile>
 
-	if (argc == 2 && strcmp(argv[1],"--version")==0)
-	{
-		print_product_version("DDSTool", DDSTOOL_VER, DDSTOOL_EXTRAVER);
-		return 0;
-	}
-	if (argc == 2 && strcmp(argv[1],"--auto_config")==0)
-	{
-		printf("CMD .png .dds \"%s\" DDS_MODE HAS_MIPS PVR_SCALE \"INFILE\" \"OUTFILE\"\n",argv[0]);
-		printf("OPTIONS DDSTool\n");
-		printf("RADIO DDS_MODE 1 --png2dxt Auto-pick compression\n");
-		printf("RADIO DDS_MODE 0 --png2dxt1 BC1/DXT1 Compression (1-bit alpha)\n");
-		printf("RADIO DDS_MODE 0 --png2dxt3 BC2/DXT3 Compression (high-freq alpha)\n");
-		printf("RADIO DDS_MODE 0 --png2dxt5 BC3/DXT5 Compression (smooth alpha)\n");
-//		printf("RADIO DDS_MODE 0 --png2bc4 BC4 Compression (metalness or reflectivity)\n");
-//		printf("RADIO DDS_MODE 0 --png2bc5 BC5 Compression (normals)\n");
-		printf("RADIO DDS_MODE 0 --png2rgb No Compression\n");
-		printf("DIV\n");
-		printf("RADIO HAS_MIPS 1 --std_mips Generate Mip-Maps (sRGB gamma)\n");
-		printf("RADIO HAS_MIPS 0 --pre_mips Image Is a Mip-Map Tree\n");
-		printf("RADIO HAS_MIPS 0 --night_mips Generate Night-Style Mip-Map\n");
-		printf("RADIO HAS_MIPS 0 --fade_mips Generate Fading Mip-Map\n");
-		printf("RADIO HAS_MIPS 0 --ctl_mips Generate Fading CTL Mip-Map\n"); 
+    if (argc == 2 && strcmp(argv[1], "--version") == 0)
+    {
+        print_product_version("DDSTool", DDSTOOL_VER, DDSTOOL_EXTRAVER);
+        return 0;
+    }
+    if (argc == 2 && strcmp(argv[1], "--auto_config") == 0)
+    {
+        printf("CMD .png .dds \"%s\" DDS_MODE HAS_MIPS PVR_SCALE \"INFILE\" \"OUTFILE\"\n", argv[0]);
+        printf("OPTIONS DDSTool\n");
+        printf("RADIO DDS_MODE 1 --png2dxt Auto-pick compression\n");
+        printf("RADIO DDS_MODE 0 --png2dxt1 BC1/DXT1 Compression (1-bit alpha)\n");
+        printf("RADIO DDS_MODE 0 --png2dxt3 BC2/DXT3 Compression (high-freq alpha)\n");
+        printf("RADIO DDS_MODE 0 --png2dxt5 BC3/DXT5 Compression (smooth alpha)\n");
+        //		printf("RADIO DDS_MODE 0 --png2bc4 BC4 Compression (metalness or reflectivity)\n");
+        //		printf("RADIO DDS_MODE 0 --png2bc5 BC5 Compression (normals)\n");
+        printf("RADIO DDS_MODE 0 --png2rgb No Compression\n");
+        printf("DIV\n");
+        printf("RADIO HAS_MIPS 1 --std_mips Generate Mip-Maps (sRGB gamma)\n");
+        printf("RADIO HAS_MIPS 0 --pre_mips Image Is a Mip-Map Tree\n");
+        printf("RADIO HAS_MIPS 0 --night_mips Generate Night-Style Mip-Map\n");
+        printf("RADIO HAS_MIPS 0 --fade_mips Generate Fading Mip-Map\n");
+        printf("RADIO HAS_MIPS 0 --ctl_mips Generate Fading CTL Mip-Map\n");
 #if WANT_ATI
-		printf("CMD .png .atc \"%s\" ATC_MODE MIPS PVR_SCALE \"INFILE\" \"OUTFILE\"\n",argv[0]);
-		printf("DIV\n");
-		printf("RADIO ATC_MODE 1 --png2atc4 4-bit ATC compression\n");
-		printf("RADIO ATC_MODE 0 --png2atc_raw16 ATC uses 16-bit color\n");
-		printf("RADIO ATC_MODE 0 --png2atc_raw24 ATC uses 24-bit color\n");
+        printf("CMD .png .atc \"%s\" ATC_MODE MIPS PVR_SCALE \"INFILE\" \"OUTFILE\"\n", argv[0]);
+        printf("DIV\n");
+        printf("RADIO ATC_MODE 1 --png2atc4 4-bit ATC compression\n");
+        printf("RADIO ATC_MODE 0 --png2atc_raw16 ATC uses 16-bit color\n");
+        printf("RADIO ATC_MODE 0 --png2atc_raw24 ATC uses 24-bit color\n");
 #endif
 #if PHONE
-		printf("CMD .png .txt \"%s\" --info ONEFILE \"INFILE\" \"OUTFILE\"\n", argv[0]);
-		printf("DIV\n");
-		printf("RADIO PVR_MODE 1 --png2pvrtc2 2-bit PVR compression\n");
-		printf("RADIO PVR_MODE 0 --png2pvrtc4 4-bit PVR compression\n");
-		printf("RADIO PVR_MODE 0 --png2pvr_raw16 PVR uses 16-bit color\n");
-		printf("RADIO PVR_MODE 0 --png2pvr_raw24 PVR uses 24-bit color\n");
+        printf("CMD .png .txt \"%s\" --info ONEFILE \"INFILE\" \"OUTFILE\"\n", argv[0]);
+        printf("DIV\n");
+        printf("RADIO PVR_MODE 1 --png2pvrtc2 2-bit PVR compression\n");
+        printf("RADIO PVR_MODE 0 --png2pvrtc4 4-bit PVR compression\n");
+        printf("RADIO PVR_MODE 0 --png2pvr_raw16 PVR uses 16-bit color\n");
+        printf("RADIO PVR_MODE 0 --png2pvr_raw24 PVR uses 24-bit color\n");
 #endif
-		printf("DIV\n");
-		printf("RADIO PVR_SCALE 1 --scale_none Do not resize images\n");
-		printf("RADIO PVR_SCALE 0 --scale_up Scale up to nearest power of 2\n");
-		printf("RADIO PVR_SCALE 0 --scale_down Scale down to nearest power of 2\n");
-		printf("RADIO PVR_SCALE 0 --scale_half Scale down by a factor of two\n");
+        printf("DIV\n");
+        printf("RADIO PVR_SCALE 1 --scale_none Do not resize images\n");
+        printf("RADIO PVR_SCALE 0 --scale_up Scale up to nearest power of 2\n");
+        printf("RADIO PVR_SCALE 0 --scale_down Scale down to nearest power of 2\n");
+        printf("RADIO PVR_SCALE 0 --scale_half Scale down by a factor of two\n");
 #if PHONE
-		printf("DIV\n");
-		printf("CHECK PREVIEW 0 --make_preview Output preview of compressed PVR image\n");
-		printf("CHECK MIPS 1 --make_mips Create mipmap for PVR image\n");
-		printf("CHECK ONEFILE 1 --one_file All text info goes into one file\n");
-		printf("CMD .png .pvr \"%s\" PVR_MODE PVR_SCALE PREVIEW MIPS \"INFILE\" \"OUTFILE\"\n",argv[0]);
+        printf("DIV\n");
+        printf("CHECK PREVIEW 0 --make_preview Output preview of compressed PVR image\n");
+        printf("CHECK MIPS 1 --make_mips Create mipmap for PVR image\n");
+        printf("CHECK ONEFILE 1 --one_file All text info goes into one file\n");
+        printf("CMD .png .pvr \"%s\" PVR_MODE PVR_SCALE PREVIEW MIPS \"INFILE\" \"OUTFILE\"\n", argv[0]);
 #endif
-		return 0;
-	}
+        return 0;
+    }
 
-	if (argc < 4) {
-		printf("Usage: %s <method> [options] <input_file> <output_file>|-\n",argv[0]);
-		printf("          compression method being one of\n");
-//		printf("          --png2dxt1, --png2dxt3, --png2dxt5, --png2bc4, --png2bc5\n");
-//		printf("          --png2dxt    Auto select BC1/dxt1, BC3/dxt5, BC4 or BC5 compression\n");
-		printf("          --png2dxt1, --png2dxt3, --png2dxt5\n");
-		printf("          --png2dxt    Auto select BC1/dxt1 or BC3/dxt5 compression\n");
-		printf("          --png2rgb    Uncompressed 8b/pixel\n");
-		printf("          recognized options are\n");
-		printf("          --pre_mips   Source image includes Mip-Map Tree\n");
-		printf("          --night_mips Generate nXP10 Night-style mimaps that get brighter\n");
-		printf("          --fade_mips  Generate Mimaps fading to transparent\n");
-		printf("          --ctl_mips   Generate Mimaps fading all channels to zero\n");
-		printf("          --scale_up   Scale up to nearest power of 2\n");
-		printf("          --scale_down Scale down to nearest power of 2\n\n");
-		printf("          --scale_half Scale down to half size\n");
-		printf("\n");
-//		printf("          --gamma_22   Ignored. BC1-3 use sRGB/gamma=2.2, BC4-5 linear gamma\n");
-		printf("          --gamma_22   This version of DDSTool always uses sRGB/gamma=2.2\n");
-		printf("\n");
-		printf("Usage: %s --quilt <input_file> <width> <height> <patch size> <overlap> <trials> <output_files>\n",argv[0]);
-		printf("       %s --version\n",argv[0]);
+    if (argc < 4)
+    {
+        printf("Usage: %s <method> [options] <input_file> <output_file>|-\n", argv[0]);
+        printf("          compression method being one of\n");
+        //		printf("          --png2dxt1, --png2dxt3, --png2dxt5, --png2bc4, --png2bc5\n");
+        //		printf("          --png2dxt    Auto select BC1/dxt1, BC3/dxt5, BC4 or BC5 compression\n");
+        printf("          --png2dxt1, --png2dxt3, --png2dxt5\n");
+        printf("          --png2dxt    Auto select BC1/dxt1 or BC3/dxt5 compression\n");
+        printf("          --png2rgb    Uncompressed 8b/pixel\n");
+        printf("          recognized options are\n");
+        printf("          --pre_mips   Source image includes Mip-Map Tree\n");
+        printf("          --night_mips Generate nXP10 Night-style mimaps that get brighter\n");
+        printf("          --fade_mips  Generate Mimaps fading to transparent\n");
+        printf("          --ctl_mips   Generate Mimaps fading all channels to zero\n");
+        printf("          --scale_up   Scale up to nearest power of 2\n");
+        printf("          --scale_down Scale down to nearest power of 2\n\n");
+        printf("          --scale_half Scale down to half size\n");
+        printf("\n");
+        //		printf("          --gamma_22   Ignored. BC1-3 use sRGB/gamma=2.2, BC4-5 linear gamma\n");
+        printf("          --gamma_22   This version of DDSTool always uses sRGB/gamma=2.2\n");
+        printf("\n");
+        printf("Usage: %s --quilt <input_file> <width> <height> <patch size> <overlap> <trials> <output_files>\n",
+               argv[0]);
+        printf("       %s --version\n", argv[0]);
 #if WANT_ATI
-		printf("       Compiled with WANT_ATI, supports --png2atc4, --png2atc_raw16, --png2atc_raw24\n");
+        printf("       Compiled with WANT_ATI, supports --png2atc4, --png2atc_raw16, --png2atc_raw24\n");
 #endif
 #if PHONE
-		printf("       Compiled with PHONE, supports --png2pvrtc2, --png2pvrtc4, --png2pvr_raw16, --png2pvr_raw24,\n");
-		printf("                                      --make_mips, and --make_preview\n");
+        printf("       Compiled with PHONE, supports --png2pvrtc2, --png2pvrtc4, --png2pvr_raw16, --png2pvr_raw24,\n");
+        printf("                                      --make_mips, and --make_preview\n");
 #endif
-		exit(1);
-	}
+        exit(1);
+    }
 
-	if(strcmp(argv[1],"--info")==0)
-	{
-		ImageInfo	info;
+    if (strcmp(argv[1], "--info") == 0)
+    {
+        ImageInfo info;
 
-		int n = 2;
-		bool one_file = false;
+        int n = 2;
+        bool one_file = false;
 
-		if(strcmp(argv[n],"--one_file")==0) { ++n; one_file = true; }
-		if(CreateBitmapFromPNG(argv[n], &info, true, GAMMA_SRGB))
-		{
-			printf("Unable to open png file %s\n", argv[n]);
-			return 1;
-		}
+        if (strcmp(argv[n], "--one_file") == 0)
+        {
+            ++n;
+            one_file = true;
+        }
+        if (CreateBitmapFromPNG(argv[n], &info, true, GAMMA_SRGB))
+        {
+            printf("Unable to open png file %s\n", argv[n]);
+            return 1;
+        }
 
-		std::string target = argv[n+1];
-		if(one_file)
-		{
-			std::string::size_type p = target.find_last_of("\\/:");
-			if(p != target.npos)
-				target.erase(p+1);
-			target += "info.txt";
-		}
+        std::string target = argv[n + 1];
+        if (one_file)
+        {
+            std::string::size_type p = target.find_last_of("\\/:");
+            if (p != target.npos)
+                target.erase(p + 1);
+            target += "info.txt";
+        }
 
-		FILE * fi = fopen(target.c_str(), one_file ? "a" : "w");
-		if(fi)
-		{
-			const char * name = argv[n];
-			const char * p = name;
-			while(*p)
-			{
-				if(*p == '\\' || *p == ':' || *p == '/')
-					name = p+1;
-				++p;
-			}
-			fprintf(fi,"\"%s\", %ld, %ld, %hd\n", name, info.width, info.height, info.channels);
-			fclose(fi);
-		}
-
-	}
+        FILE* fi = fopen(target.c_str(), one_file ? "a" : "w");
+        if (fi)
+        {
+            const char* name = argv[n];
+            const char* p = name;
+            while (*p)
+            {
+                if (*p == '\\' || *p == ':' || *p == '/')
+                    name = p + 1;
+                ++p;
+            }
+            fprintf(fi, "\"%s\", %ld, %ld, %hd\n", name, info.width, info.height, info.channels);
+            fclose(fi);
+        }
+    }
 #if PHONE
-	else if(strcmp(argv[1],"--png2pvrtc2")==0 ||
-	   strcmp(argv[1],"--png2pvrtc4")==0)
-	{
-		char cmd_buf[2048];
-		const char *							pvr_mode = "--bits-per-pixel-2";
-		if(strcmp(argv[1],"--png2pvrtc4")==0)	pvr_mode = "--bits-per-pixel-4";
+    else if (strcmp(argv[1], "--png2pvrtc2") == 0 || strcmp(argv[1], "--png2pvrtc4") == 0)
+    {
+        char cmd_buf[2048];
+        const char* pvr_mode = "--bits-per-pixel-2";
+        if (strcmp(argv[1], "--png2pvrtc4") == 0)
+            pvr_mode = "--bits-per-pixel-4";
 
-		// PowerVR does not provide open src for PVRTC.  So...we have to convert our png using Apple's texture tool.
+        // PowerVR does not provide open src for PVRTC.  So...we have to convert our png using Apple's texture tool.
 
-		bool want_preview = false;
-		bool want_mips = false;
-		bool scale_up = strcmp(argv[2], "--scale_up") == 0;
-		bool scale_down = strcmp(argv[2], "--scale_down") == 0;
-		bool scale_half = strcmp(argv[2], "--scale_half") == 0;
+        bool want_preview = false;
+        bool want_mips = false;
+        bool scale_up = strcmp(argv[2], "--scale_up") == 0;
+        bool scale_down = strcmp(argv[2], "--scale_down") == 0;
+        bool scale_half = strcmp(argv[2], "--scale_half") == 0;
 
-		int n = 3;
+        int n = 3;
 
-		if(strcmp(argv[n],"--make_preview")==0) { want_preview = true; ++n; }
-		if(strcmp(argv[n],"--make_mips")==0) { want_mips = true; ++n; }
+        if (strcmp(argv[n], "--make_preview") == 0)
+        {
+            want_preview = true;
+            ++n;
+        }
+        if (strcmp(argv[n], "--make_mips") == 0)
+        {
+            want_mips = true;
+            ++n;
+        }
 
-		ImageInfo	info;
-		if(CreateBitmapFromPNG(argv[n], &info, true, 2.2f))
-		{
-			printf("Unable to open png file %s\n", argv[n]);
-			return 1;
-		}
+        ImageInfo info;
+        if (CreateBitmapFromPNG(argv[n], &info, true, 2.2f))
+        {
+            printf("Unable to open png file %s\n", argv[n]);
+            return 1;
+        }
 
-		if (!HandleScale(info, scale_up, scale_down, scale_half, true))
-		{
-			// Image does NOT meet our power of 2 needs.
-			if(!scale_up && !scale_down && !scale_half)
-			{
-				printf("The image is not a square power of 2.  It is: %ld by %ld\n", info.width, info.height);
-				return 1;
-			}
-			else if(want_preview)
-			{
-				std::string preview_path = std::string(argv[n]) + ".scl.png";
-				WriteBitmapToPNG(&info, preview_path.c_str(), NULL, 0, 2.2f);
-			}
-		}
+        if (!HandleScale(info, scale_up, scale_down, scale_half, true))
+        {
+            // Image does NOT meet our power of 2 needs.
+            if (!scale_up && !scale_down && !scale_half)
+            {
+                printf("The image is not a square power of 2.  It is: %ld by %ld\n", info.width, info.height);
+                return 1;
+            }
+            else if (want_preview)
+            {
+                std::string preview_path = std::string(argv[n]) + ".scl.png";
+                WriteBitmapToPNG(&info, preview_path.c_str(), NULL, 0, 2.2f);
+            }
+        }
 
-		FlipImageY(info);
-		std::string temp_path = argv[n];
-		temp_path += "_temp";
-		if(WriteBitmapToPNG(&info, temp_path.c_str(), NULL, 0, 2.2f))
-		{
-			printf("Unable to write temp file %s\n", temp_path.c_str());
-			return 1;
-		}
-		DestroyBitmap(&info);
+        FlipImageY(info);
+        std::string temp_path = argv[n];
+        temp_path += "_temp";
+        if (WriteBitmapToPNG(&info, temp_path.c_str(), NULL, 0, 2.2f))
+        {
+            printf("Unable to write temp file %s\n", temp_path.c_str());
+            return 1;
+        }
+        DestroyBitmap(&info);
 
-		std::string preview = std::string(argv[n+1]) + ".png";
+        std::string preview = std::string(argv[n + 1]) + ".png";
 
-		std::string flags;
-		if(want_mips) flags += "-m ";
-		if(want_preview){
-			flags += "-p \"";
-			flags += preview;
-			flags += "\" ";
-		}
+        std::string flags;
+        if (want_mips)
+            flags += "-m ";
+        if (want_preview)
+        {
+            flags += "-p \"";
+            flags += preview;
+            flags += "\" ";
+        }
 
-		sprintf(cmd_buf,"\"%stexturetool\" -e PVRTC %s %s -c PVR -o \"%s\" \"%s\"", my_dir, pvr_mode, flags.c_str(), argv[n+1], temp_path.c_str());
-		printf("Cmd: %s\n", cmd_buf);
-		system(cmd_buf);
+        sprintf(cmd_buf, "\"%stexturetool\" -e PVRTC %s %s -c PVR -o \"%s\" \"%s\"", my_dir, pvr_mode, flags.c_str(),
+                argv[n + 1], temp_path.c_str());
+        printf("Cmd: %s\n", cmd_buf);
+        system(cmd_buf);
 
-		FILE_delete_file(temp_path.c_str(), 0);
-		if(want_preview)
-		{
-			if(!CreateBitmapFromPNG(preview.c_str(), &info, true, 2.2f))
-			{
-				FlipImageY(info);
-				WriteBitmapToPNG(&info, preview.c_str(),0,false, 2.2f);
-				DestroyBitmap(&info);
-			}
-		}
+        FILE_delete_file(temp_path.c_str(), 0);
+        if (want_preview)
+        {
+            if (!CreateBitmapFromPNG(preview.c_str(), &info, true, 2.2f))
+            {
+                FlipImageY(info);
+                WriteBitmapToPNG(&info, preview.c_str(), 0, false, 2.2f);
+                DestroyBitmap(&info);
+            }
+        }
 
-		return 1;
-	}
-	else if(strcmp(argv[1],"--png2pvr_raw16")==0 ||
-			strcmp(argv[1],"--png2pvr_raw24")==0)
-	{
-		bool want_preview = false;
-		bool want_mips = false;
-		bool scale_up = strcmp(argv[2], "--scale_up") == 0;
-		bool scale_down = strcmp(argv[2], "--scale_down") == 0;
-		bool scale_half = strcmp(argv[2], "--scale_half") == 0;
+        return 1;
+    }
+    else if (strcmp(argv[1], "--png2pvr_raw16") == 0 || strcmp(argv[1], "--png2pvr_raw24") == 0)
+    {
+        bool want_preview = false;
+        bool want_mips = false;
+        bool scale_up = strcmp(argv[2], "--scale_up") == 0;
+        bool scale_down = strcmp(argv[2], "--scale_down") == 0;
+        bool scale_half = strcmp(argv[2], "--scale_half") == 0;
 
-		int n = 3;
+        int n = 3;
 
-		if(strcmp(argv[n],"--make_preview")==0) { want_preview = true; ++n; }
-		if(strcmp(argv[n],"--make_mips")==0) { want_mips = true; ++n; }
+        if (strcmp(argv[n], "--make_preview") == 0)
+        {
+            want_preview = true;
+            ++n;
+        }
+        if (strcmp(argv[n], "--make_mips") == 0)
+        {
+            want_mips = true;
+            ++n;
+        }
 
-		ImageInfo	info;
-		if (CreateBitmapFromPNG(argv[n], &info, true,2.2f)!=0)
-		{
-			printf("Unable to open png file %s\n", argv[n]);
-			return 1;
-		}
+        ImageInfo info;
+        if (CreateBitmapFromPNG(argv[n], &info, true, 2.2f) != 0)
+        {
+            printf("Unable to open png file %s\n", argv[n]);
+            return 1;
+        }
 
-		if (!HandleScale(info, scale_up, scale_down, scale_half, false))
-		{
-			// Image does NOT meet our power of 2 needs.
-			if(!scale_up && !scale_down && !scale_half)
-			{
-				printf("The imager is not a power of 2.  It is: %d by %d\n", info.width, info.height);
-				return 1;
-			}
-			else if(want_preview)
-			{
-				std::string preview_path = std::string(argv[n]) + ".scl.png";
-				WriteBitmapToPNG(&info, preview_path.c_str(), NULL, 0, 2.2f);
-			}
-		}
+        if (!HandleScale(info, scale_up, scale_down, scale_half, false))
+        {
+            // Image does NOT meet our power of 2 needs.
+            if (!scale_up && !scale_down && !scale_half)
+            {
+                printf("The imager is not a power of 2.  It is: %d by %d\n", info.width, info.height);
+                return 1;
+            }
+            else if (want_preview)
+            {
+                std::string preview_path = std::string(argv[n]) + ".scl.png";
+                WriteBitmapToPNG(&info, preview_path.c_str(), NULL, 0, 2.2f);
+            }
+        }
 
-		char buf[1024];
-		const char * outf = argv[n+1];
-		if(strcmp(outf,"-")==0)
-		{
-			strcpy(buf,argv[n]);
-			buf[strlen(buf)-4]=0;
-			strcat(buf,".raw");
-			outf=buf;
-		}
-		int mc = 1;
-		if(want_mips)
-		mc = MakeMipmapStack(&info);
+        char buf[1024];
+        const char* outf = argv[n + 1];
+        if (strcmp(outf, "-") == 0)
+        {
+            strcpy(buf, argv[n]);
+            buf[strlen(buf) - 4] = 0;
+            strcat(buf, ".raw");
+            outf = buf;
+        }
+        int mc = 1;
+        if (want_mips)
+            mc = MakeMipmapStack(&info);
 
-		if (WriteToRaw(info, outf, strcmp(argv[1],"--png2pvr_raw16")==0, true, mc)!=0)
-		{
-			printf("Unable to write raw PVR file %s\n", argv[n+1]);
-			return 1;
-		}
-		return 0;
-	}
+        if (WriteToRaw(info, outf, strcmp(argv[1], "--png2pvr_raw16") == 0, true, mc) != 0)
+        {
+            printf("Unable to write raw PVR file %s\n", argv[n + 1]);
+            return 1;
+        }
+        return 0;
+    }
 #endif
-	else if(strcmp(argv[1], "--png2dxt") == 0 ||
-			strcmp(argv[1], "--png2dxt1") == 0 ||
-			strcmp(argv[1], "--png2dxt3") == 0 ||
-			strcmp(argv[1], "--png2dxt5") == 0 || 
-//			strcmp(argv[1], "--png2bc4") == 0 ||
-//			strcmp(argv[1], "--png2bc5") == 0 ||
-			strcmp(argv[1], "--png2rgb") == 0)
-	{
-		int arg_base = 2;
-		mip_func_t  mip_filter  = mip_filter_box_with_gamma;
+    else if (strcmp(argv[1], "--png2dxt") == 0 || strcmp(argv[1], "--png2dxt1") == 0 ||
+             strcmp(argv[1], "--png2dxt3") == 0 || strcmp(argv[1], "--png2dxt5") == 0 ||
+             //			strcmp(argv[1], "--png2bc4") == 0 ||
+             //			strcmp(argv[1], "--png2bc5") == 0 ||
+             strcmp(argv[1], "--png2rgb") == 0)
+    {
+        int arg_base = 2;
+        mip_func_t mip_filter = mip_filter_box_with_gamma;
 
-		if(strcmp(argv[arg_base], "--std_mips") == 0)   ++arg_base;
-		if(strcmp(argv[arg_base], "--pre_mips") == 0) { ++arg_base; mip_filter = nullptr;	}
-		if (strcmp(argv[2], "--night_mips") == 0)     { ++arg_base; mip_filter = night_filter; }
-		if (strcmp(argv[2], "--fade_mips") == 0)      { ++arg_base; mip_filter = fade_filter;	}
-		if (strcmp(argv[2], "--ctl_mips") == 0)       { ++arg_base; mip_filter = fade_2_black_filter; }
+        if (strcmp(argv[arg_base], "--std_mips") == 0)
+            ++arg_base;
+        if (strcmp(argv[arg_base], "--pre_mips") == 0)
+        {
+            ++arg_base;
+            mip_filter = nullptr;
+        }
+        if (strcmp(argv[2], "--night_mips") == 0)
+        {
+            ++arg_base;
+            mip_filter = night_filter;
+        }
+        if (strcmp(argv[2], "--fade_mips") == 0)
+        {
+            ++arg_base;
+            mip_filter = fade_filter;
+        }
+        if (strcmp(argv[2], "--ctl_mips") == 0)
+        {
+            ++arg_base;
+            mip_filter = fade_2_black_filter;
+        }
 
-		if (strcmp(argv[arg_base], "--gamma_22") == 0)  ++arg_base;
+        if (strcmp(argv[arg_base], "--gamma_22") == 0)
+            ++arg_base;
 
-		if (strcmp(argv[arg_base], "--scale_none") == 0) ++arg_base;
-		bool scale_up   = strcmp(argv[arg_base], "--scale_up") == 0;
-		bool scale_down = strcmp(argv[arg_base], "--scale_down") == 0;
-		bool scale_half = strcmp(argv[arg_base], "--scale_half") == 0;
-		if(scale_up || scale_down || scale_half)		++arg_base;
+        if (strcmp(argv[arg_base], "--scale_none") == 0)
+            ++arg_base;
+        bool scale_up = strcmp(argv[arg_base], "--scale_up") == 0;
+        bool scale_down = strcmp(argv[arg_base], "--scale_down") == 0;
+        bool scale_half = strcmp(argv[arg_base], "--scale_half") == 0;
+        if (scale_up || scale_down || scale_half)
+            ++arg_base;
 
-		int bc_type = 0;
-		if (argv[1][6] == 'd')
-		{
-			if (argv[1][9] == '1') bc_type = 1;
-			else if (argv[1][9] == '3') bc_type = 2;
-			else if (argv[1][9] == '5') bc_type = 3;
-		}
-		else if (argv[1][6] == 'b')
-		{
-			if (argv[1][8] == '4') bc_type = 4;
-			else                   bc_type = 5;
-		}
+        int bc_type = 0;
+        if (argv[1][6] == 'd')
+        {
+            if (argv[1][9] == '1')
+                bc_type = 1;
+            else if (argv[1][9] == '3')
+                bc_type = 2;
+            else if (argv[1][9] == '5')
+                bc_type = 3;
+        }
+        else if (argv[1][6] == 'b')
+        {
+            if (argv[1][8] == '4')
+                bc_type = 4;
+            else
+                bc_type = 5;
+        }
 
-		if (arg_base + 1 >= argc)
-		{
-			printf("Not enough arguments for input/output file names\n");
-			return 1;
-		}
+        if (arg_base + 1 >= argc)
+        {
+            printf("Not enough arguments for input/output file names\n");
+            return 1;
+        }
 
-		ImageInfo	info;
-		if (CreateBitmapFromPNG(argv[arg_base], &info, bc_type == 0, GAMMA_SRGB))
-		{
-			printf("Unable to open png file %s\n", argv[arg_base]);
-			return 1;
-		}
+        ImageInfo info;
+        if (CreateBitmapFromPNG(argv[arg_base], &info, bc_type == 0, GAMMA_SRGB))
+        {
+            printf("Unable to open png file %s\n", argv[arg_base]);
+            return 1;
+        }
 
-		if (!HandleScale(info, scale_up, scale_down, scale_half, false))
-		{
-			if(!scale_up && !scale_down && !scale_half)
-			{
-				printf("The image is not a power of 2.  It is: %ld by %ld\n", info.width, info.height);
-				return 1;
-			}
-		}
+        if (!HandleScale(info, scale_up, scale_down, scale_half, false))
+        {
+            if (!scale_up && !scale_down && !scale_half)
+            {
+                printf("The image is not a power of 2.  It is: %ld by %ld\n", info.width, info.height);
+                return 1;
+            }
+        }
 
-		std::string outf(argv[arg_base+1]);
-		if(outf == "-")
-		{
-			outf = argv[arg_base];
-			outf = outf.substr(0, outf.length() - 4) + ".dds";
-		}
+        std::string outf(argv[arg_base + 1]);
+        if (outf == "-")
+        {
+            outf = argv[arg_base];
+            outf = outf.substr(0, outf.length() - 4) + ".dds";
+        }
 
-		if(strcmp(argv[1], "--png2rgb") == 0)
-		{
-			if (mip_filter)
-				MakeMipmapStackWithFilter(&info, mip_filter);
-			else
-				MakeMipmapStackFromImage(&info);
+        if (strcmp(argv[1], "--png2rgb") == 0)
+        {
+            if (mip_filter)
+                MakeMipmapStackWithFilter(&info, mip_filter);
+            else
+                MakeMipmapStackFromImage(&info);
 
-			if (WriteUncompressedToDDS(info, outf.c_str(), 0))
-			{
-				printf("Unable to write DDS file %s\n", argv[arg_base + 1]);
-				return 1;
-			}
-			return 0;
-		}
+            if (WriteUncompressedToDDS(info, outf.c_str(), 0))
+            {
+                printf("Unable to write DDS file %s\n", argv[arg_base + 1]);
+                return 1;
+            }
+            return 0;
+        }
 
-		if (bc_type == 0)
-		{
-			     if (info.channels == 1) bc_type = 4;
-			else if (info.channels == 2) bc_type = 5;
-			else
-			{
-				int semiTransPixels = 0;
-				if (info.channels == 4)
-				{
-					unsigned char* src = info.data + 3;
-					for (int y = info.height; y > 0; y--)
-					{
-						for (int x = info.width; x > 0; x--)
-						{
-							if (*src < 250 && *src > 0) semiTransPixels++; // deliberately ignore almost opaque pixels. Some tools create such
-							src += 4;
-						}
-						src += 4 * info.pad;
-					}
-				}
-				// heuristics to detect 3/4 channel _NML files and create all BC4/BC5 outputs as needed ??
-				if (semiTransPixels) bc_type = 3;
-				else bc_type = 1;
-			}
-		}
+        if (bc_type == 0)
+        {
+            if (info.channels == 1)
+                bc_type = 4;
+            else if (info.channels == 2)
+                bc_type = 5;
+            else
+            {
+                int semiTransPixels = 0;
+                if (info.channels == 4)
+                {
+                    unsigned char* src = info.data + 3;
+                    for (int y = info.height; y > 0; y--)
+                    {
+                        for (int x = info.width; x > 0; x--)
+                        {
+                            if (*src < 250 && *src > 0)
+                                semiTransPixels++; // deliberately ignore almost opaque pixels. Some tools create such
+                            src += 4;
+                        }
+                        src += 4 * info.pad;
+                    }
+                }
+                // heuristics to detect 3/4 channel _NML files and create all BC4/BC5 outputs as needed ??
+                if (semiTransPixels)
+                    bc_type = 3;
+                else
+                    bc_type = 1;
+            }
+        }
 
-		ConvertBitmapToAlpha(&info,false);
+        ConvertBitmapToAlpha(&info, false);
 
-		if (WriteBitmapToDDS_MT(info, bc_type, outf.c_str(), mip_filter ? (bc_type > 3  ? mip_filter_box : mip_filter) : nullptr))
-		{
-			printf("Unable to write DDS file %s\n", argv[arg_base+1]);
-			return 1;
-		}
-		return 0;
-	}
-	else if (strcmp(argv[1],"--quilt")==0)
-	{
-		ImageInfo src, dst;
-		if(CreateBitmapFromPNG(argv[2], &src, false, GAMMA_SRGB) != 0)
-			return 1;
+        if (WriteBitmapToDDS_MT(info, bc_type, outf.c_str(),
+                                mip_filter ? (bc_type > 3 ? mip_filter_box : mip_filter) : nullptr))
+        {
+            printf("Unable to write DDS file %s\n", argv[arg_base + 1]);
+            return 1;
+        }
+        return 0;
+    }
+    else if (strcmp(argv[1], "--quilt") == 0)
+    {
+        ImageInfo src, dst;
+        if (CreateBitmapFromPNG(argv[2], &src, false, GAMMA_SRGB) != 0)
+            return 1;
 
-		int dst_w = atoi(argv[3]);
-		int dst_h = atoi(argv[4]);
-		int splat = atoi(argv[5]);
-		int overlap = atoi(argv[6]);
-		int trials = atoi(argv[7]);
+        int dst_w = atoi(argv[3]);
+        int dst_h = atoi(argv[4]);
+        int splat = atoi(argv[5]);
+        int overlap = atoi(argv[6]);
+        int trials = atoi(argv[7]);
 
-		printf("Will make %d x %d tex, with %d splats (%d overlap, %d trials.)\n", dst_w,dst_h, splat,overlap,trials);
+        printf("Will make %d x %d tex, with %d splats (%d overlap, %d trials.)\n", dst_w, dst_h, splat, overlap,
+               trials);
 
-		CreateNewBitmap(dst_w,dst_h, 4, &dst);
-		if(src.channels == 3) ConvertBitmapToAlpha(&src,false);
+        CreateNewBitmap(dst_w, dst_h, 4, &dst);
+        if (src.channels == 3)
+            ConvertBitmapToAlpha(&src, false);
 
-		make_texture(src, dst, splat, overlap, trials);
+        make_texture(src, dst, splat, overlap, trials);
 
-		WriteBitmapToPNG(&dst, argv[8], NULL, 0, GAMMA_SRGB);
-
-	}
+        WriteBitmapToPNG(&dst, argv[8], NULL, 0, GAMMA_SRGB);
+    }
 #if PHONE && WANT_ATI
-	else if(strcmp(argv[1],"--png2atc4")==0)
-	{
-		bool scale_up = strcmp(argv[2], "--scale_up") == 0;
-		bool scale_down = strcmp(argv[2], "--scale_down") == 0;
-		bool scale_half = strcmp(argv[2], "--scale_half") == 0;
-		int n = 3;
+    else if (strcmp(argv[1], "--png2atc4") == 0)
+    {
+        bool scale_up = strcmp(argv[2], "--scale_up") == 0;
+        bool scale_down = strcmp(argv[2], "--scale_down") == 0;
+        bool scale_half = strcmp(argv[2], "--scale_half") == 0;
+        int n = 3;
 
-		ImageInfo	info;
-		if(CreateBitmapFromPNG(argv[n], &info, true, GAMMA_SRGB))
-		{
-			printf("Unable to open png file %s\n", argv[n]);
-			return 1;
-		}
+        ImageInfo info;
+        if (CreateBitmapFromPNG(argv[n], &info, true, GAMMA_SRGB))
+        {
+            printf("Unable to open png file %s\n", argv[n]);
+            return 1;
+        }
 
-		if (!HandleScale(info, scale_up, scale_down, scale_half, false))
-		{
-			// Image does NOT meet our power of 2 needs.
-			if(!scale_up && !scale_down && !scale_half)
-			{
-				printf("The imager is not a power of 2.  It is: %d by %d\n", info.width, info.height);
-				return 1;
-			}
-		}
+        if (!HandleScale(info, scale_up, scale_down, scale_half, false))
+        {
+            // Image does NOT meet our power of 2 needs.
+            if (!scale_up && !scale_down && !scale_half)
+            {
+                printf("The imager is not a power of 2.  It is: %d by %d\n", info.width, info.height);
+                return 1;
+            }
+        }
 
-		// We need to save our channel count because MakeMipmapStack is going to
-		// manually force everything to have an alpha channel.
-		int channels = info.channels;
-		// Ben says: WTF? Well, in the old days, MakeMipmapStack "upgraded" the image to RGBA.  Chris's
-		// code goes through some hoops to avoid that.  The new MakeMipmapStack works in any color format.
-		// So to keep Chris's code working, I do the upgrade by hand.
-		// Chris, you could someday rip out the convert bitmap to alpha call here as well as the special
-		// handling of RGB images.
-		ConvertBitmapToAlpha(&info,false);
-		MakeMipmapStack(&info);
-		struct ImageInfo img(info);
+        // We need to save our channel count because MakeMipmapStack is going to
+        // manually force everything to have an alpha channel.
+        int channels = info.channels;
+        // Ben says: WTF? Well, in the old days, MakeMipmapStack "upgraded" the image to RGBA.  Chris's
+        // code goes through some hoops to avoid that.  The new MakeMipmapStack works in any color format.
+        // So to keep Chris's code working, I do the upgrade by hand.
+        // Chris, you could someday rip out the convert bitmap to alpha call here as well as the special
+        // handling of RGB images.
+        ConvertBitmapToAlpha(&info, false);
+        MakeMipmapStack(&info);
+        struct ImageInfo img(info);
 
-		ATC_Texture_Header h;
-		h.signature = 0xCCC40002;
-		h.dataOffset = sizeof(h);
-		h.height = info.height;
-		h.width = info.width;
-		h.flags = (channels == 3) ? ATC_RGB : ATC_RGBA;
-		h.reserved1 = h.reserved2 = h.reserved3 = 0;
+        ATC_Texture_Header h;
+        h.signature = 0xCCC40002;
+        h.dataOffset = sizeof(h);
+        h.height = info.height;
+        h.width = info.width;
+        h.flags = (channels == 3) ? ATC_RGB : ATC_RGBA;
+        h.reserved1 = h.reserved2 = h.reserved3 = 0;
 
-		FILE * fi = fopen(argv[++n],"wb");
+        FILE* fi = fopen(argv[++n], "wb");
 
-		if(!fi)
-		{
-			printf("Unable to open destination file %s\n", argv[n]);
-			return 1;
-		}
+        if (!fi)
+        {
+            printf("Unable to open destination file %s\n", argv[n]);
+            return 1;
+        }
 
-		// Write the file header
-		fwrite(&h,1,sizeof(h),fi);
+        // Write the file header
+        fwrite(&h, 1, sizeof(h), fi);
 
-		// Initialize our source texture
-		ATI_TC_Texture srcTex;
-		srcTex.dwSize = sizeof(srcTex);
-		srcTex.format = (channels == 3) ? ATI_TC_FORMAT_RGB_888 : ATI_TC_FORMAT_ARGB_8888;
+        // Initialize our source texture
+        ATI_TC_Texture srcTex;
+        srcTex.dwSize = sizeof(srcTex);
+        srcTex.format = (channels == 3) ? ATI_TC_FORMAT_RGB_888 : ATI_TC_FORMAT_ARGB_8888;
 
-		// Initialize our destination texture
-		ATI_TC_Texture destTex;
-		destTex.dwSize = sizeof(destTex);
-		destTex.format = (channels == 3) ? ATI_TC_FORMAT_ATC_RGB : ATI_TC_FORMAT_ATC_RGBA_Explicit;
+        // Initialize our destination texture
+        ATI_TC_Texture destTex;
+        destTex.dwSize = sizeof(destTex);
+        destTex.format = (channels == 3) ? ATI_TC_FORMAT_ATC_RGB : ATI_TC_FORMAT_ATC_RGBA_Explicit;
 
-		do {
-			ImageInfo tempImg;
-			CreateNewBitmap(img.width, img.height, img.channels, &tempImg);
-			CopyBitmapSectionDirect(img, tempImg, 0, 0, 0, 0, img.width, img.height);
+        do
+        {
+            ImageInfo tempImg;
+            CreateNewBitmap(img.width, img.height, img.channels, &tempImg);
+            CopyBitmapSectionDirect(img, tempImg, 0, 0, 0, 0, img.width, img.height);
 
-			if(channels == 3)
-				ConvertAlphaToBitmap(&tempImg, false, false);
+            if (channels == 3)
+                ConvertAlphaToBitmap(&tempImg, false, false);
 
-			srcTex.dwWidth = tempImg.width;
-			srcTex.dwHeight = tempImg.height;
-			// This is true because we shut padding off in ConvertAlphaToBitmap
-			srcTex.dwPitch = tempImg.width * tempImg.channels;
-			srcTex.dwDataSize = (tempImg.width * tempImg.height * (tempImg.channels * 8)) / 8;
-			srcTex.pData = tempImg.data;
+            srcTex.dwWidth = tempImg.width;
+            srcTex.dwHeight = tempImg.height;
+            // This is true because we shut padding off in ConvertAlphaToBitmap
+            srcTex.dwPitch = tempImg.width * tempImg.channels;
+            srcTex.dwDataSize = (tempImg.width * tempImg.height * (tempImg.channels * 8)) / 8;
+            srcTex.pData = tempImg.data;
 
-			destTex.dwWidth = srcTex.dwWidth;
-			destTex.dwHeight = srcTex.dwHeight;
-			destTex.dwPitch = 0;
-			destTex.dwDataSize = intmax2((destTex.dwHeight * destTex.dwWidth * (tempImg.channels == 3 ? 4 : 8)) / 8, (tempImg.channels == 3) ? 8 : 16);
-   			destTex.pData = (ATI_TC_BYTE*) malloc(destTex.dwDataSize);
+            destTex.dwWidth = srcTex.dwWidth;
+            destTex.dwHeight = srcTex.dwHeight;
+            destTex.dwPitch = 0;
+            destTex.dwDataSize = intmax2((destTex.dwHeight * destTex.dwWidth * (tempImg.channels == 3 ? 4 : 8)) / 8,
+                                         (tempImg.channels == 3) ? 8 : 16);
+            destTex.pData = (ATI_TC_BYTE*)malloc(destTex.dwDataSize);
 
-			// Convert it!
-   			ATI_TC_ConvertTexture(&srcTex, &destTex, NULL, NULL, NULL, NULL);
+            // Convert it!
+            ATI_TC_ConvertTexture(&srcTex, &destTex, NULL, NULL, NULL, NULL);
 
-   			fwrite(destTex.pData,1,destTex.dwDataSize,fi);
-   			free(destTex.pData);
-   			DestroyBitmap(&tempImg);
+            fwrite(destTex.pData, 1, destTex.dwDataSize, fi);
+            free(destTex.pData);
+            DestroyBitmap(&tempImg);
 
-			if(!AdvanceMipmapStack(&img))
-				break;
-		} while (1);
+            if (!AdvanceMipmapStack(&img))
+                break;
+        } while (1);
 
-		fclose(fi);
-		DestroyBitmap(&info);
+        fclose(fi);
+        DestroyBitmap(&info);
+    }
+    else if (strcmp(argv[1], "--png2atc_raw16") == 0 || strcmp(argv[1], "--png2atc_raw24") == 0)
+    {
+        bool want_mips = false;
+        bool scale_up = false;
+        bool scale_down = false;
+        bool scale_half = false;
 
-	}
-	else if(strcmp(argv[1],"--png2atc_raw16")==0 ||
-			strcmp(argv[1],"--png2atc_raw24")==0)
-	{
-		bool want_mips  = false;
-		bool scale_up   = false;
-		bool scale_down = false;
-		bool scale_half = false;
+        int n = 2;
+        if (strcmp(argv[n], "--make_mips") == 0)
+        {
+            want_mips = true;
+            ++n;
+        }
 
-		int n = 2;
-		     if(strcmp(argv[n], "--make_mips")  ==0) 	{ want_mips  = true;++n; }
+        if (strcmp(argv[n], "--scale_none") == 0)
+        {
+            ++n;
+        }
+        else if (strcmp(argv[n], "--scale_up") == 0)
+        {
+            scale_up = true;
+            ++n;
+        }
+        else if (strcmp(argv[n], "--scale_down") == 0)
+        {
+            scale_down = true;
+            ++n;
+        }
+        else if (strcmp(argv[n], "--scale_half") == 0)
+        {
+            scale_half = true;
+            ++n;
+        }
 
-			 if(strcmp(argv[n], "--scale_none") ==0)	{					++n; }
-		else if(strcmp(argv[n], "--scale_up")   ==0)	{ scale_up   = true;++n; }
-		else if(strcmp(argv[n], "--scale_down") ==0)	{ scale_down = true;++n; }
-		else if(strcmp(argv[n], "--scale_half") ==0)	{ scale_half = true;++n; }
+        ImageInfo info;
+        if (CreateBitmapFromPNG(argv[n], &info, true, 2.2f))
+        {
+            printf("Unable to open png file %s\n", argv[n]);
+            return 1;
+        }
 
-		ImageInfo	info;
-		if(CreateBitmapFromPNG(argv[n], &info, true, 2.2f))
-		{
-			printf("Unable to open png file %s\n", argv[n]);
-			return 1;
-		}
+        if (!HandleScale(info, scale_up, scale_down, scale_half, false))
+        {
+            // Image does NOT meet our power of 2 needs.
+            if (!scale_up && !scale_down && !scale_half)
+            {
+                printf("The imager is not a power of 2.  It is: %d by %d\n", info.width, info.height);
+                return 1;
+            }
+        }
 
-		if (!HandleScale(info, scale_up, scale_down, scale_half, false))
-		{
-			// Image does NOT meet our power of 2 needs.
-			if(!scale_up && !scale_down && !scale_half)
-			{
-				printf("The imager is not a power of 2.  It is: %d by %d\n", info.width, info.height);
-				return 1;
-			}
-		}
+        const char* outf = argv[++n];
 
-		const char * outf = argv[++n];
+        int mc = 1;
+        if (want_mips)
+            mc = MakeMipmapStack(&info);
 
-		int mc = 1;
-		if(want_mips)
-		mc = MakeMipmapStack(&info);
+        if (WriteToRaw(info, outf, strcmp(argv[1], "--png2atc_raw16") == 0, false, mc) != 0)
+        {
+            printf("Unable to write raw ARC file %s\n", argv[n]);
+            return 1;
+        }
 
-		if (WriteToRaw(info, outf, strcmp(argv[1],"--png2atc_raw16")==0, false, mc)!=0)
-		{
-			printf("Unable to write raw ARC file %s\n", argv[n]);
-			return 1;
-		}
-
-		return 0;
-	}
+        return 0;
+    }
 #endif
-	else {
-		printf("Unknown conversion flag %s\n", argv[1]);
-		return 1;
-	}
-	return 0;
+    else
+    {
+        printf("Unknown conversion flag %s\n", argv[1]);
+        return 1;
+    }
+    return 0;
 }
-

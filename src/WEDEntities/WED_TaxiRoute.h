@@ -29,69 +29,69 @@
 struct AptRouteEdge_t;
 struct AptServiceRoadEdge_t;
 
-class WED_TaxiRoute : public WED_GISEdge {
+class WED_TaxiRoute : public WED_GISEdge
+{
 
-DECLARE_PERSISTENT(WED_TaxiRoute)
+    DECLARE_PERSISTENT(WED_TaxiRoute)
 
 public:
+    void Import(const AptRouteEdge_t& info, void (*print_func)(void*, const char*, ...), void* ref);
+    void Import(const AptServiceRoadEdge_t& info, void (*print_func)(void*, const char*, ...), void* ref);
 
-	void		Import(const AptRouteEdge_t& info, void (* print_func)(void *, const char *, ...), void * ref);
-	void		Import(const AptServiceRoadEdge_t& info, void (* print_func)(void *, const char *, ...), void * ref);
+    void Export(AptRouteEdge_t& info, AptServiceRoadEdge_t& info2) const;
 
-	void		Export(		 AptRouteEdge_t& info, AptServiceRoadEdge_t& info2) const;
+    virtual bool IsOneway(void) const;
+    bool IsRunway(void) const;
 
-	virtual		bool	IsOneway(void) const;
-				bool	IsRunway(void) const;
+    // AllowAircraft and AllowTrucks are exclusive. A taxiroute cannot support both at the same time
+    bool AllowAircraft(void) const;
+    bool AllowTrucks(void) const;
 
-				//AllowAircraft and AllowTrucks are exclusive. A taxiroute cannot support both at the same time
-				bool	AllowAircraft(void) const;
-				bool	AllowTrucks(void) const;
+    bool HasHotArrival(void) const;
+    bool HasHotDepart(void) const;
+    bool HasHotILS(void) const;
+    int GetWidth(void) const;
 
-				bool	HasHotArrival(void) const;
-				bool	HasHotDepart(void) const;
-				bool	HasHotILS(void) const;
-				int		GetWidth(void) const;
+    void SetOneway(int p);
+    void SetRunway(int r);
+    void SetHotDepart(const std::set<int>& rwys);
+    void SetHotArrive(const std::set<int>& rwys);
+    void SetHotILS(const std::set<int>& rwys);
+    std::set<int> GetHotDepart(void);
+    std::set<int> GetHotArrive(void);
+    std::set<int> GetHotILS(void);
 
-				void		SetOneway(int p);
-				void		SetRunway(int r);
-				void		SetHotDepart(const std::set<int>& rwys);
-				void		SetHotArrive(const std::set<int>& rwys);
-				void		SetHotILS(const std::set<int>& rwys);
-				std::set<int>	GetHotDepart(void);
-				std::set<int>	GetHotArrive(void);
-				std::set<int>	GetHotILS(void);
+    void SetWidth(int width);
+    void SetVehicleClass(int vehicle_class);
 
-				void		SetWidth(int width);
-				void		SetVehicleClass(int vehicle_class);
+    bool HasInvalidHotZones(const std::set<int>& legal_rwys) const;
+    int GetRunway(void) const; // returns two-way enum!
 
-				bool		HasInvalidHotZones(const std::set<int>& legal_rwys) const;
-				int			GetRunway(void) const;	// returns two-way enum!
+    virtual void PropEditCallback(int before);
 
-	virtual		void		PropEditCallback(int before);
+    virtual void GetNthPropertyDict(int n, PropertyDict_t& dict) const;
 
-	virtual		void	GetNthPropertyDict(int n, PropertyDict_t& dict) const;
+    virtual void GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
+    virtual void GetNthProperty(int n, PropertyVal_t& val) const;
 
-	virtual void		GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
-	virtual void		GetNthProperty(int n, PropertyVal_t& val) const;
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Taxi Route";
+    }
 
-	virtual const char *	HumanReadableType(void) const { return "Taxi Route"; }
-
-	virtual	WED_Thing *		CreateSplitNode();
+    virtual WED_Thing* CreateSplitNode();
 
 protected:
-
-	virtual	bool			CanBeCurved() const;
+    virtual bool CanBeCurved() const;
 
 private:
-
-		WED_PropIntEnum			vehicle_class;
-		WED_PropBoolText		oneway;
-		WED_PropIntEnum			runway;
-		WED_PropIntEnum			width;
-		WED_PropIntEnumSet		hot_depart;
-		WED_PropIntEnumSet		hot_arrive;
-		WED_PropIntEnumSet		hot_ils;
-
+    WED_PropIntEnum vehicle_class;
+    WED_PropBoolText oneway;
+    WED_PropIntEnum runway;
+    WED_PropIntEnum width;
+    WED_PropIntEnumSet hot_depart;
+    WED_PropIntEnumSet hot_arrive;
+    WED_PropIntEnumSet hot_ils;
 };
 
 #endif /* WED_TaxiRoute_H */

@@ -29,8 +29,9 @@
 DEFINE_PERSISTENT(WED_AirportBeacon)
 TRIVIAL_COPY(WED_AirportBeacon, WED_GISPoint)
 
-WED_AirportBeacon::WED_AirportBeacon(WED_Archive * a, int i) : WED_GISPoint(a,i),
-	kind(this,PROP_Name("Type", XML_Name("airport_beacon","type")),Airport_Beacon, beacon_Airport)
+WED_AirportBeacon::WED_AirportBeacon(WED_Archive* a, int i)
+    : WED_GISPoint(a, i),
+      kind(this, PROP_Name("Type", XML_Name("airport_beacon", "type")), Airport_Beacon, beacon_Airport)
 {
 }
 
@@ -38,31 +39,32 @@ WED_AirportBeacon::~WED_AirportBeacon()
 {
 }
 
-void		WED_AirportBeacon::SetKind(int k)
+void WED_AirportBeacon::SetKind(int k)
 {
-	kind = k;
+    kind = k;
 }
 
-int 		WED_AirportBeacon::GetKind(void) const
+int WED_AirportBeacon::GetKind(void) const
 {
-	return kind.value;
+    return kind.value;
 }
 
-void	WED_AirportBeacon::Import(const AptBeacon_t& x, void (* print_func)(void *, const char *, ...), void * ref)
+void WED_AirportBeacon::Import(const AptBeacon_t& x, void (*print_func)(void*, const char*, ...), void* ref)
 {
-	SetLocation(gis_Geo, x.location);
-	kind = ENUM_Import(Airport_Beacon, x.color_code);
-	if (kind == -1)
-	{
-		print_func(ref,"Error importing airport beacon: beacon color code %d is illegal (not a member of type %s).\n", x.color_code, DOMAIN_Desc(kind.domain));
-		kind = beacon_Airport;
-	}
-	SetName(x.name);
+    SetLocation(gis_Geo, x.location);
+    kind = ENUM_Import(Airport_Beacon, x.color_code);
+    if (kind == -1)
+    {
+        print_func(ref, "Error importing airport beacon: beacon color code %d is illegal (not a member of type %s).\n",
+                   x.color_code, DOMAIN_Desc(kind.domain));
+        kind = beacon_Airport;
+    }
+    SetName(x.name);
 }
 
-void	WED_AirportBeacon::Export(		 AptBeacon_t& x) const
+void WED_AirportBeacon::Export(AptBeacon_t& x) const
 {
-	GetLocation(gis_Geo, x.location);
-	x.color_code = ENUM_Export(kind.value);
-	GetName(x.name);
+    GetLocation(gis_Geo, x.location);
+    x.color_code = ENUM_Export(kind.value);
+    GetName(x.name);
 }

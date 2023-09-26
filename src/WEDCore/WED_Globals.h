@@ -28,16 +28,16 @@
 #include "CompGeomDefs2.h"
 #include "CompGeomDefs3.h"
 
-extern std::vector<std::pair<Point2,Point3> >		gMeshPoints;
-extern std::vector<std::pair<Point2,Point3> >		gMeshLines;
-extern std::vector<std::pair<Polygon2,Point3> >	gMeshPolygons;
+extern std::vector<std::pair<Point2, Point3>> gMeshPoints;
+extern std::vector<std::pair<Point2, Point3>> gMeshLines;
+extern std::vector<std::pair<Polygon2, Point3>> gMeshPolygons;
 
-//Note: These expect points to be in lat/lon
-void	debug_mesh_bbox(const Bbox2& bb1, float r1, float g1, float b1, float r2, float g2, float b2);
-void	debug_mesh_segment(const Segment2& s1, float r1, float g1, float b1, float r2, float g2, float b2);
-void	debug_mesh_line(const Point2& p1, const Point2& p2, float r1, float g1, float b1, float r2, float g2, float b2);
-void	debug_mesh_point(const Point2& p1, float r1, float g1, float b1);
-void	debug_mesh_polygon(const Polygon2& p1, float r1, float g1, float b1);
+// Note: These expect points to be in lat/lon
+void debug_mesh_bbox(const Bbox2& bb1, float r1, float g1, float b1, float r2, float g2, float b2);
+void debug_mesh_segment(const Segment2& s1, float r1, float g1, float b1, float r2, float g2, float b2);
+void debug_mesh_line(const Point2& p1, const Point2& p2, float r1, float g1, float b1, float r2, float g2, float b2);
+void debug_mesh_point(const Point2& p1, float r1, float g1, float b1);
+void debug_mesh_polygon(const Polygon2& p1, float r1, float g1, float b1);
 
 #endif /* DEV */
 
@@ -52,16 +52,17 @@ extern int gFontSize;
 /* Switch format for orthophoto tiles export */
 extern int gOrthoExport;
 
-enum WED_Export_Target {
-		wet_xplane_900,		// X-Plane 9-compatible DSFs.
-		wet_xplane_1000,	// X-Plane 10-compatible DSFs - includes, ATC, etc.
-		wet_xplane_1021,	// Adds out-of-DSF overlays
-		wet_xplane_1050,	// Adds next-gen apt.dat stuff
-		wet_xplane_1100,	// Adds ground vehicles stuff
-		wet_xplane_1130,	// Adds 8.33kHz raster frequencies
-		wet_xplane_1200,	// Adds moving jetway cabins
-		wet_gateway = 99,	// Latest format but with strict checking for gateway.
-		wet_latest_xplane = wet_xplane_1200,	// meta-token for whatever the very newest x-plane export is
+enum WED_Export_Target
+{
+    wet_xplane_900,                      // X-Plane 9-compatible DSFs.
+    wet_xplane_1000,                     // X-Plane 10-compatible DSFs - includes, ATC, etc.
+    wet_xplane_1021,                     // Adds out-of-DSF overlays
+    wet_xplane_1050,                     // Adds next-gen apt.dat stuff
+    wet_xplane_1100,                     // Adds ground vehicles stuff
+    wet_xplane_1130,                     // Adds 8.33kHz raster frequencies
+    wet_xplane_1200,                     // Adds moving jetway cabins
+    wet_gateway = 99,                    // Latest format but with strict checking for gateway.
+    wet_latest_xplane = wet_xplane_1200, // meta-token for whatever the very newest x-plane export is
 };
 
 /* What target output format does WED want? */

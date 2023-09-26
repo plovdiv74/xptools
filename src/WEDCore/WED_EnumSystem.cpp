@@ -30,262 +30,279 @@
 #include <string>
 using std::string;
 
-#define ENUM_DOMAIN(D,H)		last_d = DOMAIN_Create(#D,H);
-#define ENUM(V,H,E)		ENUM_Create(last_d, #V,H,E);
+#define ENUM_DOMAIN(D, H) last_d = DOMAIN_Create(#D, H);
+#define ENUM(V, H, E) ENUM_Create(last_d, #V, H, E);
 
-struct enum_Info {
-	int		domain;
-	std::string	name;
-	std::string	desc;
-	int		export_value;
+struct enum_Info
+{
+    int domain;
+    std::string name;
+    std::string desc;
+    int export_value;
 };
 
-struct domain_Info {
-	int	enum_begin;		// First enum
-	int enum_end;		// Last enum + 1
+struct domain_Info
+{
+    int enum_begin; // First enum
+    int enum_end;   // Last enum + 1
 };
 
-static std::vector<enum_Info>				sEnums;				// For each enum N, std::string,
-static std::map<std::pair<int,std::string>, int>		sEnumsReverse;
-static std::map<int,domain_Info>				sDomains;
+static std::vector<enum_Info> sEnums; // For each enum N, std::string,
+static std::map<std::pair<int, std::string>, int> sEnumsReverse;
+static std::map<int, domain_Info> sDomains;
 
-bool				DOMAIN_Validate(int domain)
+bool DOMAIN_Validate(int domain)
 {
-	return (domain >= 0 && domain < sEnums.size() && sEnums[domain].domain == -1);
+    return (domain >= 0 && domain < sEnums.size() && sEnums[domain].domain == -1);
 }
 
-const char *		DOMAIN_Name(int domain)
+const char* DOMAIN_Name(int domain)
 {
-	if (!DOMAIN_Validate(domain)) return NULL;
-	return sEnums[domain].name.c_str();
+    if (!DOMAIN_Validate(domain))
+        return NULL;
+    return sEnums[domain].name.c_str();
 }
 
-const char *		DOMAIN_Desc(int domain)
+const char* DOMAIN_Desc(int domain)
 {
-	if (!DOMAIN_Validate(domain)) return NULL;
-	return sEnums[domain].desc.c_str();
+    if (!DOMAIN_Validate(domain))
+        return NULL;
+    return sEnums[domain].desc.c_str();
 }
 
-//int					DOMAIN_LookupName(const char * domain)
+// int					DOMAIN_LookupName(const char * domain)
 //{
 //	std::string d(domain);
 //	std::map<std::string, int>::iterator i = sEnumsReverse.find(d);
 //	if (i == sEnumsReverse.end())	return -1;
 //	if (DOMAIN_Validate(i->second)) return i->second;
 //									return -1;
-//}
+// }
 
-int					DOMAIN_LookupDesc(const char * domain)
+int DOMAIN_LookupDesc(const char* domain)
 {
-	std::string d(domain);
-	std::map<std::pair<int, std::string>, int>::iterator i = sEnumsReverse.find(std::pair<int,std::string>(-1,d));
-	if (i == sEnumsReverse.end())	return -1;
-	if (DOMAIN_Validate(i->second)) return i->second;
-									return -1;
+    std::string d(domain);
+    std::map<std::pair<int, std::string>, int>::iterator i = sEnumsReverse.find(std::pair<int, std::string>(-1, d));
+    if (i == sEnumsReverse.end())
+        return -1;
+    if (DOMAIN_Validate(i->second))
+        return i->second;
+    return -1;
 }
 
-
-int					DOMAIN_Create(const char * domain, const char * desc)
+int DOMAIN_Create(const char* domain, const char* desc)
 {
-	std::string d(domain);
-	std::map<std::pair<int,std::string>,int>::iterator i = sEnumsReverse.find(std::pair<int,std::string>(-1,d));
-	if (i != sEnumsReverse.end())
-	{
-		if (!DOMAIN_Validate(i->second))
-			AssertPrintf("Error: domain %s is actually an enum.", domain);
+    std::string d(domain);
+    std::map<std::pair<int, std::string>, int>::iterator i = sEnumsReverse.find(std::pair<int, std::string>(-1, d));
+    if (i != sEnumsReverse.end())
+    {
+        if (!DOMAIN_Validate(i->second))
+            AssertPrintf("Error: domain %s is actually an enum.", domain);
 
-		return i->second;
-	}
+        return i->second;
+    }
 
-	enum_Info e;
-	e.domain = -1;
-	e.name = d;
-	e.desc = desc;
-	e.export_value = -1;
+    enum_Info e;
+    e.domain = -1;
+    e.name = d;
+    e.desc = desc;
+    e.export_value = -1;
 
-	int idx = sEnums.size();
-//	printf("Creating domain %s as %d\n", domain, idx);
+    int idx = sEnums.size();
+    //	printf("Creating domain %s as %d\n", domain, idx);
 
-	sEnums.push_back(e);
-	DebugAssert(sEnumsReverse.count(std::pair<int,std::string>(-1,d))==0);
-	sEnumsReverse[std::pair<int,std::string>(-1,d)] = idx;
-	domain_Info di = { -1, -1 };
-	sDomains[idx] = di;
-	return idx;
+    sEnums.push_back(e);
+    DebugAssert(sEnumsReverse.count(std::pair<int, std::string>(-1, d)) == 0);
+    sEnumsReverse[std::pair<int, std::string>(-1, d)] = idx;
+    domain_Info di = {-1, -1};
+    sDomains[idx] = di;
+    return idx;
 }
 
-void				DOMAIN_Members(int domain, std::vector<int>& members)
+void DOMAIN_Members(int domain, std::vector<int>& members)
 {
-	members.clear();
-	if (!DOMAIN_Validate(domain)) return;
+    members.clear();
+    if (!DOMAIN_Validate(domain))
+        return;
 
-	domain_Info * d = &sDomains[domain];
+    domain_Info* d = &sDomains[domain];
 
-	for (int e = d->enum_begin; e != d->enum_end; ++e)
-	if (sEnums[e].domain == domain)
-		members.push_back(e);
+    for (int e = d->enum_begin; e != d->enum_end; ++e)
+        if (sEnums[e].domain == domain)
+            members.push_back(e);
 }
 
-void				DOMAIN_Members(int domain, std::set<int>& members)
+void DOMAIN_Members(int domain, std::set<int>& members)
 {
-	members.clear();
-	if (!DOMAIN_Validate(domain)) return;
+    members.clear();
+    if (!DOMAIN_Validate(domain))
+        return;
 
-	domain_Info * d = &sDomains[domain];
+    domain_Info* d = &sDomains[domain];
 
-	for (int e = d->enum_begin; e != d->enum_end; ++e)
-	if (sEnums[e].domain == domain)
-		members.insert(e);
+    for (int e = d->enum_begin; e != d->enum_end; ++e)
+        if (sEnums[e].domain == domain)
+            members.insert(e);
 }
 
-void				DOMAIN_Members(int domain, std::map<int, std::string>& members)
+void DOMAIN_Members(int domain, std::map<int, std::string>& members)
 {
-	members.clear();
-	if (!DOMAIN_Validate(domain)) return;
+    members.clear();
+    if (!DOMAIN_Validate(domain))
+        return;
 
-	domain_Info * d = &sDomains[domain];
+    domain_Info* d = &sDomains[domain];
 
-	for (int e = d->enum_begin; e != d->enum_end; ++e)
-	if (sEnums[e].domain == domain)
-		members.insert(std::map<int,std::string>::value_type(e,sEnums[e].desc));
+    for (int e = d->enum_begin; e != d->enum_end; ++e)
+        if (sEnums[e].domain == domain)
+            members.insert(std::map<int, std::string>::value_type(e, sEnums[e].desc));
 }
 
-
-int					ENUM_Create(int domain, const char * value, const char * desc, int export_value)
+int ENUM_Create(int domain, const char* value, const char* desc, int export_value)
 {
-	if (!DOMAIN_Validate(domain))
-		AssertPrintf("Error: illegal domain %d registering %s\n",domain, value);
-	std::string v(value);
-	std::map<std::pair<int,std::string>,int>::iterator i = sEnumsReverse.find(std::pair<int,std::string>(domain,desc));
-	int idx = sEnums.size();
-	
-	if (i != sEnumsReverse.end())
-	{
-		idx = i->second;
-		Assert(sEnums[idx].domain == domain);
-//		Ben says: EXPORT values do NOT have to match - go by CURRENT export values - may be due to a bug fix!
-//		Assert(sEnums[idx].export_value == export_value);
-		return idx;
-	}
+    if (!DOMAIN_Validate(domain))
+        AssertPrintf("Error: illegal domain %d registering %s\n", domain, value);
+    std::string v(value);
+    std::map<std::pair<int, std::string>, int>::iterator i =
+        sEnumsReverse.find(std::pair<int, std::string>(domain, desc));
+    int idx = sEnums.size();
 
-	if (sDomains[domain].enum_begin == -1)
-	{
-		sDomains[domain].enum_begin = idx;
-		sDomains[domain].enum_end = idx+1;
-	} else {
-		sDomains[domain].enum_begin = min(sDomains[domain].enum_begin,idx);
-		sDomains[domain].enum_end   = max(sDomains[domain].enum_end, idx+1);
-	}
+    if (i != sEnumsReverse.end())
+    {
+        idx = i->second;
+        Assert(sEnums[idx].domain == domain);
+        //		Ben says: EXPORT values do NOT have to match - go by CURRENT export values - may be due to a bug fix!
+        //		Assert(sEnums[idx].export_value == export_value);
+        return idx;
+    }
 
-//	printf("Creating new enum %s value=%d in domain %d (%s)\n", value, idx, domain, sEnums[domain].name.c_str());
+    if (sDomains[domain].enum_begin == -1)
+    {
+        sDomains[domain].enum_begin = idx;
+        sDomains[domain].enum_end = idx + 1;
+    }
+    else
+    {
+        sDomains[domain].enum_begin = min(sDomains[domain].enum_begin, idx);
+        sDomains[domain].enum_end = max(sDomains[domain].enum_end, idx + 1);
+    }
 
-	enum_Info e;
-	e.domain = domain;
-	e.name = v;
-	e.desc = desc;
-	e.export_value = export_value;
+    //	printf("Creating new enum %s value=%d in domain %d (%s)\n", value, idx, domain, sEnums[domain].name.c_str());
 
-	sEnums.push_back(e);
-	DebugAssert(sEnumsReverse.count(std::pair<int,std::string>(domain,desc))==0);	
-	sEnumsReverse[std::pair<int,std::string>(domain,desc)] = idx;
+    enum_Info e;
+    e.domain = domain;
+    e.name = v;
+    e.desc = desc;
+    e.export_value = export_value;
 
-	return idx;
+    sEnums.push_back(e);
+    DebugAssert(sEnumsReverse.count(std::pair<int, std::string>(domain, desc)) == 0);
+    sEnumsReverse[std::pair<int, std::string>(domain, desc)] = idx;
+
+    return idx;
 }
 
-
-bool				ENUM_Validate(int value)
+bool ENUM_Validate(int value)
 {
-	return (value >= 0 && value < sEnums.size() && sEnums[value].domain != -1);
+    return (value >= 0 && value < sEnums.size() && sEnums[value].domain != -1);
 }
 
-const char *		ENUM_Name(int value)
+const char* ENUM_Name(int value)
 {
-	if (!ENUM_Validate(value)) return NULL;
-	return sEnums[value].name.c_str();
+    if (!ENUM_Validate(value))
+        return NULL;
+    return sEnums[value].name.c_str();
 }
 
-int					ENUM_Export(int value)
+int ENUM_Export(int value)
 {
-	if (!ENUM_Validate(value)) return -1;
-	return sEnums[value].export_value;
+    if (!ENUM_Validate(value))
+        return -1;
+    return sEnums[value].export_value;
 }
 
-int					ENUM_ExportSet(const std::set<int>& members)
+int ENUM_ExportSet(const std::set<int>& members)
 {
-	int r = 0;
-	for(std::set<int>::const_iterator m = members.begin(); m != members.end(); ++m)
-	{
-		if(!ENUM_Validate(*m)) return -1;
-		r |= sEnums[*m].export_value;
-	}		
-	return r;
+    int r = 0;
+    for (std::set<int>::const_iterator m = members.begin(); m != members.end(); ++m)
+    {
+        if (!ENUM_Validate(*m))
+            return -1;
+        r |= sEnums[*m].export_value;
+    }
+    return r;
 }
 
-//int					ENUM_LookupName(const char * value)
+// int					ENUM_LookupName(const char * value)
 //{
 //	std::string v(value);
 //	std::map<std::string, int>::iterator i = sEnumsReverse.find(v);
 //	if (i == sEnumsReverse.end())	return -1;
 //	if (ENUM_Validate(i->second))	return i->second;
 //									return -1;
-//}
+// }
 
-int					ENUM_LookupDesc(int domain, const char * value)
+int ENUM_LookupDesc(int domain, const char* value)
 {
-	std::string v(value);
-	std::map<std::pair<int,std::string>, int>::iterator i = sEnumsReverse.find(std::pair<int,std::string>(domain,v));
-	if (i == sEnumsReverse.end())	
-	{
+    std::string v(value);
+    std::map<std::pair<int, std::string>, int>::iterator i = sEnumsReverse.find(std::pair<int, std::string>(domain, v));
+    if (i == sEnumsReverse.end())
+    {
 #if DEV && !TYLER_MODE
-		printf("Cannot find enum '%s' in domain %d\n",value, domain);
+        printf("Cannot find enum '%s' in domain %d\n", value, domain);
 #endif
-		return -1;
-	}
-	if (ENUM_Validate(i->second))	return i->second;
-									return -1;
+        return -1;
+    }
+    if (ENUM_Validate(i->second))
+        return i->second;
+    return -1;
 }
 
-int					ENUM_Domain(int value)
+int ENUM_Domain(int value)
 {
-	if (!ENUM_Validate(value)) return -1;
-	return sEnums[value].domain;
+    if (!ENUM_Validate(value))
+        return -1;
+    return sEnums[value].domain;
 }
 
-const char * ENUM_Desc(int value)
+const char* ENUM_Desc(int value)
 {
-	if (!ENUM_Validate(value)) return NULL;
-	return sEnums[value].desc.c_str();
+    if (!ENUM_Validate(value))
+        return NULL;
+    return sEnums[value].desc.c_str();
 }
 
-int					ENUM_Import(int domain, int export_value)
+int ENUM_Import(int domain, int export_value)
 {
-	if (!DOMAIN_Validate(domain)) return -1;
+    if (!DOMAIN_Validate(domain))
+        return -1;
 
-	domain_Info * d = &sDomains[domain];
+    domain_Info* d = &sDomains[domain];
 
-	for (int e = d->enum_begin; e != d->enum_end; ++e)
-	if (sEnums[e].domain == domain)
-	if (sEnums[e].export_value == export_value)
-		return e;
+    for (int e = d->enum_begin; e != d->enum_end; ++e)
+        if (sEnums[e].domain == domain)
+            if (sEnums[e].export_value == export_value)
+                return e;
 
-	return -1;
+    return -1;
 }
 
-void				ENUM_ImportSet(int domain, int export_value, std::set<int>& vals)
+void ENUM_ImportSet(int domain, int export_value, std::set<int>& vals)
 {
-	vals.clear();
-	if (!DOMAIN_Validate(domain)) return;
+    vals.clear();
+    if (!DOMAIN_Validate(domain))
+        return;
 
-	domain_Info * d = &sDomains[domain];
+    domain_Info* d = &sDomains[domain];
 
-	for (int e = d->enum_begin; e != d->enum_end; ++e)
-	if (sEnums[e].domain == domain)
-	if (sEnums[e].export_value & export_value)
-		vals.insert(e);
+    for (int e = d->enum_begin; e != d->enum_end; ++e)
+        if (sEnums[e].domain == domain)
+            if (sEnums[e].export_value & export_value)
+                vals.insert(e);
 }
 
-void	ENUM_Init(void)
+void ENUM_Init(void)
 {
-	int last_d = -1;
-	#include "WED_Enums.h"
+    int last_d = -1;
+#include "WED_Enums.h"
 }

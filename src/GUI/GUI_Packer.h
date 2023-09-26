@@ -26,35 +26,32 @@
 
 #include "GUI_Pane.h"
 
-enum GUI_Packer_Side {
-	gui_Pack_Left,
-	gui_Pack_Right,
-	gui_Pack_Bottom,
-	gui_Pack_Top,
-	gui_Pack_Center
+enum GUI_Packer_Side
+{
+    gui_Pack_Left,
+    gui_Pack_Right,
+    gui_Pack_Bottom,
+    gui_Pack_Top,
+    gui_Pack_Center
 };
 
-
-class	GUI_Packer : public GUI_Pane {
+class GUI_Packer : public GUI_Pane
+{
 public:
+    GUI_Packer();
+    virtual ~GUI_Packer();
 
-			 GUI_Packer();
-	virtual	~GUI_Packer();
+    void PackPane(GUI_Pane* child, GUI_Packer_Side);
+    void PackPaneToRight(GUI_Pane* child, GUI_Packer_Side side, GUI_Pane* target);
+    virtual void SetBounds(int x1, int y1, int x2, int y2);
+    virtual void SetBounds(int inBounds[4]);
+    virtual void Draw(GUI_GraphState* state);
 
-			void		PackPane(GUI_Pane * child, GUI_Packer_Side);
-			void		PackPaneToRight(GUI_Pane * child, GUI_Packer_Side side, GUI_Pane * target);
-	virtual void		SetBounds(int x1, int y1, int x2, int y2);
-	virtual void		SetBounds(int inBounds[4]);
-	virtual	void		Draw(GUI_GraphState * state);
-	
-			void		SetBkgkndImage(const char * image_res);
-		
+    void SetBkgkndImage(const char* image_res);
+
 private:
-
-	std::string	mImage;
-	int		mPackArea[4];
-
+    std::string mImage;
+    int mPackArea[4];
 };
-
 
 #endif /* GUI_PACKER_H */

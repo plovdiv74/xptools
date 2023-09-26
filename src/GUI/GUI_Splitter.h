@@ -26,46 +26,45 @@
 
 #include "GUI_Pane.h"
 
-enum {
-	gui_Split_Horizontal,
-	gui_Split_Vertical
+enum
+{
+    gui_Split_Horizontal,
+    gui_Split_Vertical
 };
 
-class GUI_Splitter : public GUI_Pane {
+class GUI_Splitter : public GUI_Pane
+{
 public:
+    GUI_Splitter(int direction);
+    virtual ~GUI_Splitter();
 
-						 GUI_Splitter(int direction);
-	virtual				~GUI_Splitter();
+    void AlignContents();
+    void AlignContentsAt(int split);
+    void SetImage(const char* image_res);
+    void SetImage1(const char* image_res);
+    void SetImage2(const char* image_res);
 
-			void		AlignContents();
-			void		AlignContentsAt(int split);
-			void		SetImage(const char * image_res);
-			void		SetImage1(const char * image_res);
-			void		SetImage2(const char * image_res);
+    int GetSplitPoint(void);
 
-			int			GetSplitPoint(void);
+    virtual void Draw(GUI_GraphState* state);
+    virtual int MouseDown(int x, int y, int button);
+    virtual void MouseDrag(int x, int y, int button);
+    virtual void MouseUp(int x, int y, int button);
+    virtual int GetCursor(int x, int y);
 
-	virtual	void		Draw(GUI_GraphState * state);
-	virtual	int			MouseDown(int x, int y, int button);
-	virtual	void		MouseDrag(int x, int y, int button);
-	virtual	void		MouseUp(int x, int y, int button);
-	virtual	int			GetCursor(int x, int y);
-	
-	virtual void		SetBounds(int x1, int y1, int x2, int y2);
-	virtual void		SetBounds(int inBounds[4]);
+    virtual void SetBounds(int x1, int y1, int x2, int y2);
+    virtual void SetBounds(int inBounds[4]);
 
 private:
+    int GetSplitSize(void);
 
-			int			GetSplitSize(void);
+    int mDirection;
+    int mSlop; // mouse - boundary = slop
+    int mClick;
 
-	int		mDirection;
-	int		mSlop;		// mouse - boundary = slop
-	int		mClick;
-
-	std::string	mImage;
-	std::string	mImage1;
-	std::string	mImage2;
-
+    std::string mImage;
+    std::string mImage1;
+    std::string mImage2;
 };
 
 #endif

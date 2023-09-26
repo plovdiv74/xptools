@@ -39,23 +39,24 @@
 
 #if DEV
 
-	#define DebugAssert(__Condition)		\
-		((__Condition) ? ((void) 0) : __DebugAssertHandler(#__Condition, __FILE__, __LINE__))
+#define DebugAssert(__Condition) ((__Condition) ? ((void)0) : __DebugAssertHandler(#__Condition, __FILE__, __LINE__))
 
 #else
 
-	#define DebugAssert(__Condition) do {} while (false)
+#define DebugAssert(__Condition)                                                                                       \
+    do                                                                                                                 \
+    {                                                                                                                  \
+    } while (false)
 
 #endif
 
-#define Assert(__Condition)				\
-	((__Condition) ? ((void) 0) : __AssertHandler(#__Condition, __FILE__, __LINE__))
+#define Assert(__Condition) ((__Condition) ? ((void)0) : __AssertHandler(#__Condition, __FILE__, __LINE__))
 
-void	AssertPrintf(const char * fmt, ...);
-void	AssertPrintfv(const char * fmt, va_list args);
+void AssertPrintf(const char* fmt, ...);
+void AssertPrintfv(const char* fmt, va_list args);
 
-void __DebugAssertHandler(const char *, const char *, int);
-void __AssertHandler(const char *, const char *, int);
+void __DebugAssertHandler(const char*, const char*, int);
+void __AssertHandler(const char*, const char*, int);
 
 /************************************************************
  * ASSERTION HANDLERS
@@ -66,26 +67,18 @@ void __AssertHandler(const char *, const char *, int);
  *
  */
 
-typedef void (* AssertHandler_f)(const char * condition, const char * file, int line);
+typedef void (*AssertHandler_f)(const char* condition, const char* file, int line);
 
-AssertHandler_f		InstallDebugAssertHandler(AssertHandler_f);
-AssertHandler_f		InstallAssertHandler(AssertHandler_f);
+AssertHandler_f InstallDebugAssertHandler(AssertHandler_f);
+AssertHandler_f InstallAssertHandler(AssertHandler_f);
 
 /************************************************************
  * TESTING
  ************************************************************/
 
-void	TEST_SetInteractive(bool);
-bool	TEST_Handler(const char *, const char *, int);
-#define TEST_Run(__Condition)	\
-	(																\
-		(__Condition) ? 											\
-		((void) 0) : 												\
-		(															\
-			(TEST_Handler(#__Condition, __FILE__, __LINE__)) ? 		\
-			(void) (__Condition) : 									\
-			((void) 0)												\
-		)															\
-	)
+void TEST_SetInteractive(bool);
+bool TEST_Handler(const char*, const char*, int);
+#define TEST_Run(__Condition)                                                                                          \
+    ((__Condition) ? ((void)0) : ((TEST_Handler(#__Condition, __FILE__, __LINE__)) ? (void)(__Condition) : ((void)0)))
 
 #endif /* ASSERTUTILS_H */

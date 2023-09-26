@@ -26,26 +26,30 @@
 
 #include "WED_GISLine_Width.h"
 
-struct	AptSealane_t;
+struct AptSealane_t;
 
-class	WED_Sealane : public WED_GISLine_Width {
+class WED_Sealane : public WED_GISLine_Width
+{
 
-DECLARE_PERSISTENT(WED_Sealane)
+    DECLARE_PERSISTENT(WED_Sealane)
 
 public:
+    void SetBuoys(int);
+    int GetBuoys(void) const
+    {
+        return buoys.value;
+    }
 
-	void		SetBuoys(int);
-	int			GetBuoys(void) const { return buoys.value; }
+    void Import(const AptSealane_t& x, void (*print_func)(void*, const char*, ...), void* ref);
+    void Export(AptSealane_t& x) const;
 
-	void		Import(const AptSealane_t& x, void (* print_func)(void *, const char *, ...), void * ref);
-	void		Export(		 AptSealane_t& x) const;
-
-	virtual const char *	HumanReadableType(void) const { return "Sea Lane"; }
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Sea Lane";
+    }
 
 private:
-
-	WED_PropBoolText		buoys;
-
+    WED_PropBoolText buoys;
 };
 
 #endif /* WED_SEALANE_H */

@@ -12,31 +12,14 @@
 
 //////////////////////////////////////////////////////////////////////
 
-
-
 #include "stdafx.h"
 
 #include "tri_stripper.h"
 
-
-
-
-
-
-
-
-
 // namespace triangle_stripper
 
-namespace triangle_stripper {
-
-
-
-
-
-
-
-
+namespace triangle_stripper
+{
 
 //////////////////////////////////////////////////////////////////////
 
@@ -44,1073 +27,774 @@ namespace triangle_stripper {
 
 //////////////////////////////////////////////////////////////////////
 
-
-
-
-
-
-
 //////////////////////////////////////////////////////////////////////
 
 // Members Functions
 
 //////////////////////////////////////////////////////////////////////
 
-
-
-void tri_stripper::Strip(primitives_vector * out_pPrimitivesVector)
+void tri_stripper::Strip(primitives_vector* out_pPrimitivesVector)
 
 {
 
-	// verify that the number of indices is correct
+    // verify that the number of indices is correct
 
-	if (m_TriIndices.size() % 3 != 0)
+    if (m_TriIndices.size() % 3 != 0)
 
-		throw triangles_indices_error();
+        throw triangles_indices_error();
 
+    // clear possible garbage
 
+    m_PrimitivesVector.clear();
 
-	// clear possible garbage
+    out_pPrimitivesVector->clear();
 
-	m_PrimitivesVector.clear();
+    // Initialize the triangle graph
 
-	out_pPrimitivesVector->clear();
+    InitTriGraph();
 
+    // Initialize the triangle priority queue
 
+    InitTriHeap();
 
-	// Initialize the triangle graph
+    // Reset the cache simulator
 
-	InitTriGraph();
+    InitCache();
 
+    // Launch the triangle strip generator
 
+    Stripify();
 
-	// Initialize the triangle priority queue
+    // Add the triangles that couldn't be stripped
 
-	InitTriHeap();
+    AddLeftTriangles();
 
+    // Free ressources
 
+    m_Triangles.clear();
 
-	// Reset the cache simulator
+    // Put the results into the user's std::vector
 
-	InitCache();
-
-
-
-	// Launch the triangle strip generator
-
-	Stripify();
-
-
-
-	// Add the triangles that couldn't be stripped
-
-	AddLeftTriangles();
-
-
-
-	// Free ressources
-
-	m_Triangles.clear();
-
-
-
-	// Put the results into the user's std::vector
-
-	std::swap(m_PrimitivesVector, (* out_pPrimitivesVector));
-
+    std::swap(m_PrimitivesVector, (*out_pPrimitivesVector));
 }
-
-
-
-
-
-
 
 void tri_stripper::InitTriGraph()
 
 {
 
-	// Set up the graph size and complete the triangles data
+    // Set up the graph size and complete the triangles data
 
-	// note: setsize() completely resets the graph as well as the node markers
+    // note: setsize() completely resets the graph as well as the node markers
 
-	m_Triangles.setsize(m_TriIndices.size() / 3);
+    m_Triangles.setsize(m_TriIndices.size() / 3);
 
+    for (size_t i = 0; i < m_Triangles.size(); ++i)
 
+        m_Triangles[i] = triangle(m_TriIndices[i * 3 + 0], m_TriIndices[i * 3 + 1], m_TriIndices[i * 3 + 2]);
 
-	for (size_t i = 0; i < m_Triangles.size(); ++i)
+    // Build the edges lookup table
 
-		m_Triangles[i] = triangle(m_TriIndices[i * 3 + 0], m_TriIndices[i * 3 + 1], m_TriIndices[i * 3 + 2]);
+    triangle_edges TriInterface;
 
+    TriInterface.reserve(m_Triangles.size() * 3);
 
+    for (size_t i = 0; i < m_Triangles.size(); ++i)
+    {
 
-	// Build the edges lookup table
+        TriInterface.push_back(triangle_edge(m_Triangles[i]->A(), m_Triangles[i]->B(), i));
 
-	triangle_edges TriInterface;
+        TriInterface.push_back(triangle_edge(m_Triangles[i]->B(), m_Triangles[i]->C(), i));
 
-	TriInterface.reserve(m_Triangles.size() * 3);
+        TriInterface.push_back(triangle_edge(m_Triangles[i]->C(), m_Triangles[i]->A(), i));
+    }
 
+    // Sort the lookup table for faster searches
 
+    std::sort(TriInterface.begin(), TriInterface.end(), _cmp_tri_interface_lt());
 
-	for (size_t i = 0; i < m_Triangles.size(); ++i) {
+    // Link neighbour triangles together using the edges lookup table
 
-		TriInterface.push_back(triangle_edge(m_Triangles[i]->A(), m_Triangles[i]->B(), i));
+    for (size_t i = 0; i < m_Triangles.size(); ++i)
+    {
 
-		TriInterface.push_back(triangle_edge(m_Triangles[i]->B(), m_Triangles[i]->C(), i));
+        const triangle_edge EdgeBA(m_Triangles[i]->B(), m_Triangles[i]->A(), i);
 
-		TriInterface.push_back(triangle_edge(m_Triangles[i]->C(), m_Triangles[i]->A(), i));
+        const triangle_edge EdgeCB(m_Triangles[i]->C(), m_Triangles[i]->B(), i);
 
-	}
+        const triangle_edge EdgeAC(m_Triangles[i]->A(), m_Triangles[i]->C(), i);
 
+        LinkNeighboursTri(TriInterface, EdgeBA);
 
+        LinkNeighboursTri(TriInterface, EdgeCB);
 
-	// Sort the lookup table for faster searches
-
-	std::sort(TriInterface.begin(), TriInterface.end(), _cmp_tri_interface_lt());
-
-
-
-	// Link neighbour triangles together using the edges lookup table
-
-	for (size_t i = 0; i < m_Triangles.size(); ++i) {
-
-
-
-		const triangle_edge EdgeBA(m_Triangles[i]->B(), m_Triangles[i]->A(), i);
-
-		const triangle_edge EdgeCB(m_Triangles[i]->C(), m_Triangles[i]->B(), i);
-
-		const triangle_edge EdgeAC(m_Triangles[i]->A(), m_Triangles[i]->C(), i);
-
-
-
-		LinkNeighboursTri(TriInterface, EdgeBA);
-
-		LinkNeighboursTri(TriInterface, EdgeCB);
-
-		LinkNeighboursTri(TriInterface, EdgeAC);
-
-	}
-
+        LinkNeighboursTri(TriInterface, EdgeAC);
+    }
 }
 
-
-
-
-
-
-
-void tri_stripper::LinkNeighboursTri(const triangle_edges & TriInterface, const triangle_edge Edge)
+void tri_stripper::LinkNeighboursTri(const triangle_edges& TriInterface, const triangle_edge Edge)
 
 {
 
-	typedef triangle_edges::const_iterator edge_const_it;
+    typedef triangle_edges::const_iterator edge_const_it;
 
+    // Find the first edge equal to Edge
 
+    edge_const_it It = std::lower_bound(TriInterface.begin(), TriInterface.end(), Edge, _cmp_tri_interface_lt());
 
-	// Find the first edge equal to Edge
+    // See if there are any other edges that are equal
 
-	edge_const_it It = std::lower_bound(TriInterface.begin(), TriInterface.end(), Edge, _cmp_tri_interface_lt());
+    // (if so, it means that more than 2 triangles are sharing the same edge,
 
+    //  which is unlikely but not impossible)
 
+    for (; (It != TriInterface.end()) && ((It->A() == Edge.A()) && (It->B() == Edge.B())); ++It)
 
-	// See if there are any other edges that are equal
+        m_Triangles.insert(Edge.TriPos(), It->TriPos());
 
-	// (if so, it means that more than 2 triangles are sharing the same edge,
-
-	//  which is unlikely but not impossible)
-
-	for (; (It != TriInterface.end()) && ((It->A() == Edge.A()) && (It->B() == Edge.B())); ++It)
-
-		m_Triangles.insert(Edge.TriPos(), It->TriPos());
-
-
-
-	// Note: degenerated triangles will also point themselves as neighbour triangles
-
+    // Note: degenerated triangles will also point themselves as neighbour triangles
 }
-
-
-
-
-
-
 
 void tri_stripper::InitTriHeap()
 
 {
 
-	m_TriHeap.clear();
+    m_TriHeap.clear();
 
-	m_TriHeap.reserve(m_Triangles.size());
+    m_TriHeap.reserve(m_Triangles.size());
 
+    // Set up the triangles priority queue
 
+    // The lower the number of available neighbour triangles, the higher the priority.
 
-	// Set up the triangles priority queue
+    for (size_t i = 0; i < m_Triangles.size(); ++i)
 
-	// The lower the number of available neighbour triangles, the higher the priority.
+        m_TriHeap.push(triangle_degree(i, m_Triangles[i].number_of_out_arcs()));
 
-	for (size_t i = 0; i < m_Triangles.size(); ++i)
+    // Remove useless triangles
 
-		m_TriHeap.push(triangle_degree(i, m_Triangles[i].number_of_out_arcs()));
+    // (Note: we had to put all of them into the heap before to ensure coherency of the heap_array object)
 
+    while ((!m_TriHeap.empty()) && (m_TriHeap.top().Degree() == 0))
 
-
-	// Remove useless triangles
-
-	// (Note: we had to put all of them into the heap before to ensure coherency of the heap_array object)
-
-	while ((! m_TriHeap.empty()) && (m_TriHeap.top().Degree() == 0))
-
-		m_TriHeap.pop();
-
+        m_TriHeap.pop();
 }
-
-
-
-
-
-
 
 void tri_stripper::InitCache()
 
 {
 
-	m_Cache.reset();
-
+    m_Cache.reset();
 }
-
-
-
-
-
-
 
 void tri_stripper::Stripify()
 
 {
 
-	// Reset the triangle strip id selector
+    // Reset the triangle strip id selector
 
-	m_StripID = 0;
+    m_StripID = 0;
 
+    // Reset the candidate std::list
 
+    m_NextCandidates.clear();
 
-	// Reset the candidate std::list
+    // Loop untill there is no available candidate triangle left
 
-	m_NextCandidates.clear();
+    while (!m_TriHeap.empty())
+    {
 
+        // There is no triangle in the candidates std::list, refill it with the loneliest triangle
 
+        const size_t HeapTop = m_TriHeap.top().TriPos();
 
-	// Loop untill there is no available candidate triangle left
+        m_NextCandidates.push_back(HeapTop);
 
-	while (! m_TriHeap.empty()) {
+        // Loop while BuildStrip can find good candidates for us
 
+        while (!m_NextCandidates.empty())
+        {
 
+            // Choose the best strip containing that triangle
 
-		// There is no triangle in the candidates std::list, refill it with the loneliest triangle
+            // Note: FindBestStrip empties m_NextCandidates
 
-		const size_t HeapTop = m_TriHeap.top().TriPos();
+            const triangle_strip TriStrip = FindBestStrip();
 
-		m_NextCandidates.push_back(HeapTop);
+            // Build it if it's long enough, otherwise discard it
 
+            // Note: BuildStrip refills m_NextCandidates
 
+            if (TriStrip.Size() >= m_MinStripSize)
 
-		// Loop while BuildStrip can find good candidates for us
+                BuildStrip(TriStrip);
+        }
 
-		while (! m_NextCandidates.empty()) {
+        // We must discard the triangle we inserted in the candidate std::list from the heap
 
+        // if it led to nothing. (We simply removed it if it hasn't been removed by BuildStrip() yet)
 
+        if (!m_TriHeap.removed(HeapTop))
 
-			// Choose the best strip containing that triangle
+            m_TriHeap.erase(HeapTop);
 
-			// Note: FindBestStrip empties m_NextCandidates
+        // Eliminate all the triangles that have now become useless
 
-			const triangle_strip TriStrip = FindBestStrip();
+        while ((!m_TriHeap.empty()) && (m_TriHeap.top().Degree() == 0))
 
-
-
-			// Build it if it's long enough, otherwise discard it
-
-			// Note: BuildStrip refills m_NextCandidates
-
-			if (TriStrip.Size() >= m_MinStripSize)
-
-				BuildStrip(TriStrip);
-
-		}
-
-
-
-		// We must discard the triangle we inserted in the candidate std::list from the heap
-
-		// if it led to nothing. (We simply removed it if it hasn't been removed by BuildStrip() yet)
-
-		if (! m_TriHeap.removed(HeapTop))
-
-			m_TriHeap.erase(HeapTop);
-
-
-
-		// Eliminate all the triangles that have now become useless
-
-		while ((! m_TriHeap.empty()) && (m_TriHeap.top().Degree() == 0))
-
-			m_TriHeap.pop();
-
-	}
-
+            m_TriHeap.pop();
+    }
 }
-
-
-
-
-
-
 
 inline tri_stripper::triangle_strip tri_stripper::FindBestStrip()
 
 {
 
-	triangle_strip BestStrip;
+    triangle_strip BestStrip;
 
-	size_t BestStripDegree = 0;
+    size_t BestStripDegree = 0;
 
-	size_t BestStripCacheHits = 0;
+    size_t BestStripCacheHits = 0;
 
+    // Backup the cache, because it'll be erased during the simulations
 
+    const cache_simulator CacheBackup = m_Cache;
 
-	// Backup the cache, because it'll be erased during the simulations
+    while (!m_NextCandidates.empty())
+    {
 
-	const cache_simulator CacheBackup = m_Cache;
+        // Discard useless triangles from the candidates std::list
 
+        if ((m_Triangles[m_NextCandidates.back()].marked()) || (m_TriHeap[m_NextCandidates.back()].Degree() == 0))
+        {
 
+            m_NextCandidates.pop_back();
 
-	while (! m_NextCandidates.empty()) {
+            // "continue" is evil! But it really makes things easier here.
 
+            // The useless triangle is discarded, and the "while" just rebegins again
 
+            continue;
+        }
 
-		// Discard useless triangles from the candidates std::list
+        // Invariant: (CandidateTri's Degree() >= 1) && (CandidateTri is not marked).
 
-		if ((m_Triangles[m_NextCandidates.back()].marked()) || (m_TriHeap[m_NextCandidates.back()].Degree() == 0)) {
+        // So it can directly be used.
 
-			m_NextCandidates.pop_back();
+        const size_t CandidateTri = m_NextCandidates.back();
 
+        m_NextCandidates.pop_back();
 
+        // Try to extend the triangle in the 3 possible directions
 
-			// "continue" is evil! But it really makes things easier here.
+        for (size_t i = 0; i < 3; ++i)
+        {
 
-			// The useless triangle is discarded, and the "while" just rebegins again
+            // Try a new strip with that triangle in a particular direction
 
-			continue;
+            const triangle_strip TempStrip = ExtendTriToStrip(CandidateTri, triangle_strip::start_order(i));
 
-		}
+            // We want to keep the best strip
 
+            // Discard strips that don't match the minimum required size
 
+            if (TempStrip.Size() >= m_MinStripSize)
+            {
 
-		// Invariant: (CandidateTri's Degree() >= 1) && (CandidateTri is not marked).
+                // Cache simulator disabled?
 
-		// So it can directly be used.
+                if (m_Cache.size() == 0)
+                {
 
-		const size_t CandidateTri = m_NextCandidates.back();
+                    // Cache is disabled, take the longest strip
 
-		m_NextCandidates.pop_back();
+                    if (TempStrip.Size() > BestStrip.Size())
 
+                        BestStrip = TempStrip;
 
+                    // Cache simulator enabled
 
-		// Try to extend the triangle in the 3 possible directions
+                    // Use other criteria to find the "best" strip
+                }
+                else
+                {
 
-		for (size_t i = 0; i < 3; ++i) {
+                    // Priority 1: Keep the strip with the best cache hit count
 
+                    if (m_Cache.HitCount() > BestStripCacheHits)
+                    {
 
+                        BestStrip = TempStrip;
 
-			// Try a new strip with that triangle in a particular direction
+                        BestStripDegree = m_TriHeap[TempStrip.StartTriPos()].Degree();
 
-			const triangle_strip TempStrip = ExtendTriToStrip(CandidateTri, triangle_strip::start_order(i));
+                        BestStripCacheHits = m_Cache.HitCount();
+                    }
+                    else if (m_Cache.HitCount() == BestStripCacheHits)
+                    {
 
+                        // Priority 2: Keep the strip with the loneliest start triangle
 
+                        if ((BestStrip.Size() != 0) && (m_TriHeap[TempStrip.StartTriPos()].Degree() < BestStripDegree))
+                        {
 
-			// We want to keep the best strip
+                            BestStrip = TempStrip;
 
-			// Discard strips that don't match the minimum required size
+                            BestStripDegree = m_TriHeap[TempStrip.StartTriPos()].Degree();
 
-			if (TempStrip.Size() >= m_MinStripSize) {
+                            // Priority 3: Keep the longest strip
+                        }
+                        else if (TempStrip.Size() > BestStrip.Size())
+                        {
 
+                            BestStrip = TempStrip;
 
+                            BestStripDegree = m_TriHeap[TempStrip.StartTriPos()].Degree();
+                        }
+                    }
+                }
+            }
 
-				// Cache simulator disabled?
+            // Restore the cache (modified by ExtendTriToStrip) and implicitly reset the cache hit count
 
-				if (m_Cache.size() == 0) {
+            m_Cache = CacheBackup;
+        }
+    }
 
-
-
-					// Cache is disabled, take the longest strip
-
-					if (TempStrip.Size() > BestStrip.Size())
-
-						BestStrip = TempStrip;
-
-
-
-				// Cache simulator enabled
-
-				// Use other criteria to find the "best" strip
-
-				} else {
-
-
-
-					// Priority 1: Keep the strip with the best cache hit count
-
-					if (m_Cache.HitCount() > BestStripCacheHits) {
-
-						BestStrip = TempStrip;
-
-						BestStripDegree = m_TriHeap[TempStrip.StartTriPos()].Degree();
-
-						BestStripCacheHits = m_Cache.HitCount();
-
-
-
-					} else if (m_Cache.HitCount() == BestStripCacheHits) {
-
-
-
-						// Priority 2: Keep the strip with the loneliest start triangle
-
-						if ((BestStrip.Size() != 0) && (m_TriHeap[TempStrip.StartTriPos()].Degree() < BestStripDegree)) {
-
-							BestStrip = TempStrip;
-
-							BestStripDegree = m_TriHeap[TempStrip.StartTriPos()].Degree();
-
-
-
-						// Priority 3: Keep the longest strip
-
-						} else if (TempStrip.Size() > BestStrip.Size()) {
-
-							BestStrip = TempStrip;
-
-							BestStripDegree = m_TriHeap[TempStrip.StartTriPos()].Degree();
-
-						}
-
-					}
-
-				}
-
-			}
-
-
-
-			// Restore the cache (modified by ExtendTriToStrip) and implicitly reset the cache hit count
-
-			m_Cache = CacheBackup;
-
-		}
-
-
-
-	}
-
-
-
-	return BestStrip;
-
+    return BestStrip;
 }
 
-
-
-
-
-
-
-tri_stripper::triangle_strip tri_stripper::ExtendTriToStrip(const size_t StartTriPos, const triangle_strip::start_order StartOrder)
+tri_stripper::triangle_strip tri_stripper::ExtendTriToStrip(const size_t StartTriPos,
+                                                            const triangle_strip::start_order StartOrder)
 
 {
 
-	typedef triangles_graph::const_out_arc_iterator const_tri_link_iter;
+    typedef triangles_graph::const_out_arc_iterator const_tri_link_iter;
 
-	typedef triangles_graph::node_iterator tri_node_iter;
+    typedef triangles_graph::node_iterator tri_node_iter;
 
+    size_t Size = 1;
 
+    bool ClockWise = false;
 
-	size_t Size = 1;
+    triangle_strip::start_order Order = StartOrder;
 
-	bool ClockWise = false;
+    // Begin a new strip
 
-	triangle_strip::start_order Order = StartOrder;
+    ++m_StripID;
 
+    // Mark the first triangle as used for this strip
 
+    m_Triangles[StartTriPos]->SetStripID(m_StripID);
 
-	// Begin a new strip
+    // Update the cache
 
-	++m_StripID;
+    AddTriToCache((*m_Triangles[StartTriPos]), Order);
 
+    // Loop while we can further extend the strip
 
+    for (tri_node_iter TriNodeIt = (m_Triangles.begin() + StartTriPos);
 
-	// Mark the first triangle as used for this strip
+         (TriNodeIt != m_Triangles.end()) && ((m_Cache.size() == 0) || ((Size + 2) < m_Cache.size()));
 
-	m_Triangles[StartTriPos]->SetStripID(m_StripID);
+         ++Size)
+    {
 
+        // Get the triangle edge that would lead to the next triangle
 
+        const triangle_edge Edge = GetLatestEdge(**TriNodeIt, Order);
 
-	// Update the cache
+        // Link to a neighbour triangle
 
-	AddTriToCache((* m_Triangles[StartTriPos]), Order);
+        const_tri_link_iter LinkIt;
 
+        for (LinkIt = TriNodeIt->out_begin(); LinkIt != TriNodeIt->out_end(); ++LinkIt)
+        {
 
+            // Get the reference to the possible next triangle
 
+            const triangle& Tri = (**(LinkIt->terminal()));
 
+            // Check whether it's already been used
 
-	// Loop while we can further extend the strip
+            if ((Tri.StripID() != m_StripID) && (!(LinkIt->terminal()->marked())))
+            {
 
-	for (tri_node_iter TriNodeIt = (m_Triangles.begin() + StartTriPos);
+                // Does the current candidate triangle match the required for the strip?
 
-		(TriNodeIt != m_Triangles.end()) && ((m_Cache.size() == 0) || ((Size + 2) < m_Cache.size()));
+                if ((Edge.B() == Tri.A()) && (Edge.A() == Tri.B()))
+                {
 
-		++Size) {
+                    Order = (ClockWise) ? triangle_strip::ABC : triangle_strip::BCA;
 
+                    AddIndexToCache(Tri.C(), true);
 
+                    break;
+                }
 
-		// Get the triangle edge that would lead to the next triangle
+                else if ((Edge.B() == Tri.B()) && (Edge.A() == Tri.C()))
+                {
 
-		const triangle_edge Edge = GetLatestEdge(** TriNodeIt, Order);
+                    Order = (ClockWise) ? triangle_strip::BCA : triangle_strip::CAB;
 
+                    AddIndexToCache(Tri.A(), true);
 
+                    break;
+                }
 
-		// Link to a neighbour triangle
+                else if ((Edge.B() == Tri.C()) && (Edge.A() == Tri.A()))
+                {
 
-		const_tri_link_iter LinkIt;
+                    Order = (ClockWise) ? triangle_strip::CAB : triangle_strip::ABC;
 
-		for (LinkIt = TriNodeIt->out_begin(); LinkIt != TriNodeIt->out_end(); ++LinkIt) {
+                    AddIndexToCache(Tri.B(), true);
 
+                    break;
+                }
+            }
+        }
 
+        // Is it the end of the strip?
 
-			// Get the reference to the possible next triangle
+        if (LinkIt == TriNodeIt->out_end())
+        {
 
-			const triangle & Tri = (** (LinkIt->terminal()));
+            TriNodeIt = m_Triangles.end();
 
+            --Size;
+        }
+        else
+        {
 
+            TriNodeIt = LinkIt->terminal();
 
-			// Check whether it's already been used
+            // Setup for the next triangle
 
-			if ((Tri.StripID() != m_StripID) && (! (LinkIt->terminal()->marked()))) {
+            (*TriNodeIt)->SetStripID(m_StripID);
 
+            ClockWise = !ClockWise;
+        }
+    }
 
-
-				// Does the current candidate triangle match the required for the strip?
-
-
-
-				if ((Edge.B() == Tri.A()) && (Edge.A() == Tri.B())) {
-
-					Order = (ClockWise) ? triangle_strip::ABC : triangle_strip::BCA;
-
-					AddIndexToCache(Tri.C(), true);
-
-					break;
-
-				}
-
-
-
-				else if ((Edge.B() == Tri.B()) && (Edge.A() == Tri.C())) {
-
-					Order = (ClockWise) ? triangle_strip::BCA : triangle_strip::CAB;
-
-					AddIndexToCache(Tri.A(), true);
-
-					break;
-
-				}
-
-
-
-				else if ((Edge.B() == Tri.C()) && (Edge.A() == Tri.A())) {
-
-					Order = (ClockWise) ? triangle_strip::CAB : triangle_strip::ABC;
-
-					AddIndexToCache(Tri.B(), true);
-
-					break;
-
-				}
-
-			}
-
-		}
-
-
-
-		// Is it the end of the strip?
-
-		if (LinkIt == TriNodeIt->out_end()) {
-
-			TriNodeIt = m_Triangles.end();
-
-			--Size;
-
-		} else {
-
-			TriNodeIt = LinkIt->terminal();
-
-
-
-			// Setup for the next triangle
-
-			(* TriNodeIt)->SetStripID(m_StripID);
-
-			ClockWise = ! ClockWise;
-
-		}
-
-	}
-
-
-
-
-
-	return triangle_strip(StartTriPos, StartOrder, Size);
-
+    return triangle_strip(StartTriPos, StartOrder, Size);
 }
 
-
-
-
-
-
-
-inline tri_stripper::triangle_edge tri_stripper::GetLatestEdge(const triangle & Triangle, const triangle_strip::start_order Order) const
+inline tri_stripper::triangle_edge tri_stripper::GetLatestEdge(const triangle& Triangle,
+                                                               const triangle_strip::start_order Order) const
 
 {
 
-	switch (Order) {
+    switch (Order)
+    {
 
-	case triangle_strip::ABC:
+    case triangle_strip::ABC:
 
-		return triangle_edge(Triangle.B(), Triangle.C(), 0);
+        return triangle_edge(Triangle.B(), Triangle.C(), 0);
 
-	case triangle_strip::BCA:
+    case triangle_strip::BCA:
 
-		return triangle_edge(Triangle.C(), Triangle.A(), 0);
+        return triangle_edge(Triangle.C(), Triangle.A(), 0);
 
-	case triangle_strip::CAB:
+    case triangle_strip::CAB:
 
-		return triangle_edge(Triangle.A(), Triangle.B(), 0);
+        return triangle_edge(Triangle.A(), Triangle.B(), 0);
 
-	default:
+    default:
 
-		return triangle_edge(0, 0, 0);
-
-	}
-
+        return triangle_edge(0, 0, 0);
+    }
 }
-
-
-
-
-
-
 
 void tri_stripper::BuildStrip(const triangle_strip TriStrip)
 
 {
 
-	typedef triangles_graph::const_out_arc_iterator const_tri_link_iter;
+    typedef triangles_graph::const_out_arc_iterator const_tri_link_iter;
 
-	typedef triangles_graph::node_iterator tri_node_iter;
+    typedef triangles_graph::node_iterator tri_node_iter;
 
+    const size_t StartTriPos = TriStrip.StartTriPos();
 
+    bool ClockWise = false;
 
-	const size_t StartTriPos = TriStrip.StartTriPos();
+    triangle_strip::start_order Order = TriStrip.StartOrder();
 
+    // Create a new strip
 
+    m_PrimitivesVector.push_back(primitives());
 
-	bool ClockWise = false;
+    m_PrimitivesVector.back().m_Type = PT_Triangle_Strip;
 
-	triangle_strip::start_order Order = TriStrip.StartOrder();
+    // Put the first triangle into the strip
 
+    AddTriToIndices((*m_Triangles[StartTriPos]), Order);
 
+    // Mark the first triangle as used
 
-	// Create a new strip
+    MarkTriAsTaken(StartTriPos);
 
-	m_PrimitivesVector.push_back(primitives());
+    // Loop while we can further extend the strip
 
-	m_PrimitivesVector.back().m_Type = PT_Triangle_Strip;
+    tri_node_iter TriNodeIt = (m_Triangles.begin() + StartTriPos);
 
+    for (size_t Size = 1; Size < TriStrip.Size(); ++Size)
+    {
 
+        // Get the triangle edge that would lead to the next triangle
 
-	// Put the first triangle into the strip
+        const triangle_edge Edge = GetLatestEdge(**TriNodeIt, Order);
 
-	AddTriToIndices((* m_Triangles[StartTriPos]), Order);
+        // Link to a neighbour triangle
 
+        const_tri_link_iter LinkIt;
 
+        for (LinkIt = TriNodeIt->out_begin(); LinkIt != TriNodeIt->out_end(); ++LinkIt)
+        {
 
-	// Mark the first triangle as used
+            // Get the reference to the possible next triangle
 
-	MarkTriAsTaken(StartTriPos);
+            const triangle& Tri = (**(LinkIt->terminal()));
 
+            // Check whether it's already been used
 
+            if (!(LinkIt->terminal()->marked()))
+            {
 
+                // Does the current candidate triangle match the required for the strip?
 
+                // If it does, then add it to the Indices
 
-	// Loop while we can further extend the strip
+                if ((Edge.B() == Tri.A()) && (Edge.A() == Tri.B()))
+                {
 
-	tri_node_iter TriNodeIt = (m_Triangles.begin() + StartTriPos);
+                    Order = (ClockWise) ? triangle_strip::ABC : triangle_strip::BCA;
 
+                    AddIndex(Tri.C());
 
+                    break;
+                }
 
-	for (size_t Size = 1; Size < TriStrip.Size(); ++Size) {
+                else if ((Edge.B() == Tri.B()) && (Edge.A() == Tri.C()))
+                {
 
+                    Order = (ClockWise) ? triangle_strip::BCA : triangle_strip::CAB;
 
+                    AddIndex(Tri.A());
 
-		// Get the triangle edge that would lead to the next triangle
+                    break;
+                }
 
-		const triangle_edge Edge = GetLatestEdge(** TriNodeIt, Order);
+                else if ((Edge.B() == Tri.C()) && (Edge.A() == Tri.A()))
+                {
 
+                    Order = (ClockWise) ? triangle_strip::CAB : triangle_strip::ABC;
 
+                    AddIndex(Tri.B());
 
-		// Link to a neighbour triangle
+                    break;
+                }
+            }
+        }
 
-		const_tri_link_iter LinkIt;
+        // Debug check: we must have found the next triangle
 
-		for (LinkIt = TriNodeIt->out_begin(); LinkIt != TriNodeIt->out_end(); ++LinkIt) {
+        assert(LinkIt != TriNodeIt->out_end());
 
+        // Go to the next triangle
 
+        TriNodeIt = LinkIt->terminal();
 
-			// Get the reference to the possible next triangle
+        MarkTriAsTaken(TriNodeIt - m_Triangles.begin());
 
-			const triangle & Tri = (** (LinkIt->terminal()));
+        // Setup for the next triangle
 
-
-
-			// Check whether it's already been used
-
-			if (! (LinkIt->terminal()->marked())) {
-
-
-
-				// Does the current candidate triangle match the required for the strip?
-
-				// If it does, then add it to the Indices
-
-				if ((Edge.B() == Tri.A()) && (Edge.A() == Tri.B())) {
-
-					Order = (ClockWise) ? triangle_strip::ABC : triangle_strip::BCA;
-
-					AddIndex(Tri.C());
-
-					break;
-
-				}
-
-
-
-				else if ((Edge.B() == Tri.B()) && (Edge.A() == Tri.C())) {
-
-					Order = (ClockWise) ? triangle_strip::BCA : triangle_strip::CAB;
-
-					AddIndex(Tri.A());
-
-					break;
-
-				}
-
-
-
-				else if ((Edge.B() == Tri.C()) && (Edge.A() == Tri.A())) {
-
-					Order = (ClockWise) ? triangle_strip::CAB : triangle_strip::ABC;
-
-					AddIndex(Tri.B());
-
-					break;
-
-				}
-
-			}
-
-		}
-
-
-
-		// Debug check: we must have found the next triangle
-
-		assert(LinkIt != TriNodeIt->out_end());
-
-
-
-		// Go to the next triangle
-
-		TriNodeIt = LinkIt->terminal();
-
-		MarkTriAsTaken(TriNodeIt - m_Triangles.begin());
-
-
-
-		// Setup for the next triangle
-
-		ClockWise = ! ClockWise;
-
-	}
-
+        ClockWise = !ClockWise;
+    }
 }
-
-
-
-
-
-
 
 void tri_stripper::MarkTriAsTaken(const size_t i)
 
 {
 
-	typedef triangles_graph::node_iterator tri_node_iter;
+    typedef triangles_graph::node_iterator tri_node_iter;
 
-	typedef triangles_graph::out_arc_iterator tri_link_iter;
+    typedef triangles_graph::out_arc_iterator tri_link_iter;
 
+    // Mark the triangle node
 
+    m_Triangles[i].mark();
 
-	// Mark the triangle node
+    // Remove triangle from priority queue if it isn't yet
 
-	m_Triangles[i].mark();
+    if (!m_TriHeap.removed(i))
 
+        m_TriHeap.erase(i);
 
+    // Adjust the degree of available neighbour triangles
 
-	// Remove triangle from priority queue if it isn't yet
+    for (tri_link_iter LinkIt = m_Triangles[i].out_begin(); LinkIt != m_Triangles[i].out_end(); ++LinkIt)
+    {
 
-	if (! m_TriHeap.removed(i))
+        const size_t j = LinkIt->terminal() - m_Triangles.begin();
 
-		m_TriHeap.erase(i);
+        if ((!m_Triangles[j].marked()) && (!m_TriHeap.removed(j)))
+        {
 
+            triangle_degree NewDegree = m_TriHeap.peek(j);
 
+            NewDegree.SetDegree(NewDegree.Degree() - 1);
 
-	// Adjust the degree of available neighbour triangles
+            m_TriHeap.update(j, NewDegree);
 
-	for (tri_link_iter LinkIt = m_Triangles[i].out_begin(); LinkIt != m_Triangles[i].out_end(); ++LinkIt) {
+            // Update the candidate std::list if cache is enabled
 
+            if ((m_Cache.size() > 0) && (NewDegree.Degree() > 0))
 
-
-		const size_t j = LinkIt->terminal() - m_Triangles.begin();
-
-
-
-		if ((! m_Triangles[j].marked()) && (! m_TriHeap.removed(j))) {
-
-			triangle_degree NewDegree = m_TriHeap.peek(j);
-
-			NewDegree.SetDegree(NewDegree.Degree() - 1);
-
-			m_TriHeap.update(j, NewDegree);
-
-
-
-			// Update the candidate std::list if cache is enabled
-
-			if ((m_Cache.size() > 0) && (NewDegree.Degree() > 0))
-
-				m_NextCandidates.push_back(j);
-
-		}
-
-	}
-
+                m_NextCandidates.push_back(j);
+        }
+    }
 }
-
-
-
-
-
-
 
 inline void tri_stripper::AddIndexToCache(const index i, bool CacheHitCount)
 
 {
 
-	// Cache simulator enabled?
+    // Cache simulator enabled?
 
-	if (m_Cache.size() > 0)
+    if (m_Cache.size() > 0)
 
-		m_Cache.push(i, CacheHitCount);
-
+        m_Cache.push(i, CacheHitCount);
 }
-
-
-
-
-
-
 
 inline void tri_stripper::AddIndex(const index i)
 
 {
 
-	// Add the index to the current indices array
+    // Add the index to the current indices array
 
-	m_PrimitivesVector.back().m_Indices.push_back(i);
+    m_PrimitivesVector.back().m_Indices.push_back(i);
 
+    // Run cache simulator
 
-
-	// Run cache simulator
-
-	AddIndexToCache(i);
-
+    AddIndexToCache(i);
 }
 
-
-
-
-
-
-
-inline void tri_stripper::AddTriToCache(const triangle & Tri, const triangle_strip::start_order Order)
+inline void tri_stripper::AddTriToCache(const triangle& Tri, const triangle_strip::start_order Order)
 
 {
 
-	// Add Tri indices in the right order into the indices cache simulator.
+    // Add Tri indices in the right order into the indices cache simulator.
 
-	// And enable the cache hit count
+    // And enable the cache hit count
 
-	switch (Order) {
+    switch (Order)
+    {
 
-	case triangle_strip::ABC:
+    case triangle_strip::ABC:
 
-		AddIndexToCache(Tri.A(), true);
+        AddIndexToCache(Tri.A(), true);
 
-		AddIndexToCache(Tri.B(), true);
+        AddIndexToCache(Tri.B(), true);
 
-		AddIndexToCache(Tri.C(), true);
+        AddIndexToCache(Tri.C(), true);
 
-		return;
+        return;
 
-	case triangle_strip::BCA:
+    case triangle_strip::BCA:
 
-		AddIndexToCache(Tri.B(), true);
+        AddIndexToCache(Tri.B(), true);
 
-		AddIndexToCache(Tri.C(), true);
+        AddIndexToCache(Tri.C(), true);
 
-		AddIndexToCache(Tri.A(), true);
+        AddIndexToCache(Tri.A(), true);
 
-		return;
+        return;
 
-	case triangle_strip::CAB:
+    case triangle_strip::CAB:
 
-		AddIndexToCache(Tri.C(), true);
+        AddIndexToCache(Tri.C(), true);
 
-		AddIndexToCache(Tri.A(), true);
+        AddIndexToCache(Tri.A(), true);
 
-		AddIndexToCache(Tri.B(), true);
+        AddIndexToCache(Tri.B(), true);
 
-		return;
-
-	}
-
+        return;
+    }
 }
 
-
-
-
-
-
-
-inline void tri_stripper::AddTriToIndices(const triangle & Tri, const triangle_strip::start_order Order)
+inline void tri_stripper::AddTriToIndices(const triangle& Tri, const triangle_strip::start_order Order)
 
 {
 
-	// Add Tri indices in the right order into the latest Indices std::vector.
+    // Add Tri indices in the right order into the latest Indices std::vector.
 
-	switch (Order) {
+    switch (Order)
+    {
 
-	case triangle_strip::ABC:
+    case triangle_strip::ABC:
 
-		AddIndex(Tri.A());
+        AddIndex(Tri.A());
 
-		AddIndex(Tri.B());
+        AddIndex(Tri.B());
 
-		AddIndex(Tri.C());
+        AddIndex(Tri.C());
 
-		return;
+        return;
 
-	case triangle_strip::BCA:
+    case triangle_strip::BCA:
 
-		AddIndex(Tri.B());
+        AddIndex(Tri.B());
 
-		AddIndex(Tri.C());
+        AddIndex(Tri.C());
 
-		AddIndex(Tri.A());
+        AddIndex(Tri.A());
 
-		return;
+        return;
 
-	case triangle_strip::CAB:
+    case triangle_strip::CAB:
 
-		AddIndex(Tri.C());
+        AddIndex(Tri.C());
 
-		AddIndex(Tri.A());
+        AddIndex(Tri.A());
 
-		AddIndex(Tri.B());
+        AddIndex(Tri.B());
 
-		return;
-
-	}
-
+        return;
+    }
 }
-
-
-
-
-
-
 
 void tri_stripper::AddLeftTriangles()
 
 {
 
-	// Create the latest indices array
+    // Create the latest indices array
 
-	// and fill it with all the triangles that couldn't be stripped
+    // and fill it with all the triangles that couldn't be stripped
 
-	primitives Primitives;
+    primitives Primitives;
 
-	Primitives.m_Type = PT_Triangles;
+    Primitives.m_Type = PT_Triangles;
 
-	m_PrimitivesVector.push_back(Primitives);
+    m_PrimitivesVector.push_back(Primitives);
 
-	indices & Indices = m_PrimitivesVector.back().m_Indices;
+    indices& Indices = m_PrimitivesVector.back().m_Indices;
 
+    for (size_t i = 0; i < m_Triangles.size(); ++i)
 
+        if (!m_Triangles[i].marked())
+        {
 
-	for (size_t i = 0; i < m_Triangles.size(); ++i)
+            Indices.push_back(m_Triangles[i]->A());
 
-		if (! m_Triangles[i].marked()) {
+            Indices.push_back(m_Triangles[i]->B());
 
-			Indices.push_back(m_Triangles[i]->A());
+            Indices.push_back(m_Triangles[i]->C());
+        }
 
-			Indices.push_back(m_Triangles[i]->B());
+    // Undo if useless
 
-			Indices.push_back(m_Triangles[i]->C());
+    if (Indices.size() == 0)
 
-		}
-
-
-
-	// Undo if useless
-
-	if (Indices.size() == 0)
-
-		m_PrimitivesVector.pop_back();
-
+        m_PrimitivesVector.pop_back();
 }
 
-
-
-
-
-
-
-
-
 } // namespace triangle_stripper
-

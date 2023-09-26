@@ -8,17 +8,17 @@
 
 EXTERN_C_BEGIN
 
-void *MyAlloc(size_t size);
-void MyFree(void *address);
+void* MyAlloc(size_t size);
+void MyFree(void* address);
 
 #ifdef _WIN32
 
 void SetLargePageSize();
 
-void *MidAlloc(size_t size);
-void MidFree(void *address);
-void *BigAlloc(size_t size);
-void BigFree(void *address);
+void* MidAlloc(size_t size);
+void MidFree(void* address);
+void* BigAlloc(size_t size);
+void BigFree(void* address);
 
 #else
 
@@ -34,17 +34,15 @@ extern const ISzAlloc g_BigAlloc;
 extern const ISzAlloc g_MidAlloc;
 extern const ISzAlloc g_AlignedAlloc;
 
-
 typedef struct
 {
-  ISzAlloc vt;
-  ISzAllocPtr baseAlloc;
-  unsigned numAlignBits; /* ((1 << numAlignBits) >= sizeof(void *)) */
-  size_t offset;         /* (offset == (k * sizeof(void *)) && offset < (1 << numAlignBits) */
+    ISzAlloc vt;
+    ISzAllocPtr baseAlloc;
+    unsigned numAlignBits; /* ((1 << numAlignBits) >= sizeof(void *)) */
+    size_t offset;         /* (offset == (k * sizeof(void *)) && offset < (1 << numAlignBits) */
 } CAlignOffsetAlloc;
 
-void AlignOffsetAlloc_CreateVTable(CAlignOffsetAlloc *p);
-
+void AlignOffsetAlloc_CreateVTable(CAlignOffsetAlloc* p);
 
 EXTERN_C_END
 

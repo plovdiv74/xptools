@@ -25,39 +25,45 @@
 #ifndef WED_SlippyMap_h
 #define WED_SlippyMap_h
 
-class	WED_file_cache_request;
+class WED_file_cache_request;
 
 #include "GUI_Timer.h"
 #include "WED_MapLayer.h"
 
-enum yCoord_t { yNone, yNormal, yYahoo, yOSGeo, yBing };
+enum yCoord_t
+{
+    yNone,
+    yNormal,
+    yYahoo,
+    yOSGeo,
+    yBing
+};
 
-class	WED_SlippyMap : public WED_MapLayer, public GUI_Timer {
+class WED_SlippyMap : public WED_MapLayer, public GUI_Timer
+{
 public:
+    WED_SlippyMap(GUI_Pane* h, WED_MapZoomerNew* zoomer, IResolver* resolver);
+    virtual ~WED_SlippyMap();
 
-					 WED_SlippyMap(GUI_Pane * h, WED_MapZoomerNew * zoomer, IResolver * resolver);
-	virtual			~WED_SlippyMap();
-
-	virtual	void	DrawVisualization(bool inCurrent, GUI_GraphState * g);
-	virtual	void	GetCaps(bool& draw_ent_v, bool& draw_ent_s, bool& cares_about_sel, bool& wants_clicks);
-	virtual	void	TimerFired(void);
-			void	SetMode(int mode);  // mode 0 = custom map std::string, 1..2 OSM and ERSI maps
-			int		GetMode(void);
+    virtual void DrawVisualization(bool inCurrent, GUI_GraphState* g);
+    virtual void GetCaps(bool& draw_ent_v, bool& draw_ent_s, bool& cares_about_sel, bool& wants_clicks);
+    virtual void TimerFired(void);
+    void SetMode(int mode); // mode 0 = custom map std::string, 1..2 OSM and ERSI maps
+    int GetMode(void);
 
 private:
+    void finish_loading_tile();
+    int get_zl_for_map(double in_ppm, double lattitude);
 
-			void	finish_loading_tile();
-			int 	get_zl_for_map(double in_ppm, double lattitude);
+    WED_file_cache_request* m_cache_request;
 
-	WED_file_cache_request* m_cache_request;
+    // The texture cache, where they key is the tile texture path on disk and the value is the texture id
+    std::map<std::string, int> m_cache;
 
-	//The texture cache, where they key is the tile texture path on disk and the value is the texture id
-	std::map<std::string,int>	m_cache;
-
-			int		mMapMode;
-			std::string	url_printf_fmt;
-			std::string	dir_printf_fmt;
-			yCoord_t	y_coordinate_math;
+    int mMapMode;
+    std::string url_printf_fmt;
+    std::string dir_printf_fmt;
+    yCoord_t y_coordinate_math;
 };
 
 #endif /* WED_SlippyMap_h */

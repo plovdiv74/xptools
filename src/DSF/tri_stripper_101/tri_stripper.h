@@ -114,385 +114,247 @@
 
 //////////////////////////////////////////////////////////////////////
 
-
-
 #pragma once
-
-
-
-
-
-
-
-
 
 #include "cache_simulator.h"
 
-
-
-
-
-
-
-
-
 // namespace triangle_stripper
 
-namespace triangle_stripper {
-
-
-
-
-
-
-
-
+namespace triangle_stripper
+{
 
 #include "graph_array.h"
 
 #include "heap_array.h"
-
-
-
-
-
-
 
 class tri_stripper
 
 {
 
 public:
+    // New Public types
 
+    typedef unsigned int index;
 
+    typedef std::vector<index> indices;
 
-	// New Public types
+    enum primitive_type
+    {
 
-	typedef unsigned int index;
+        PT_Triangles = 0x0004, // = GL_TRIANGLES
 
-	typedef std::vector<index> indices;
+        PT_Triangle_Strip = 0x0005 // = GL_TRIANGLE_STRIP
+    };
 
+    struct primitives
 
+    {
 
-	enum primitive_type {
+        indices m_Indices;
 
-		PT_Triangles		= 0x0004,	// = GL_TRIANGLES
+        primitive_type m_Type;
+    };
 
-		PT_Triangle_Strip	= 0x0005	// = GL_TRIANGLE_STRIP
+    typedef std::vector<primitives> primitives_vector;
 
-	};
+    struct triangles_indices_error
+    {
+    };
 
+    // constructor/initializer
 
+    tri_stripper(const indices& TriIndices);
 
-	struct primitives
+    // Settings functions
 
-	{
+    void SetCacheSize(const size_t CacheSize = 16); // = 0 will disable the cache optimizer
 
-		indices			m_Indices;
+    void SetMinStripSize(const size_t MinStripSize = 2);
 
-		primitive_type	m_Type;
+    // Stripper
 
-	};
-
-
-
-	typedef std::vector<primitives> primitives_vector;
-
-
-
-	struct triangles_indices_error { };
-
-
-
-
-
-	// constructor/initializer
-
-	tri_stripper(const indices & TriIndices);
-
-
-
-	// Settings functions
-
-	void SetCacheSize(const size_t CacheSize = 16);			// = 0 will disable the cache optimizer
-
-	void SetMinStripSize(const size_t MinStripSize = 2);
-
-
-
-	// Stripper
-
-	void Strip(primitives_vector * out_pPrimitivesVector);	// throw triangles_indices_error();
-
-
+    void Strip(primitives_vector* out_pPrimitivesVector); // throw triangles_indices_error();
 
 private:
+    friend struct _cmp_tri_interface_lt;
 
+    class triangle
 
+    {
 
-	friend struct _cmp_tri_interface_lt;
+    public:
+        triangle();
 
+        triangle(const index A, const index B, const index C);
 
+        void SetStripID(const size_t StripID);
 
+        index A() const;
 
+        index B() const;
 
-	class triangle
+        index C() const;
 
-	{
+        size_t StripID() const;
 
-	public:
+    private:
+        index m_A;
 
-		triangle();
+        index m_B;
 
-		triangle(const index A, const index B, const index C);
+        index m_C;
 
+        size_t m_StripID;
+    };
 
+    class triangle_edge
 
-		void SetStripID(const size_t StripID);
+    {
 
+    public:
+        triangle_edge(const index A, const index B, const size_t TriPos);
 
+        index A() const;
 
-		index A() const;
+        index B() const;
 
-		index B() const;
+        size_t TriPos() const;
 
-		index C() const;
+    private:
+        index m_A;
 
-		size_t StripID() const;
+        index m_B;
 
+        size_t m_TriPos;
+    };
 
+    class triangle_degree
 
-	private:
+    {
 
-		index m_A;
+    public:
+        triangle_degree();
 
-		index m_B;
+        triangle_degree(const size_t TriPos, const size_t Degree);
 
-		index m_C;
+        size_t Degree() const;
 
-		size_t m_StripID;
+        size_t TriPos() const;
 
-	};
+        void SetDegree(const size_t Degree);
 
+    private:
+        size_t m_TriPos;
 
+        size_t m_Degree;
+    };
 
+    class triangle_strip
 
+    {
 
-	class triangle_edge
+    public:
+        enum start_order
+        {
+            ABC = 0,
+            BCA = 1,
+            CAB = 2
+        };
 
-	{
+        triangle_strip();
 
-	public:
+        triangle_strip(size_t StartTriPos, start_order StartOrder, size_t Size);
 
-		triangle_edge(const index A, const index B, const size_t TriPos);
+        size_t StartTriPos() const;
 
+        start_order StartOrder() const;
 
+        size_t Size() const;
 
-		index A() const;
+    private:
+        size_t m_StartTriPos;
 
-		index B() const;
+        start_order m_StartOrder;
 
-		size_t TriPos() const;
+        size_t m_Size;
+    };
 
+    struct _cmp_tri_interface_lt
 
+    {
 
-	private:
+        bool operator()(const triangle_edge& a, const triangle_edge& b) const;
+    };
 
-		index m_A;
+    struct _cmp_tri_degree_gt
 
-		index m_B;
+    {
 
-		size_t m_TriPos;
+        bool operator()(const triangle_degree& a, const triangle_degree& b) const;
+    };
 
-	};
+    typedef common_structures::graph_array<triangle, char> triangles_graph;
 
+    typedef common_structures::heap_array<triangle_degree, _cmp_tri_degree_gt> triangles_heap;
 
+    typedef std::vector<triangle_edge> triangle_edges;
 
+    typedef std::vector<size_t> triangle_indices;
 
+    typedef std::deque<index> indices_cache;
 
-	class triangle_degree
+    void InitCache();
 
-	{
+    void InitTriGraph();
 
-	public:
+    void InitTriHeap();
 
-		triangle_degree();
+    void Stripify();
 
-		triangle_degree(const size_t TriPos, const size_t Degree);
+    void AddLeftTriangles();
 
+    void LinkNeighboursTri(const triangle_edges& TriInterface, const triangle_edge Edge);
 
+    void MarkTriAsTaken(const size_t i);
 
-		size_t Degree() const;
+    triangle_edge GetLatestEdge(const triangle& Triangle, const triangle_strip::start_order Order) const;
 
-		size_t TriPos() const;
+    triangle_strip FindBestStrip();
 
+    triangle_strip ExtendTriToStrip(const size_t StartTriPos, const triangle_strip::start_order StartOrder);
 
+    void BuildStrip(const triangle_strip TriStrip);
 
-		void SetDegree(const size_t Degree);
+    void AddIndex(const index i);
 
+    void AddIndexToCache(const index i, bool CacheHitCount = false);
 
+    void AddTriToCache(const triangle& Tri, const triangle_strip::start_order Order);
 
-	private:
+    void AddTriToIndices(const triangle& Tri, const triangle_strip::start_order Order);
 
-		size_t m_TriPos;
+    const indices& m_TriIndices;
 
-		size_t m_Degree;
+    size_t m_MinStripSize;
 
-	};
+    //	size_t				m_CacheSize;
 
+    primitives_vector m_PrimitivesVector;
 
+    triangles_graph m_Triangles;
 
+    triangles_heap m_TriHeap;
 
+    triangle_indices m_NextCandidates;
 
-	class triangle_strip
+    cache_simulator m_Cache;
 
-	{
+    //	indices_cache		m_IndicesCache;
 
-	public:
+    size_t m_StripID;
 
-		enum start_order { ABC = 0, BCA = 1, CAB = 2 };
-
-
-
-		triangle_strip();
-
-		triangle_strip(size_t StartTriPos, start_order StartOrder, size_t Size);
-
-
-
-		size_t StartTriPos() const;
-
-		start_order StartOrder() const;
-
-		size_t Size() const;
-
-
-
-	private:
-
-		size_t		m_StartTriPos;
-
-		start_order	m_StartOrder;
-
-		size_t		m_Size;
-
-	};
-
-
-
-
-
-	struct _cmp_tri_interface_lt
-
-	{
-
-		bool operator() (const triangle_edge & a, const triangle_edge & b) const;
-
-	};
-
-
-
-
-
-	struct _cmp_tri_degree_gt
-
-	{
-
-		bool operator () (const triangle_degree & a, const triangle_degree & b) const;
-
-	};
-
-
-
-
-
-	typedef common_structures::graph_array<triangle, char> triangles_graph;
-
-	typedef common_structures::heap_array<triangle_degree, _cmp_tri_degree_gt> triangles_heap;
-
-	typedef std::vector<triangle_edge> triangle_edges;
-
-	typedef std::vector<size_t> triangle_indices;
-
-	typedef std::deque<index> indices_cache;
-
-
-
-
-
-	void InitCache();
-
-	void InitTriGraph();
-
-	void InitTriHeap();
-
-	void Stripify();
-
-	void AddLeftTriangles();
-
-
-
-	void LinkNeighboursTri(const triangle_edges & TriInterface, const triangle_edge Edge);
-
-	void MarkTriAsTaken(const size_t i);
-
-
-
-	triangle_edge GetLatestEdge(const triangle & Triangle, const triangle_strip::start_order Order) const;
-
-
-
-	triangle_strip FindBestStrip();
-
-	triangle_strip ExtendTriToStrip(const size_t StartTriPos, const triangle_strip::start_order StartOrder);
-
-	void BuildStrip(const triangle_strip TriStrip);
-
-	void AddIndex(const index i);
-
-	void AddIndexToCache(const index i, bool CacheHitCount = false);
-
-	void AddTriToCache(const triangle & Tri, const triangle_strip::start_order Order);
-
-	void AddTriToIndices(const triangle & Tri, const triangle_strip::start_order Order);
-
-
-
-	const indices &		m_TriIndices;
-
-
-
-	size_t				m_MinStripSize;
-
-//	size_t				m_CacheSize;
-
-
-
-	primitives_vector	m_PrimitivesVector;
-
-	triangles_graph		m_Triangles;
-
-	triangles_heap		m_TriHeap;
-
-	triangle_indices	m_NextCandidates;
-
-	cache_simulator		m_Cache;
-
-//	indices_cache		m_IndicesCache;
-
-	size_t				m_StripID;
-
-//	size_t				m_CacheHits;
-
+    //	size_t				m_CacheHits;
 };
-
-
-
-
-
-
-
-
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -500,271 +362,172 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
+inline tri_stripper::tri_stripper(const indices& TriIndices) : m_TriIndices(TriIndices)
+{
 
+    SetCacheSize();
 
-inline tri_stripper::tri_stripper(const indices & TriIndices) : m_TriIndices(TriIndices) {
-
-	SetCacheSize();
-
-	SetMinStripSize();
-
+    SetMinStripSize();
 }
 
+inline void tri_stripper::SetCacheSize(const size_t CacheSize)
+{
 
+    //	m_CacheSize = CacheSize;
 
-
-
-inline void tri_stripper::SetCacheSize(const size_t CacheSize) {
-
-//	m_CacheSize = CacheSize;
-
-	m_Cache.resize(CacheSize);
-
+    m_Cache.resize(CacheSize);
 }
 
+inline void tri_stripper::SetMinStripSize(const size_t MinStripSize)
+{
 
-
-
-
-inline void tri_stripper::SetMinStripSize(const size_t MinStripSize) {
-
-	m_MinStripSize = MinStripSize;
-
+    m_MinStripSize = MinStripSize;
 }
 
-
-
-
-
-inline tri_stripper::triangle::triangle() { }
-
-
-
-
-
-inline tri_stripper::triangle::triangle(const index A, const index B, const index C) : m_A(A), m_B(B), m_C(C), m_StripID(0) { }
-
-
-
-
-
-inline void tri_stripper::triangle::SetStripID(const size_t StripID) {
-
-	m_StripID = StripID;
-
+inline tri_stripper::triangle::triangle()
+{
 }
 
-
-
-
-
-inline tri_stripper::index tri_stripper::triangle::A() const {
-
-	return m_A;
-
+inline tri_stripper::triangle::triangle(const index A, const index B, const index C)
+    : m_A(A), m_B(B), m_C(C), m_StripID(0)
+{
 }
 
+inline void tri_stripper::triangle::SetStripID(const size_t StripID)
+{
 
-
-
-
-inline tri_stripper::index tri_stripper::triangle::B() const {
-
-	return m_B;
-
+    m_StripID = StripID;
 }
 
+inline tri_stripper::index tri_stripper::triangle::A() const
+{
 
-
-
-
-inline tri_stripper::index tri_stripper::triangle::C() const {
-
-	return m_C;
-
+    return m_A;
 }
 
+inline tri_stripper::index tri_stripper::triangle::B() const
+{
 
-
-
-
-inline size_t tri_stripper::triangle::StripID() const {
-
-	return m_StripID;
-
+    return m_B;
 }
 
+inline tri_stripper::index tri_stripper::triangle::C() const
+{
 
-
-
-
-inline tri_stripper::triangle_edge::triangle_edge(const index A, const index B, const size_t TriPos) : m_A(A), m_B(B), m_TriPos(TriPos) { }
-
-
-
-
-
-inline tri_stripper::index tri_stripper::triangle_edge::A() const {
-
-	return m_A;
-
+    return m_C;
 }
 
+inline size_t tri_stripper::triangle::StripID() const
+{
 
-
-
-
-inline tri_stripper::index tri_stripper::triangle_edge::B() const {
-
-	return m_B;
-
+    return m_StripID;
 }
 
-
-
-
-
-inline size_t tri_stripper::triangle_edge::TriPos() const {
-
-	return m_TriPos;
-
+inline tri_stripper::triangle_edge::triangle_edge(const index A, const index B, const size_t TriPos)
+    : m_A(A), m_B(B), m_TriPos(TriPos)
+{
 }
 
+inline tri_stripper::index tri_stripper::triangle_edge::A() const
+{
 
-
-
-
-inline tri_stripper::triangle_degree::triangle_degree() { }
-
-
-
-
-
-inline tri_stripper::triangle_degree::triangle_degree(const size_t TriPos, const size_t Degree) : m_TriPos(TriPos), m_Degree(Degree) { }
-
-
-
-
-
-inline size_t tri_stripper::triangle_degree::Degree() const {
-
-	return m_Degree;
-
+    return m_A;
 }
 
+inline tri_stripper::index tri_stripper::triangle_edge::B() const
+{
 
-
-
-
-inline size_t tri_stripper::triangle_degree::TriPos() const {
-
-	return m_TriPos;
-
+    return m_B;
 }
 
+inline size_t tri_stripper::triangle_edge::TriPos() const
+{
 
-
-
-
-inline void tri_stripper::triangle_degree::SetDegree(const size_t Degree) {
-
-	m_Degree = Degree;
-
+    return m_TriPos;
 }
 
-
-
-
-
-inline tri_stripper::triangle_strip::triangle_strip() : m_StartTriPos(0), m_StartOrder(ABC), m_Size(0) { }
-
-
-
-
-
-inline tri_stripper::triangle_strip::triangle_strip(const size_t StartTriPos, const start_order StartOrder, const size_t Size)
-
-	: m_StartTriPos(StartTriPos), m_StartOrder(StartOrder), m_Size(Size) { }
-
-
-
-
-
-inline size_t tri_stripper::triangle_strip::StartTriPos() const {
-
-	return m_StartTriPos;
-
+inline tri_stripper::triangle_degree::triangle_degree()
+{
 }
 
-
-
-
-
-inline tri_stripper::triangle_strip::start_order tri_stripper::triangle_strip::StartOrder() const {
-
-	return m_StartOrder;
-
+inline tri_stripper::triangle_degree::triangle_degree(const size_t TriPos, const size_t Degree)
+    : m_TriPos(TriPos), m_Degree(Degree)
+{
 }
 
+inline size_t tri_stripper::triangle_degree::Degree() const
+{
 
-
-
-
-inline size_t tri_stripper::triangle_strip::Size() const {
-
-	return m_Size;
-
+    return m_Degree;
 }
 
+inline size_t tri_stripper::triangle_degree::TriPos() const
+{
 
-
-
-
-inline bool tri_stripper::_cmp_tri_interface_lt::operator() (const triangle_edge & a, const triangle_edge & b) const {
-
-	const tri_stripper::index A1 = a.A();
-
-	const tri_stripper::index B1 = a.B();
-
-	const tri_stripper::index A2 = b.A();
-
-	const tri_stripper::index B2 = b.B();
-
-
-
-	if ((A1 < A2) || ((A1 == A2) && (B1 < B2)))
-
-		return true;
-
-	else
-
-		return false;
-
+    return m_TriPos;
 }
 
+inline void tri_stripper::triangle_degree::SetDegree(const size_t Degree)
+{
 
-
-
-
-inline bool tri_stripper::_cmp_tri_degree_gt::operator () (const triangle_degree & a, const triangle_degree & b) const {
-
-	// the triangle with a smaller degree has more priority
-
-	return a.Degree() > b.Degree();
-
+    m_Degree = Degree;
 }
 
+inline tri_stripper::triangle_strip::triangle_strip() : m_StartTriPos(0), m_StartOrder(ABC), m_Size(0)
+{
+}
 
+inline tri_stripper::triangle_strip::triangle_strip(const size_t StartTriPos, const start_order StartOrder,
+                                                    const size_t Size)
 
+    : m_StartTriPos(StartTriPos), m_StartOrder(StartOrder), m_Size(Size)
+{
+}
 
+inline size_t tri_stripper::triangle_strip::StartTriPos() const
+{
 
+    return m_StartTriPos;
+}
 
+inline tri_stripper::triangle_strip::start_order tri_stripper::triangle_strip::StartOrder() const
+{
 
+    return m_StartOrder;
+}
 
+inline size_t tri_stripper::triangle_strip::Size() const
+{
+
+    return m_Size;
+}
+
+inline bool tri_stripper::_cmp_tri_interface_lt::operator()(const triangle_edge& a, const triangle_edge& b) const
+{
+
+    const tri_stripper::index A1 = a.A();
+
+    const tri_stripper::index B1 = a.B();
+
+    const tri_stripper::index A2 = b.A();
+
+    const tri_stripper::index B2 = b.B();
+
+    if ((A1 < A2) || ((A1 == A2) && (B1 < B2)))
+
+        return true;
+
+    else
+
+        return false;
+}
+
+inline bool tri_stripper::_cmp_tri_degree_gt::operator()(const triangle_degree& a, const triangle_degree& b) const
+{
+
+    // the triangle with a smaller degree has more priority
+
+    return a.Degree() > b.Degree();
+}
 
 } // namespace triangle_stripper
-
-
-
-
-

@@ -26,112 +26,159 @@
 
 #include "GUI_Defs.h"
 
-#define MIN_PIXELS_PREVIEW 5.0   // cutt off preview if object is (roughly) smaller than this many pixels.
-											// For airport lines/light, show structural preview if they are smaller than this instead
+#define MIN_PIXELS_PREVIEW                                                                                             \
+    5.0 // cutt off preview if object is (roughly) smaller than this many pixels.
+        // For airport lines/light, show structural preview if they are smaller than this instead
 
-class	WED_MapZoomerNew;
-class	GUI_GraphState;
-class	IGISEntity;
-class	WED_Entity;
-class	IResolver;
-class	GUI_Pane;
+class WED_MapZoomerNew;
+class GUI_GraphState;
+class IGISEntity;
+class WED_Entity;
+class IResolver;
+class GUI_Pane;
 
-
-struct FilterSpec 
+struct FilterSpec
 {
-	FilterSpec(const char * p) { e.push_back(p); }
-	FilterSpec(const char * p, const char * p2) { e.push_back(p); e.push_back(p2); }
-	FilterSpec(const char * p, const char * p2, const char * p3) { e.push_back(p); e.push_back(p2); e.push_back(p3); }
-	
-	bool operator==(const char * rhs) const { return e.size() == 1 && rhs == e.front(); }
-    bool operator==(const FilterSpec& rhs) const { return rhs.e.size() == e.size() && rhs.e == e; }
-        
-	std::vector<const char *> e;
+    FilterSpec(const char* p)
+    {
+        e.push_back(p);
+    }
+    FilterSpec(const char* p, const char* p2)
+    {
+        e.push_back(p);
+        e.push_back(p2);
+    }
+    FilterSpec(const char* p, const char* p2, const char* p3)
+    {
+        e.push_back(p);
+        e.push_back(p2);
+        e.push_back(p3);
+    }
+
+    bool operator==(const char* rhs) const
+    {
+        return e.size() == 1 && rhs == e.front();
+    }
+    bool operator==(const FilterSpec& rhs) const
+    {
+        return rhs.e.size() == e.size() && rhs.e == e;
+    }
+
+    std::vector<const char*> e;
 };
 
 typedef std::vector<FilterSpec> MapFilter_t;
 
-class	WED_MapLayer {
+class WED_MapLayer
+{
 public:
+    WED_MapLayer(GUI_Pane* host, WED_MapZoomerNew* zoomer, IResolver* resolver);
+    virtual ~WED_MapLayer();
 
-						 WED_MapLayer(GUI_Pane * host, WED_MapZoomerNew * zoomer, IResolver * resolver);
-	virtual				~WED_MapLayer();
-	
-	virtual	int					HandleClickDown(int inX, int inY, int inButton, GUI_KeyFlags modifiers) { return 0; }
-	virtual	void				HandleClickDrag(int inX, int inY, int inButton, GUI_KeyFlags modifiers) {			}
-	virtual	void				HandleClickUp  (int inX, int inY, int inButton, GUI_KeyFlags modifiers)	{			}
-	
+    virtual int HandleClickDown(int inX, int inY, int inButton, GUI_KeyFlags modifiers)
+    {
+        return 0;
+    }
+    virtual void HandleClickDrag(int inX, int inY, int inButton, GUI_KeyFlags modifiers)
+    {
+    }
+    virtual void HandleClickUp(int inX, int inY, int inButton, GUI_KeyFlags modifiers)
+    {
+    }
 
-	// These provide generalized drawing routines.  Use this to draw background images and other such stuff.
-	virtual	void		DrawVisualization		(bool inCurrent, GUI_GraphState * g) { }
-	virtual	void		DrawStructure			(bool inCurrent, GUI_GraphState * g) { }
-	virtual	void		DrawSelected			(bool inCurrent, GUI_GraphState * g) { }
+    // These provide generalized drawing routines.  Use this to draw background images and other such stuff.
+    virtual void DrawVisualization(bool inCurrent, GUI_GraphState* g)
+    {
+    }
+    virtual void DrawStructure(bool inCurrent, GUI_GraphState* g)
+    {
+    }
+    virtual void DrawSelected(bool inCurrent, GUI_GraphState* g)
+    {
+    }
 
-	// These draw specific entities.  Use these to draw pieces of the data model.  Only visible entities will be passed in!
-	virtual	bool		DrawEntityVisualization	(bool inCurrent, IGISEntity * entity, GUI_GraphState * g, int selected) { return false; }
-	virtual	bool		DrawEntityStructure		(bool inCurrent, IGISEntity * entity, GUI_GraphState * g, bool selected, bool locked) { return false; }
+    // These draw specific entities.  Use these to draw pieces of the data model.  Only visible entities will be passed
+    // in!
+    virtual bool DrawEntityVisualization(bool inCurrent, IGISEntity* entity, GUI_GraphState* g, int selected)
+    {
+        return false;
+    }
+    virtual bool DrawEntityStructure(bool inCurrent, IGISEntity* entity, GUI_GraphState* g, bool selected, bool locked)
+    {
+        return false;
+    }
 
-			bool		IsVisible(void) const;
-			void		SetVisible(bool visibility);
-	virtual	void		ToggleVisible(void);
-			void		SetFilter(const MapFilter_t * hide_filter_ptr, const MapFilter_t * lock_filter_ptr); // client MUST retain storage!!!
+    bool IsVisible(void) const;
+    void SetVisible(bool visibility);
+    virtual void ToggleVisible(void);
+    void SetFilter(const MapFilter_t* hide_filter_ptr,
+                   const MapFilter_t* lock_filter_ptr); // client MUST retain storage!!!
 
-	// Extra iterations over the entity hiearchy get very expensive.  This routine returns whether a layer wants
-	// per-entity drawing passes for either structure or visualization.  We can also say whether we need "seleted" to be
-	// calculated accurately - checking selection slows down the sped of drawing passes.
-	// Finally, "wants_clicks" tells if we want to interact with the mouse.  Tool derivatives do NOT need to std::set this -
-	// it is assumed that ALL tools get clicks.  But by asking for clicks, layers can jump in and grab the mouse too.
-	virtual	void		GetCaps(bool& draw_ent_v, bool& draw_ent_s, bool& cares_about_sel, bool& wants_clicks)=0;
+    // Extra iterations over the entity hiearchy get very expensive.  This routine returns whether a layer wants
+    // per-entity drawing passes for either structure or visualization.  We can also say whether we need "seleted" to be
+    // calculated accurately - checking selection slows down the sped of drawing passes.
+    // Finally, "wants_clicks" tells if we want to interact with the mouse.  Tool derivatives do NOT need to std::set
+    // this - it is assumed that ALL tools get clicks.  But by asking for clicks, layers can jump in and grab the mouse
+    // too.
+    virtual void GetCaps(bool& draw_ent_v, bool& draw_ent_s, bool& cares_about_sel, bool& wants_clicks) = 0;
 
-			bool				IsVisibleNow(IGISEntity * ent) const;
-			bool				IsVisibleNow(WED_Entity* ent) const;
+    bool IsVisibleNow(IGISEntity* ent) const;
+    bool IsVisibleNow(WED_Entity* ent) const;
 
 protected:
+    inline WED_MapZoomerNew* GetZoomer(void) const
+    {
+        return mZoomer;
+    }
+    inline IResolver* GetResolver(void) const
+    {
+        return mResolver;
+    }
+    inline GUI_Pane* GetHost(void) const
+    {
+        return mHost;
+    }
 
-	inline	WED_MapZoomerNew *	GetZoomer(void) const { return mZoomer; }
-	inline	IResolver *			GetResolver(void) const { return mResolver; }
-	inline	GUI_Pane *			GetHost(void) const { return mHost; }
-	
-			bool				IsLockedNow(IGISEntity * ent) const;
-			bool				IsLockedNow(WED_Entity* ent) const;
-			bool				IsLocked(WED_Entity* ent) const;
+    bool IsLockedNow(IGISEntity* ent) const;
+    bool IsLockedNow(WED_Entity* ent) const;
+    bool IsLocked(WED_Entity* ent) const;
 
-	// WED defines two types of icons: furniture icons for all the stuff in an airport (VASI/PAPI, signs, windsocks) and airport
-	// icons for the iconic representation of an entire airport at far view.  In both cases we have two vars:
-	//
-	// The scale is how many pixels per meter the icon is rendered at.  Thus the icons have 'physical' size.
-	// The icon radius is the current size of the icon in pixels at the current zoom - it is based on measuring one canonical icon
-	// resource to know its size.  Note that this means that all icons in a family (airports, furnitures) must be close to the same size
-	// for click testing to work.
-			double				GetFurnitureIconScale(void) const;
-			double				GetFurnitureIconRadius(void) const;
-			double				GetAirportIconScale(void) const;
-			double				GetAirportIconRadius(void) const;
-	inline	int					GetAirportTransWidth(void) const { return mAirportTransWidth; }
+    // WED defines two types of icons: furniture icons for all the stuff in an airport (VASI/PAPI, signs, windsocks) and
+    // airport icons for the iconic representation of an entire airport at far view.  In both cases we have two vars:
+    //
+    // The scale is how many pixels per meter the icon is rendered at.  Thus the icons have 'physical' size.
+    // The icon radius is the current size of the icon in pixels at the current zoom - it is based on measuring one
+    // canonical icon resource to know its size.  Note that this means that all icons in a family (airports, furnitures)
+    // must be close to the same size for click testing to work.
+    double GetFurnitureIconScale(void) const;
+    double GetFurnitureIconRadius(void) const;
+    double GetAirportIconScale(void) const;
+    double GetAirportIconRadius(void) const;
+    inline int GetAirportTransWidth(void) const
+    {
+        return mAirportTransWidth;
+    }
 
 private:
+    friend class WED_Map; // for visible-now filter accessors
 
-	friend		class	WED_Map;		// for visible-now filter accessors
+    WED_MapLayer();
 
-						 WED_MapLayer();
+    bool mVisible;
 
-	bool					mVisible;
+    WED_MapZoomerNew* mZoomer;
+    IResolver* mResolver;
+    GUI_Pane* mHost;
 
-	WED_MapZoomerNew *		mZoomer;
-	IResolver *				mResolver;
-	GUI_Pane *				mHost;
+    double mAirportRadius;
+    double mFurnitureRadius;
+    double mAirportFactor;
+    double mFurnitureFactor;
 
-	double					mAirportRadius;
-	double					mFurnitureRadius;
-	double					mAirportFactor;
-	double					mFurnitureFactor;
+    int mAirportTransWidth;
 
-	int						mAirportTransWidth;
-	
-	const MapFilter_t *		mHideFilter;
-	const MapFilter_t *		mLockFilter;
-
+    const MapFilter_t* mHideFilter;
+    const MapFilter_t* mLockFilter;
 };
-
 
 #endif /* WED_MAPLAYER_H */

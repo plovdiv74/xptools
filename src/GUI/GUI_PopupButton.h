@@ -29,28 +29,26 @@
 #include <vector>
 #include <string>
 
-using std::vector;
 using std::string;
+using std::vector;
 
-class	GUI_PopupButton : public GUI_Control {
+class GUI_PopupButton : public GUI_Control
+{
 public:
+    GUI_PopupButton();
+    virtual ~GUI_PopupButton();
 
-						 GUI_PopupButton();
-	virtual				~GUI_PopupButton();
+    virtual void SetDescriptor(const std::string& inDesc);
+    virtual void Draw(GUI_GraphState* state);
 
-	virtual	void		SetDescriptor(const std::string& inDesc);
-	virtual	void		Draw(GUI_GraphState * state);
+    virtual int MouseDown(int x, int y, int button);
+    virtual void MouseDrag(int x, int y, int button);
+    virtual void MouseUp(int x, int y, int button);
 
-	virtual	int			MouseDown(int x, int y, int button);
-	virtual	void		MouseDrag(int x, int y, int button);
-	virtual	void		MouseUp  (int x, int y, int button);
-
-	virtual	void		SetValue(float inValue);
+    virtual void SetValue(float inValue);
 
 private:
-
-		std::vector<std::string>		mItems;
-
+    std::vector<std::string> mItems;
 };
 
 #endif

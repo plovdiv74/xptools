@@ -28,213 +28,125 @@
 #include "GUI_Listener.h"
 #include "GUI_SimpleTableGeometry.h"
 
-class	ISelectable;
-class	ISelection;
-class	IResolver;
-class	WED_Thing;
-class	WED_Archive;
-class	WED_Select;
-class   GUI_Commander;
+class ISelectable;
+class ISelection;
+class IResolver;
+class WED_Thing;
+class WED_Archive;
+class WED_Select;
+class GUI_Commander;
 
-class	WED_PropertyTable : public GUI_TextTableProvider, public GUI_SimpleTableGeometry, public GUI_Listener,
-        public GUI_TextTableHeaderProvider, public GUI_Broadcaster, public GUI_Commander {
+class WED_PropertyTable : public GUI_TextTableProvider,
+                          public GUI_SimpleTableGeometry,
+                          public GUI_Listener,
+                          public GUI_TextTableHeaderProvider,
+                          public GUI_Broadcaster,
+                          public GUI_Commander
+{
 
 public:
+    WED_PropertyTable(GUI_Commander* cmdr, IResolver* resolver, const char** col_names, int* def_col_widths,
+                      int vertical, int dynamic_cols, int sel_only, const char** filter);
 
-					 WED_PropertyTable(
-									GUI_Commander *         cmdr,
-									IResolver *				resolver,
-									const char **			col_names,
-									int *					def_col_widths,
-									int						vertical,
-									int						dynamic_cols,
-									int						sel_only,
-									const char **			filter
-);
+    virtual ~WED_PropertyTable();
 
-	virtual			~WED_PropertyTable();
+    virtual void GetCellContent(int cell_x, int cell_y, GUI_CellContent& the_content);
+    virtual void GetEnumDictionary(int cell_x, int cell_y, GUI_EnumDictionary& out_dictionary);
+    virtual void AcceptEdit(int cell_x, int cell_y, const GUI_CellContent& the_content, int apply_all);
+    virtual void ToggleDisclose(int cell_x, int cell_y);
 
-	virtual    void	GetCellContent(
-						int							cell_x,
-						int							cell_y,
-						GUI_CellContent&			the_content);
-	virtual	void	GetEnumDictionary(
-						int							cell_x,
-						int							cell_y,
-						GUI_EnumDictionary&			out_dictionary);
-	virtual	void	AcceptEdit(
-						int							cell_x,
-						int							cell_y,
-						const GUI_CellContent&		the_content,
-						int							apply_all);
-	virtual	void	ToggleDisclose(
-						int							cell_x,
-						int							cell_y);
+    virtual void DoDeleteCell(int cell_x, int cell_y);
 
-	virtual void	DoDeleteCell(
-						int							cell_x,
-						int							cell_y);
+    virtual void DoDrag(GUI_Pane* drag_emitter, int mouse_x, int mouse_y, int button, int bounds[4]);
+    virtual void SelectionStart(int clear);
+    virtual int SelectGetExtent(int& low_x, int& low_y, int& high_x, int& high_y);
+    virtual int SelectGetLimits(int& low_x, int& low_y, int& high_x, int& high_y);
+    virtual void SelectRange(int start_x, int start_y, int end_x, int end_y, int is_toggle);
+    virtual void SelectionEnd(void);
+    virtual int SelectDisclose(int open_it, int all);
 
-	virtual	void	DoDrag(
-						GUI_Pane *					drag_emitter,
-						int							mouse_x,
-						int							mouse_y,
-						int							button,
-						int							bounds[4]);
-	virtual void	SelectionStart(
-						int							clear);
-	virtual	int		SelectGetExtent(
-						int&						low_x,
-						int&						low_y,
-						int&						high_x,
-						int&						high_y);
-	virtual	int		SelectGetLimits(
-						int&						low_x,
-						int&						low_y,
-						int&						high_x,
-						int&						high_y);
-	virtual	void	SelectRange(
-						int							start_x,
-						int							start_y,
-						int							end_x,
-						int							end_y,
-						int							is_toggle);
-	virtual	void	SelectionEnd(void);
-	virtual	int		SelectDisclose(
-						int							open_it,
-						int							all);
+    virtual int TabAdvance(int& io_x, int& io_y, int reverse, GUI_CellContent& the_content);
+    virtual int DoubleClickCell(int cell_x, int cell_y);
 
-	virtual	int		TabAdvance(
-						int&						io_x,
-						int&						io_y,
-						int							reverse,
-						GUI_CellContent&			the_content);
-	virtual	int		DoubleClickCell(
-						int							cell_x,
-						int							cell_y);
+    virtual void GetLegalDropOperations(int& allow_between_col, int& allow_between_row, int& allow_into_cell);
+    virtual GUI_DragOperation CanDropIntoCell(int cell_x, int cell_y, GUI_DragData* drag, GUI_DragOperation allowed,
+                                              GUI_DragOperation recommended, int& whole_col, int& whole_row);
+    virtual GUI_DragOperation CanDropBetweenColumns(int cell_x, GUI_DragData* drag, GUI_DragOperation allowed,
+                                                    GUI_DragOperation recommended);
+    virtual GUI_DragOperation CanDropBetweenRows(int cell_y, GUI_DragData* drag, GUI_DragOperation allowed,
+                                                 GUI_DragOperation recommended);
 
-	virtual	void					GetLegalDropOperations(
-											int&						allow_between_col,
-											int&						allow_between_row,
-											int&						allow_into_cell);
-	virtual	GUI_DragOperation		CanDropIntoCell(
-											int							cell_x,
-											int							cell_y,
-											GUI_DragData *				drag,
-											GUI_DragOperation			allowed,
-											GUI_DragOperation			recommended,
-											int&						whole_col,
-											int&						whole_row);
-	virtual	GUI_DragOperation		CanDropBetweenColumns(
-											int							cell_x,
-											GUI_DragData *				drag,
-											GUI_DragOperation			allowed,
-											GUI_DragOperation			recommended);
-	virtual	GUI_DragOperation		CanDropBetweenRows(
-											int							cell_y,
-											GUI_DragData *				drag,
-											GUI_DragOperation			allowed,
-											GUI_DragOperation			recommended);
+    virtual GUI_DragOperation DoDropIntoCell(int cell_x, int cell_y, GUI_DragData* drag, GUI_DragOperation allowed,
+                                             GUI_DragOperation recommended);
+    virtual GUI_DragOperation DoDropBetweenColumns(int cell_x, GUI_DragData* drag, GUI_DragOperation allowed,
+                                                   GUI_DragOperation recommended);
+    virtual GUI_DragOperation DoDropBetweenRows(int cell_y, GUI_DragData* drag, GUI_DragOperation allowed,
+                                                GUI_DragOperation recommended);
 
+    virtual int GetColCount(void);
+    virtual int GetRowCount(void);
+    virtual int ColForX(int n);
 
-	virtual	GUI_DragOperation		DoDropIntoCell(
-											int							cell_x,
-											int							cell_y,
-											GUI_DragData *				drag,
-											GUI_DragOperation			allowed,
-											GUI_DragOperation			recommended);
-	virtual	GUI_DragOperation		DoDropBetweenColumns(
-											int							cell_x,
-											GUI_DragData *				drag,
-											GUI_DragOperation			allowed,
-											GUI_DragOperation			recommended);
-	virtual	GUI_DragOperation		DoDropBetweenRows(
-											int							cell_y,
-											GUI_DragData *				drag,
-											GUI_DragOperation			allowed,
-											GUI_DragOperation			recommended);
+    virtual void GetHeaderContent(int cell_x, GUI_HeaderContent& the_content);
 
+    virtual void SelectHeaderCell(int cell_x)
+    {
+    }
 
-	virtual	int		GetColCount(void);
-	virtual	int		GetRowCount(void);
-	virtual	int		ColForX(int n);
+    virtual void ReceiveMessage(GUI_Broadcaster* inSrc, intptr_t inMsg, intptr_t inParam);
 
-	virtual void	GetHeaderContent(
-						int							cell_x,
-						GUI_HeaderContent&			the_content);
+    virtual void SetClosed(const std::set<int>& closed_list);
+    virtual void GetClosed(std::set<int>& closed_list);
 
-	virtual	void	SelectHeaderCell(
-						int							cell_x) { }
-
-	virtual	void	ReceiveMessage(
-							GUI_Broadcaster *		inSrc,
-							intptr_t				inMsg,
-							intptr_t				inParam);
-
-	virtual	void    SetClosed(const std::set<int>& closed_list);
-	virtual	void    GetClosed(		std::set<int>& closed_list);
-
-	void	SetFilter(const std::string& filter);
+    void SetFilter(const std::string& filter);
 
 private:
+    void RebuildCache(void);
+    void RebuildCacheRecursive(WED_Thing* e, ISelection* sel, std::set<WED_Thing*>* sel_and_friends);
+    WED_Thing* FetchNth(int row);
+    int GetThingDepth(WED_Thing* d);
 
-			void			RebuildCache(void);
-			void			RebuildCacheRecursive(WED_Thing * e, ISelection * sel, std::set<WED_Thing *> * sel_and_friends);
-			WED_Thing *		FetchNth(int row);
-			int				GetThingDepth(WED_Thing * d);
+    bool GetOpen(int id);
+    void ToggleOpen(int id);
+    void SetOpen(int id, int open);
+    void GetFilterStatus(WED_Thing* what, ISelection* sel, int& visible, int& recurse_children, int& can_disclose,
+                         int& is_disclose);
 
-			bool			GetOpen(int id);
-			void			ToggleOpen(int id);
-			void			SetOpen(int id, int open);
-			void			GetFilterStatus(WED_Thing * what, ISelection * sel,
-									int&	visible,
-									int&	recurse_children,
-									int&	can_disclose,
-									int&	is_disclose);
+    void RecalculateColumns(void);
 
-			void			RecalculateColumns(void);
+    void Resort();
 
-			void	Resort();
+    std::vector<WED_Thing*> mThingCache;
+    std::vector<WED_Thing*> mSortedCache;
 
-	std::vector<WED_Thing *>			mThingCache;
-	std::vector<WED_Thing *>			mSortedCache;
+    std::string mSearchFilter;
 
-	std::string						mSearchFilter;
+    bool mCacheValid;
 
-	bool						mCacheValid;
+    std::vector<std::string> mColNames;
 
-	std::vector<std::string>				mColNames;
+    IResolver* mResolver;
 
-	IResolver *					mResolver;
+    std::hash_map<int, int> mOpen;
 
-	std::hash_map<int,int>			mOpen;
+    int mVertical;
+    int mDynamicCols;
+    int mSelOnly;
+    std::set<std::string> mFilter;
 
-	int							mVertical;
-	int							mDynamicCols;
-	int							mSelOnly;
-	std::set<std::string>					mFilter;
-
-	std::vector<ISelectable *>		mSelSave;
-
+    std::vector<ISelectable*> mSelSave;
 };
-
 
 //----------------------------------------------------------------------------------------------------------------
 
-class	WED_PropertyTableHeader : public GUI_TextTableHeaderProvider {
+class WED_PropertyTableHeader : public GUI_TextTableHeaderProvider
+{
 public:
-
-					 WED_PropertyTableHeader(
-									const char **			col_names,
-									int *					def_col_widths);
-	virtual			~WED_PropertyTableHeader();
-
+    WED_PropertyTableHeader(const char** col_names, int* def_col_widths);
+    virtual ~WED_PropertyTableHeader();
 
 private:
-
-	std::vector<std::string>				mColNames;
-
+    std::vector<std::string> mColNames;
 };
-
 
 #endif /* WED_PROPERTYTABLE_H */

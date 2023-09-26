@@ -29,10 +29,10 @@
 DEFINE_PERSISTENT(WED_LightFixture)
 TRIVIAL_COPY(WED_LightFixture, WED_GISPoint_Heading)
 
-
-WED_LightFixture::WED_LightFixture(WED_Archive * a, int i) : WED_GISPoint_Heading(a, i),
-	light_type(this,PROP_Name("Type", XML_Name("light_fixture","type")), Light_Fixt, light_VASI),
-	angle     (this,PROP_Name("Angle",XML_Name("light_fixture","angle")),3.0,4,2)
+WED_LightFixture::WED_LightFixture(WED_Archive* a, int i)
+    : WED_GISPoint_Heading(a, i),
+      light_type(this, PROP_Name("Type", XML_Name("light_fixture", "type")), Light_Fixt, light_VASI),
+      angle(this, PROP_Name("Angle", XML_Name("light_fixture", "angle")), 3.0, 4, 2)
 {
 }
 
@@ -40,39 +40,41 @@ WED_LightFixture::~WED_LightFixture()
 {
 }
 
-void	WED_LightFixture::SetLightType(int x)
+void WED_LightFixture::SetLightType(int x)
 {
-	light_type = x;
+    light_type = x;
 }
 
-void	WED_LightFixture::SetAngle(double x)
+void WED_LightFixture::SetAngle(double x)
 {
-	angle = x;
+    angle = x;
 }
 
-void	WED_LightFixture::Import(const AptLight_t& x, void (* print_func)(void *, const char *, ...), void * ref)
+void WED_LightFixture::Import(const AptLight_t& x, void (*print_func)(void*, const char*, ...), void* ref)
 {
-	SetLocation(gis_Geo,x.location);
-	SetHeading(x.heading <= 180.0 ? x.heading + 180.0 : x.heading - 180.0);
-	angle = x.angle;
-	light_type = ENUM_Import(Light_Fixt, x.light_code);
-	if (light_type == -1)
-	{
-		print_func(ref,"Error importing light fixture: light type code %d is illegal (not a member of type %s).\n", x.light_code, DOMAIN_Desc(light_type.domain));
-		light_type = light_VASI;
-	}
+    SetLocation(gis_Geo, x.location);
+    SetHeading(x.heading <= 180.0 ? x.heading + 180.0 : x.heading - 180.0);
+    angle = x.angle;
+    light_type = ENUM_Import(Light_Fixt, x.light_code);
+    if (light_type == -1)
+    {
+        print_func(ref, "Error importing light fixture: light type code %d is illegal (not a member of type %s).\n",
+                   x.light_code, DOMAIN_Desc(light_type.domain));
+        light_type = light_VASI;
+    }
 
-	SetName(x.name);
+    SetName(x.name);
 }
 
-void	WED_LightFixture::Export(		 AptLight_t& x) const
+void WED_LightFixture::Export(AptLight_t& x) const
 {
-	GetLocation(gis_Geo,x.location);
-	x.heading = GetHeading();
-	x.heading += 180.0;
-	if (x.heading > 360.0) x.heading -= 360.0;
+    GetLocation(gis_Geo, x.location);
+    x.heading = GetHeading();
+    x.heading += 180.0;
+    if (x.heading > 360.0)
+        x.heading -= 360.0;
 
-	x.angle = angle;
-	x.light_code = ENUM_Export(light_type.value);
-	GetName(x.name);
+    x.angle = angle;
+    x.light_code = ENUM_Export(light_type.value);
+    GetName(x.name);
 }

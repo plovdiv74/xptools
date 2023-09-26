@@ -32,34 +32,32 @@
 #include <FL/Fl.H>
 #endif
 
-class	GUI_Timer
+class GUI_Timer
 {
-	public:
+public:
+    GUI_Timer(void);
+    virtual ~GUI_Timer(void);
 
-							 GUI_Timer(void);
-		virtual				~GUI_Timer(void);
+    void Start(float seconds);
+    void Stop(void);
 
-				void		Start(float seconds);
-				void		Stop(void);
+    virtual void TimerFired(void) = 0;
 
-		virtual	void		TimerFired(void)=0;
+private:
+#if APL
 
-	private:
+    CFRunLoopTimerRef mTimer;
 
-	#if APL
+    static void TimerCB(CFRunLoopTimerRef timer, void* data);
 
-		CFRunLoopTimerRef					mTimer;
+#elif IBM
+    static void CALLBACK TimerCB(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
+    UINT_PTR mID;
 
-		static void				TimerCB(CFRunLoopTimerRef timer, void * data);
-
-	#elif IBM
-		static void CALLBACK	TimerCB(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
-		UINT_PTR	mID;
-
-	#elif LIN
-	public:
-        static void timeout_cb(void *args);
-		double mTimer;
-	#endif
+#elif LIN
+public:
+    static void timeout_cb(void* args);
+    double mTimer;
+#endif
 };
 #endif

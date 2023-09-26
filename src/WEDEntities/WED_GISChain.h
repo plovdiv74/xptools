@@ -27,55 +27,52 @@
 #include "WED_Entity.h"
 #include "IGIS.h"
 
-class	WED_GISChain : public WED_Entity, public virtual IGISPointSequence, public virtual IGISComposite {
+class WED_GISChain : public WED_Entity, public virtual IGISPointSequence, public virtual IGISComposite
+{
 
-DECLARE_INTERMEDIATE(WED_GISChain)
+    DECLARE_INTERMEDIATE(WED_GISChain)
 
 public:
+    // IGISEntity
+    virtual GISClass_t GetGISClass(void) const;
+    virtual const char* GetGISSubtype(void) const;
+    virtual bool HasLayer(GISLayer_t l) const;
+    virtual void GetBounds(GISLayer_t l, Bbox2& bounds) const;
+    virtual bool IntersectsBox(GISLayer_t l, const Bbox2& bounds) const;
+    virtual bool WithinBox(GISLayer_t l, const Bbox2& bounds) const;
+    virtual bool PtWithin(GISLayer_t l, const Point2& p) const;
+    virtual bool PtOnFrame(GISLayer_t l, const Point2& p, double d) const;
+    virtual bool Cull(const Bbox2& bounds) const;
+    virtual void Rescale(GISLayer_t l, const Bbox2& old_bounds, const Bbox2& new_bounds);
+    virtual void Rotate(GISLayer_t l, const Point2& center, double angle);
+    // IGISPointSequence
+    virtual int GetNumPoints(void) const;
+    //	virtual	void				DeletePoint (int n)		 ;
+    virtual IGISPoint* SplitSide(const Point2& p, double dist);
+    virtual IGISPoint* GetNthPoint(int n) const;
 
-	// IGISEntity
-	virtual	GISClass_t		GetGISClass		(void				 ) const;
-	virtual	const char *	GetGISSubtype	(void				 ) const;
-	virtual	bool			HasLayer		(GISLayer_t l		 ) const;
-	virtual	void			GetBounds		(GISLayer_t l,	    Bbox2&  bounds) const;
-	virtual	bool			IntersectsBox	(GISLayer_t l,const Bbox2&  bounds) const;
-	virtual	bool			WithinBox		(GISLayer_t l,const Bbox2&  bounds) const;
-	virtual bool			PtWithin		(GISLayer_t l,const Point2& p	 ) const;
-	virtual bool			PtOnFrame		(GISLayer_t l,const Point2& p, double d) const;
-	virtual bool			Cull			(const Bbox2& bounds) const;
-	virtual	void			Rescale			(GISLayer_t l,const Bbox2& old_bounds,const Bbox2& new_bounds);
-	virtual	void			Rotate			(GISLayer_t l,const Point2& center, double angle);
-	// IGISPointSequence
-	virtual	int					GetNumPoints(void ) const;
-//	virtual	void				DeletePoint (int n)		 ;
-	virtual		  IGISPoint *	SplitSide   (const Point2& p, double dist);
-	virtual		  IGISPoint *	GetNthPoint (int n) const;
+    virtual int GetNumSides(void) const;
+    virtual bool GetSide(GISLayer_t l, int n, Bezier2& b) const; // true for bezier
 
-	virtual	int					GetNumSides(void) const;
-	virtual	bool				GetSide  (GISLayer_t l,int n, Bezier2& b) const;	// true for bezier
+    //	virtual	bool				IsClosed(void) const;
+    virtual void Reverse(GISLayer_t l);
+    virtual void Shuffle(GISLayer_t l);
 
-//	virtual	bool				IsClosed(void) const;
-	virtual			void		Reverse(GISLayer_t l);
-	virtual			void		Shuffle(GISLayer_t l);
-
-	// IGISComposite
-	virtual	int				GetNumEntities(void ) const;
-	virtual	IGISEntity *	GetNthEntity  (int n) const;
+    // IGISComposite
+    virtual int GetNumEntities(void) const;
+    virtual IGISEntity* GetNthEntity(int n) const;
 
 protected:
-
-	virtual	bool			IsJustPoints(void) const=0;
+    virtual bool IsJustPoints(void) const = 0;
 
 private:
+    void RebuildCache(int flags) const;
 
-			void				RebuildCache(int flags) const;
-
-	mutable	Bbox2						mCacheBounds;
-	mutable	Bbox2						mCacheBoundsUV;
-	mutable bool						mHasUV;
-	mutable	std::vector<IGISPoint *>			mCachePts;
-	mutable	std::vector<IGISPoint_Bezier *>	mCachePtsBezier;
-
+    mutable Bbox2 mCacheBounds;
+    mutable Bbox2 mCacheBoundsUV;
+    mutable bool mHasUV;
+    mutable std::vector<IGISPoint*> mCachePts;
+    mutable std::vector<IGISPoint_Bezier*> mCachePtsBezier;
 };
 
 #endif /* WED_GISCHAIN_H */

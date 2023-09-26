@@ -28,190 +28,193 @@
 #include "GUI_DrawUtils.h"
 #include "GUI_Resources.h"
 
-#define		TAB_PADDING	5
+#define TAB_PADDING 5
 #if APL
-	#include <OpenGL/gl.h>
+#include <OpenGL/gl.h>
 #else
-	#include <GL/gl.h>
+#include <GL/gl.h>
 #endif
 
 GUI_TabControl::GUI_TabControl()
 {
-	mTextColor[0] = mTextColor[1] = mTextColor[2] = 0.0;
-	mTextColor[3] =									1.0;
+    mTextColor[0] = mTextColor[1] = mTextColor[2] = 0.0;
+    mTextColor[3] = 1.0;
 }
 
 GUI_TabControl::~GUI_TabControl()
 {
 }
 
-void		GUI_TabControl::SetTextColor(float color[4])
+void GUI_TabControl::SetTextColor(float color[4])
 {
-	mTextColor[0] = color[0];
-	mTextColor[1] = color[1];
-	mTextColor[2] = color[2];
-	mTextColor[3] = color[3];
+    mTextColor[0] = color[0];
+    mTextColor[1] = color[1];
+    mTextColor[2] = color[2];
+    mTextColor[3] = color[3];
 }
 
-int		GUI_TabControl::GetNaturalHeight(void)
+int GUI_TabControl::GetNaturalHeight(void)
 {
-	return 2 * GUI_GetLineHeight(font_UI_Basic) + 2 * TAB_PADDING;
+    return 2 * GUI_GetLineHeight(font_UI_Basic) + 2 * TAB_PADDING;
 }
 
-void		GUI_TabControl::SetDescriptor(const std::string& inDesc)
+void GUI_TabControl::SetDescriptor(const std::string& inDesc)
 {
-	GUI_Control::SetDescriptor(inDesc);
+    GUI_Control::SetDescriptor(inDesc);
 
-	mItems.clear();
+    mItems.clear();
 
-	std::string::const_iterator b, e;
-	b = inDesc.begin();
-	while (b != inDesc.end())
-	{
-		e = b;
-		while (e != inDesc.end() && *e != '\n') ++e;
-		mItems.push_back(std::string(b,e));
-		if (e != inDesc.end()) ++e;
-		b = e;
-	}
+    std::string::const_iterator b, e;
+    b = inDesc.begin();
+    while (b != inDesc.end())
+    {
+        e = b;
+        while (e != inDesc.end() && *e != '\n')
+            ++e;
+        mItems.push_back(std::string(b, e));
+        if (e != inDesc.end())
+            ++e;
+        b = e;
+    }
 
-	mWidths.resize(mItems.size());
-	for (int n = 0; n < mItems.size(); ++n)
-	{
-		// create 2-line header if there is a '+' in it
-		auto pos = mItems[n].find('+');
-		if(pos > 0 && pos < mItems[n].length())
-		{
-			int w1 = GUI_MeasureRange(font_UI_Basic, mItems[n].c_str(), mItems[n].c_str() + pos);
-			int w2 = GUI_MeasureRange(font_UI_Basic, mItems[n].c_str() + pos + 1,&* mItems[n].end() );
-			mWidths[n] = max(w1, w2)  + TAB_PADDING * 2;
-		}
-		else
-			mWidths[n] = GUI_MeasureRange(font_UI_Basic, &*mItems[n].begin(), &*mItems[n].end()) + TAB_PADDING * 2;
-	}
+    mWidths.resize(mItems.size());
+    for (int n = 0; n < mItems.size(); ++n)
+    {
+        // create 2-line header if there is a '+' in it
+        auto pos = mItems[n].find('+');
+        if (pos > 0 && pos < mItems[n].length())
+        {
+            int w1 = GUI_MeasureRange(font_UI_Basic, mItems[n].c_str(), mItems[n].c_str() + pos);
+            int w2 = GUI_MeasureRange(font_UI_Basic, mItems[n].c_str() + pos + 1, &*mItems[n].end());
+            mWidths[n] = max(w1, w2) + TAB_PADDING * 2;
+        }
+        else
+            mWidths[n] = GUI_MeasureRange(font_UI_Basic, &*mItems[n].begin(), &*mItems[n].end()) + TAB_PADDING * 2;
+    }
 
-	SetMax(mItems.size());
-	if (GetValue() > GetMax()) SetValue(GetMax());
-	Refresh();
+    SetMax(mItems.size());
+    if (GetValue() > GetMax())
+        SetValue(GetMax());
+    Refresh();
 }
 
-void		GUI_TabControl::Draw(GUI_GraphState * state)
+void GUI_TabControl::Draw(GUI_GraphState* state)
 {
-	int	bounds[4];
-	GetBounds(bounds);
-	int tile_line[4] = { 0, 0, 1, 3 };
-	glColor3f(1,1,1);
-	GUI_DrawStretched(state,"tabs.png",bounds,tile_line);
+    int bounds[4];
+    GetBounds(bounds);
+    int tile_line[4] = {0, 0, 1, 3};
+    glColor3f(1, 1, 1);
+    GUI_DrawStretched(state, "tabs.png", bounds, tile_line);
 
-	int rs = bounds[2];
+    int rs = bounds[2];
 
-	int n;
-	for (n = 0; n < mItems.size(); ++n)
-	{
-		int tile_tab[4] = { 0, (n == GetValue()) ? 2 : 1, 1, 3 };
-		bounds[2] = bounds[0] + mWidths[n];
-		GUI_DrawStretched(state,"tabs.png",bounds,tile_tab);
-		bounds[0] = bounds[2];
-	}
+    int n;
+    for (n = 0; n < mItems.size(); ++n)
+    {
+        int tile_tab[4] = {0, (n == GetValue()) ? 2 : 1, 1, 3};
+        bounds[2] = bounds[0] + mWidths[n];
+        GUI_DrawStretched(state, "tabs.png", bounds, tile_tab);
+        bounds[0] = bounds[2];
+    }
 
-	if (bounds[0] < rs)
-	{
-		bounds[2] = max(rs,bounds[0]+40);
-		int tile_tab[4] = { 0, 1, 1, 3 };
-		GUI_DrawStretched(state,"tabs.png",bounds,tile_tab);
-	}
+    if (bounds[0] < rs)
+    {
+        bounds[2] = max(rs, bounds[0] + 40);
+        int tile_tab[4] = {0, 1, 1, 3};
+        GUI_DrawStretched(state, "tabs.png", bounds, tile_tab);
+    }
 
-	GetBounds(bounds);
-	for (n = 0; n < mItems.size(); ++n)
-	{
-//		GUI_FontDraw(state, font_UI_Basic, (n == mTrackBtn && mHilite) ? ch : c, (bounds[0] + TAB_PADDING), bounds[1] + TAB_BASELINE, mItems[n].c_str());
+    GetBounds(bounds);
+    for (n = 0; n < mItems.size(); ++n)
+    {
+        //		GUI_FontDraw(state, font_UI_Basic, (n == mTrackBtn && mHilite) ? ch : c, (bounds[0] + TAB_PADDING),
+        // bounds[1] + TAB_BASELINE, mItems[n].c_str());
 
-		float x = bounds[0] + TAB_PADDING;
-		float h = GUI_GetLineHeight(font_UI_Basic);
-		float y = (bounds[1] + bounds[3]) * 0.5 - h * 0.4;
-		
-		auto pos = mItems[n].find('+');
-		if(pos > 0 && pos < mItems[n].length())
-		{
-			
-			y += 0.5 * h;
-			GUI_FontDrawScaled(state, font_UI_Basic, mTextColor, x, y, 0, y+h, mItems[n].c_str(), mItems[n].c_str() + pos, align_Left);
-			y -= h;
-			GUI_FontDrawScaled(state, font_UI_Basic, mTextColor, x, y, 0, y+h, mItems[n].c_str() + pos + 1, &*mItems[n].end(), align_Left);
-		}
-		else
-			GUI_FontDraw(state, font_UI_Basic, mTextColor, x, y, mItems[n].c_str());
+        float x = bounds[0] + TAB_PADDING;
+        float h = GUI_GetLineHeight(font_UI_Basic);
+        float y = (bounds[1] + bounds[3]) * 0.5 - h * 0.4;
 
-		bounds[0] += mWidths[n];
-	}
+        auto pos = mItems[n].find('+');
+        if (pos > 0 && pos < mItems[n].length())
+        {
 
+            y += 0.5 * h;
+            GUI_FontDrawScaled(state, font_UI_Basic, mTextColor, x, y, 0, y + h, mItems[n].c_str(),
+                               mItems[n].c_str() + pos, align_Left);
+            y -= h;
+            GUI_FontDrawScaled(state, font_UI_Basic, mTextColor, x, y, 0, y + h, mItems[n].c_str() + pos + 1,
+                               &*mItems[n].end(), align_Left);
+        }
+        else
+            GUI_FontDraw(state, font_UI_Basic, mTextColor, x, y, mItems[n].c_str());
+
+        bounds[0] += mWidths[n];
+    }
 }
 
-int			GUI_TabControl::MouseDown(int x, int y, int button)
+int GUI_TabControl::MouseDown(int x, int y, int button)
 {
-	int bounds[4];
-	GetBounds(bounds);
-	mTrackBtn = -1;
-	for (int n = 0; n < mWidths.size(); ++n)
-	{
-		bounds[2] = bounds[0] + mWidths[n];
-		if (x > bounds[0] &&
-			x < bounds[2])
-		{
-			mTrackBtn = n;
-			mHilite = 1;
-			Refresh();
-			return 1;
-		}
-		bounds[0] = bounds[2];
-	}
-	return 0;
+    int bounds[4];
+    GetBounds(bounds);
+    mTrackBtn = -1;
+    for (int n = 0; n < mWidths.size(); ++n)
+    {
+        bounds[2] = bounds[0] + mWidths[n];
+        if (x > bounds[0] && x < bounds[2])
+        {
+            mTrackBtn = n;
+            mHilite = 1;
+            Refresh();
+            return 1;
+        }
+        bounds[0] = bounds[2];
+    }
+    return 0;
 }
 
-void		GUI_TabControl::MouseDrag(int x, int y, int button)
+void GUI_TabControl::MouseDrag(int x, int y, int button)
 {
-	if (mTrackBtn == -1) return;
+    if (mTrackBtn == -1)
+        return;
 
-	int bounds[4];
-	GetBounds(bounds);
-	for (int n = 0; n < mTrackBtn; ++n)
-		bounds[0] += mWidths[n];
+    int bounds[4];
+    GetBounds(bounds);
+    for (int n = 0; n < mTrackBtn; ++n)
+        bounds[0] += mWidths[n];
 
-	bounds[2] = bounds[0] + mWidths[mTrackBtn];
+    bounds[2] = bounds[0] + mWidths[mTrackBtn];
 
-	int is_in = (x > bounds[0] && x < bounds[2] &&
-			  y > bounds[1] && y < bounds[3]);
-	if (is_in != mHilite)
-	{
-		mHilite = is_in;
-		Refresh();
-	}
+    int is_in = (x > bounds[0] && x < bounds[2] && y > bounds[1] && y < bounds[3]);
+    if (is_in != mHilite)
+    {
+        mHilite = is_in;
+        Refresh();
+    }
 }
 
-void		GUI_TabControl::MouseUp  (int x, int y, int button)
+void GUI_TabControl::MouseUp(int x, int y, int button)
 {
-	if (mTrackBtn == -1) return;
+    if (mTrackBtn == -1)
+        return;
 
-	int bounds[4];
-	GetBounds(bounds);
-	for (int n = 0; n < mTrackBtn; ++n)
-		bounds[0] += mWidths[n];
+    int bounds[4];
+    GetBounds(bounds);
+    for (int n = 0; n < mTrackBtn; ++n)
+        bounds[0] += mWidths[n];
 
-	bounds[2] = bounds[0] + mWidths[mTrackBtn];
+    bounds[2] = bounds[0] + mWidths[mTrackBtn];
 
-	int is_in = (x > bounds[0] && x < bounds[2] &&
-			  y > bounds[1] && y < bounds[3]);
-	if (is_in)
-	{
-		SetValue(mTrackBtn);
-	}
-	mTrackBtn = -1;
-	mHilite = 0;
+    int is_in = (x > bounds[0] && x < bounds[2] && y > bounds[1] && y < bounds[3]);
+    if (is_in)
+    {
+        SetValue(mTrackBtn);
+    }
+    mTrackBtn = -1;
+    mHilite = 0;
 }
 
-void		GUI_TabControl::SetValue(float inValue)
+void GUI_TabControl::SetValue(float inValue)
 {
-	GUI_Control::SetValue(inValue);
-	Refresh();
+    GUI_Control::SetValue(inValue);
+    Refresh();
 }
-

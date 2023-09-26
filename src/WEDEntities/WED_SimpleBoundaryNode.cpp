@@ -24,9 +24,9 @@
 #include "WED_SimpleBoundaryNode.h"
 
 DEFINE_PERSISTENT(WED_SimpleBoundaryNode)
-TRIVIAL_COPY(WED_SimpleBoundaryNode,WED_GISPoint)
+TRIVIAL_COPY(WED_SimpleBoundaryNode, WED_GISPoint)
 
-WED_SimpleBoundaryNode::WED_SimpleBoundaryNode(WED_Archive * a, int i) : WED_GISPoint(a,i)
+WED_SimpleBoundaryNode::WED_SimpleBoundaryNode(WED_Archive* a, int i) : WED_GISPoint(a, i)
 {
 }
 

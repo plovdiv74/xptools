@@ -28,57 +28,63 @@
 #include "WED_GISPolygon.h"
 
 /*
-	WED_DrapedOrthophoto - THEORY OF OPERATION
+    WED_DrapedOrthophoto - THEORY OF OPERATION
 
-	WED_DrapedOrthophoto is just a simple polygon - it represents the polygon component of a draped ortho photo which is essentially:
+    WED_DrapedOrthophoto is just a simple polygon - it represents the polygon component of a draped ortho photo which is
+   essentially:
 
-		WED_DrapedOrthoPhoto (is a polygon)			this defines its area
-			WED_Ring (is a chain)							this is the outer contour
-				WED_TextureBezierNode (is a bezier point)				these define the coordinates of the polygon boundary and map textures
-				WED_TextureBezierNode (is a bezier point)				these define the coordinates of the polygon boundary and map textures
-			WED_Ring (is a chain)							this is the optional first hole
-				WED_TextureBezierNode (is a bezier point)				these define the coordinates of the polygon boundary and map textures
-				WED_TextureBezierNode (is a bezier point)				these define the coordinates of the polygon boundary and map textures
+        WED_DrapedOrthoPhoto (is a polygon)			this defines its area
+            WED_Ring (is a chain)							this is the outer contour
+                WED_TextureBezierNode (is a bezier point)				these define the coordinates of the polygon
+   boundary and map textures WED_TextureBezierNode (is a bezier point)				these define the coordinates of the
+   polygon boundary and map textures WED_Ring (is a chain)							this is the optional first hole
+                WED_TextureBezierNode (is a bezier point)				these define the coordinates of the polygon
+   boundary and map textures WED_TextureBezierNode (is a bezier point)				these define the coordinates of the
+   polygon boundary and map textures
 
 */
 
-class	WED_DrapedOrthophoto : public WED_GISPolygon, public IHasResource {
+class WED_DrapedOrthophoto : public WED_GISPolygon, public IHasResource
+{
 
-DECLARE_PERSISTENT(WED_DrapedOrthophoto)
+    DECLARE_PERSISTENT(WED_DrapedOrthophoto)
 
 public:
-			double		GetHeading(void) const;
-			void		SetHeading(double h);
+    double GetHeading(void) const;
+    void SetHeading(double h);
 
-		virtual void	GetResource(	  std::string& r) const;
-		virtual void	SetResource(const std::string& r);
-			//Checks if the draped orthophoto being used is the old .pol system or the new .someimagetype
-			//True if new, false if old, optional way to get the suffix
-			bool		IsNew( std::string* out_string=NULL);
-	virtual const char *HumanReadableType(void) const { return "Draped Orthophoto"; }
-	
-			// Re-calculate UV mapping to stretch out texture over full extend of polygon
-			void 		Redrape(bool updProp = 1);
-			void		GetSubTexture(Bbox2& b);
-			void		SetSubTexture(const Bbox2& b);
+    virtual void GetResource(std::string& r) const;
+    virtual void SetResource(const std::string& r);
+    // Checks if the draped orthophoto being used is the old .pol system or the new .someimagetype
+    // True if new, false if old, optional way to get the suffix
+    bool IsNew(std::string* out_string = NULL);
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Draped Orthophoto";
+    }
 
-		virtual void	PropEditCallback(int before);
+    // Re-calculate UV mapping to stretch out texture over full extend of polygon
+    void Redrape(bool updProp = 1);
+    void GetSubTexture(Bbox2& b);
+    void SetSubTexture(const Bbox2& b);
+
+    virtual void PropEditCallback(int before);
 
 protected:
-
-	virtual	bool		IsInteriorFilled(void) const { return true; }
+    virtual bool IsInteriorFilled(void) const
+    {
+        return true;
+    }
 
 private:
+    WED_PropDoubleText heading;
+    WED_PropStringText resource;
 
-	WED_PropDoubleText        heading;
-	WED_PropStringText        resource;
-
-	// This specifies the part of a texture to be used for textureing.
-	WED_PropDoubleText        top;
-	WED_PropDoubleText        bottom;
-	WED_PropDoubleText        left;
-	WED_PropDoubleText        right;
-
+    // This specifies the part of a texture to be used for textureing.
+    WED_PropDoubleText top;
+    WED_PropDoubleText bottom;
+    WED_PropDoubleText left;
+    WED_PropDoubleText right;
 };
 
 #endif /* WED_DrapedOrthophoto_H */

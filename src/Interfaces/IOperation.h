@@ -26,27 +26,25 @@
 
 /*
 
-	IOPERATION - THEORY OF OPERATION
+    IOPERATION - THEORY OF OPERATION
 
-	IOperation provides an interface to start and end "operations" on a series of objects.
+    IOperation provides an interface to start and end "operations" on a series of objects.
 
-	(NOTE: this interface is still a bit of a hack, since operations are implemented archive-wide but
-	provided per-object. hrm.)
+    (NOTE: this interface is still a bit of a hack, since operations are implemented archive-wide but
+    provided per-object. hrm.)
 
 */
 
 #include "IBase.h"
 
-#define StartOperation(x) __StartOperation(x,__FILE__,__LINE__)
+#define StartOperation(x) __StartOperation(x, __FILE__, __LINE__)
 
-class	IOperation : public virtual IBase {
+class IOperation : public virtual IBase
+{
 public:
-
-	virtual	void		__StartOperation(const char * op_name, const char * inFile, int inLine)=0;
-	virtual	void		CommitOperation(void)=0;
-	virtual	void		AbortOperation(void)=0;
-
+    virtual void __StartOperation(const char* op_name, const char* inFile, int inLine) = 0;
+    virtual void CommitOperation(void) = 0;
+    virtual void AbortOperation(void) = 0;
 };
-
 
 #endif

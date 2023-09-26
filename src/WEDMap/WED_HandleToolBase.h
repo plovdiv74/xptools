@@ -28,114 +28,114 @@
 #include "CompGeomDefs2.h"
 #include "GUI_Commander.h"
 
-class	GUI_Pane;
-class	WED_MapZoomerNew;
-class	IControlHandles;
-class	ISelectable;
-class	IResolver;
-class	IGISEntity;
+class GUI_Pane;
+class WED_MapZoomerNew;
+class IControlHandles;
+class ISelectable;
+class IResolver;
+class IGISEntity;
 
-
-
-class	WED_HandleToolBase : public WED_MapToolNew, GUI_Commander_Notifiable {
+class WED_HandleToolBase : public WED_MapToolNew, GUI_Commander_Notifiable
+{
 public:
+    WED_HandleToolBase(const char* tool_name, GUI_Pane* host, WED_MapZoomerNew* zoomer, IResolver* resolver);
 
-						 WED_HandleToolBase(
-										const char *			tool_name,
-										GUI_Pane *				host,
-										WED_MapZoomerNew *		zoomer,
-										IResolver *				resolver);
+    virtual ~WED_HandleToolBase();
 
-	virtual				~WED_HandleToolBase();
+    // WED_MapToolNew
+    virtual int HandleClickDown(int inX, int inY, int inButton, GUI_KeyFlags modifiers);
+    virtual void HandleClickDrag(int inX, int inY, int inButton, GUI_KeyFlags modifiers);
+    virtual void HandleClickUp(int inX, int inY, int inButton, GUI_KeyFlags modifiers);
+    virtual int HandleToolKeyPress(char inKey, int inVK, GUI_KeyFlags inFlags);
+    virtual void KillOperation(bool mouse_is_down);
+    virtual bool WantSticky()
+    {
+        return true;
+    } // requireing drag-Move to exceed a few pixelsbefore commencing
 
-	// WED_MapToolNew
-	virtual	int			HandleClickDown			(int inX, int inY, int inButton, GUI_KeyFlags modifiers);
-	virtual	void		HandleClickDrag			(int inX, int inY, int inButton, GUI_KeyFlags modifiers);
-	virtual	void		HandleClickUp			(int inX, int inY, int inButton, GUI_KeyFlags modifiers);
-	virtual	int			HandleToolKeyPress(char inKey, int inVK, GUI_KeyFlags inFlags);
-	virtual	void		KillOperation(bool mouse_is_down);
-	virtual bool 		WantSticky() { return true; }             // requireing drag-Move to exceed a few pixelsbefore commencing
+    // GUI_Commander_Notifiable
+    virtual void PreCommandNotification(GUI_Commander* focus_target, int command);
 
-
-	// GUI_Commander_Notifiable
-	virtual	void		PreCommandNotification(GUI_Commander * focus_target, int command);
-
-	// WED_Layer
-	virtual	void		DrawStructure			(bool inCurrent, GUI_GraphState * g);
-	virtual	void		GetCaps(bool& draw_ent_v, bool& draw_ent_s, bool& cares_about_sel, bool& wants_clicks);
+    // WED_Layer
+    virtual void DrawStructure(bool inCurrent, GUI_GraphState* g);
+    virtual void GetCaps(bool& draw_ent_v, bool& draw_ent_s, bool& cares_about_sel, bool& wants_clicks);
 
 protected:
+    // When iterating composite GIS structure, how do we handle an entity?
+    enum EntityHandling_t
+    {
+        ent_Skip,             // Skip it, don't look at kids.
+        ent_Atomic,           // Take or leave it as a whole.
+        ent_Container,        // Iterate over kids.
+        ent_AtomicOrContainer // Try whole obj.  If it fails, try kids.
+    };
 
-	// When iterating composite GIS structure, how do we handle an entity?
-	enum EntityHandling_t {
-		ent_Skip,					// Skip it, don't look at kids.
-		ent_Atomic,					// Take or leave it as a whole.
-		ent_Container,				// Iterate over kids.
-		ent_AtomicOrContainer		// Try whole obj.  If it fails, try kids.
-	};
+    // Template method for subclass
+    virtual int CreationDown(const Point2& start_pt)
+    {
+        return 0;
+    }
+    virtual void CreationDrag(const Point2& start_pt, const Point2& now_pt)
+    {
+    }
+    virtual void CreationUp(const Point2& start_pt, const Point2& now_pt)
+    {
+    }
 
-	// Template method for subclass
-	virtual	int					CreationDown(const Point2& start_pt) { return 0; }
-	virtual	void				CreationDrag(const Point2& start_pt, const Point2& now_pt) { }
-	virtual	void				CreationUp(const Point2& start_pt, const Point2& now_pt) { }
+    virtual EntityHandling_t TraverseEntity(IGISEntity* ent, int pt_sel)
+    {
+        return ent_Skip;
+    }
 
-	virtual	EntityHandling_t	TraverseEntity(IGISEntity * ent, int pt_sel)  { return ent_Skip; }
-
-			void				SetCanSelect(int can_select);							// Normally all tool-base tools can select - but sub-classes can turn this off.
-			void				SetDrawAlways(int can_draw_always);						// Normally no drawing when the tool is not selected...but we can std::set this to draw
-			void				SetControlProvider(IControlHandles * provider);			//		links no matter what.  Used in the TCE because I am lazy.
+    void SetCanSelect(int can_select); // Normally all tool-base tools can select - but sub-classes can turn this off.
+    void SetDrawAlways(
+        int can_draw_always); // Normally no drawing when the tool is not selected...but we can std::set this to draw
+    void SetControlProvider(
+        IControlHandles* provider); //		links no matter what.  Used in the TCE because I am lazy.
 
 private:
+    void ProcessSelection(IGISEntity* entity, Bbox2& bounds, std::set<IGISEntity*>& result);
 
-			void ProcessSelection(
-								IGISEntity *		entity,
-								Bbox2&				bounds,
-								std::set<IGISEntity *>&	result);
-									
-			void ProcessSelectionRecursive(
-								IGISEntity *		entity,
-								const Bbox2&		bounds,
-								int					pt_sel,
-								double				icon_dist_h,
-								double				icon_dist_v,
-								std::set<IGISEntity *>&	result);
+    void ProcessSelectionRecursive(IGISEntity* entity, const Bbox2& bounds, int pt_sel, double icon_dist_h,
+                                   double icon_dist_v, std::set<IGISEntity*>& result);
 
-			void				GetSelTotalBounds(Bbox2 &bounds);
+    void GetSelTotalBounds(Bbox2& bounds);
 
-	enum	DragType_t {
-		drag_None,			// We are not dragging anything
-		drag_Handles,		// Control handles: We are dragging a single control handle
-		drag_Links,			// Control handles: We are dragging a line/link
-		drag_Ent,			// Control handles: We are dragging an entire entity.
-		drag_PreEnt,		// started marquee move, but still sticky
-		drag_Sel,			// We are selecting things
-		drag_Move,			// we are moving the selection
-		drag_PreMove,		// we have not yet dragged far enough to make the 'move' actually start
-		drag_Create
-	};
+    enum DragType_t
+    {
+        drag_None,    // We are not dragging anything
+        drag_Handles, // Control handles: We are dragging a single control handle
+        drag_Links,   // Control handles: We are dragging a line/link
+        drag_Ent,     // Control handles: We are dragging an entire entity.
+        drag_PreEnt,  // started marquee move, but still sticky
+        drag_Sel,     // We are selecting things
+        drag_Move,    // we are moving the selection
+        drag_PreMove, // we have not yet dragged far enough to make the 'move' actually start
+        drag_Create
+    };
 
-		IControlHandles *		mHandles;
-		int						mCanSelect;
-		int						mDrawAlways;
+    IControlHandles* mHandles;
+    int mCanSelect;
+    int mDrawAlways;
 
-		std::vector<ISelectable *>	mSelSave;
-		int						mSelToggle;
+    std::vector<ISelectable*> mSelSave;
+    int mSelToggle;
 
-		// Variables for drag tracking
-		DragType_t				mDragType;
-		int						mDragX;	            // pixel coordinates where the drag started
-		int						mDragY;
-		int						mSelX;
-		int						mSelY;
+    // Variables for drag tracking
+    DragType_t mDragType;
+    int mDragX; // pixel coordinates where the drag started
+    int mDragY;
+    int mSelX;
+    int mSelY;
 
-		intptr_t				mHandleEntity;		// Which entity do we drag
-		int						mHandleIndex;
-		Point2					mTrackPoint;        // geo coordinates where the drag started
+    intptr_t mHandleEntity; // Which entity do we drag
+    int mHandleIndex;
+    Point2 mTrackPoint; // geo coordinates where the drag started
 
-		std::vector<IGISEntity *>	mSelManip;
+    std::vector<IGISEntity*> mSelManip;
 
-		std::vector<short> rotateHeadXY;
-		std::vector<float> rotateHeadDirXY;
+    std::vector<short> rotateHeadXY;
+    std::vector<float> rotateHeadDirXY;
 };
 
 #endif /* WED_HANDLETOOLBASE_H */

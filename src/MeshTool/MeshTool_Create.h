@@ -26,58 +26,48 @@
 
 #include "XESConstants.h"
 
-struct	DEMGeo;
+struct DEMGeo;
 
-typedef	void (* MT_Error_f)(const char * fmt,va_list args);
+typedef void (*MT_Error_f)(const char* fmt, va_list args);
 
-void MT_StartCreate(const char * xes_path, const DEMGeo& in_dem, MT_Error_f err_handler);
+void MT_StartCreate(const char* xes_path, const DEMGeo& in_dem, MT_Error_f err_handler);
 void MT_FinishCreate(void);
-void MT_MakeDSF(rf_region region, const char * dump_dir, const char * file_name);
+void MT_MakeDSF(rf_region region, const char* dump_dir, const char* file_name);
 void MT_Cleanup(void);
 
-int MT_CreateCustomTerrain(
-					const char * terrain_name,
-					double		 proj_lon[4],
-					double		 proj_lat[4],
-					double		 proj_s[4],
-					double		 proj_t[4],
-					int			 back_with_water);
+int MT_CreateCustomTerrain(const char* terrain_name, double proj_lon[4], double proj_lat[4], double proj_s[4],
+                           double proj_t[4], int back_with_water);
 
 void MT_LimitZ(int limit);
 
 void MT_LayerStart(int in_terrain_type);
 void MT_LayerEnd(void);
-void MT_LayerShapefile(const char * fi, const char * in_terrain_type);
-void MT_LayerBackground(const char * in_terrain_type);
+void MT_LayerShapefile(const char* fi, const char* in_terrain_type);
+void MT_LayerBackground(const char* in_terrain_type);
 
 void MT_PolygonStart(void);
 void MT_PolygonPoint(double lon, double lat);
-bool MT_PolygonEnd(void);						// Returns false if z-limit rejected the polygon.
+bool MT_PolygonEnd(void); // Returns false if z-limit rejected the polygon.
 
 void MT_HoleStart(void);
 void MT_HolePoint(double lon, double lat);
 void MT_HoleEnd(void);
 
-void MT_NetStart(const char * road_type);
+void MT_NetStart(const char* road_type);
 void MT_NetSegment(double lon1, double lat1, double lon2, double lat2);
 void MT_NetEnd(void);
 
 void MT_EnableDDSGeneration(int create);
 void MT_SetMeshSpecs(int max_pts, float max_err);
 
-void MT_Mask(const char * shapefile);	// or NULL
-void MT_Contour(const char * shapefile);
+void MT_Mask(const char* shapefile); // or NULL
+void MT_Contour(const char* shapefile);
 
-void MT_OrthoPhoto(
-					const char * terrain_name,
-					double		 proj_lon[4],
-					double		 proj_lat[4],
-					double		 proj_s[4],
-					double		 proj_t[4],
-					int			 back_with_water);
+void MT_OrthoPhoto(const char* terrain_name, double proj_lon[4], double proj_lat[4], double proj_s[4], double proj_t[4],
+                   int back_with_water);
 
-void MT_GeoTiff(const char * fname, int back_with_water);
-void MT_QMID(const char * id, int back_with_water);
-void MT_QMID_Prefix(const char * prefix);
+void MT_GeoTiff(const char* fname, int back_with_water);
+void MT_QMID(const char* id, int back_with_water);
+void MT_QMID_Prefix(const char* prefix);
 
 #endif /* MeshTool_Create_H */

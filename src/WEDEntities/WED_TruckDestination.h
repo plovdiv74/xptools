@@ -11,28 +11,27 @@
 
 #include "WED_GISPoint_Heading.h"
 
-struct	AptTruckDestination_t;
+struct AptTruckDestination_t;
 
-class	WED_TruckDestination : public WED_GISPoint_Heading {
+class WED_TruckDestination : public WED_GISPoint_Heading
+{
 
-DECLARE_PERSISTENT(WED_TruckDestination)
+    DECLARE_PERSISTENT(WED_TruckDestination)
 
 public:
+    void SetTruckTypes(const std::set<int>& truckTypes);
+    void GetTruckTypes(std::set<int>& truckTypes) const;
 
-	void	SetTruckTypes(const std::set<int>& truckTypes);
-	void	GetTruckTypes(std::set<int>& truckTypes) const;
+    void Import(const AptTruckDestination_t& x, void (*print_func)(void*, const char*, ...), void* ref);
+    void Export(AptTruckDestination_t& x) const;
 
-	void	Import(const AptTruckDestination_t& x, void (* print_func)(void *, const char *, ...), void * ref);
-	void	Export(		 AptTruckDestination_t& x) const;
-
-	virtual const char *	HumanReadableType(void) const { return "Truck Destination"; }
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Truck Destination";
+    }
 
 private:
-
-	WED_PropIntEnumSet			truck_types;
-
+    WED_PropIntEnumSet truck_types;
 };
-
-
 
 #endif /* WED_TruckDestination_h */

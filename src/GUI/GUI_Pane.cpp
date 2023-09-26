@@ -24,15 +24,15 @@
 #include "GUI_Pane.h"
 #include "GUI_Clipboard.h"
 #if APL
-	#include "ObjCUtils.h"
+#include "ObjCUtils.h"
 #elif IBM
-	#include <Windows.h>
+#include <Windows.h>
 #endif
 
 #if APL
-	#include <OpenGL/gl.h>
+#include <OpenGL/gl.h>
 #else
-	#include <GL/gl.h>
+#include <GL/gl.h>
 #endif
 
 #include <time.h>
@@ -44,83 +44,83 @@ using std::find;
 #include <FL/Fl.H>
 #endif
 
-
-
 GUI_KeyFlags GUI_Pane::GetModifiersNow(void)
 {
 #if APL
 
-	GUI_KeyFlags	flags = 0;
+    GUI_KeyFlags flags = 0;
 
-	if (has_shiftkey())
-		flags |= gui_ShiftFlag;
-	if (has_controlkey())
-		flags |= gui_ControlFlag;
-	if (has_optionkey())
-		flags |= gui_OptionAltFlag;
-	return flags;
+    if (has_shiftkey())
+        flags |= gui_ShiftFlag;
+    if (has_controlkey())
+        flags |= gui_ControlFlag;
+    if (has_optionkey())
+        flags |= gui_OptionAltFlag;
+    return flags;
 #elif IBM
-	// http://blogs.msdn.com/oldnewthing/archive/2004/11/30/272262.aspx
-	GUI_KeyFlags	flags = 0;
+    // http://blogs.msdn.com/oldnewthing/archive/2004/11/30/272262.aspx
+    GUI_KeyFlags flags = 0;
 
-	if (::GetKeyState(VK_SHIFT) & ~1)
-		flags |= gui_ShiftFlag;
-	if (::GetKeyState(VK_CONTROL) & ~1)
-		flags |= gui_ControlFlag;
-	if (::GetKeyState(VK_MENU) & ~1)
-		flags |= gui_OptionAltFlag;
-	return flags;
+    if (::GetKeyState(VK_SHIFT) & ~1)
+        flags |= gui_ShiftFlag;
+    if (::GetKeyState(VK_CONTROL) & ~1)
+        flags |= gui_ControlFlag;
+    if (::GetKeyState(VK_MENU) & ~1)
+        flags |= gui_OptionAltFlag;
+    return flags;
 #else
-	GUI_KeyFlags	flags = 0;
-	int modstate = Fl::event_state();
+    GUI_KeyFlags flags = 0;
+    int modstate = Fl::event_state();
 
-	if (modstate & (FL_ALT | FL_META))
-		flags |= gui_OptionAltFlag;
-	if (modstate & FL_SHIFT)
-		flags |= gui_ShiftFlag;
-	if (modstate & FL_CTRL)
-		flags |= gui_ControlFlag;
+    if (modstate & (FL_ALT | FL_META))
+        flags |= gui_OptionAltFlag;
+    if (modstate & FL_SHIFT)
+        flags |= gui_ShiftFlag;
+    if (modstate & FL_CTRL)
+        flags |= gui_ControlFlag;
 
-	return flags;
+    return flags;
 #endif
 }
 
-void		GUI_Pane::GetMouseLocNow(int * out_x, int * out_y)
+void GUI_Pane::GetMouseLocNow(int* out_x, int* out_y)
 {
-	if (mParent) mParent->GetMouseLocNow(out_x,out_y);
+    if (mParent)
+        mParent->GetMouseLocNow(out_x, out_y);
 }
 
-float		GUI_Pane::GetTimeNow(void)
+float GUI_Pane::GetTimeNow(void)
 {
 #if LIN
     struct timespec now;
     clock_gettime(CLOCK_MONOTONIC, &now);
     return (float)(now.tv_sec) + (float)(now.tv_nsec / 1000000000.0);
 #else
-	return (float) clock() / (float) CLOCKS_PER_SEC;
+    return (float)clock() / (float)CLOCKS_PER_SEC;
 #endif
 }
 
-bool		GUI_Pane::IsKeyPressedNow(int virtualKey)
+bool GUI_Pane::IsKeyPressedNow(int virtualKey)
 {
-	if (mParent)
-		return mParent->IsKeyPressedNow(virtualKey);
-	else
-		return false;
+    if (mParent)
+        return mParent->IsKeyPressedNow(virtualKey);
+    else
+        return false;
 }
 
-void		GUI_Pane::TrapFocus(void)
+void GUI_Pane::TrapFocus(void)
 {
-	GUI_Pane * root = this;
-	while (root->GetParent()) root = root->GetParent();
-	root->mTrap.insert(this);
+    GUI_Pane* root = this;
+    while (root->GetParent())
+        root = root->GetParent();
+    root->mTrap.insert(this);
 }
 
 /* Only in debug mode
-* printf the info you want
-* if there are children call the print f on each
-* if there are no more children back up the stack
-*/
+ * printf the info you want
+ * if there are children call the print f on each
+ * if there are no more children back up the stack
+ */
 
 #if DEV
 #if LIN
@@ -128,404 +128,403 @@ void		GUI_Pane::TrapFocus(void)
 #endif
 void GUI_Pane::PrintDebugInfo(int indentLevel)
 {
-	//Creates a temporary std::string
-	std::string temp;
-	//gets the descriptor
-	GetDescriptor(temp);
-	//If it has a name
-	if(temp != "")
-	{
-		//Add a space to it
-		temp += " ";
-	}
-	//Make the name be the type
-	temp += typeid(*this).name();
-	//Get temporary bounds
-	int tempBounds[4];
-	GetBounds(tempBounds);
+    // Creates a temporary std::string
+    std::string temp;
+    // gets the descriptor
+    GetDescriptor(temp);
+    // If it has a name
+    if (temp != "")
+    {
+        // Add a space to it
+        temp += " ";
+    }
+    // Make the name be the type
+    temp += typeid(*this).name();
+    // Get temporary bounds
+    int tempBounds[4];
+    GetBounds(tempBounds);
 
-	//Get temporary visible bounds
-	int tempVisBounds[4];
-	GetVisibleBounds(tempVisBounds);
+    // Get temporary visible bounds
+    int tempVisBounds[4];
+    GetVisibleBounds(tempVisBounds);
 
-	float tempSticky[4];
-	GetSticky(tempSticky);
+    float tempSticky[4];
+    GetSticky(tempSticky);
 
-	//Prints goes to the indent level
-	printf("%*s %s",indentLevel,"","*Info:");
-	//Prints the information, goes down one line
-	printf("%s \n",temp.data());
-		printf("%*s *Bounds(L,B,R,T): %d %d %d %d\n",indentLevel+1,"", tempBounds[0], tempBounds[1], tempBounds[2], tempBounds[3]);
-		printf("%*s *Visible Bounds(L,B,R,T): %d %d %d %d \n",indentLevel+1,"", tempVisBounds[0], tempVisBounds[1], tempVisBounds[2], tempVisBounds[3]);
-		printf("%*s *Sticky(L,B,R,T): %.1f %.1f %.1f %.1f \n", indentLevel+1,"", tempSticky[0],tempSticky[1],tempSticky[2],tempSticky[3]);
+    // Prints goes to the indent level
+    printf("%*s %s", indentLevel, "", "*Info:");
+    // Prints the information, goes down one line
+    printf("%s \n", temp.data());
+    printf("%*s *Bounds(L,B,R,T): %d %d %d %d\n", indentLevel + 1, "", tempBounds[0], tempBounds[1], tempBounds[2],
+           tempBounds[3]);
+    printf("%*s *Visible Bounds(L,B,R,T): %d %d %d %d \n", indentLevel + 1, "", tempVisBounds[0], tempVisBounds[1],
+           tempVisBounds[2], tempVisBounds[3]);
+    printf("%*s *Sticky(L,B,R,T): %.1f %.1f %.1f %.1f \n", indentLevel + 1, "", tempSticky[0], tempSticky[1],
+           tempSticky[2], tempSticky[3]);
 
-		//The recursive part
-		//If this pane has children
-		if(mChildren.size() != 0)
-		{
-			//For every child
-			for (int i = 0; i < mChildren.size(); i++)
-			{
-				mChildren[i]->PrintDebugInfo(indentLevel+3);
-			}
-		}
-		else
-		{
-			return;
-		}
+    // The recursive part
+    // If this pane has children
+    if (mChildren.size() != 0)
+    {
+        // For every child
+        for (int i = 0; i < mChildren.size(); i++)
+        {
+            mChildren[i]->PrintDebugInfo(indentLevel + 3);
+        }
+    }
+    else
+    {
+        return;
+    }
 }
 
-
-void GUI_Pane::FPrintDebugInfo(FILE * pFile, int indentLevel)
+void GUI_Pane::FPrintDebugInfo(FILE* pFile, int indentLevel)
 {
-	//Creates a temporary std::string
-	std::string temp;
-	//gets the descriptor
-	GetDescriptor(temp);
-	//If it has a name
-	if(temp != "")
-	{
-		//Add a space to it
-		temp += " ";
-	}
-	//Make the name be the type
-	temp += typeid(*this).name();
-	//Get temporary bounds
-	int tempBounds[4];
-	GetBounds(tempBounds);
+    // Creates a temporary std::string
+    std::string temp;
+    // gets the descriptor
+    GetDescriptor(temp);
+    // If it has a name
+    if (temp != "")
+    {
+        // Add a space to it
+        temp += " ";
+    }
+    // Make the name be the type
+    temp += typeid(*this).name();
+    // Get temporary bounds
+    int tempBounds[4];
+    GetBounds(tempBounds);
 
-	//Get temporary visible bounds
-	int tempVisBounds[4];
-	GetVisibleBounds(tempVisBounds);
+    // Get temporary visible bounds
+    int tempVisBounds[4];
+    GetVisibleBounds(tempVisBounds);
 
-	float tempSticky[4];
-	GetSticky(tempSticky);
+    float tempSticky[4];
+    GetSticky(tempSticky);
 
-	//Prints goes to the indent level
-	fprintf(pFile,"%*s %s",indentLevel,"","*Info:");
-	//Prints the information, goes down one line
-	fprintf(pFile,"%s \n",temp.data());
-		fprintf(pFile,"%*s *Bounds(L,B,R,T): %d %d %d %d\n",indentLevel+1,"", tempBounds[0], tempBounds[1], tempBounds[2], tempBounds[3]);
-		fprintf(pFile,"%*s *Visible Bounds(L,B,R,T): %d %d %d %d \n",indentLevel+1,"", tempVisBounds[0], tempVisBounds[1], tempVisBounds[2], tempVisBounds[3]);
-		fprintf(pFile,"%*s *Sticky(L,B,R,T): %.1f %.1f %.1f %.1f \n", indentLevel+1,"", tempSticky[0],tempSticky[1],tempSticky[2],tempSticky[3]);
+    // Prints goes to the indent level
+    fprintf(pFile, "%*s %s", indentLevel, "", "*Info:");
+    // Prints the information, goes down one line
+    fprintf(pFile, "%s \n", temp.data());
+    fprintf(pFile, "%*s *Bounds(L,B,R,T): %d %d %d %d\n", indentLevel + 1, "", tempBounds[0], tempBounds[1],
+            tempBounds[2], tempBounds[3]);
+    fprintf(pFile, "%*s *Visible Bounds(L,B,R,T): %d %d %d %d \n", indentLevel + 1, "", tempVisBounds[0],
+            tempVisBounds[1], tempVisBounds[2], tempVisBounds[3]);
+    fprintf(pFile, "%*s *Sticky(L,B,R,T): %.1f %.1f %.1f %.1f \n", indentLevel + 1, "", tempSticky[0], tempSticky[1],
+            tempSticky[2], tempSticky[3]);
 
-		//The recursive part
-		//If this pane has children
-		if(mChildren.size() != 0)
-		{
-			//For every child
-			for (int i = 0; i < mChildren.size(); i++)
-			{
-				mChildren[i]->FPrintDebugInfo(pFile,indentLevel+3);
-			}
-		}
-		else
-		{
-			return;
-		}
-
+    // The recursive part
+    // If this pane has children
+    if (mChildren.size() != 0)
+    {
+        // For every child
+        for (int i = 0; i < mChildren.size(); i++)
+        {
+            mChildren[i]->FPrintDebugInfo(pFile, indentLevel + 3);
+        }
+    }
+    else
+    {
+        return;
+    }
 }
 
 void GUI_Pane::DrawWireFrame(int realBounds[4], bool prinf)
 {
-	if (prinf==true)
-	{
+    if (prinf == true)
+    {
 #if LIN
-		printf("Name=%s left=%d bottom=%d right=%d top=%d \n",
+        printf("Name=%s left=%d bottom=%d right=%d top=%d \n",
 #else
-		printf("Name=%s left=%d bottom=%d right=%d top=%d \n",
+        printf("Name=%s left=%d bottom=%d right=%d top=%d \n",
 #endif
-			typeid(*this).name(),
-			realBounds[0],
-			realBounds[1],
-			realBounds[2],
-			realBounds[3]);
-	}
-	glLineWidth(4);
-	glColor3f(1,0,0);
-	glBegin(GL_LINE_LOOP);
-		glVertex2f(realBounds[0],realBounds[1]);
-		glVertex2f(realBounds[2],realBounds[1]);
-		glVertex2f(realBounds[2],realBounds[3]);
-		glVertex2f(realBounds[0],realBounds[3]);
-	glEnd();
+               typeid(*this).name(), realBounds[0], realBounds[1], realBounds[2], realBounds[3]);
+    }
+    glLineWidth(4);
+    glColor3f(1, 0, 0);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(realBounds[0], realBounds[1]);
+    glVertex2f(realBounds[2], realBounds[1]);
+    glVertex2f(realBounds[2], realBounds[3]);
+    glVertex2f(realBounds[0], realBounds[3]);
+    glEnd();
 }
 #endif
 
-GUI_Pane::GUI_Pane() :
-	mParent(NULL),
-	mID(0),
-	mVisible(false),
-	mEnabled(true)
+GUI_Pane::GUI_Pane() : mParent(NULL), mID(0), mVisible(false), mEnabled(true)
 {
-	mBounds[0] = mBounds[1] = mBounds[2] = mBounds[3] = 0;
-	mSticky[0] = mSticky[1] = mSticky[2] = mSticky[3] = 0;
+    mBounds[0] = mBounds[1] = mBounds[2] = mBounds[3] = 0;
+    mSticky[0] = mSticky[1] = mSticky[2] = mSticky[3] = 0;
 }
 
 GUI_Pane::~GUI_Pane()
 {
-	if (mParent)
-	{
-		std::vector<GUI_Pane *>::iterator self = find(mParent->mChildren.begin(),mParent->mChildren.end(), this);
-		if (self != mParent->mChildren.end())
-			mParent->mChildren.erase(self);
-	}
-	for (std::vector<GUI_Pane *>::iterator p = mChildren.begin(); p != mChildren.end(); ++p)
-	{
-		(*p)->mParent = NULL;	// prevent them from dialing us back!
-		delete *p;
-	}
+    if (mParent)
+    {
+        std::vector<GUI_Pane*>::iterator self = find(mParent->mChildren.begin(), mParent->mChildren.end(), this);
+        if (self != mParent->mChildren.end())
+            mParent->mChildren.erase(self);
+    }
+    for (std::vector<GUI_Pane*>::iterator p = mChildren.begin(); p != mChildren.end(); ++p)
+    {
+        (*p)->mParent = NULL; // prevent them from dialing us back!
+        delete *p;
+    }
 }
 
-int			GUI_Pane::CountChildren(void) const
+int GUI_Pane::CountChildren(void) const
 {
-	return mChildren.size();
+    return mChildren.size();
 }
 
-GUI_Pane *	GUI_Pane::GetNthChild(int n) const
+GUI_Pane* GUI_Pane::GetNthChild(int n) const
 {
-	return mChildren[n];
+    return mChildren[n];
 }
 
-GUI_Pane *	GUI_Pane::GetParent(void) const
+GUI_Pane* GUI_Pane::GetParent(void) const
 {
-	return mParent;
+    return mParent;
 }
 
-void		GUI_Pane::SetParent(GUI_Pane * inParent)
+void GUI_Pane::SetParent(GUI_Pane* inParent)
 {
-	if (mParent != NULL)
-	{
-		std::vector<GUI_Pane *>::iterator me = find(mParent->mChildren.begin(),mParent->mChildren.end(), this);
-		if (me != mParent->mChildren.end())
-			mParent->mChildren.erase(me);
-	}
-	mParent = inParent;
-	if (mParent != NULL)
-		mParent->mChildren.push_back(this);
+    if (mParent != NULL)
+    {
+        std::vector<GUI_Pane*>::iterator me = find(mParent->mChildren.begin(), mParent->mChildren.end(), this);
+        if (me != mParent->mChildren.end())
+            mParent->mChildren.erase(me);
+    }
+    mParent = inParent;
+    if (mParent != NULL)
+        mParent->mChildren.push_back(this);
 }
 
-void		GUI_Pane::GetBounds(int outBounds[4])
+void GUI_Pane::GetBounds(int outBounds[4])
 {
-	outBounds[0] = mBounds[0];
-	outBounds[1] = mBounds[1];
-	outBounds[2] = mBounds[2];
-	outBounds[3] = mBounds[3];
+    outBounds[0] = mBounds[0];
+    outBounds[1] = mBounds[1];
+    outBounds[2] = mBounds[2];
+    outBounds[3] = mBounds[3];
 }
 
-void		GUI_Pane::GetVisibleBounds(int outBounds[4])
+void GUI_Pane::GetVisibleBounds(int outBounds[4])
 {
-	outBounds[0] = mBounds[0];
-	outBounds[1] = mBounds[1];
-	outBounds[2] = mBounds[2];
-	outBounds[3] = mBounds[3];
-	if (mParent != NULL)
-	{
-		int b[4];
-		mParent->GetVisibleBounds(b);
-		outBounds[0] = max(outBounds[0], b[0]);
-		outBounds[1] = max(outBounds[1], b[1]);
-		outBounds[2] = min(outBounds[2], b[2]);
-		outBounds[3] = min(outBounds[3], b[3]);
-	}
+    outBounds[0] = mBounds[0];
+    outBounds[1] = mBounds[1];
+    outBounds[2] = mBounds[2];
+    outBounds[3] = mBounds[3];
+    if (mParent != NULL)
+    {
+        int b[4];
+        mParent->GetVisibleBounds(b);
+        outBounds[0] = max(outBounds[0], b[0]);
+        outBounds[1] = max(outBounds[1], b[1]);
+        outBounds[2] = min(outBounds[2], b[2]);
+        outBounds[3] = min(outBounds[3], b[3]);
+    }
 }
 
-void		GUI_Pane::SetBounds(int x1, int y1, int x2, int y2)
+void GUI_Pane::SetBounds(int x1, int y1, int x2, int y2)
 {
-	int b[4] = { x1, y1, x2, y2 };
-	SetBounds(b);
+    int b[4] = {x1, y1, x2, y2};
+    SetBounds(b);
 }
 
-void		GUI_Pane::SetBounds(int inBounds[4])
+void GUI_Pane::SetBounds(int inBounds[4])
 {
-	int oldBounds[4] = { mBounds[0], mBounds[1], mBounds[2], mBounds[3] };
-	mBounds[0] = inBounds[0];
-	mBounds[1] = inBounds[1];
-	mBounds[2] = inBounds[2];
-	mBounds[3] = inBounds[3];
+    int oldBounds[4] = {mBounds[0], mBounds[1], mBounds[2], mBounds[3]};
+    mBounds[0] = inBounds[0];
+    mBounds[1] = inBounds[1];
+    mBounds[2] = inBounds[2];
+    mBounds[3] = inBounds[3];
 
-	if (oldBounds[0] != mBounds[0] ||
-		oldBounds[1] != mBounds[1] ||
-		oldBounds[2] != mBounds[2] ||
-		oldBounds[3] != mBounds[3])
-	{
-		for (std::vector<GUI_Pane *>::iterator c = mChildren.begin(); c != mChildren.end(); ++c)
-			(*c)->ParentResized(oldBounds, mBounds);
-		Refresh();
-	}
+    if (oldBounds[0] != mBounds[0] || oldBounds[1] != mBounds[1] || oldBounds[2] != mBounds[2] ||
+        oldBounds[3] != mBounds[3])
+    {
+        for (std::vector<GUI_Pane*>::iterator c = mChildren.begin(); c != mChildren.end(); ++c)
+            (*c)->ParentResized(oldBounds, mBounds);
+        Refresh();
+    }
 }
 
-void		GUI_Pane::GetSticky(float outSticky[4])
+void GUI_Pane::GetSticky(float outSticky[4])
 {
-	outSticky[0] = mSticky[0];
-	outSticky[1] = mSticky[1];
-	outSticky[2] = mSticky[2];
-	outSticky[3] = mSticky[3];
+    outSticky[0] = mSticky[0];
+    outSticky[1] = mSticky[1];
+    outSticky[2] = mSticky[2];
+    outSticky[3] = mSticky[3];
 }
 
-void		GUI_Pane::SetSticky(float x1, float y1, float x2, float y2)
+void GUI_Pane::SetSticky(float x1, float y1, float x2, float y2)
 {
-	mSticky[0] = x1;
-	mSticky[1] = y1;
-	mSticky[2] = x2;
-	mSticky[3] = y2;
+    mSticky[0] = x1;
+    mSticky[1] = y1;
+    mSticky[2] = x2;
+    mSticky[3] = y2;
 }
 
-void		GUI_Pane::SetSticky(float inSticky[4])
+void GUI_Pane::SetSticky(float inSticky[4])
 {
-	mSticky[0] = inSticky[0];
-	mSticky[1] = inSticky[1];
-	mSticky[2] = inSticky[2];
-	mSticky[3] = inSticky[3];
+    mSticky[0] = inSticky[0];
+    mSticky[1] = inSticky[1];
+    mSticky[2] = inSticky[2];
+    mSticky[3] = inSticky[3];
 }
 
-void		GUI_Pane::ParentResized(int inOldBounds[4], int inNewBounds[4])
+void GUI_Pane::ParentResized(int inOldBounds[4], int inNewBounds[4])
 {
-	// Basically the rule is: if our sticky bit is std::set, follow our side, otherwise
-	// follow the opposite side.  So both bits means we stretch, but one or the other
-	// means we are tied to that side.  We no-op on NO bits, to just leave us alone...
-	// having a field that follows both opposite walls is not really useful.
+    // Basically the rule is: if our sticky bit is std::set, follow our side, otherwise
+    // follow the opposite side.  So both bits means we stretch, but one or the other
+    // means we are tied to that side.  We no-op on NO bits, to just leave us alone...
+    // having a field that follows both opposite walls is not really useful.
 
-	int new_bounds[4] = { mBounds[0], mBounds[1], mBounds[2], mBounds[3] };
+    int new_bounds[4] = {mBounds[0], mBounds[1], mBounds[2], mBounds[3]};
 
-	int delta[4] = {	inNewBounds[0] - inOldBounds[0],
-						inNewBounds[1] - inOldBounds[1],
-						inNewBounds[2] - inOldBounds[2],
-						inNewBounds[3] - inOldBounds[3] };
+    int delta[4] = {inNewBounds[0] - inOldBounds[0], inNewBounds[1] - inOldBounds[1], inNewBounds[2] - inOldBounds[2],
+                    inNewBounds[3] - inOldBounds[3]};
 
-	new_bounds[0] += (delta[0] * mSticky[0] + delta[2] * (1.0 - mSticky[0]));
-	new_bounds[2] += (delta[2] * mSticky[2] + delta[0] * (1.0 - mSticky[2]));
-	new_bounds[1] += (delta[1] * mSticky[1] + delta[3] * (1.0 - mSticky[1]));
-	new_bounds[3] += (delta[3] * mSticky[3] + delta[1] * (1.0 - mSticky[3]));
+    new_bounds[0] += (delta[0] * mSticky[0] + delta[2] * (1.0 - mSticky[0]));
+    new_bounds[2] += (delta[2] * mSticky[2] + delta[0] * (1.0 - mSticky[2]));
+    new_bounds[1] += (delta[1] * mSticky[1] + delta[3] * (1.0 - mSticky[1]));
+    new_bounds[3] += (delta[3] * mSticky[3] + delta[1] * (1.0 - mSticky[3]));
 
-	SetBounds(new_bounds);
+    SetBounds(new_bounds);
 }
 
-int			GUI_Pane::GetID(void) const
+int GUI_Pane::GetID(void) const
 {
-	return mID;
+    return mID;
 }
 
-void		GUI_Pane::SetID(int id)
+void GUI_Pane::SetID(int id)
 {
-	mID = id;
+    mID = id;
 }
 
-GUI_Pane *	GUI_Pane::FindByID(int id)
+GUI_Pane* GUI_Pane::FindByID(int id)
 {
-	if (id == mID) return this;
-	for (std::vector<GUI_Pane *>::iterator c = mChildren.begin(); c != mChildren.end(); ++c)
-	{
-		GUI_Pane * who = (*c)->FindByID(id);
-		if (who) return who;
-	}
-	return NULL;
+    if (id == mID)
+        return this;
+    for (std::vector<GUI_Pane*>::iterator c = mChildren.begin(); c != mChildren.end(); ++c)
+    {
+        GUI_Pane* who = (*c)->FindByID(id);
+        if (who)
+            return who;
+    }
+    return NULL;
 }
 
-GUI_Pane *	GUI_Pane::FindByPoint(int x, int y)
+GUI_Pane* GUI_Pane::FindByPoint(int x, int y)
 {
-	int bounds[4];
-	if (!IsVisible()) return NULL;
-	GetBounds(bounds);
-	if (x < bounds[0] || x > bounds[2] || y < bounds[1] || y > bounds[3]) return NULL;
+    int bounds[4];
+    if (!IsVisible())
+        return NULL;
+    GetBounds(bounds);
+    if (x < bounds[0] || x > bounds[2] || y < bounds[1] || y > bounds[3])
+        return NULL;
 
-	for (std::vector<GUI_Pane *>::iterator c = mChildren.begin(); c != mChildren.end(); ++c)
-	{
-		GUI_Pane * who = (*c)->FindByPoint(x,y);
-		if (who) return who;
-	}
-	return this;
+    for (std::vector<GUI_Pane*>::iterator c = mChildren.begin(); c != mChildren.end(); ++c)
+    {
+        GUI_Pane* who = (*c)->FindByPoint(x, y);
+        if (who)
+            return who;
+    }
+    return this;
 }
 
-
-void		GUI_Pane::GetDescriptor(std::string& outDesc) const
+void GUI_Pane::GetDescriptor(std::string& outDesc) const
 {
-	outDesc = mDesc;
+    outDesc = mDesc;
 }
 
-void		GUI_Pane::SetDescriptor(const std::string& inDesc)
+void GUI_Pane::SetDescriptor(const std::string& inDesc)
 {
-	mDesc = inDesc;
+    mDesc = inDesc;
 }
 
-bool		GUI_Pane::IsVisible(void) const
+bool GUI_Pane::IsVisible(void) const
 {
-	return mVisible;
+    return mVisible;
 }
 
-bool		GUI_Pane::IsVisibleNow(void) const
+bool GUI_Pane::IsVisibleNow(void) const
 {
-	return mVisible && mParent && mParent->IsVisibleNow();
+    return mVisible && mParent && mParent->IsVisibleNow();
 }
 
-void		GUI_Pane::Show(void)
+void GUI_Pane::Show(void)
 {
-	if (!mVisible)
-	{
-		mVisible = true;
-		if (IsVisibleNow())	Refresh();
-	}
+    if (!mVisible)
+    {
+        mVisible = true;
+        if (IsVisibleNow())
+            Refresh();
+    }
 }
 
-void		GUI_Pane::Hide(void)
+void GUI_Pane::Hide(void)
 {
-	if (mVisible)
-	{
-		if (IsVisibleNow())	Refresh();
-		mVisible = false;
-	}
+    if (mVisible)
+    {
+        if (IsVisibleNow())
+            Refresh();
+        mVisible = false;
+    }
 }
 
-bool		GUI_Pane::IsEnabled(void) const
+bool GUI_Pane::IsEnabled(void) const
 {
-	return mEnabled;
+    return mEnabled;
 }
 
-bool		GUI_Pane::IsEnabledNow(void) const
+bool GUI_Pane::IsEnabledNow(void) const
 {
-	return mEnabled && (mParent == NULL || mParent->IsEnabledNow());
+    return mEnabled && (mParent == NULL || mParent->IsEnabledNow());
 }
 
-void		GUI_Pane::Enable(void)
+void GUI_Pane::Enable(void)
 {
-	if (!mEnabled)
-	{
-		mEnabled = true;
-		if (IsEnabledNow()) Refresh();
-	}
+    if (!mEnabled)
+    {
+        mEnabled = true;
+        if (IsEnabledNow())
+            Refresh();
+    }
 }
 
-void		GUI_Pane::Disable(void)
+void GUI_Pane::Disable(void)
 {
-	if (mEnabled)
-	{
-		if (IsEnabledNow()) Refresh();
-		mEnabled = false;
-	}
+    if (mEnabled)
+    {
+        if (IsEnabledNow())
+            Refresh();
+        mEnabled = false;
+    }
 }
 
-bool		GUI_Pane::IsActiveNow(void) const
+bool GUI_Pane::IsActiveNow(void) const
 {
-	return mParent && mParent->IsActiveNow();
+    return mParent && mParent->IsActiveNow();
 }
 
-
-void		GUI_Pane::Refresh(void)
+void GUI_Pane::Refresh(void)
 {
-	if (mParent != NULL) mParent->Refresh();
+    if (mParent != NULL)
+        mParent->Refresh();
 }
 
-void		GUI_Pane::PopupMenu(GUI_Menu menu, int x, int y, int button)
+void GUI_Pane::PopupMenu(GUI_Menu menu, int x, int y, int button)
 {
-	if (mParent) mParent->PopupMenu(menu, x, y, button);
+    if (mParent)
+        mParent->PopupMenu(menu, x, y, button);
 }
 
-int		GUI_Pane::PopupMenuDynamic(const GUI_MenuItem_t items[], int x, int y, int button, int current)
+int GUI_Pane::PopupMenuDynamic(const GUI_MenuItem_t items[], int x, int y, int button, int current)
 {
-	return (mParent) ? mParent->PopupMenuDynamic(items, x, y, button, current) : -1;
+    return (mParent) ? mParent->PopupMenuDynamic(items, x, y, button, current) : -1;
 }
-
-
 
 /*
 // Ben sez: big gotcha - it's really dangerous to let TakeFocus and LoseFocus call each
@@ -539,25 +538,25 @@ int		GUI_Pane::PopupMenuDynamic(const GUI_MenuItem_t items[], int x, int y, int 
 // if (1) the current focus won't give it up or (2) the widgets are not in a window.
 int			GUI_Pane::TakeFocus(void)
 {
-	// First see if some other widget is focused.
-	GUI_Pane * cur_focus = this->GetFocus();
-	if (cur_focus == this) return 1;	// Quick exit!
+    // First see if some other widget is focused.
+    GUI_Pane * cur_focus = this->GetFocus();
+    if (cur_focus == this) return 1;	// Quick exit!
 
-	if (cur_focus != NULL)
-	{
-		// If so, try to lose focus, but bail if that
-		// pane refuses.
-		if (!cur_focus->AcceptLoseFocus(0))
-			return 0;
-	}
+    if (cur_focus != NULL)
+    {
+        // If so, try to lose focus, but bail if that
+        // pane refuses.
+        if (!cur_focus->AcceptLoseFocus(0))
+            return 0;
+    }
 
-	// Try to std::set the focus variable.  This is
-	// handled by some smart superclass.  If this
-	// barfs, well, we're not focused.
-	if (this->InternalSetFocus(this))
-		return 1;
+    // Try to std::set the focus variable.  This is
+    // handled by some smart superclass.  If this
+    // barfs, well, we're not focused.
+    if (this->InternalSetFocus(this))
+        return 1;
 
-	return 0;
+    return 0;
 }
 
 // LOSE FOCUS: Attempts to get focus off a widget, possibly by force.  Dumps it
@@ -565,227 +564,232 @@ int			GUI_Pane::TakeFocus(void)
 // accept it or (2) we're not rooted.
 int			GUI_Pane::LoseFocus(int inForce)
 {
-	// Okay to lose focus?
-	int okay_to_lose = this->AcceptLoseFocus(inForce);
-	// If we're focusing, then damn straight it is!
-	if (inForce) okay_to_lose = true;
+    // Okay to lose focus?
+    int okay_to_lose = this->AcceptLoseFocus(inForce);
+    // If we're focusing, then damn straight it is!
+    if (inForce) okay_to_lose = true;
 
-	if (okay_to_lose)
-	{
-		// Going to really lose..okay any parent who can take focus?  If so,
-		// they take focus.
-		for (GUI_Pane * who = this->mParent; who != NULL; who = who->mParent)
-		{
-			if (who->AcceptTakeFocus())
-			{
-				return who->InternalSetFocus(who);
-			}
-		}
+    if (okay_to_lose)
+    {
+        // Going to really lose..okay any parent who can take focus?  If so,
+        // they take focus.
+        for (GUI_Pane * who = this->mParent; who != NULL; who = who->mParent)
+        {
+            if (who->AcceptTakeFocus())
+            {
+                return who->InternalSetFocus(who);
+            }
+        }
 
-		// No parnet took it?  Well, as long as we can move the focus we're good
-		return this->InternalSetFocus(NULL);
-	}
-	// Failed ot lose focus - refusal!
-	return 0;
+        // No parnet took it?  Well, as long as we can move the focus we're good
+        return this->InternalSetFocus(NULL);
+    }
+    // Failed ot lose focus - refusal!
+    return 0;
 }
 
 GUI_Pane *	GUI_Pane::GetFocus(void)
 {
-	if (mParent) return mParent->GetFocus();
-	return NULL;
+    if (mParent) return mParent->GetFocus();
+    return NULL;
 }
 
 */
 
-void		GUI_Pane::InternalDraw(GUI_GraphState * state)
+void GUI_Pane::InternalDraw(GUI_GraphState* state)
 {
-	if (mVisible)
-	{
-		int vb[4];
-		this->GetVisibleBounds(vb);
-		if (vb[0] >= vb[2] ||
-			vb[1] >= vb[3])			return;
-		glScissor(vb[0], vb[1], vb[2]-vb[0], vb[3]-vb[1]);
+    if (mVisible)
+    {
+        int vb[4];
+        this->GetVisibleBounds(vb);
+        if (vb[0] >= vb[2] || vb[1] >= vb[3])
+            return;
+        glScissor(vb[0], vb[1], vb[2] - vb[0], vb[3] - vb[1]);
 
-		this->Draw(state);
-		for (std::vector<GUI_Pane *>::iterator c = mChildren.begin(); c != mChildren.end(); ++c)
-		{
-			(*c)->InternalDraw(state);
-		}
-	}
+        this->Draw(state);
+        for (std::vector<GUI_Pane*>::iterator c = mChildren.begin(); c != mChildren.end(); ++c)
+        {
+            (*c)->InternalDraw(state);
+        }
+    }
 }
 
-GUI_Pane *	GUI_Pane::InternalMouseMove(int x, int y)
+GUI_Pane* GUI_Pane::InternalMouseMove(int x, int y)
 {
-	if (mVisible)
-	{
-		if (x >= mBounds[0] && x <= mBounds[2] &&
-			y >= mBounds[1] && y <= mBounds[3])
-		{
-			GUI_Pane * target;
-			for (std::vector<GUI_Pane *>::reverse_iterator c = mChildren.rbegin(); c != mChildren.rend(); ++c)
-			{
-				target = (*c)->InternalMouseMove(x, y);
-				if (target) return target;
-			}
-			if (this->MouseMove(x, y))
-				return this;
-		}
-	}
-	return NULL;
+    if (mVisible)
+    {
+        if (x >= mBounds[0] && x <= mBounds[2] && y >= mBounds[1] && y <= mBounds[3])
+        {
+            GUI_Pane* target;
+            for (std::vector<GUI_Pane*>::reverse_iterator c = mChildren.rbegin(); c != mChildren.rend(); ++c)
+            {
+                target = (*c)->InternalMouseMove(x, y);
+                if (target)
+                    return target;
+            }
+            if (this->MouseMove(x, y))
+                return this;
+        }
+    }
+    return NULL;
 }
 
-GUI_Pane *	GUI_Pane::InternalMouseDown(int x, int y, int button)
+GUI_Pane* GUI_Pane::InternalMouseDown(int x, int y, int button)
 {
-	if (mVisible)
-	{
-		for (std::set<GUI_Pane *>::iterator t = mTrap.begin(); t != mTrap.end();)
-		{
-			std::set<GUI_Pane *>::iterator w(t);
-			++t;
-			if (!(*w)->TrapNotify(x,y,button))
-			mTrap.erase(w);
-		}
+    if (mVisible)
+    {
+        for (std::set<GUI_Pane*>::iterator t = mTrap.begin(); t != mTrap.end();)
+        {
+            std::set<GUI_Pane*>::iterator w(t);
+            ++t;
+            if (!(*w)->TrapNotify(x, y, button))
+                mTrap.erase(w);
+        }
 
-		if (x >= mBounds[0] && x <= mBounds[2] &&
-			y >= mBounds[1] && y <= mBounds[3])
-		{
-			GUI_Pane * target;
-			for (std::vector<GUI_Pane *>::reverse_iterator c = mChildren.rbegin(); c != mChildren.rend(); ++c)
-			{
-				target = (*c)->InternalMouseDown(x, y, button);
-				if (target) return target;
-			}
+        if (x >= mBounds[0] && x <= mBounds[2] && y >= mBounds[1] && y <= mBounds[3])
+        {
+            GUI_Pane* target;
+            for (std::vector<GUI_Pane*>::reverse_iterator c = mChildren.rbegin(); c != mChildren.rend(); ++c)
+            {
+                target = (*c)->InternalMouseDown(x, y, button);
+                if (target)
+                    return target;
+            }
 
-			if (this->MouseDown(x, y, button))
-				return this;
-		}
-	}
-	return NULL;
+            if (this->MouseDown(x, y, button))
+                return this;
+        }
+    }
+    return NULL;
 }
 
-int			GUI_Pane::InternalMouseWheel(int x, int y, int dist, int axis)
+int GUI_Pane::InternalMouseWheel(int x, int y, int dist, int axis)
 {
-	if (mVisible)
-	{
-		if (x >= mBounds[0] && x <= mBounds[2] &&
-			y >= mBounds[1] && y <= mBounds[3])
-		{
-			for (std::vector<GUI_Pane *>::reverse_iterator c = mChildren.rbegin(); c != mChildren.rend(); ++c)
-			{
-				if ((*c)->InternalMouseWheel(x, y, dist, axis)) return 1;
-			}
+    if (mVisible)
+    {
+        if (x >= mBounds[0] && x <= mBounds[2] && y >= mBounds[1] && y <= mBounds[3])
+        {
+            for (std::vector<GUI_Pane*>::reverse_iterator c = mChildren.rbegin(); c != mChildren.rend(); ++c)
+            {
+                if ((*c)->InternalMouseWheel(x, y, dist, axis))
+                    return 1;
+            }
 
-			if (this->ScrollWheel(x, y, dist, axis))
-				return 1;
-		}
-	}
-	return 0;
+            if (this->ScrollWheel(x, y, dist, axis))
+                return 1;
+        }
+    }
+    return 0;
 }
 
-int			GUI_Pane::InternalGetCursor(int x, int y)
+int GUI_Pane::InternalGetCursor(int x, int y)
 {
-	int ret = gui_Cursor_None;
-	if (mVisible)
-	{
-		if (x >= mBounds[0] && x <= mBounds[2] &&
-			y >= mBounds[1] && y <= mBounds[3])
-		{
-			for (std::vector<GUI_Pane *>::reverse_iterator c = mChildren.rbegin(); c != mChildren.rend(); ++c)
-			{
-				ret = (*c)->InternalGetCursor(x, y);
-				if (ret != gui_Cursor_None) return ret;
-			}
+    int ret = gui_Cursor_None;
+    if (mVisible)
+    {
+        if (x >= mBounds[0] && x <= mBounds[2] && y >= mBounds[1] && y <= mBounds[3])
+        {
+            for (std::vector<GUI_Pane*>::reverse_iterator c = mChildren.rbegin(); c != mChildren.rend(); ++c)
+            {
+                ret = (*c)->InternalGetCursor(x, y);
+                if (ret != gui_Cursor_None)
+                    return ret;
+            }
 
-			ret = this->GetCursor(x,y);
-		}
-	}
-	return ret;
+            ret = this->GetCursor(x, y);
+        }
+    }
+    return ret;
 }
 
-int		GUI_Pane::InternalGetHelpTip(int x, int y, int tip_bounds[4], std::string& tip)
+int GUI_Pane::InternalGetHelpTip(int x, int y, int tip_bounds[4], std::string& tip)
 {
-	if (mVisible)
-	{
-		if (x >= mBounds[0] && x <= mBounds[2] &&
-			y >= mBounds[1] && y <= mBounds[3])
-		{
-			for (std::vector<GUI_Pane *>::reverse_iterator c = mChildren.rbegin(); c != mChildren.rend(); ++c)
-			{
-				if ((*c)->InternalGetHelpTip(x, y, tip_bounds, tip)) return 1;
-			}
+    if (mVisible)
+    {
+        if (x >= mBounds[0] && x <= mBounds[2] && y >= mBounds[1] && y <= mBounds[3])
+        {
+            for (std::vector<GUI_Pane*>::reverse_iterator c = mChildren.rbegin(); c != mChildren.rend(); ++c)
+            {
+                if ((*c)->InternalGetHelpTip(x, y, tip_bounds, tip))
+                    return 1;
+            }
 
-			if (GetHelpTip(x,y,tip_bounds,tip)) return 1;
-		}
-	}
-	return 0;
+            if (GetHelpTip(x, y, tip_bounds, tip))
+                return 1;
+        }
+    }
+    return 0;
 }
 
-
-GUI_DragOperation		GUI_Pane::InternalDragEnter	(int x, int y, GUI_DragData * drag, GUI_DragOperation allowed, GUI_DragOperation recommended)
+GUI_DragOperation GUI_Pane::InternalDragEnter(int x, int y, GUI_DragData* drag, GUI_DragOperation allowed,
+                                              GUI_DragOperation recommended)
 {
-	mDragTarget = FindByPoint(x,y);
-	if (mDragTarget == NULL) return gui_Drag_None;
-							 return mDragTarget->DragEnter(x,y,drag,allowed, recommended);
+    mDragTarget = FindByPoint(x, y);
+    if (mDragTarget == NULL)
+        return gui_Drag_None;
+    return mDragTarget->DragEnter(x, y, drag, allowed, recommended);
 }
 
-GUI_DragOperation		GUI_Pane::InternalDragOver	(int x, int y, GUI_DragData * drag, GUI_DragOperation allowed, GUI_DragOperation recommended)
+GUI_DragOperation GUI_Pane::InternalDragOver(int x, int y, GUI_DragData* drag, GUI_DragOperation allowed,
+                                             GUI_DragOperation recommended)
 {
-	GUI_Pane * target = FindByPoint(x,y);
+    GUI_Pane* target = FindByPoint(x, y);
 
-	if (target == mDragTarget)
-	{
-		if (mDragTarget == NULL) return gui_Drag_None;
-								 return mDragTarget->DragOver(x,y,drag,allowed, recommended);
-	}
-	else
-	{
-		if (mDragTarget) mDragTarget->DragLeave();
-		mDragTarget = target;
-		if (mDragTarget) return mDragTarget->DragEnter(x,y,drag,allowed, recommended);
-						 return gui_Drag_None;
-	}
+    if (target == mDragTarget)
+    {
+        if (mDragTarget == NULL)
+            return gui_Drag_None;
+        return mDragTarget->DragOver(x, y, drag, allowed, recommended);
+    }
+    else
+    {
+        if (mDragTarget)
+            mDragTarget->DragLeave();
+        mDragTarget = target;
+        if (mDragTarget)
+            return mDragTarget->DragEnter(x, y, drag, allowed, recommended);
+        return gui_Drag_None;
+    }
 }
 
 void GUI_Pane::InternalDragScroll(int x, int y)
 {
-	if (mDragTarget)	mDragTarget->DragScroll(x,y);
+    if (mDragTarget)
+        mDragTarget->DragScroll(x, y);
 }
 
-void					GUI_Pane::InternalDragLeave	(void)
+void GUI_Pane::InternalDragLeave(void)
 {
-	if (mDragTarget) mDragTarget->DragLeave();
-	mDragTarget = NULL;
+    if (mDragTarget)
+        mDragTarget->DragLeave();
+    mDragTarget = NULL;
 }
 
-GUI_DragOperation		GUI_Pane::InternalDrop		(int x, int y, GUI_DragData * drag, GUI_DragOperation allowed, GUI_DragOperation recommended)
+GUI_DragOperation GUI_Pane::InternalDrop(int x, int y, GUI_DragData* drag, GUI_DragOperation allowed,
+                                         GUI_DragOperation recommended)
 {
-	GUI_Pane * target = FindByPoint(x,y);
-	if (target) return target->Drop(x,y,drag,allowed, recommended);
-	else		return gui_Drag_None;
+    GUI_Pane* target = FindByPoint(x, y);
+    if (target)
+        return target->Drop(x, y, drag, allowed, recommended);
+    else
+        return gui_Drag_None;
 }
 
-
-bool				GUI_Pane::IsDragClick(int x, int y, int button)
+bool GUI_Pane::IsDragClick(int x, int y, int button)
 {
-	if (mParent)	return mParent->IsDragClick(x,y,button);
-	else			return false;
+    if (mParent)
+        return mParent->IsDragClick(x, y, button);
+    else
+        return false;
 }
 
-GUI_DragOperation	GUI_Pane::DoDragAndDrop(
-							int						x,
-							int						y,
-							int						button,
-							int						where[4],
-							GUI_DragOperation		operations,
-							int						type_count,
-							GUI_ClipType			inTypes[],
-							int						sizes[],
-							const void *			ptrs[],
-							GUI_GetData_f			fetch_func,
-							void *					ref)
+GUI_DragOperation GUI_Pane::DoDragAndDrop(int x, int y, int button, int where[4], GUI_DragOperation operations,
+                                          int type_count, GUI_ClipType inTypes[], int sizes[], const void* ptrs[],
+                                          GUI_GetData_f fetch_func, void* ref)
 {
-	if (mParent)	return	mParent->DoDragAndDrop(x,y,button,where,operations,type_count,inTypes,sizes,ptrs,fetch_func,ref);
-	else			return	gui_Drag_None;
+    if (mParent)
+        return mParent->DoDragAndDrop(x, y, button, where, operations, type_count, inTypes, sizes, ptrs, fetch_func,
+                                      ref);
+    else
+        return gui_Drag_None;
 }
-

@@ -27,37 +27,35 @@
 #include "WED_Entity.h"
 #include "IGIS.h"
 
-class	WED_GISComposite : public WED_Entity, public virtual IGISComposite {
+class WED_GISComposite : public WED_Entity, public virtual IGISComposite
+{
 
-DECLARE_INTERMEDIATE(WED_GISComposite)
+    DECLARE_INTERMEDIATE(WED_GISComposite)
 
 public:
-
-	// IGISEntity
-	virtual	GISClass_t		GetGISClass		(void							   ) const;
-	virtual	const char *	GetGISSubtype	(void							   ) const;
-	virtual	bool			HasLayer		(GISLayer_t l					   ) const;
-	virtual	void			GetBounds		(GISLayer_t l,		 Bbox2&  bounds) const;
-	virtual	bool			IntersectsBox	(GISLayer_t l, const Bbox2&  bounds) const;
-	virtual	bool			WithinBox		(GISLayer_t l, const Bbox2&  bounds) const;
-	virtual bool			PtWithin		(GISLayer_t l, const Point2& p	 ) const;
-	virtual bool			PtOnFrame		(GISLayer_t l, const Point2& p, double d) const;
-	virtual bool			Cull			(const Bbox2& bounds) const;
-	virtual	void			Rescale			(GISLayer_t l, const Bbox2& old_bounds,const Bbox2& new_bounds);
-	virtual	void			Rotate			(GISLayer_t l, const Point2& center, double angle);
-	// IGISComposite
-	virtual	int				GetNumEntities(void ) const;
-	virtual	IGISEntity *	GetNthEntity  (int n) const;
+    // IGISEntity
+    virtual GISClass_t GetGISClass(void) const;
+    virtual const char* GetGISSubtype(void) const;
+    virtual bool HasLayer(GISLayer_t l) const;
+    virtual void GetBounds(GISLayer_t l, Bbox2& bounds) const;
+    virtual bool IntersectsBox(GISLayer_t l, const Bbox2& bounds) const;
+    virtual bool WithinBox(GISLayer_t l, const Bbox2& bounds) const;
+    virtual bool PtWithin(GISLayer_t l, const Point2& p) const;
+    virtual bool PtOnFrame(GISLayer_t l, const Point2& p, double d) const;
+    virtual bool Cull(const Bbox2& bounds) const;
+    virtual void Rescale(GISLayer_t l, const Bbox2& old_bounds, const Bbox2& new_bounds);
+    virtual void Rotate(GISLayer_t l, const Point2& center, double angle);
+    // IGISComposite
+    virtual int GetNumEntities(void) const;
+    virtual IGISEntity* GetNthEntity(int n) const;
 
 private:
+    void RebuildCache(int flags) const;
 
-			void			RebuildCache(int flags) const;
-
-	mutable	Bbox2					mCacheBounds;
-	mutable	Bbox2					mCacheBoundsUV;
-	mutable	bool					mHasUV;
-	mutable	std::vector<IGISEntity *>	mEntities;
-
+    mutable Bbox2 mCacheBounds;
+    mutable Bbox2 mCacheBoundsUV;
+    mutable bool mHasUV;
+    mutable std::vector<IGISEntity*> mEntities;
 };
 
 #endif

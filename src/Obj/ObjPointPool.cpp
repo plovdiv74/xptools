@@ -26,8 +26,8 @@
 
 #include "ObjPointPool.h"
 
-using std::min;
 using std::max;
+using std::min;
 
 ObjPointPool::ObjPointPool() : mDepth(8)
 {
@@ -37,69 +37,74 @@ ObjPointPool::~ObjPointPool()
 {
 }
 
-void	ObjPointPool::clear(int depth)
+void ObjPointPool::clear(int depth)
 {
-	mData.clear();
-	mIndex.clear();
-	mDepth = depth;
+    mData.clear();
+    mIndex.clear();
+    mDepth = depth;
 }
 
-void	ObjPointPool::resize(int pts)
+void ObjPointPool::resize(int pts)
 {
-	mData.resize(pts * mDepth);
-	mIndex.clear();
+    mData.resize(pts * mDepth);
+    mIndex.clear();
 }
 
-int		ObjPointPool::accumulate(const float pt[])
+int ObjPointPool::accumulate(const float pt[])
 {
-	index_type::iterator iter = mIndex.find(key_type(pt, pt + mDepth));
-	if (iter != mIndex.end())
-		return iter->second;
-	return append(pt);
+    index_type::iterator iter = mIndex.find(key_type(pt, pt + mDepth));
+    if (iter != mIndex.end())
+        return iter->second;
+    return append(pt);
 }
 
-int		ObjPointPool::append(const float pt[])
+int ObjPointPool::append(const float pt[])
 {
-	int ret = mData.size() / mDepth;
-	mData.insert(mData.end(), pt, pt + mDepth);
-	mIndex.insert(index_type::value_type(key_type(pt,pt+mDepth), ret));
-	return ret;
+    int ret = mData.size() / mDepth;
+    mData.insert(mData.end(), pt, pt + mDepth);
+    mIndex.insert(index_type::value_type(key_type(pt, pt + mDepth), ret));
+    return ret;
 }
 
-void	ObjPointPool::set(int n, float pt[])
+void ObjPointPool::set(int n, float pt[])
 {
-	memcpy(&mData[n*mDepth], pt, mDepth * sizeof(float));
-	mIndex.insert(index_type::value_type(key_type(pt,pt+mDepth), n));
+    memcpy(&mData[n * mDepth], pt, mDepth * sizeof(float));
+    mIndex.insert(index_type::value_type(key_type(pt, pt + mDepth), n));
 }
 
-int		ObjPointPool::count(void) const
+int ObjPointPool::count(void) const
 {
-	return mData.size() / mDepth;
+    return mData.size() / mDepth;
 }
 
-float *	ObjPointPool::get(int index)
+float* ObjPointPool::get(int index)
 {
-	return &mData[index * mDepth];
+    return &mData[index * mDepth];
 }
 
-const float *	ObjPointPool::get(int index) const
+const float* ObjPointPool::get(int index) const
 {
-	return &mData[index * mDepth];
+    return &mData[index * mDepth];
 }
 
 void ObjPointPool::get_minmax(float minCoords[3], float maxCoords[3]) const
 {
-	if (mData.empty()) return;
-	if (mDepth < 3) return;
+    if (mData.empty())
+        return;
+    if (mDepth < 3)
+        return;
 
-	minCoords[0] = maxCoords[0] = mData[0];
-	minCoords[1] = maxCoords[1] = mData[1];
-	minCoords[2] = maxCoords[2] = mData[2];
+    minCoords[0] = maxCoords[0] = mData[0];
+    minCoords[1] = maxCoords[1] = mData[1];
+    minCoords[2] = maxCoords[2] = mData[2];
 
-	for (int n = mDepth; n < mData.size(); n += mDepth)
-	{
-		maxCoords[0] = max(maxCoords[0], mData[n+0]);	minCoords[0] = min(minCoords[0], mData[n+0]);
-		maxCoords[1] = max(maxCoords[1], mData[n+1]);	minCoords[1] = min(minCoords[1], mData[n+1]);
-		maxCoords[2] = max(maxCoords[2], mData[n+2]);	minCoords[2] = min(minCoords[2], mData[n+2]);
-	}
+    for (int n = mDepth; n < mData.size(); n += mDepth)
+    {
+        maxCoords[0] = max(maxCoords[0], mData[n + 0]);
+        minCoords[0] = min(minCoords[0], mData[n + 0]);
+        maxCoords[1] = max(maxCoords[1], mData[n + 1]);
+        minCoords[1] = min(minCoords[1], mData[n + 1]);
+        maxCoords[2] = max(maxCoords[2], mData[n + 2]);
+        minCoords[2] = min(minCoords[2], mData[n + 2]);
+    }
 }

@@ -26,42 +26,40 @@
 
 #include "WED_GISPoint_Heading.h"
 
-class	WED_GISPoint_HeadingWidthLength : public WED_GISPoint_Heading, public virtual IGISPoint_WidthLength {
+class WED_GISPoint_HeadingWidthLength : public WED_GISPoint_Heading, public virtual IGISPoint_WidthLength
+{
 
-DECLARE_INTERMEDIATE(WED_GISPoint_HeadingWidthLength)
+    DECLARE_INTERMEDIATE(WED_GISPoint_HeadingWidthLength)
 
 public:
+    virtual GISClass_t GetGISClass(void) const;
 
-	virtual	GISClass_t		GetGISClass		(void				 ) const;
+    virtual void GetBounds(GISLayer_t l, Bbox2& bounds) const;
+    virtual bool IntersectsBox(GISLayer_t l, const Bbox2& bounds) const;
+    virtual bool WithinBox(GISLayer_t l, const Bbox2& bounds) const;
+    virtual bool PtOnFrame(GISLayer_t l, const Point2& p, double dist) const;
+    virtual bool PtWithin(GISLayer_t l, const Point2& p) const;
+    virtual void Rescale(GISLayer_t l,
+                         const Bbox2& old_bounds, // Defines a linear remappign of coordinates we can apply.
+                         const Bbox2& new_bounds);
 
-	virtual	void			GetBounds		(GISLayer_t l,	   Bbox2&  bounds) const;
-	virtual	bool			IntersectsBox	(GISLayer_t l,const Bbox2&  bounds) const;
-	virtual	bool			WithinBox		(GISLayer_t l,const Bbox2&  bounds) const;
-	virtual bool			PtOnFrame		(GISLayer_t l,const Point2& p, double dist) const;
-	virtual bool			PtWithin		(GISLayer_t l,const Point2& p	 ) const;
-	virtual	void			Rescale(GISLayer_t l,
-								const Bbox2& old_bounds,			// Defines a linear remappign of coordinates we can apply.
-								const Bbox2& new_bounds);
+    // IGISPoint_WidthLength
+    virtual double GetWidth(void) const;
+    virtual void SetWidth(double width);
+    virtual double GetLength(void) const;
+    virtual void SetLength(double width);
 
-	// IGISPoint_WidthLength
-	virtual	double	GetWidth (void		 ) const;
-	virtual	void	SetWidth (double width)      ;
-	virtual	double	GetLength(void		 ) const;
-	virtual	void	SetLength(double width)      ;
+    virtual void GetCorners(GISLayer_t l, Point2 corners[4]) const;
 
-	virtual	void	GetCorners(GISLayer_t l,Point2 corners[4]) const;
+    virtual void MoveCorner(GISLayer_t l, int corner, const Vector2& delta);
+    virtual void MoveSide(GISLayer_t l, int side, const Vector2& delta);
 
-	virtual	void	MoveCorner(GISLayer_t l,int corner, const Vector2& delta);
-	virtual	void	MoveSide(GISLayer_t l,int side, const Vector2& delta);
-
-	virtual	void	ResizeSide(GISLayer_t l,int side, const Vector2& delta, bool symetric);
-	virtual	void	ResizeCorner(GISLayer_t l,int side, const Vector2& delta, bool symetric);
+    virtual void ResizeSide(GISLayer_t l, int side, const Vector2& delta, bool symetric);
+    virtual void ResizeCorner(GISLayer_t l, int side, const Vector2& delta, bool symetric);
 
 private:
-
-		WED_PropDoubleTextMeters		width;
-		WED_PropDoubleTextMeters		length;
-
+    WED_PropDoubleTextMeters width;
+    WED_PropDoubleTextMeters length;
 };
 
 #endif /* WED_GISPOINT_HEADINGWIDTHLENGTH_H */

@@ -26,32 +26,33 @@
 
 #include "WED_GISPoint_Heading.h"
 
-struct	AptSign_t;
+struct AptSign_t;
 
-class WED_AirportSign : public WED_GISPoint_Heading {
+class WED_AirportSign : public WED_GISPoint_Heading
+{
 
-DECLARE_PERSISTENT(WED_AirportSign)
+    DECLARE_PERSISTENT(WED_AirportSign)
 
 public:
+    void SetStyle(int style);
+    void SetHeight(int height);
+    int GetHeight(void) const;
 
-		void		SetStyle(int style);
-		void		SetHeight(int height);
-		int			GetHeight(void) const;
+    void Import(const AptSign_t& x, void (*print_func)(void*, const char*, ...), void* ref);
+    void Export(AptSign_t& x) const;
 
-		void		Import(const AptSign_t& x, void (* print_func)(void *, const char *, ...), void * ref);
-		void		Export(		 AptSign_t& x) const;
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Taxi Sign";
+    }
 
-	virtual const char *	HumanReadableType(void) const { return "Taxi Sign"; }
-
-	virtual void		GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
-	virtual void		GetNthProperty(int n, PropertyVal_t& val) const;
-	virtual void		SetNthProperty(int n, const PropertyVal_t& val);
+    virtual void GetNthPropertyInfo(int n, PropertyInfo_t& info) const;
+    virtual void GetNthProperty(int n, PropertyVal_t& val) const;
+    virtual void SetNthProperty(int n, const PropertyVal_t& val);
 
 private:
-
-	WED_PropIntEnum		style;
-	WED_PropIntEnum		height;
-
+    WED_PropIntEnum style;
+    WED_PropIntEnum height;
 };
 
 #endif /* WED_AIRPORTSIGN_H */

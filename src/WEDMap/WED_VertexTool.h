@@ -28,101 +28,98 @@
 #include "IControlHandles.h"
 #include "IOperation.h"
 
-class	IGISEntity;
-class	IGISPoint;
-class	IGISPoint_Bezier;
-class	ISelection;
+class IGISEntity;
+class IGISPoint;
+class IGISPoint_Bezier;
+class ISelection;
 
-class	WED_VertexTool : public WED_HandleToolBase, public virtual IControlHandles {
+class WED_VertexTool : public WED_HandleToolBase, public virtual IControlHandles
+{
 public:
+    WED_VertexTool(const char* tool_name, GUI_Pane* host, WED_MapZoomerNew* zoomer, IResolver* resolver, int sel_verts);
+    virtual ~WED_VertexTool();
 
-						 WED_VertexTool(
-										const char *			tool_name,
-										GUI_Pane *				host,
-										WED_MapZoomerNew *		zoomer,
-										IResolver *				resolver,
-										int						sel_verts);
-	virtual				~WED_VertexTool();
+    // CONTROL HANDLE INTERFACE:
+    virtual void BeginEdit(void);
+    virtual void EndEdit(void);
 
-	// CONTROL HANDLE INTERFACE:
-	virtual		void	BeginEdit(void);
-	virtual		void	EndEdit(void);
+    virtual int CountEntities(void) const;
+    virtual intptr_t GetNthEntityID(int n) const;
 
-	virtual		int		CountEntities(void) const;
-	virtual		intptr_t	GetNthEntityID(int n) const;
+    virtual int CountControlHandles(intptr_t id) const;
+    virtual void GetNthControlHandle(intptr_t id, int n, bool* active, HandleType_t* con_type, Point2* p,
+                                     Vector2* direction, float* radius) const;
 
-	virtual		int		CountControlHandles(intptr_t id						  ) const;
-	virtual		void	GetNthControlHandle(intptr_t id, int n, bool * active, HandleType_t * con_type, Point2 * p, Vector2 * direction, float * radius) const;
+    virtual int GetLinks(intptr_t id) const;
+    virtual void GetNthLinkInfo(intptr_t id, int n, bool* active, LinkType_t* ltype) const;
+    virtual int GetNthLinkSource(intptr_t id, int n) const;
+    virtual int GetNthLinkSourceCtl(intptr_t id, int n) const; // -1 if no bezier ctl point!
+    virtual int GetNthLinkTarget(intptr_t id, int n) const;
+    virtual int GetNthLinkTargetCtl(intptr_t id, int n) const;
 
-	virtual		int		GetLinks		    (intptr_t id) const;
-	virtual		void	GetNthLinkInfo		(intptr_t id, int n, bool * active, LinkType_t * ltype) const;
-	virtual		int		GetNthLinkSource   (intptr_t id, int n) const;
-	virtual		int		GetNthLinkSourceCtl(intptr_t id, int n) const;	// -1 if no bezier ctl point!
-	virtual		int		GetNthLinkTarget   (intptr_t id, int n) const;
-	virtual		int		GetNthLinkTargetCtl(intptr_t id, int n) const;
+    virtual bool PointOnStructure(intptr_t id, const Point2& p) const;
 
-	virtual		bool	PointOnStructure(intptr_t id, const Point2& p) const;
+    virtual void ControlsMoveBy(intptr_t id, const Vector2& delta, Point2& io_handle);
+    virtual void ControlsHandlesBy(intptr_t id, int c, const Vector2& delta, Point2& io_pt);
+    virtual void ControlsLinksBy(intptr_t id, int c, const Vector2& delta, Point2& io_pt);
 
-	virtual		void	ControlsMoveBy(intptr_t id, const Vector2& delta, Point2& io_handle);
-	virtual		void	ControlsHandlesBy(intptr_t id, int c, const Vector2& delta, Point2& io_pt);
-	virtual		void	ControlsLinksBy	 (intptr_t id, int c, const Vector2& delta, Point2& io_pt);
+    //	virtual	int			FindProperty(const char * in_prop) { return -1; }
+    //	virtual int			CountProperties(void) { return 0; }
+    //	virtual void		GetNthPropertyInfo(int n, PropertyInfo_t& info) {}
+    //	virtual	void		GetNthPropertyDict(int n, PropertyDict_t& dict) { }
+    //	virtual	void		GetNthPropertyDictItem(int n, int e, std::string& item) { }
 
-//	virtual	int			FindProperty(const char * in_prop) { return -1; }
-//	virtual int			CountProperties(void) { return 0; }
-//	virtual void		GetNthPropertyInfo(int n, PropertyInfo_t& info) {}
-//	virtual	void		GetNthPropertyDict(int n, PropertyDict_t& dict) { }
-//	virtual	void		GetNthPropertyDictItem(int n, int e, std::string& item) { }
+    //	virtual void		GetNthProperty(int n, PropertyVal_t& val) { }
+    //	virtual void		SetNthProperty(int n, const PropertyVal_t& val) { }
 
-//	virtual void		GetNthProperty(int n, PropertyVal_t& val) { }
-//	virtual void		SetNthProperty(int n, const PropertyVal_t& val) { }
+    virtual const char* GetStatusText(void)
+    {
+        return NULL;
+    }
 
-	virtual	const char *		GetStatusText(void) { return NULL; }
+    virtual void DrawSelected(bool inCurrent, GUI_GraphState* g);
 
-	virtual	void		DrawSelected			(bool inCurrent, GUI_GraphState * g);
-
-
-//	virtual void *		QueryInterface(const char * class_id);
+    //	virtual void *		QueryInterface(const char * class_id);
 
 private:
+    virtual EntityHandling_t TraverseEntity(IGISEntity* ent, int pt_sel);
 
-	virtual	EntityHandling_t	TraverseEntity(IGISEntity * ent,int pt_sel);
+    void GetEntityInternal(void) const;
+    void AddEntityRecursive(IGISEntity* e, const Bbox2& bounds) const;
+    void AddSnapPointRecursive(IGISEntity* e, const Bbox2& bounds, ISelection* sel) const;
+    bool SnapMovePoint(const Point2& ideal_track_pt, Point2& io_thing_pt, IGISEntity* who);
 
-			void		GetEntityInternal(void) const;
-			void		AddEntityRecursive(IGISEntity * e, const Bbox2& bounds) const;
-			void		AddSnapPointRecursive(IGISEntity * e, const Bbox2& bounds, ISelection * sel) const;
-			bool		SnapMovePoint(const Point2& ideal_track_pt, Point2& io_thing_pt, IGISEntity * who);
+    int mInEdit;
+    int mIsRotate;
+    int mIsScale;
+    int mIsSymetric;
+    int mIsTaxiSpin;
+    mutable Point2 mRotateCtr;
+    mutable Point2 mTaxiDest;
+    mutable double mRotateOffset;
+    mutable int mRotateIndex;
+    mutable Vector2 mPointOffset1;
+    mutable Vector2 mPointOffset2;
 
-		int						mInEdit;
-		int						mIsRotate;
-		int						mIsScale;
-		int						mIsSymetric;
-		int						mIsTaxiSpin;
-		mutable Point2			mRotateCtr;
-		mutable Point2			mTaxiDest;
-		mutable double			mRotateOffset;
-		mutable	int				mRotateIndex;
-		mutable	Vector2			mPointOffset1;
-		mutable	Vector2			mPointOffset2;
+    IGISPoint* mNewSplitPoint; // When we option-click to get a split point...this is the newly born point.
 
-		IGISPoint *				mNewSplitPoint;		// When we option-click to get a split point...this is the newly born point.
+    // Anchor point and original Bezier curve for Bezier offsetting.
+    Point2 mAnchor;
+    std::vector<BezierPoint2> mSrcBezier;
 
-		// Anchor point and original Bezier curve for Bezier offsetting.
-		Point2					mAnchor;
-		std::vector<BezierPoint2>	mSrcBezier;
+    WED_PropBoolText mSnapToGrid;
 
-		WED_PropBoolText		mSnapToGrid;
+    mutable std::vector<IGISEntity*> mEntityCache;
+    mutable long long mEntityCacheKeyArchive;
+    mutable long long mEntityCacheKeyZoomer;
 
-		mutable std::vector<IGISEntity *>	mEntityCache;
-		mutable long long				mEntityCacheKeyArchive;
-		mutable long long				mEntityCacheKeyZoomer;
+    mutable std::vector<std::pair<Point2, IGISEntity*>> mSnapCache;
+    mutable long long mSnapCacheKeyArchive;
+    mutable long long mSnapCacheKeyZoomer;
 
-		mutable std::vector<std::pair<Point2,IGISEntity *> >		mSnapCache;
-		mutable long long								mSnapCacheKeyArchive;
-		mutable long long								mSnapCacheKeyZoomer;
-
-		mutable IGISEntity *	last_en;     
-		mutable intptr_t		last_ptr; // cache for dynamic_cast<>(en) in GetNthHandle(), as its called repeatedly for the same entities
+    mutable IGISEntity* last_en;
+    mutable intptr_t
+        last_ptr; // cache for dynamic_cast<>(en) in GetNthHandle(), as its called repeatedly for the same entities
 };
-
 
 #endif /* WED_VERTEXTOOL_H */

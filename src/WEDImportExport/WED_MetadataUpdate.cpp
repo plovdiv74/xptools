@@ -1,22 +1,22 @@
-/* 
+/*
  * Copyright (c) 2014, Laminar Research.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a 
- * copy of this software and associated documentation files (the "Software"), 
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense, 
- * and/or sell copies of the Software, and to permit persons to whom the 
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
  */
@@ -45,267 +45,269 @@
 /**
  * @return true if we succeeded; false if there was a catastrophic error about which we alerted the user
  */
-static bool fill_cache_request_for_metadata_csv(WED_file_cache_request * out_cache_req)
+static bool fill_cache_request_for_metadata_csv(WED_file_cache_request* out_cache_req)
 {
-	out_cache_req->in_domain = cache_domain_metadata_csv;
-	out_cache_req->in_folder_prefix = "scenery_packs";
-	out_cache_req->in_url = WED_URL_AIRPORT_METADATA_CSV;
-	return true;
+    out_cache_req->in_domain = cache_domain_metadata_csv;
+    out_cache_req->in_folder_prefix = "scenery_packs";
+    out_cache_req->in_url = WED_URL_AIRPORT_METADATA_CSV;
+    return true;
 }
 
 //--WED_UpdateMetadataDialog--------------------------------------------------
-static int update_bounds_default[4] = { 0, 0, 500, 500 };
+static int update_bounds_default[4] = {0, 0, 500, 500};
 
 enum update_dialog_stage
 {
-	update_dialog_download_airport_metadata,
-	update_dialog_waiting, //Waiting for the user to choose to continue or not
-	update_dialog_done //Error or not
+    update_dialog_download_airport_metadata,
+    update_dialog_waiting, // Waiting for the user to choose to continue or not
+    update_dialog_done     // Error or not
 };
 
 class WED_UpdateMetadataDialog : public GUI_FormWindow, public GUI_Timer
 {
 public:
-	WED_UpdateMetadataDialog(WED_Airport * apt, IResolver * resolver);
+    WED_UpdateMetadataDialog(WED_Airport* apt, IResolver* resolver);
 
-	//When pressed, opens up the developer blog post about the Gateway 
-	//virtual void AuxiliaryAction();
+    // When pressed, opens up the developer blog post about the Gateway
+    // virtual void AuxiliaryAction();
 
-	//When pressed, attempts to submit current airport to the gateway
-	virtual void Submit();
+    // When pressed, attempts to submit current airport to the gateway
+    virtual void Submit();
 
-	//When pressed, form window is closed
-	virtual void Cancel();
+    // When pressed, form window is closed
+    virtual void Cancel();
 
-	//Called each time WED's timer is fired, checks download progress
-	virtual	void TimerFired(void);
+    // Called each time WED's timer is fired, checks download progress
+    virtual void TimerFired(void);
 
-	static const std::string& GetAirportMetadataCSVPath();
+    static const std::string& GetAirportMetadataCSVPath();
 
 private:
-	//Used for downloading the airport metadata defaults
-	RAII_CurlHandle*        mAirportMetadataCURLHandle;
+    // Used for downloading the airport metadata defaults
+    RAII_CurlHandle* mAirportMetadataCURLHandle;
 
-	//Where the airport metadata csv file was ultimately downloaded to
-	static std::string           mAirportMetadataCSVPath;
+    // Where the airport metadata csv file was ultimately downloaded to
+    static std::string mAirportMetadataCSVPath;
 
-	//The airport we are attempting to update
-	WED_Airport*            mApt;
+    // The airport we are attempting to update
+    WED_Airport* mApt;
 
-	//Cache request for requesting airport metadata csv
-	WED_file_cache_request  mCacheRequest;
+    // Cache request for requesting airport metadata csv
+    WED_file_cache_request mCacheRequest;
 
-	//The chosen airport's chosen ICAO
-	std::string                  mChosenICAO;
+    // The chosen airport's chosen ICAO
+    std::string mChosenICAO;
 
-	//The phase of the state in the dialog box
-	update_dialog_stage     mPhase;
-	IResolver*              mResolver;
+    // The phase of the state in the dialog box
+    update_dialog_stage mPhase;
+    IResolver* mResolver;
 
-	void StartCSVDownload();
+    void StartCSVDownload();
 };
 
-//Static member definitions
+// Static member definitions
 std::string WED_UpdateMetadataDialog::mAirportMetadataCSVPath = "";
 
 const std::string& WED_UpdateMetadataDialog::GetAirportMetadataCSVPath()
 {
-	return mAirportMetadataCSVPath;
+    return mAirportMetadataCSVPath;
 }
 
-int WED_CanUpdateMetadata(IResolver * resolver)
+int WED_CanUpdateMetadata(IResolver* resolver)
 {
-	if(WED_HasSingleSelectionOfType(resolver, WED_Airport::sClass) == NULL)
-	{
-		return 0;
-	}
+    if (WED_HasSingleSelectionOfType(resolver, WED_Airport::sClass) == NULL)
+    {
+        return 0;
+    }
 
-	return 1;
+    return 1;
 }
 
-void WED_DoUpdateMetadata(IResolver * resolver)
+void WED_DoUpdateMetadata(IResolver* resolver)
 {
-	WED_Airport * apt = SAFE_CAST(WED_Airport,WED_HasSingleSelectionOfType(resolver, WED_Airport::sClass));
+    WED_Airport* apt = SAFE_CAST(WED_Airport, WED_HasSingleSelectionOfType(resolver, WED_Airport::sClass));
 
-	if(!apt)
-		return;
+    if (!apt)
+        return;
 
-	new WED_UpdateMetadataDialog(apt, resolver);
+    new WED_UpdateMetadataDialog(apt, resolver);
 }
 
 static std::string InterpretNetworkError(curl_http_get_file* curl)
 {
-	int err = curl->get_error();
-	bool bad_net = curl->is_net_fail();
+    int err = curl->get_error();
+    bool bad_net = curl->is_net_fail();
 
-	std::stringstream ss;
-			
-	if(err <= CURL_LAST)
-	{
-		std::string msg = curl_easy_strerror((CURLcode) err);
-		ss << "Upload failed: " << msg << ". (" << err << ")";
+    std::stringstream ss;
 
-		if(bad_net) ss << "\n(Please check your internet connectivity.)";
-	}
-	else if(err >= 100)
-	{
-		ss << "Upload failed.  The server returned error " << err << ".";
-				
-		std::vector<char>	errdat;
-		curl->get_error_data(errdat);
-		bool is_ok = !errdat.empty();
-		for(std::vector<char>::iterator i = errdat.begin(); i != errdat.end(); ++i)
-		if(!isprint(*i))
-		{
-			is_ok = false;
-			break;
-		}
-				
-		if(is_ok)
-		{
-			std::string errmsg = std::string(errdat.begin(),errdat.end());
-			ss << "\n" << errmsg;
-		}
-	}
-	else
-	{
-		ss << "Upload failed due to unknown error: " << err << ".";
-	}
+    if (err <= CURL_LAST)
+    {
+        std::string msg = curl_easy_strerror((CURLcode)err);
+        ss << "Upload failed: " << msg << ". (" << err << ")";
 
-	return ss.str();
+        if (bad_net)
+            ss << "\n(Please check your internet connectivity.)";
+    }
+    else if (err >= 100)
+    {
+        ss << "Upload failed.  The server returned error " << err << ".";
+
+        std::vector<char> errdat;
+        curl->get_error_data(errdat);
+        bool is_ok = !errdat.empty();
+        for (std::vector<char>::iterator i = errdat.begin(); i != errdat.end(); ++i)
+            if (!isprint(*i))
+            {
+                is_ok = false;
+                break;
+            }
+
+        if (is_ok)
+        {
+            std::string errmsg = std::string(errdat.begin(), errdat.end());
+            ss << "\n" << errmsg;
+        }
+    }
+    else
+    {
+        ss << "Upload failed due to unknown error: " << err << ".";
+    }
+
+    return ss.str();
 }
 
-WED_UpdateMetadataDialog::WED_UpdateMetadataDialog(WED_Airport * apt, IResolver * resolver) : 
-	GUI_FormWindow(gApplication, "Update Airport Metadata", 450, 150),
-	mAirportMetadataCURLHandle(NULL),
-	mApt(apt),
-	mPhase(update_dialog_download_airport_metadata),
-	mResolver(resolver)
-{	
-	this->Reset("", "", "Cancel", true);
-	
-	apt->GetICAO(mChosenICAO);
+WED_UpdateMetadataDialog::WED_UpdateMetadataDialog(WED_Airport* apt, IResolver* resolver)
+    : GUI_FormWindow(gApplication, "Update Airport Metadata", 450, 150), mAirportMetadataCURLHandle(NULL), mApt(apt),
+      mPhase(update_dialog_download_airport_metadata), mResolver(resolver)
+{
+    this->Reset("", "", "Cancel", true);
 
-	this->AddLabel("Downloading airport metadata defaults...");
-	StartCSVDownload();
+    apt->GetICAO(mChosenICAO);
+
+    this->AddLabel("Downloading airport metadata defaults...");
+    StartCSVDownload();
 }
 
 void WED_UpdateMetadataDialog::StartCSVDownload()
 {
-	const bool cache_filled_successfully = fill_cache_request_for_metadata_csv(&mCacheRequest);
-	if(!cache_filled_successfully)
-		AsyncDestroy();
-	Start(0.1);
+    const bool cache_filled_successfully = fill_cache_request_for_metadata_csv(&mCacheRequest);
+    if (!cache_filled_successfully)
+        AsyncDestroy();
+    Start(0.1);
 }
 
 void WED_UpdateMetadataDialog::Cancel()
 {
-	this->AsyncDestroy();
+    this->AsyncDestroy();
 }
 
 void WED_UpdateMetadataDialog::Submit()
 {
-	if(mPhase == update_dialog_done)
-	{
-		this->AsyncDestroy();
-	}
-	else if(mPhase == update_dialog_waiting)
-	{
-		DebugAssert(mApt);
-		std::string icao;
-		mApt->GetICAO(icao);
-		
-		mApt->StartOperation((std::string("Update " + icao + "'s Metadata").c_str()));
-		mApt->StateChanged();
-		bool success = fill_in_airport_metadata_defaults(*mApt, mAirportMetadataCSVPath);
-		if(success == false)
-		{
-			const char * msg = "Could not find metadata, check Airport ID or if airport is supported.\n";
-			LOG_MSG("I/MDU Updating metadata for %s: %s\n", icao.c_str(), msg);
-			mApt->AbortCommand();
-			this->Reset("","","Exit",true);
-			this->AddLabel(msg);
-		}
-		else
-		{
-			LOG_MSG("I/MDU Metadata update for %s sucessfull.\n", icao.c_str());
-			mApt->CommitCommand();
+    if (mPhase == update_dialog_done)
+    {
+        this->AsyncDestroy();
+    }
+    else if (mPhase == update_dialog_waiting)
+    {
+        DebugAssert(mApt);
+        std::string icao;
+        mApt->GetICAO(icao);
 
-			this->Reset("","OK","",true);
-			this->AddLabel("Metadata applied successfully!");
-		}
-		mPhase = update_dialog_done;
-	}
+        mApt->StartOperation((std::string("Update " + icao + "'s Metadata").c_str()));
+        mApt->StateChanged();
+        bool success = fill_in_airport_metadata_defaults(*mApt, mAirportMetadataCSVPath);
+        if (success == false)
+        {
+            const char* msg = "Could not find metadata, check Airport ID or if airport is supported.\n";
+            LOG_MSG("I/MDU Updating metadata for %s: %s\n", icao.c_str(), msg);
+            mApt->AbortCommand();
+            this->Reset("", "", "Exit", true);
+            this->AddLabel(msg);
+        }
+        else
+        {
+            LOG_MSG("I/MDU Metadata update for %s sucessfull.\n", icao.c_str());
+            mApt->CommitCommand();
+
+            this->Reset("", "OK", "", true);
+            this->AddLabel("Metadata applied successfully!");
+        }
+        mPhase = update_dialog_done;
+    }
 }
 
 void WED_UpdateMetadataDialog::TimerFired()
 {
-	if(mPhase == update_dialog_download_airport_metadata)
-	{
-		WED_file_cache_response res = gFileCache.request_file(mCacheRequest);
-		if(res.out_status != cache_status_downloading)
-		{
-			Stop();
-			
-			if(res.out_status == cache_status_available)
-			{
-				WED_UpdateMetadataDialog::mAirportMetadataCSVPath = res.out_path;
-				mPhase = update_dialog_waiting;
-				this->Reset("","OK","Cancel", true);
-				
-				std::string icao;
-				mApt->GetICAO(icao);
-				this->AddLabel("Update metadata for the airport " + icao + "?");
-				this->AddLabel("(Adds new metadata if available, will not overwrite existing values)");
-			}
-			else if(res.out_status == cache_status_error)
-			{
-				std::string err = InterpretNetworkError(&this->mAirportMetadataCURLHandle->get_curl_handle());
-				LOG_MSG("E/MDU Metadata update failed due to error '%s'\n", err.c_str());
-				mPhase = update_dialog_done;
-				this->Reset("","","Exit",true);
-				this->AddLabel(err);
-			}
-		}
-		return;
-	}
+    if (mPhase == update_dialog_download_airport_metadata)
+    {
+        WED_file_cache_response res = gFileCache.request_file(mCacheRequest);
+        if (res.out_status != cache_status_downloading)
+        {
+            Stop();
+
+            if (res.out_status == cache_status_available)
+            {
+                WED_UpdateMetadataDialog::mAirportMetadataCSVPath = res.out_path;
+                mPhase = update_dialog_waiting;
+                this->Reset("", "OK", "Cancel", true);
+
+                std::string icao;
+                mApt->GetICAO(icao);
+                this->AddLabel("Update metadata for the airport " + icao + "?");
+                this->AddLabel("(Adds new metadata if available, will not overwrite existing values)");
+            }
+            else if (res.out_status == cache_status_error)
+            {
+                std::string err = InterpretNetworkError(&this->mAirportMetadataCURLHandle->get_curl_handle());
+                LOG_MSG("E/MDU Metadata update failed due to error '%s'\n", err.c_str());
+                mPhase = update_dialog_done;
+                this->Reset("", "", "Exit", true);
+                this->AddLabel(err);
+            }
+        }
+        return;
+    }
 }
 //---------------------------------------------------------------------------//
-static CSVParser::CSVTable s_csv = CSVParser::CSVTable(CSVParser::CSVTable::CSVHeader(), std::vector<CSVParser::CSVTable::CSVRow>());
-void	WED_DoInvisibleUpdateMetadata(WED_Airport * apt)
+static CSVParser::CSVTable s_csv =
+    CSVParser::CSVTable(CSVParser::CSVTable::CSVHeader(), std::vector<CSVParser::CSVTable::CSVRow>());
+void WED_DoInvisibleUpdateMetadata(WED_Airport* apt)
 {
-	if(s_csv.GetRows().empty())
-	{
-		WED_file_cache_request  cache_request;
-		const bool cache_filled_successfully = fill_cache_request_for_metadata_csv(&cache_request);
-		if(cache_filled_successfully)
-		{
-			WED_file_cache_response res = gFileCache.request_file(cache_request);
-			while(res.out_status == cache_status_downloading)
-			{
-				// Synchronously download the file (or grab it from disk)
-				res = gFileCache.request_file(cache_request);
-			}
+    if (s_csv.GetRows().empty())
+    {
+        WED_file_cache_request cache_request;
+        const bool cache_filled_successfully = fill_cache_request_for_metadata_csv(&cache_request);
+        if (cache_filled_successfully)
+        {
+            WED_file_cache_response res = gFileCache.request_file(cache_request);
+            while (res.out_status == cache_status_downloading)
+            {
+                // Synchronously download the file (or grab it from disk)
+                res = gFileCache.request_file(cache_request);
+            }
 
-			if(res.out_status == cache_status_available)
-			{
-				std::ifstream t(res.out_path.c_str());
-				if(!t.bad())
-				{
-					s_csv = CSVParser(',', std::string((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>())).ParseCSV();
-					bool success = fill_in_airport_metadata_defaults(*apt, s_csv);
-				}
-				t.close();
-			}
-			else if(res.out_status == cache_status_error)
-			{
-				LOG_MSG("E/MDUi auto-update airport metadata failed due to cache error '%s'\n", res.out_error_human.c_str());
-			}
-		}
-	}
-	else
-	{
-		LOG_MSG("I/MDUi %s\n", "Filling metadata with defaults\n");
-		bool success = fill_in_airport_metadata_defaults(*apt, s_csv);
-	}
+            if (res.out_status == cache_status_available)
+            {
+                std::ifstream t(res.out_path.c_str());
+                if (!t.bad())
+                {
+                    s_csv = CSVParser(
+                                ',', std::string((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>()))
+                                .ParseCSV();
+                    bool success = fill_in_airport_metadata_defaults(*apt, s_csv);
+                }
+                t.close();
+            }
+            else if (res.out_status == cache_status_error)
+            {
+                LOG_MSG("E/MDUi auto-update airport metadata failed due to cache error '%s'\n",
+                        res.out_error_human.c_str());
+            }
+        }
+    }
+    else
+    {
+        LOG_MSG("I/MDUi %s\n", "Filling metadata with defaults\n");
+        bool success = fill_in_airport_metadata_defaults(*apt, s_csv);
+    }
 }

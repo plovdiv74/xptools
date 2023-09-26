@@ -26,28 +26,28 @@
 
 #include "WED_GISPoint_Heading.h"
 
-struct	AptLight_t;
+struct AptLight_t;
 
-class WED_LightFixture : public WED_GISPoint_Heading {
+class WED_LightFixture : public WED_GISPoint_Heading
+{
 
-DECLARE_PERSISTENT(WED_LightFixture)
+    DECLARE_PERSISTENT(WED_LightFixture)
 
 public:
+    void SetLightType(int);
+    void SetAngle(double);
 
-		void		SetLightType(int);
-		void		SetAngle(double);
+    void Import(const AptLight_t& rhs, void (*print_func)(void*, const char*, ...), void* ref);
+    void Export(AptLight_t& rhs) const;
 
-		void		Import(const AptLight_t& rhs, void (* print_func)(void *, const char *, ...), void * ref);
-		void		Export(		 AptLight_t& rhs) const;
-
-	virtual const char *	HumanReadableType(void) const { return "Light Fixture"; }
+    virtual const char* HumanReadableType(void) const
+    {
+        return "Light Fixture";
+    }
 
 private:
-
-	WED_PropIntEnum		light_type;
-	WED_PropDoubleText	angle;
-
+    WED_PropIntEnum light_type;
+    WED_PropDoubleText angle;
 };
 
 #endif /* WED_LIGHTFIXTURE_H */
-

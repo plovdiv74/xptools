@@ -26,77 +26,71 @@
 #include "PlatformUtils.h"
 #include "ObjCUtils.h"
 
-class	XGrinderWin;
+class XGrinderWin;
 
 #if IBM
-HINSTANCE	gInstance = NULL;
+HINSTANCE gInstance = NULL;
 #endif
 
-void	XGrinder_Quit(void)
+void XGrinder_Quit(void)
 {
-	exit(0);
+    exit(0);
 }
 
 #if APL
-int		main(int argc, char ** argv)
+int main(int argc, char** argv)
 {
-	init_ns_stuff();
+    init_ns_stuff();
 
-	XGrindInit();
+    XGrindInit();
 
-	vector<string> files;
+    vector<string> files;
 
-	for(int n = 1; n < argc; ++n)
-		files.push_back(argv[n]);
-	if(!files.empty())
-		XGrindFiles(files);
+    for (int n = 1; n < argc; ++n)
+        files.push_back(argv[n]);
+    if (!files.empty())
+        XGrindFiles(files);
 
-	run_app();
-	return 0;
+    run_app();
+    return 0;
 }
 #endif
 
 #if IBM
-int APIENTRY WinMain(HINSTANCE hInstance,
-                     HINSTANCE hPrevInstance,
-                     LPSTR     lpCmdLine,
-                     int       nCmdShow)
+int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-	gInstance = hInstance;
+    gInstance = hInstance;
 
-	MSG msg;
-//	HACCEL hAccelTable;
+    MSG msg;
+    //	HACCEL hAccelTable;
 
-	XWin::RegisterClass(hInstance);
-	if(OleInitialize(NULL) != S_OK)
-		return FALSE;
+    XWin::RegisterClass(hInstance);
+    if (OleInitialize(NULL) != S_OK)
+        return FALSE;
 
-	XGrindInit();
+    XGrindInit();
 
-	while (GetMessage(&msg, NULL, 0, 0))
-	{
-//		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-//		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-//		}
-	}
+    while (GetMessage(&msg, NULL, 0, 0))
+    {
+        //		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+        //		{
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+        //		}
+    }
 
-	OleUninitialize();
-	return msg.wParam;
+    OleUninitialize();
+    return msg.wParam;
 }
 #endif
 
-
 #pragma mark -
-
 
 #if LIN
 int main(int argc, char* argv[])
 {
-	XGrindInit(argc,argv);
-	setlocale(LC_ALL,"C");
-	return Fl::run();
+    XGrindInit(argc, argv);
+    setlocale(LC_ALL, "C");
+    return Fl::run();
 }
 #endif
-
