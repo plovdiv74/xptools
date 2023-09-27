@@ -102,7 +102,7 @@ void WED_LibraryPane::SetBounds(int x1, int y1, int x2, int y2)
     GUI_Packer::SetBounds(x1, y1, x2, y2);
     int w = x2 - x1;
     if (w > 220)
-        mLibraryList.SetCellWidth(0, max(220, w - 70));
+        mLibraryList.SetCellWidth(0, std::max(220, w - 70));
 }
 
 void WED_LibraryPane::SetBounds(int inBounds[4])
@@ -110,5 +110,5 @@ void WED_LibraryPane::SetBounds(int inBounds[4])
     GUI_Packer::SetBounds(inBounds);
     int w = inBounds[2] - inBounds[0];
     if (w > 220)
-        mLibraryList.SetCellWidth(0, max(220, w - 70));
+        mLibraryList.SetCellWidth(0, std::max(220, w - 70));
 }

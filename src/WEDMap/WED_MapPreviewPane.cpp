@@ -312,7 +312,7 @@ void WED_MapPreviewPane::MouseDrag(int x, int y, int button)
             {
                 Vector3 xyzVelocity = (from - to) / elapsedTime;
                 constexpr double integrationTime = 0.05; // s
-                double newFactor = min(elapsedTime / integrationTime, 1.0);
+                double newFactor = std::min(elapsedTime / integrationTime, 1.0);
                 mDragVelocity = xyzVelocity * newFactor + mDragVelocity * (1 - newFactor);
             }
             Refresh();
@@ -538,7 +538,7 @@ void WED_MapPreviewPane::HandleKeyMove()
     // Limit the elapsed time so that we don't get any unexpectedly big jumps in position
     // when there is a big pause (maybe due to resource loading) that prevents refreshes
     // from happening regularly.
-    Point3 position = mCamera.Position() + xyzVelocity * min(elapsedTime, 0.2);
+    Point3 position = mCamera.Position() + xyzVelocity * std::min(elapsedTime, 0.2);
     if (position.z < MIN_EYE_HEIGHT)
         position.z = MIN_EYE_HEIGHT;
     MoveCameraToXYZ(position);

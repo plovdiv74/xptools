@@ -130,7 +130,7 @@ enum
 
 static int size_for_image(int x, int y, int bpp, int min_bytes)
 {
-    return max(x * y * bpp / 8, min_bytes);
+    return std::max(x * y * bpp / 8, min_bytes);
 }
 static int size_for_mipmap(int x, int y, int bpp, int min_bytes)
 {
@@ -336,9 +336,9 @@ static bool HandleScale(ImageInfo& info, bool up, bool down, bool half, bool squ
         ny /= 2.0;
 
     if (square && up)
-        nx = ny = max(nx, ny);
+        nx = ny = std::max(nx, ny);
     if (square && down)
-        nx = ny = min(nx, ny);
+        nx = ny = std::min(nx, ny);
 
     if (nx == info.width && ny == info.height)
         return true;
@@ -361,7 +361,7 @@ unsigned char night_filter(unsigned char src[], int count, int channel, int leve
     for (int i = 0; i < count; ++i)
         total += (int)src[i];
     total *= 2;
-    return min(255, total / count);
+    return std::min(255, total / count);
 }
 
 unsigned char fade_filter(unsigned char src[], int count, int channel, int level)

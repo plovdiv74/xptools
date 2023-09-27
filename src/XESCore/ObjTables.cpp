@@ -306,9 +306,9 @@ void LoadObjTables(void)
         if (mins.count(terrain) == 0)
             mins[terrain] = n;
         else
-            mins[terrain] = min(mins[terrain], n);
+            mins[terrain] = std::min(mins[terrain], n);
 
-        maxs[terrain] = max(maxs[terrain], n + 1);
+        maxs[terrain] = std::max(maxs[terrain], n + 1);
     }
 
     for (std::hash_map<int, int>::iterator range = mins.begin(); range != mins.end(); ++range)

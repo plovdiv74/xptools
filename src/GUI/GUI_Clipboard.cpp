@@ -821,7 +821,7 @@ STDMETHODIMP GUI_SimpleEnumFORMATETC::Next(ULONG count, FORMATETC* formats, ULON
         return S_FALSE;
     }
     ULONG remaining = mTypes.size() - mIndex;
-    int to_fetch = min(count, remaining);
+    int to_fetch = std::min(count, remaining);
 
     for (int n = 0; n < to_fetch; ++n)
     {
@@ -845,7 +845,7 @@ STDMETHODIMP GUI_SimpleEnumFORMATETC::Skip(ULONG count)
         return S_FALSE;
     }
     ULONG remaining = mTypes.size() - mIndex;
-    int to_fetch = min(count, remaining);
+    int to_fetch = std::min(count, remaining);
     mIndex += to_fetch;
     return (count == to_fetch) ? S_OK : S_FALSE;
 }

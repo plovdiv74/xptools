@@ -168,8 +168,8 @@ bool LoadTextureFromImage(ImageInfo& im, int inTexNum, int inFlags, int* outWidt
 
     int non_pots = ((inFlags & tex_Always_Pad) == 0) && gl_info.has_non_pots;
 
-    int res_x = non_pots ? min((int)im.width, gl_info.max_tex_size) : NextPowerOf2(im.width);
-    int res_y = non_pots ? min((int)im.height, gl_info.max_tex_size) : NextPowerOf2(im.height);
+    int res_x = non_pots ? std::min((int)im.width, gl_info.max_tex_size) : NextPowerOf2(im.width);
+    int res_y = non_pots ? std::min((int)im.height, gl_info.max_tex_size) : NextPowerOf2(im.height);
     bool resize = (res_x != im.width || res_y != im.height);
     bool rescale = resize && (inFlags & tex_Rescale);
     if (im.width > res_x || im.height > res_y) // Always rescale if the image is too big for the max tex!!
@@ -1015,8 +1015,8 @@ static void swap_blocks(char* a, GLint type)
 
 static void BCx_y_flip(GLenum glformat, int dds_blocksize, char* data, int width_pix, int height_pix)
 {
-    int data_len = max(1, (width_pix * height_pix) / 16) * dds_blocksize;
-    int blocks_per_line = max(1, width_pix / 4);
+    int data_len = std::max(1, (width_pix * height_pix) / 16) * dds_blocksize;
+    int blocks_per_line = std::max(1, width_pix / 4);
     int line_len = blocks_per_line * dds_blocksize;
     int swap_count = height_pix / 4 / 2;
     char* dds_line1 = data;
@@ -1171,12 +1171,12 @@ bool LoadTextureFromDDS(char* mem_start, char* mem_end, int in_tex_num, int inFl
         // to match old MSFT DIB convention (0,0) == left bottom, but DDS / DXT starts at left top.
         BCx_y_flip(glformat, dds_blocksize, data, x, y);
 
-        int data_len = max(1, (x * y) / 16) * dds_blocksize;
+        int data_len = std::max(1, (x * y) / 16) * dds_blocksize;
         glCompressedTexImage2D(GL_TEXTURE_2D, level, glformat, x, y, 0, data_len, data);
         CHECK_GL_ERR
 
-        x = max(1, x >> 1);
-        y = max(1, y >> 1);
+        x = std::max(1, x >> 1);
+        y = std::max(1, y >> 1);
         data += data_len;
     }
 
@@ -1367,12 +1367,12 @@ bool LoadTextureFromKTX2(char* mem_start, char* mem_end, int in_tex_num, int inF
         if (flip_y)
             BCx_y_flip(glformat, dds_blocksize, data, x, y);
 
-        int data_len = max(1, (x * y) / 16) * dds_blocksize;
+        int data_len = std::max(1, (x * y) / 16) * dds_blocksize;
         glCompressedTexImage2D(GL_TEXTURE_2D, level, glformat, x, y, 0, data_len, data);
         CHECK_GL_ERR
 
-        x = max(1, x >> 1);
-        y = max(1, y >> 1);
+        x = std::max(1, x >> 1);
+        y = std::max(1, y >> 1);
         data += data_len;
     }
 

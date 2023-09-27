@@ -828,8 +828,8 @@ void WED_Sign_Editor::delete_selection()
 {
     if (mEditStart != mEditEnd)
     {
-        mData.delete_range(mEditSide, min(mEditStart, mEditEnd), max(mEditStart, mEditEnd));
-        mEditEnd = mEditStart = min(mEditEnd, mEditStart);
+        mData.delete_range(mEditSide, std::min(mEditStart, mEditEnd), std::max(mEditStart, mEditEnd));
+        mEditEnd = mEditStart = std::min(mEditEnd, mEditStart);
         Refresh();
     }
 }
@@ -837,8 +837,8 @@ void WED_Sign_Editor::delete_selection()
 void WED_Sign_Editor::replace_selection(parser_glyph_t g, parser_color_t c)
 {
     std::vector<sign_token>& side(mEditSide ? mData.back : mData.front);
-    int low = min(mEditStart, mEditEnd);
-    int high = max(mEditStart, mEditEnd);
+    int low = std::min(mEditStart, mEditEnd);
+    int high = std::max(mEditStart, mEditEnd);
 
     if (g == glyph_separator) // check for various cases where we don't allow a separator to be placed
     {
@@ -884,7 +884,7 @@ void WED_Sign_Editor::selection_changed()
     if (mEditEnd > side.size())
         mEditEnd = side.size();
 
-    for (int i = max(mEditStart, mEditEnd) - 1; i >= 0; --i)
+    for (int i = std::max(mEditStart, mEditEnd) - 1; i >= 0; --i)
     {
         if (side[i].color != sign_color_independent)
         {

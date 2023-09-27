@@ -105,14 +105,14 @@ void GUI_Packer::PackPaneToRight(GUI_Pane* child, GUI_Packer_Side side, GUI_Pane
         subsize[1] = targetsize[1];
         subsize[2] = targetsize[2] + subsize[4];
         subsize[3] = targetsize[1] + subsize[5];
-        mPackArea[1] = max(subsize[3], targetsize[3]);
+        mPackArea[1] = std::max(subsize[3], targetsize[3]);
         break;
     case gui_Pack_Top:
         subsize[0] = targetsize[2];
         subsize[3] = targetsize[3];
         subsize[2] = targetsize[2] + subsize[4];
         subsize[1] = targetsize[3] - subsize[5];
-        mPackArea[3] = min(targetsize[1], subsize[1]);
+        mPackArea[3] = std::min(targetsize[1], subsize[1]);
         break;
     }
     child->SetBounds(subsize);

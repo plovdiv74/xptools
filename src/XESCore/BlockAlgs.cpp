@@ -410,13 +410,13 @@ void find_major_axis(std::vector<block_pt>& pts, Segment2* out_segment, Vector2*
                 Vector2 v_b(v_a.perpendicular_ccw());
 
                 double total = 0.0;
-                int max_k = min(pts.size(), PTS_LIM);
+                int max_k = std::min(pts.size(), PTS_LIM);
                 for (int k = 0; k < max_k; ++k)
                 {
                     int l = (k + 1) % pts.size();
                     Vector2 s(pts[k].loc, pts[l].loc);
 
-                    total += max(fabs(v_a.dot(s)), fabs(v_b.dot(s)));
+                    total += std::max(fabs(v_a.dot(s)), fabs(v_b.dot(s)));
                 }
 
                 if (total >= best_v)
@@ -475,10 +475,10 @@ void find_major_axis(std::vector<block_pt>& pts, Segment2* out_segment, Vector2*
     {
         double ca = out_major->dot(Vector2(pts[n].loc));
         double cb = out_minor->dot(Vector2(pts[n].loc));
-        bounds[0] = min(bounds[0], ca);
-        bounds[1] = min(bounds[1], cb);
-        bounds[2] = max(bounds[2], ca);
-        bounds[3] = max(bounds[3], cb);
+        bounds[0] = std::min(bounds[0], ca);
+        bounds[1] = std::min(bounds[1], cb);
+        bounds[2] = std::max(bounds[2], ca);
+        bounds[3] = std::max(bounds[3], cb);
     }
 
     //	if(fabs(bounds[3] - bounds[1]) > fabs(bounds[2] - bounds[0]))
@@ -492,10 +492,10 @@ void find_major_axis(std::vector<block_pt>& pts, Segment2* out_segment, Vector2*
     //		{
     //			double ca = out_major->dot(Vector2(pts[n].loc));
     //			double cb = out_minor->dot(Vector2(pts[n].loc));
-    //			bounds[0] = min(bounds[0],ca);
-    //			bounds[1] = min(bounds[1],cb);
-    //			bounds[2] = max(bounds[2],ca);
-    //			bounds[3] = max(bounds[3],cb);
+    //			bounds[0] = std::min(bounds[0],ca);
+    //			bounds[1] = std::min(bounds[1],cb);
+    //			bounds[2] = std::max(bounds[2],ca);
+    //			bounds[3] = std::max(bounds[3],cb);
     //		}
     //
     //	}

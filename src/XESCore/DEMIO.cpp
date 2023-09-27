@@ -278,7 +278,7 @@ bool ReadRawBIL(DEMGeo& inMap, const char* inFileName, int bounds[4])
         {
             short v;
             reader.ReadShort(v);
-            low = min(low, v);
+            low = std::min(low, v);
         }
         if (low < -1000)
             pt = platform_BigEndian;
@@ -1038,8 +1038,8 @@ bool ExtractGeoTiff(DEMGeo& inMap, const char* inFileName, int post_style, int n
                     break;
                 }
 
-                int ux = min(tw, w - x);
-                int uy = min(th, h - y);
+                int ux = std::min(tw, w - x);
+                int uy = std::min(th, h - y);
 
                 switch (format)
                 {

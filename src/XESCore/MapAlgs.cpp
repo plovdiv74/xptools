@@ -1283,13 +1283,13 @@ void TopoIntegrateMaps(Pmwx * mapA, Pmwx * mapB)
 		Bbox_2	bounds(iterB->source()->point(),iterB->target()->point());
 		bounds.expand(BBOX_SLOP);
 
-		dist = bounds.y()max() - bounds.y()min();
+		dist = bounds.y()std::max() - bounds.y()min();
 		if (dist > SMALL_SEG_CUTOFF)
 		{
-			yrange_big = max(yrange_big, dist);
+			yrange_big = std::max(yrange_big, dist);
 			map_big.insert(HalfedgeMap::value_type(bounds, iterB));
 		} else {
-			yrange_small = max(yrange_small, dist);
+			yrange_small = std::max(yrange_small, dist);
 			map_small.insert(HalfedgeMap::value_type(bounds, iterB));
 		}
 
@@ -1305,7 +1305,7 @@ void TopoIntegrateMaps(Pmwx * mapA, Pmwx * mapB)
 
 		bool did_colinear;
 		key_lo = Point_2(0.0, boxA.y()min() - yrange_big);
-		key_hi = Point_2(0.0, boxA.y()max());
+		key_hi = Point_2(0.0, boxA.y()std::max());
 		possibles.first = map_big.lower_bound(key_lo);
 		possibles.second = map_big.upper_bound(key_hi);
 		for (he_box = possibles.first; he_box != possibles.second; ++he_box)
@@ -1404,7 +1404,7 @@ void TopoIntegrateMaps(Pmwx * mapA, Pmwx * mapB)
 		}
 
 		key_lo = Point_2(0.0, boxA.y()min() - yrange_small);
-		key_hi = Point_2(0.0, boxA.y()max());
+		key_hi = Point_2(0.0, boxA.y()std::max());
 		possibles.first = map_small.lower_bound(key_lo);
 		possibles.second = map_small.upper_bound(key_hi);
 		for (he_box = possibles.first; he_box != possibles.second; ++he_box)
@@ -1758,9 +1758,9 @@ float GetParamAverage(const Pmwx::Face_handle f, const DEMGeo& dem, float* outMi
                     else
                     {
                         if (outMin)
-                            *outMin = min(*outMin, e);
+                            *outMin = std::min(*outMin, e);
                         if (outMax)
-                            *outMax = max(*outMax, e);
+                            *outMax = std::max(*outMax, e);
                     }
                     avg += e;
                     count++;
@@ -1791,9 +1791,9 @@ float GetParamAverage(const Pmwx::Face_handle f, const DEMGeo& dem, float* outMi
                 else
                 {
                     if (outMin)
-                        *outMin = min(*outMin, e);
+                        *outMin = std::min(*outMin, e);
                     if (outMax)
-                        *outMax = max(*outMax, e);
+                        *outMax = std::max(*outMax, e);
                 }
                 avg += e;
                 count++;
@@ -1879,10 +1879,10 @@ bool ClipDEMToFaceSet(const std::set<Face_handle>& inFaces, const DEMGeo& inSrcD
         {
             for (x = x1; x < x2; ++x)
             {
-                outX1 = min(outX1, x);
-                outX2 = max(outX2, x + 1);
-                outY1 = min(outY1, y);
-                outY2 = max(outY2, y + 1);
+                outX1 = std::min(outX1, x);
+                outX2 = std::max(outX2, x + 1);
+                outY1 = std::min(outY1, y);
+                outY2 = std::max(outY2, y + 1);
                 ok = true;
 
                 if (inSrcDEM.get(x, y) != DEM_NO_DATA)
@@ -2381,7 +2381,7 @@ int MapDesliver(Pmwx& pmwx, double metric, ProgressFunc func)
 {
     PROGRESS_START(func, 0, 1, "Deslivering...")
     int ctr = 0, tot = pmwx.number_of_faces();
-    int chk = max(1, tot / 100);
+    int chk = std::max(1, tot / 100);
     int ret = 0;
 
     int fast = 0;
@@ -2486,7 +2486,7 @@ int KillSliverWater(Pmwx& pmwx, double metric, ProgressFunc func)
 {
     PROGRESS_START(func, 0, 1, "Deslivering...")
     int ctr = 0, tot = pmwx.number_of_faces();
-    int chk = max(1, tot / 100);
+    int chk = std::max(1, tot / 100);
     int ret = 0;
 
     int fast = 0;
@@ -2534,7 +2534,7 @@ int KillSlopedWater(Pmwx& pmwx, DEMGeo& elev, DEMGeo& landuse, int max_horizonta
 {
     PROGRESS_START(func, 0, 1, "Deslivering...")
     int ctr = 0, tot = pmwx.number_of_faces();
-    int chk = max(1, tot / 100);
+    int chk = std::max(1, tot / 100);
     int ret = 0;
 
     DEMGeo water_up(elev.mWidth, elev.mHeight);
@@ -2580,8 +2580,8 @@ int KillSlopedWater(Pmwx& pmwx, DEMGeo& elev, DEMGeo& landuse, int max_horizonta
                         {
                             float e = elev.value_linear(CGAL::to_double(circ->source()->point().x()),
                                                         CGAL::to_double(circ->source()->point().y()));
-                            zmin = min(zmin, e);
-                            zmax = max(zmax, e);
+                            zmin = std::min(zmin, e);
+                            zmax = std::max(zmax, e);
 
                             box += circ->source()->point().bbox();
                         } while (stop != ++circ);
@@ -2610,8 +2610,8 @@ int KillSlopedWater(Pmwx& pmwx, DEMGeo& elev, DEMGeo& landuse, int max_horizonta
                                     if (e != DEM_NO_DATA)
                                     {
                                         // debug_mesh_point(Point2(water_up.x_to_lon(x), water_up.y_to_lat(y)),1,1,0);
-                                        zmin = min(zmin, e);
-                                        zmax = max(zmax, e);
+                                        zmin = std::min(zmin, e);
+                                        zmax = std::max(zmax, e);
                                     }
                                     ++total;
                                     if (wet == 1)
@@ -2757,10 +2757,10 @@ int RemoveOutsets(Pmwx& io_map, double max_len_sq, double max_area)
     for (Pmwx::Vertex_iterator v = io_map.vertices_begin(); v != io_map.vertices_end(); ++v)
     {
         Point2 p = cgal2ben(v->point());
-        minc.x_ = min(minc.x(), p.x());
-        minc.y_ = min(minc.y(), p.y());
-        maxc.x_ = max(maxc.x(), p.x());
-        maxc.y_ = max(maxc.y(), p.y());
+        minc.x_ = std::min(minc.x(), p.x());
+        minc.y_ = std::min(minc.y(), p.y());
+        maxc.x_ = std::max(maxc.x(), p.x());
+        maxc.y_ = std::max(maxc.y(), p.y());
     }
 
     spatial_index_2<Pmwx::Geometry_traits_2> vertex_index;

@@ -49,22 +49,22 @@ void GetObjBoundingSphere(const XObj& inObj, float outSphere[4])
     {
         for (vector<vec_tex>::const_iterator st = cmd->st.begin(); st != cmd->st.end(); ++st)
         {
-            minxyz[0] = min(minxyz[0], st->v[0]);
-            minxyz[1] = min(minxyz[1], st->v[1]);
-            minxyz[2] = min(minxyz[2], st->v[2]);
-            maxxyz[0] = max(maxxyz[0], st->v[0]);
-            maxxyz[1] = max(maxxyz[1], st->v[1]);
-            maxxyz[2] = max(maxxyz[2], st->v[2]);
+            minxyz[0] = std::min(minxyz[0], st->v[0]);
+            minxyz[1] = std::min(minxyz[1], st->v[1]);
+            minxyz[2] = std::min(minxyz[2], st->v[2]);
+            maxxyz[0] = std::max(maxxyz[0], st->v[0]);
+            maxxyz[1] = std::max(maxxyz[1], st->v[1]);
+            maxxyz[2] = std::max(maxxyz[2], st->v[2]);
         }
 
         for (vector<vec_rgb>::const_iterator rgb = cmd->rgb.begin(); rgb != cmd->rgb.end(); ++rgb)
         {
-            minxyz[0] = min(minxyz[0], rgb->v[0]);
-            minxyz[1] = min(minxyz[1], rgb->v[1]);
-            minxyz[2] = min(minxyz[2], rgb->v[2]);
-            maxxyz[0] = max(maxxyz[0], rgb->v[0]);
-            maxxyz[1] = max(maxxyz[1], rgb->v[1]);
-            maxxyz[2] = max(maxxyz[2], rgb->v[2]);
+            minxyz[0] = std::min(minxyz[0], rgb->v[0]);
+            minxyz[1] = std::min(minxyz[1], rgb->v[1]);
+            minxyz[2] = std::min(minxyz[2], rgb->v[2]);
+            maxxyz[0] = std::max(maxxyz[0], rgb->v[0]);
+            maxxyz[1] = std::max(maxxyz[1], rgb->v[1]);
+            maxxyz[2] = std::max(maxxyz[2], rgb->v[2]);
         }
     }
 
@@ -153,8 +153,8 @@ void GetObjDimensions(const XObj& inObj, float minCoords[3], float maxCoords[3])
 
             for (int n = 0; n < 3; ++n)
             {
-                minCoords[n] = min(minCoords[n], st->v[n]);
-                maxCoords[n] = max(maxCoords[n], st->v[n]);
+                minCoords[n] = std::min(minCoords[n], st->v[n]);
+                maxCoords[n] = std::max(maxCoords[n], st->v[n]);
             }
         }
 
@@ -172,8 +172,8 @@ void GetObjDimensions(const XObj& inObj, float minCoords[3], float maxCoords[3])
 
             for (int n = 0; n < 3; ++n)
             {
-                minCoords[n] = min(minCoords[n], rgb->v[n]);
-                maxCoords[n] = max(maxCoords[n], rgb->v[n]);
+                minCoords[n] = std::min(minCoords[n], rgb->v[n]);
+                maxCoords[n] = std::max(maxCoords[n], rgb->v[n]);
             }
         }
     }
@@ -200,12 +200,12 @@ void GetObjDimensions8(const XObj8& inObj, float minCoords[3], float maxCoords[3
         if (has)
         {
             inObj.geo_lines.get_minmax(mintemp, maxtemp);
-            minCoords[0] = min(minCoords[0], mintemp[0]);
-            maxCoords[0] = max(maxCoords[0], maxtemp[0]);
-            minCoords[1] = min(minCoords[1], mintemp[1]);
-            maxCoords[0] = max(maxCoords[1], maxtemp[1]);
-            minCoords[2] = min(minCoords[2], mintemp[2]);
-            maxCoords[0] = max(maxCoords[2], maxtemp[2]);
+            minCoords[0] = std::min(minCoords[0], mintemp[0]);
+            maxCoords[0] = std::max(maxCoords[0], maxtemp[0]);
+            minCoords[1] = std::min(minCoords[1], mintemp[1]);
+            maxCoords[0] = std::max(maxCoords[1], maxtemp[1]);
+            minCoords[2] = std::min(minCoords[2], mintemp[2]);
+            maxCoords[0] = std::max(maxCoords[2], maxtemp[2]);
         }
         else
             inObj.geo_lines.get_minmax(minCoords, maxCoords);
@@ -217,12 +217,12 @@ void GetObjDimensions8(const XObj8& inObj, float minCoords[3], float maxCoords[3
         if (has)
         {
             inObj.geo_lights.get_minmax(mintemp, maxtemp);
-            minCoords[0] = min(minCoords[0], mintemp[0]);
-            maxCoords[0] = max(maxCoords[0], maxtemp[0]);
-            minCoords[1] = min(minCoords[1], mintemp[1]);
-            maxCoords[0] = max(maxCoords[1], maxtemp[1]);
-            minCoords[2] = min(minCoords[2], mintemp[2]);
-            maxCoords[0] = max(maxCoords[2], maxtemp[2]);
+            minCoords[0] = std::min(minCoords[0], mintemp[0]);
+            maxCoords[0] = std::max(maxCoords[0], maxtemp[0]);
+            minCoords[1] = std::min(minCoords[1], mintemp[1]);
+            maxCoords[0] = std::max(maxCoords[1], maxtemp[1]);
+            minCoords[2] = std::min(minCoords[2], mintemp[2]);
+            maxCoords[0] = std::max(maxCoords[2], maxtemp[2]);
         }
         else
             inObj.geo_lights.get_minmax(minCoords, maxCoords);

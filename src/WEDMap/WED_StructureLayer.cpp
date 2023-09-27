@@ -439,8 +439,8 @@ bool WED_StructureLayer::DrawEntityStructure(bool inCurrent, IGISEntity* entity,
                             if (locked)
                                 glColor3fv(linfo->rgb);
                             else // do some color correction to account for the green vs grey line
-                                glColor3f(min(1.0, linfo->rgb[0] + 0.2), max(0.0, linfo->rgb[1] - 0.0),
-                                          min(1.0, linfo->rgb[2] + 0.2));
+                                glColor3f(min(1.0, linfo->rgb[0] + 0.2), std::max(0.0, linfo->rgb[1] - 0.0),
+                                          std::min(1.0, linfo->rgb[2] + 0.2));
 
                             for (int i = 0; i < lin->GetNumSides(); ++i)
                             {

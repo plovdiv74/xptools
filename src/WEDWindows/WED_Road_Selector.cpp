@@ -344,7 +344,7 @@ bool WED_Road_Selector::SetData(const GUI_CellContent& c)
 void WED_Road_Selector::GetSizeHint(int* w, int* h)
 {
     *w = 2 * MARG + mColWidth[0] + mColWidth[1];
-    *h = 2 * MARG + HGT * max(mRd_prefix.size(), mRd_suffix.size());
+    *h = 2 * MARG + HGT * std::max(mRd_prefix.size(), mRd_suffix.size());
 }
 
 void WED_Road_Selector::GetData(GUI_CellContent& c)

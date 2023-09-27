@@ -538,13 +538,13 @@ int WED_PropertyTable::SelectGetExtent(int& low_x, int& low_y, int& high_x, int&
 
                 if (mVertical)
                 {
-                    low_x = min(low_x, n);
-                    high_x = max(high_x, n);
+                    low_x = std::min(low_x, n);
+                    high_x = std::max(high_x, n);
                 }
                 else
                 {
-                    low_y = min(low_y, n);
-                    high_y = max(high_y, n);
+                    low_y = std::min(low_y, n);
+                    high_y = std::max(high_y, n);
                 }
             }
         }
@@ -1049,7 +1049,7 @@ int WED_PropertyTable::ColForX(int n)
 {
     int c = GUI_SimpleTableGeometry::ColForX(n);
     int cc = GetColCount();
-    return min(c, cc - 1);
+    return std::min(c, cc - 1);
 }
 
 int WED_PropertyTable::GetRowCount(void)

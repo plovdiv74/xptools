@@ -65,12 +65,12 @@ enum
 
 static int best_num_rows(int items, int num_cols)
 {
-    return ceil(items / float(max(num_cols, 1)));
+    return ceil(items / float(std::max(num_cols, 1)));
 }
 
 static int best_num_cols(int items, int w_pixels, int h_pixels)
 {
-    int cols = max(1, intround(sqrt(items * w_pixels / float(h_pixels))));
+    int cols = std::max(1, intround(sqrt(items * w_pixels / float(h_pixels))));
     int rows = best_num_rows(items, cols);
     int last_row = items % cols;
     while (last_row > 0 && cols > 2 && rows > 1 && cols - 1 - last_row >= rows - 1)
@@ -322,7 +322,7 @@ int WED_LibraryPreviewPane::MouseDown(int x, int y, int button)
         {
             int b[4];
             GetBounds(b);
-            float prev_space = min(b[2] - b[0], b[3] - b[1]);
+            float prev_space = std::min(b[2] - b[0], b[3] - b[1]);
 
             TexRef tref = mTexMgr->LookupTexture(pol->base_tex.c_str(), true,
                                                  pol->wrap ? (tex_Compress_Ok | tex_Wrap) : tex_Compress_Ok);
@@ -660,7 +660,7 @@ void WED_LibraryPreviewPane::DrawOneItem(int type, const std::string& res, int b
                         g->SetState(false, 1, false, !pol->kill_alpha, !pol->kill_alpha, false, false);
                         g->BindTex(tex_id, 0);
 
-                        float prev_space = min(b[2] - b[0], b[3] - b[1]);
+                        float prev_space = std::min(b[2] - b[0], b[3] - b[1]);
                         float ds = prev_space / mZoom * Ds;
                         float dt = prev_space / mZoom * Dt;
                         float dx = b[2] - b[0];

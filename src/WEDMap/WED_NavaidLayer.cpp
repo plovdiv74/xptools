@@ -544,10 +544,10 @@ void WED_NavaidLayer::DrawVisualization(bool inCurrent, GUI_GraphState* g)
     GetZoomer()->GetMapLogicalBounds(ll, lb, lr, lt);
     GetZoomer()->GetMapVisibleBounds(vl, vb, vr, vt);
 
-    vl = max(vl, ll) - NAVAID_EXTRA_RANGE;
-    vb = max(vb, lb) - NAVAID_EXTRA_RANGE;
-    vr = min(vr, lr) + NAVAID_EXTRA_RANGE;
-    vt = min(vt, lt) + NAVAID_EXTRA_RANGE;
+    vl = std::max(vl, ll) - NAVAID_EXTRA_RANGE;
+    vb = std::max(vb, lb) - NAVAID_EXTRA_RANGE;
+    vr = std::min(vr, lr) + NAVAID_EXTRA_RANGE;
+    vt = std::min(vt, lt) + NAVAID_EXTRA_RANGE;
 
     double PPM = GetZoomer()->GetPPM();
     double scale = GetAirportIconScale();

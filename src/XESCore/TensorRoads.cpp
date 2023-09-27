@@ -263,7 +263,7 @@ void BulkZapRoads(const DEMGeo& inUrbanDensity, Pmwx& io_map)
             double d = inUrbanDensity.get(inUrbanDensity.lon_to_x(CGAL::to_double(mp.x())),
                                           inUrbanDensity.lat_to_y(CGAL::to_double(mp.y())));
             if (e->source()->degree() == 1 || e->target()->degree() == 1)
-                d = min(d, 0.5); // always think of nuking antennas
+                d = std::min(d, 0.5); // always think of nuking antennas
 #if IGNORE_DENSITY
             d = 1.0;
 #endif
@@ -887,7 +887,7 @@ void BuildRoadsForFace(Pmwx& ioMap, const DEMGeo& inElevation, const DEMGeo& inS
                         //					gMeshLines.push_back(std::pair<Point2,Point3>(*j,c));
                         //					gMeshLines.push_back(std::pair<Point2,Point3>(*i,c));
                         // can't  do this - makes a point cloud of roads - TOTALLY gross.
-                        //					if(RollDice(max(inUrbanDensity.value_linear(j->x,j->y),inUrbanDensity.value_linear(i->x,i->y))))
+                        //					if(RollDice(std::max(inUrbanDensity.value_linear(j->x,j->y),inUrbanDensity.value_linear(i->x,i->y))))
                         roads.push_back(Segment2(*j, *i));
                     }
                 }

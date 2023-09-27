@@ -164,22 +164,22 @@ double WED_ObjPlacement::GetVisibleDeg(void) const
             // variant is used for preview
             if (rmgr->GetObj(resource.value, o))
             {
-                visibleWithinDeg = pythag(max(fabs(o->xyz_max[0]), fabs(o->xyz_min[0])),
-                                          max(fabs(o->xyz_max[2]), fabs(o->xyz_min[2]))) *
+                visibleWithinDeg = pythag(std::max(fabs(o->xyz_max[0]), fabs(o->xyz_min[0])),
+                                          std::max(fabs(o->xyz_max[2]), fabs(o->xyz_min[2]))) *
                                    1.2 * mtr_to_lon;
                 visibleWithinMeters =
-                    pythag(max(fabs(o->xyz_max[0]), fabs(o->xyz_min[0])), max(fabs(o->xyz_max[1]), fabs(o->xyz_min[1])),
-                           max(fabs(o->xyz_max[2]), fabs(o->xyz_min[2])));
+                    pythag(std::max(fabs(o->xyz_max[0]), fabs(o->xyz_min[0])), std::max(fabs(o->xyz_max[1]), fabs(o->xyz_min[1])),
+                           std::max(fabs(o->xyz_max[2]), fabs(o->xyz_min[2])));
             }
             else if (rmgr->GetAGP(resource.value, agp))
             {
                 auto ti = agp->tiles.front();
-                visibleWithinDeg = pythag(max(fabs(ti.xyz_max[0]), fabs(ti.xyz_min[0])),
-                                          max(fabs(ti.xyz_max[2]), fabs(ti.xyz_min[2]))) *
+                visibleWithinDeg = pythag(std::max(fabs(ti.xyz_max[0]), fabs(ti.xyz_min[0])),
+                                          std::max(fabs(ti.xyz_max[2]), fabs(ti.xyz_min[2]))) *
                                    1.2 * mtr_to_lon;
                 visibleWithinMeters =
-                    pythag(max(fabs(ti.xyz_max[0]), fabs(ti.xyz_min[0])), max(fabs(ti.xyz_max[1]), fabs(ti.xyz_min[1])),
-                           max(fabs(ti.xyz_max[2]), fabs(ti.xyz_min[2])));
+                    pythag(std::max(fabs(ti.xyz_max[0]), fabs(ti.xyz_min[0])), std::max(fabs(ti.xyz_max[1]), fabs(ti.xyz_min[1])),
+                           std::max(fabs(ti.xyz_max[2]), fabs(ti.xyz_min[2])));
             }
         }
     }

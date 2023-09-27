@@ -162,7 +162,7 @@ Point2 WED_MapZoomerNew::PixelToLL(const Point2& p) const
 #endif
         if (mPixel2DegLat() > THR_GNOMONIC * 0.3)
         {
-            double blend = min(0.7, (THR_GNOMONIC - mPixel2DegLat()) / THR_GNOMONIC) / 0.7;
+            double blend = std::min(0.7, (THR_GNOMONIC - mPixel2DegLat()) / THR_GNOMONIC) / 0.7;
             return Point2(XPixelToLon(p.x()) * (1.0 - blend) + lon * blend,
                           YPixelToLat(p.y()) * (1.0 - blend) + lat * blend);
         }
@@ -173,9 +173,9 @@ Point2 WED_MapZoomerNew::PixelToLL(const Point2& p) const
 #if USE_WAGNER
     if (mMapSize > THR_WAGNER)
     {
-        double blend = min(1.0, (mMapSize - THR_WAGNER) / THR_WAGNER);
+        double blend = std::min(1.0, (mMapSize - THR_WAGNER) / THR_WAGNER);
         Point2 pt(XPixelToLon(p.x()), YPixelToLat(p.y()));
-        pt.y_ = min(max(pt.y(), mLogicalBounds[1]), mLogicalBounds[3]);
+        pt.y_ = std::min(std::max(pt.y(), mLogicalBounds[1]), mLogicalBounds[3]);
         return Point2(pt.x() / (1.0 + blend * (wagner_proj_mult(pt.y()) - 1.0)), pt.y() / (1.0 + blend * 0));
     }
 #endif
@@ -188,8 +188,8 @@ Point2 WED_MapZoomerNew::LLToPixel(const Point2& p) const
     if (!cam && mPixel2DegLat() < THR_GNOMONIC)
     {
         Point2 pt(p);
-        pt.x_ = min(max(mLogicalBounds[0], pt.x()), mLogicalBounds[2]);
-        pt.y_ = min(max(mLogicalBounds[1], pt.y()), mLogicalBounds[3]);
+        pt.x_ = std::min(std::max(mLogicalBounds[0], pt.x()), mLogicalBounds[2]);
+        pt.y_ = std::min(std::max(mLogicalBounds[1], pt.y()), mLogicalBounds[3]);
 #if FULL_EQUATIONS
         // https://mathworld.wolfram.com/GnomonicProjection.html
         double c = sinr(mLatCenter) * sinr(pt.y()) + cosr(mLatCenter) * cosr(pt.y()) * cosr(pt.x() - mLonCenter);
@@ -211,7 +211,7 @@ Point2 WED_MapZoomerNew::LLToPixel(const Point2& p) const
 #endif
         if (mPixel2DegLat() > THR_GNOMONIC * 0.3)
         {
-            double blend = min(0.7, (THR_GNOMONIC - mPixel2DegLat()) / THR_GNOMONIC) / 0.7;
+            double blend = std::min(0.7, (THR_GNOMONIC - mPixel2DegLat()) / THR_GNOMONIC) / 0.7;
             return Point2(LonToXPixel(p.x()) * (1.0 - blend) + x * blend,
                           LatToYPixel(p.y()) * (1.0 - blend) + y * blend);
         }
@@ -222,7 +222,7 @@ Point2 WED_MapZoomerNew::LLToPixel(const Point2& p) const
 #if USE_WAGNER
     if (mMapSize > THR_WAGNER)
     {
-        double blend = min(1.0, (mMapSize - THR_WAGNER) / THR_WAGNER);
+        double blend = std::min(1.0, (mMapSize - THR_WAGNER) / THR_WAGNER);
         return Point2(LonToXPixel(p.x() * (1.0 + blend * (wagner_proj_mult(p.y()) - 1.0))),
                       LatToYPixel(p.y() * (1.0 + blend * 0)));
     }
@@ -258,8 +258,8 @@ std::pair<Point2, double> WED_MapZoomerNew::LLToPixelr(const Point2& p) const
     if (!cam && mPixel2DegLat() < THR_GNOMONIC)
     {
         Point2 pt(p);
-        pt.x_ = min(max(mLogicalBounds[0], pt.x()), mLogicalBounds[2]);
-        pt.y_ = min(max(mLogicalBounds[1], pt.y()), mLogicalBounds[3]);
+        pt.x_ = std::min(std::max(mLogicalBounds[0], pt.x()), mLogicalBounds[2]);
+        pt.y_ = std::min(std::max(mLogicalBounds[1], pt.y()), mLogicalBounds[3]);
 #if FULL_EQUATIONS
         // https://mathworld.wolfram.com/GnomonicProjection.html
         double c = sinr(mLatCenter) * sinr(pt.y()) + cosr(mLatCenter) * cosr(pt.y()) * cosr(pt.x() - mLonCenter);
@@ -286,7 +286,7 @@ std::pair<Point2, double> WED_MapZoomerNew::LLToPixelr(const Point2& p) const
 
         if (mPixel2DegLat() > THR_GNOMONIC * 0.3)
         {
-            double blend = min(0.7, (THR_GNOMONIC - mPixel2DegLat()) / THR_GNOMONIC) / 0.7;
+            double blend = std::min(0.7, (THR_GNOMONIC - mPixel2DegLat()) / THR_GNOMONIC) / 0.7;
             return {
                 Point2(LonToXPixel(p.x()) * (1.0 - blend) + x * blend, LatToYPixel(p.y()) * (1.0 - blend) + y * blend),
                 blend * rotation};
@@ -298,7 +298,7 @@ std::pair<Point2, double> WED_MapZoomerNew::LLToPixelr(const Point2& p) const
 #if USE_WAGNER
     if (mMapSize > THR_WAGNER)
     {
-        double blend = min(1.0, (mMapSize - THR_WAGNER) / THR_WAGNER);
+        double blend = std::min(1.0, (mMapSize - THR_WAGNER) / THR_WAGNER);
         return {Point2(LonToXPixel(p.x() * (1.0 + blend * (wagner_proj_mult(p.y()) - 1.0))),
                        LatToYPixel(p.y() * (1.0 + blend * 0))),
                 0.0};
@@ -313,8 +313,8 @@ double WED_MapZoomerNew::GetRotation(const Point2& p) const
     if (!cam && mPixel2DegLat() < THR_GNOMONIC)
     {
         Point2 pt(p);
-        pt.x_ = min(max(mLogicalBounds[0], pt.x()), mLogicalBounds[2]);
-        pt.y_ = min(max(mLogicalBounds[1], pt.y()), mLogicalBounds[3]);
+        pt.x_ = std::min(std::max(mLogicalBounds[0], pt.x()), mLogicalBounds[2]);
+        pt.y_ = std::min(std::max(mLogicalBounds[1], pt.y()), mLogicalBounds[3]);
 
         auto as = sinr(pt.y());
         auto ac = cosr(pt.y());
@@ -330,7 +330,7 @@ double WED_MapZoomerNew::GetRotation(const Point2& p) const
 
         if (mPixel2DegLat() > THR_GNOMONIC * 0.3)
         {
-            double blend = min(0.7, (THR_GNOMONIC - mPixel2DegLat()) / THR_GNOMONIC) / 0.7;
+            double blend = std::min(0.7, (THR_GNOMONIC - mPixel2DegLat()) / THR_GNOMONIC) / 0.7;
             return blend * rotation;
         }
         else
@@ -340,7 +340,7 @@ double WED_MapZoomerNew::GetRotation(const Point2& p) const
 #if USE_WAGNER
     if (mMapSize > THR_WAGNER)
     {
-        double blend = min(1.0, (mMapSize - THR_WAGNER) / THR_WAGNER);
+        double blend = std::min(1.0, (mMapSize - THR_WAGNER) / THR_WAGNER);
         return blend * 0;
     }
 #endif
@@ -444,7 +444,7 @@ void WED_MapZoomerNew::ZoomShowArea(double inWest, double inSouth, double inEast
     double scale_for_vert = required_height_logical / pix_avail_height;
     double scale_for_horz = required_width_logical / pix_avail_width * cos(mLatCenter * DEG_TO_RAD);
 
-    mPixel2DegLat = max(scale_for_vert, scale_for_horz);
+    mPixel2DegLat = std::max(scale_for_vert, scale_for_horz);
     RecalcAspectRatio();
 
     BroadcastMessage(GUI_SCROLL_CONTENT_SIZE_CHANGED, 0);
@@ -555,7 +555,7 @@ double WED_MapZoomerNew::PixelSize(const Bbox2& bboxLL) const
         return cam->PixelSize(Bbox3(p1.x(), p1.y(), 0.0, p2.x(), p2.y(), 0.0));
     }
     else
-        return max(bboxLL.xspan() * mCenterCOS, bboxLL.yspan()) * mPixel2DegLat.inv();
+        return std::max(bboxLL.xspan() * mCenterCOS, bboxLL.yspan()) * mPixel2DegLat.inv();
 }
 
 double WED_MapZoomerNew::PixelSize(const Bbox2& bboxLL, double featureSize) const

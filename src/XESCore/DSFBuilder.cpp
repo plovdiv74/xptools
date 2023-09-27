@@ -523,8 +523,8 @@ static void ProjectTex(double lon, double lat, double& s, double& t, const tex_p
     double a2_2 = tri_area(info->corners[3], info->corners[0], p);
     double a2_3 = tri_area(info->corners[0], info->corners[2], p);
 
-    double most_neg_1 = min(min(a1_0, a1_1), a1_2);
-    double most_neg_2 = min(min(a2_0, a2_2), a2_3);
+    double most_neg_1 = std::min(min(a1_0, a1_1), a1_2);
+    double most_neg_2 = std::min(min(a2_0, a2_2), a2_3);
 
     if (most_neg_1 < most_neg_2)
     {
@@ -617,12 +617,12 @@ static double GetTightnessBlend(CDT& inMesh, CDT::Face_handle f_han, CDT::Vertex
             {
                 Vector3 v1(circ->info().normal[0], circ->info().normal[1], circ->info().normal[2]);
                 Vector3 v2(f_han->info().normal[0], f_han->info().normal[1], f_han->info().normal[2]);
-                smallest_dot = min(smallest_dot, v1.dot(v2));
-                smallest_dot = min(smallest_dot, v1.dot(up));
+                smallest_dot = std::min(smallest_dot, v1.dot(v2));
+                smallest_dot = std::min(smallest_dot, v1.dot(up));
             }
 
     } while (stop != circ);
-    smallest_dot = max(0.0, smallest_dot); // must be non-negative!
+    smallest_dot = std::max(0.0, smallest_dot); // must be non-negative!
     smallest_dot = acos(smallest_dot) / (M_PI / 2.0);
     return smallest_dot;
 }
@@ -1472,8 +1472,8 @@ void BuildDSF(const char* inFileName1, const char* inFileName2, const DEMGeo& in
     double hmin = 9.9e9, hmax = -9.9e9;
     for (vert = inHiresMesh.finite_vertices_begin(); vert != inHiresMesh.finite_vertices_end(); ++vert)
     {
-        hmin = min(hmin, vert->info().height);
-        hmax = max(hmax, vert->info().height);
+        hmin = std::min(hmin, vert->info().height);
+        hmax = std::max(hmax, vert->info().height);
     }
     int emin = floor(hmin);
     int emax = ceil(hmax);
@@ -2190,7 +2190,7 @@ void BuildDSF(const char* inFileName1, const char* inFileName2, const DEMGeo& in
         obdef_prio->second = cur_id;
         objects_reversed[cur_id] = obdef_prio->first;
         if (IsFeatureObject(obdef_prio->first))
-            lowest_required = min(lowest_required, cur_id);
+            lowest_required = std::min(lowest_required, cur_id);
     }
 
     if (writer2)

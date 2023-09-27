@@ -132,7 +132,7 @@ static bool too_urban(Pmwx::Halfedge_const_handle h, const DEMGeo& urban_density
     double x_span = fabs(p1i.x() - p2i.x());
     double y_span = fabs(p1i.y() - p2i.y());
 
-    int steps = ceil(max(x_span, y_span));
+    int steps = ceil(std::max(x_span, y_span));
     for (int i = 0; i <= steps; ++i)
     {
         double x = double_interp(0, p1i.x(), steps, p2i.x(), i);
@@ -426,7 +426,7 @@ void CalcRoadTypes(Pmwx& ioMap, const DEMGeo& inElevation, const DEMGeo& inUrban
         double urban = (urbanS + urbanE) * 0.5;
         double rain = (rainS + rainE) * 0.5;
         double temp = (tempS + tempE) * 0.5;
-        double rail = max(railS, railE);
+        double rail = std::max(railS, railE);
 
         while (start != Pmwx::Halfedge_handle() && !start->data().mMark && he_has_any_roads(start) &&
                get_he_feat_type(start) == get_he_feat_type(edge))
@@ -668,7 +668,7 @@ int optimize_one_junction(Pmwx::Vertex_handle v)
                 // Ben says: in theory we shold never want more levels than half the number of incoming roads plus one
                 // (for an odd one out that can dangle). Verify this here, maybe we can cut our l loop down and save the
                 // most expensive iterations?  But we might always need two levels because water FORCES us up one.
-                //				DebugAssert(l <= max(2UL,(he_list.size()+1)/2));
+                //				DebugAssert(l <= std::max(2UL,(he_list.size()+1)/2));
                 // Wait - WRONG.  If our neighbors are WAY up high, WE might need to be too!  That minimizes up-down
                 // shift (E_VERT).
             }
@@ -756,8 +756,8 @@ static void elevate_segments_to(GISNetworkSegmentVector& v, double h)
 {
     for (GISNetworkSegmentVector::iterator i = v.begin(); i != v.end(); ++i)
     {
-        i->mSourceHeight = max(i->mSourceHeight, h);
-        i->mTargetHeight = max(i->mTargetHeight, h);
+        i->mSourceHeight = std::max(i->mSourceHeight, h);
+        i->mTargetHeight = std::max(i->mTargetHeight, h);
     }
 }
 
@@ -1277,8 +1277,8 @@ void repair_network(Pmwx& io_map, bool verbose)
         DebugAssert(h2->target()->point() == pt);
         h1->data().mSegments = rv;
         h2->data().mSegments = rv;
-        h1->data().mSegments.back().mTargetHeight = max(hs, ht);
-        h2->data().mSegments.back().mSourceHeight = max(hs, ht);
+        h1->data().mSegments.back().mTargetHeight = std::max(hs, ht);
+        h2->data().mSegments.back().mSourceHeight = std::max(hs, ht);
     }
 
     // BRIDGE consolidation.  If we have a bridge and the road type is changing, well, that's just sort of silly.  We'd

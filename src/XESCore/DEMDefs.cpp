@@ -455,8 +455,8 @@ void DEMGeo::resize_save(int w, int h, float fill_value)
     other = fill_value;
 
     other.copy_geo_from(*this);
-    int xx = min(mWidth, w);
-    int yy = min(mHeight, h);
+    int xx = std::min(mWidth, w);
+    int yy = std::min(mHeight, h);
 
     for (int y = 0; y < yy; ++y)
         for (int x = 0; x < xx; ++x)

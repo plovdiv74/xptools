@@ -152,14 +152,14 @@ double measure_ring_node(ring_node<__InputIterator>* node, const __MeasureFuncto
     ring_node<__InputIterator>* iter = node->orig_prev;
     while (iter != node->prev)
     {
-        err = max(err, measure(*node->prev->pt, *node->next->pt, *iter->pt));
+        err = std::max(err, measure(*node->prev->pt, *node->next->pt, *iter->pt));
         iter = iter->orig_prev;
     }
 
     iter = node->orig_next;
     while (iter != node->next)
     {
-        err = max(err, measure(*node->prev->pt, *node->next->pt, *iter->pt));
+        err = std::max(err, measure(*node->prev->pt, *node->next->pt, *iter->pt));
         iter = iter->orig_next;
     }
     return err;
@@ -940,8 +940,8 @@ double find_b_interval(time_region::interval& range, const vector<Segment2>& seg
         if (range.second < s->p1.x())
             continue;
 
-        double xmin = max(s->p1.x(), range.first);
-        double xmax = min(s->p2.x(), range.second);
+        double xmin = std::max(s->p1.x(), range.first);
+        double xmax = std::min(s->p2.x(), range.second);
         DebugAssert(xmin <= xmax);
         DebugAssert(xmin >= range.first);
         DebugAssert(xmax <= range.second);
@@ -953,11 +953,11 @@ double find_b_interval(time_region::interval& range, const vector<Segment2>& seg
 
         double y1 = s->y_at_x(xmin);
         double y2 = s->y_at_x(xmax);
-        minv = min(min(y1, y2), minv);
-        maxv = max(max(y1, y2), maxv);
+        minv = std::min(min(y1, y2), minv);
+        maxv = std::max(std::max(y1, y2), maxv);
     }
 
-    return max(maxv - minv, 0.0);
+    return std::max(maxv - minv, 0.0);
 }
 
 /*
@@ -1295,10 +1295,10 @@ static int init_subdivisions(Pmwx::Face_handle f, const FillRule_t* info, CoordT
         if (ca > abounds[right].x())
             right = i;
 
-        bounds[0] = min(bounds[0], ca);
-        bounds[1] = min(bounds[1], cb);
-        bounds[2] = max(bounds[2], ca);
-        bounds[3] = max(bounds[3], cb);
+        bounds[0] = std::min(bounds[0], ca);
+        bounds[1] = std::min(bounds[1], cb);
+        bounds[2] = std::max(bounds[2], ca);
+        bounds[3] = std::max(bounds[3], cb);
     }
     DebugAssert(left != right);
 
@@ -1390,8 +1390,8 @@ static int init_subdivisions(Pmwx::Face_handle f, const FillRule_t* info, CoordT
     while (1)
     {
         // EMIT BLOCK
-        double a_start = max(abounds[prev_bottom].x(), abounds[prev_top].x());
-        double a_stop = min(abounds[bottom].x(), abounds[top].x());
+        double a_start = std::max(abounds[prev_bottom].x(), abounds[prev_top].x());
+        double a_stop = std::min(abounds[bottom].x(), abounds[top].x());
         DebugAssert(a_start <= a_stop);
 
         // Sanity check...a_start == a_stop when we have VERTICAL sides...
@@ -1435,7 +1435,7 @@ static int init_subdivisions(Pmwx::Face_handle f, const FillRule_t* info, CoordT
                 double t1 = p1->second.second;
                 double t2 = p2->second.second;
 
-                double min_depth = min(t1 - b1, t2 - b2);
+                double min_depth = std::min(t1 - b1, t2 - b2);
 
                 reg_info_t reg;
 
@@ -1653,8 +1653,8 @@ static int init_subdivisions(Pmwx::Face_handle f, const FillRule_t* info, CoordT
             // To get facades to merge with their neighbors properly, it is key that the AGB be represented
             // by the flat sides that dominate it.
 
-            double slope_i = max(regions[i].bot_slope, regions[i].top_slope);
-            double slope_ipp = max(regions[i + 1].bot_slope, regions[i + 1].top_slope);
+            double slope_i = std::max(regions[i].bot_slope, regions[i].top_slope);
+            double slope_ipp = std::max(regions[i + 1].bot_slope, regions[i + 1].top_slope);
 
             if (slope_i > slope_ipp)
                 regions.erase(regions.begin() + i);
@@ -1815,8 +1815,8 @@ static int init_subdivisions(Pmwx::Face_handle f, const FillRule_t* info, CoordT
     double snickers_back = regions_bot.back().a_time;
     if (fds > 1)
     {
-        snickers_front = min(snickers_front, regions_top.front().a_time);
-        snickers_back = max(snickers_back, regions_top.back().a_time);
+        snickers_front = std::min(snickers_front, regions_top.front().a_time);
+        snickers_back = std::max(snickers_back, regions_top.back().a_time);
     }
 
     candy_bar snickers(fds > 1 ? 2 : 1, fds > 1 ? divided : unified, snickers_front, snickers_back);
@@ -2127,8 +2127,8 @@ static int init_subdivisions(Pmwx::Face_handle f, const FillRule_t* info, CoordT
                     a_features.push_back(std::pair<int,float>(fac_rule->facs[n].fac_id_front,RandRange(fac_rule->facs[n].height_min,fac_rule->facs[n].height_max)));
                     b_features.push_back(std::pair<int,float>(fac_rule->facs[n].fac_id_back,RandRange(fac_rule->facs[n].height_min,fac_rule->facs[n].height_max)));
                     a_features.back().second =
-    min(a_features.back().second,max(f->data().GetParam(af_HeightObjs,0.0),16.0f)); b_features.back().second =
-    min(b_features.back().second,max(f->data().GetParam(af_HeightObjs,0.0),16.0f));
+    std::min(a_features.back().second,std::max(f->data().GetParam(af_HeightObjs,0.0),16.0f)); b_features.back().second =
+    std::min(b_features.back().second,std::max(f->data().GetParam(af_HeightObjs,0.0),16.0f));
 
                     accum += fac_rule->facs[n].width;
                 }
@@ -2141,7 +2141,7 @@ static int init_subdivisions(Pmwx::Face_handle f, const FillRule_t* info, CoordT
     //			TRACE_SUBDIVIDE("top span: %lf\n", top_span);
     //			double bot_span = find_b_interval(agb,bot_agbs, bounds);
     //			TRACE_SUBDIVIDE("bot span: %lf\n", bot_span);
-    //			double worst_span = max(top_span,bot_span);
+    //			double worst_span = std::max(top_span,bot_span);
     //			double subdiv = dobmax2(1.0,floor(worst_span / info->agb_slop_depth));
     //			TRACE_SUBDIVIDE("worst span: %lf\n", worst_span);
     //			TRACE_SUBDIVIDE("Subdiving agb from %lf to %lf ito %lf pieces.\n", agb.first,agb.second,subdiv);
@@ -3015,7 +3015,7 @@ static void init_point_features(const GISPointFeatureVector& feats, vector<Block
                 }
             }
 
-            if (best >= 0 && rule->fac_id_free && best_dist > sqr(max(rule->x_width_ant, rule->x_depth_ant)))
+            if (best >= 0 && rule->fac_id_free && best_dist > sqr(std::max(rule->x_width_ant, rule->x_depth_ant)))
                 best = -1;
 
             if (best >= 0)
@@ -3076,7 +3076,7 @@ static void init_point_features(const GISPointFeatureVector& feats, vector<Block
                 }
                 if (best == -1)
                     best = 0;
-                if (best >= 0 && rule->fac_id_free && best_dist > sqr(max(rule->x_width_rd, rule->x_depth_rd)))
+                if (best >= 0 && rule->fac_id_free && best_dist > sqr(std::max(rule->x_width_rd, rule->x_depth_rd)))
                     best = -1;
 
                 if (best >= 0)

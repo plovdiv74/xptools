@@ -1028,7 +1028,7 @@ static void ValidateOneATCFlow(WED_ATCFlow* flow, validation_error_vector& msgs,
                 if (thisFlowSpdFixed > sWindsCov[i])
                 {
                     flowCanBeReached = true;
-                    sWindThisFlow[i] = max(sWindThisFlow[i], thisFlowSpdFixed);
+                    sWindThisFlow[i] = std::max(sWindThisFlow[i], thisFlowSpdFixed);
                 }
         }
         else
@@ -1037,13 +1037,13 @@ static void ValidateOneATCFlow(WED_ATCFlow* flow, validation_error_vector& msgs,
                 if (thisFlowSpdFixed > sWindsCov[i])
                 {
                     flowCanBeReached = true;
-                    sWindThisFlow[i] = max(sWindThisFlow[i], thisFlowSpdFixed);
+                    sWindThisFlow[i] = std::max(sWindThisFlow[i], thisFlowSpdFixed);
                 }
             for (int i = 0; i <= maxWindFixed; i++)
                 if (thisFlowSpdFixed > sWindsCov[i])
                 {
                     flowCanBeReached = true;
-                    sWindThisFlow[i] = max(sWindThisFlow[i], thisFlowSpdFixed);
+                    sWindThisFlow[i] = std::max(sWindThisFlow[i], thisFlowSpdFixed);
                 }
         }
     }
@@ -1090,7 +1090,7 @@ static void ValidateOneATCFlow(WED_ATCFlow* flow, validation_error_vector& msgs,
                              // few false tailwind warnings
         for (int i = 0; i < 360; ++i) // in complex multi-time or ceiling flows settings when ALL prior flows have time
                                       // rules that together cover 24hrs.
-            sWindsCov[i] = max(sWindThisFlow[i], sWindsCov[i]); // Such is bad style - one shold rather have one flow
+            sWindsCov[i] = std::max(sWindThisFlow[i], sWindsCov[i]); // Such is bad style - one shold rather have one flow
                                                                 // with a time rule followed by a time-unlimited flow.
 
     std::map<int, std::vector<WED_ATCRunwayUse*>> arrival_rwys;
@@ -1135,7 +1135,7 @@ static void ValidateOneATCFlow(WED_ATCFlow* flow, validation_error_vector& msgs,
             for (int i = 0; i < 360; i++)
             {
                 double relTailWindAngle = i - thisUseHdgMag;
-                maxTailwind = max(maxTailwind, -sWindThisFlow[i] * cos(relTailWindAngle * DEG_TO_RAD));
+                maxTailwind = std::max(maxTailwind, -sWindThisFlow[i] * cos(relTailWindAngle * DEG_TO_RAD));
             }
             // if this is a propper "catch all" last flow, it should have no wind rules at all defined, so maxTailwind
             // is still zero here.
@@ -1182,7 +1182,7 @@ static void ValidateATCFlows(const std::vector<WED_ATCFlow*>& flows, const std::
     int uncovSpd = ATC_FLOW_MAX_WIND;
     if (!flows.empty())
         for (int i = 0; i < 360; i++)
-            uncovSpd = min(uncovSpd, covSurfWinds[i]);
+            uncovSpd = std::min(uncovSpd, covSurfWinds[i]);
 
     if (uncovSpd < ATC_FLOW_MAX_WIND)
     {

@@ -1291,8 +1291,8 @@ bool RasterShapeFile(const char* inFile, DEMGeo& dem, shp_Flags flags, const cha
             int x1, x2;
             while (r->second.GetRange(x1, x2))
             {
-                x1 = max(x1, 0);
-                x2 = min(x2, dem.mWidth);
+                x1 = std::max(x1, 0);
+                x2 = std::min(x2, dem.mWidth);
 
                 if (flags & shp_Overlay)
                 {

@@ -54,7 +54,7 @@ static double box_edge_distance(Point2 p, const Bbox2 b) // returns positive if 
 {
     Vector2 from_p1(b.p1, p);
     Vector2 from_p2(p, b.p2);
-    return min(min(from_p1.dx, from_p2.dx), min(from_p1.dy, from_p2.dy));
+    return std::min(min(from_p1.dx, from_p2.dx), std::min(from_p1.dy, from_p2.dy));
 }
 
 static void lines_to_nearest(const std::vector<Segment2>& starts, const std::vector<Segment2>& edges,
@@ -582,7 +582,7 @@ bool WED_ATCLayer::DrawEntityStructure(bool inCurrent, IGISEntity* entity, GUI_G
         std::pair<double, double> mtr = seg->GetWidth();
 
         int num_sides = seg->GetNumSides();
-        int layers = min(max(seg->GetStartLayer(), seg->GetEndLayer()), 3);
+        int layers = std::min(std::max(seg->GetStartLayer(), seg->GetEndLayer()), 3);
         glLineWidth(2);
 
         Bezier2 b;

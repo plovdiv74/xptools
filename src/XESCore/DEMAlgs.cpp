@@ -124,7 +124,7 @@ void SpreadDEMValuesTotal(DEMGeo& ioDem)
             float h = temp(x, y);
             if (h == DEM_NO_DATA)
             {
-                for (int r = 1; r <= max(ioDem.mWidth, ioDem.mHeight); ++r)
+                for (int r = 1; r <= std::max(ioDem.mWidth, ioDem.mHeight); ++r)
                 {
                     for (int rd = 1; rd <= r; ++rd)
                     {
@@ -515,15 +515,15 @@ void BlobifyEnvironment(const DEMGeo& variant_source, const DEMGeo& base, DEMGeo
                     // Scaling factor to blend to linear at edges, blob at edge
                     float x_weird = (0.5 - fabs(dx_fac - 0.5)) * 2.0;
                     float y_weird = (0.5 - fabs(dy_fac - 0.5)) * 2.0;
-                    float weird_mix = min(x_weird, y_weird) * gDemPrefs.rain_disturb;
+                    float weird_mix = std::min(x_weird, y_weird) * gDemPrefs.rain_disturb;
 
                     // This is the 'noise' ratio from the variant source
                     float weird_ratio = variant_source.value_linear(derived.x_to_lon(xiz * xmult + dx),
                                                                     derived.y_to_lat(yiz * ymult + dy));
                     // How much to mix in this noise
-                    weird_ratio = min(max(weird_ratio, 0.0f), 1.0f);
-                    float max_ever = max(max(v1, v2), max(v3, v4));
-                    float min_ever = min(min(v1, v2), min(v3, v4));
+                    weird_ratio = std::min(std::max(weird_ratio, 0.0f), 1.0f);
+                    float max_ever = std::max(std::max(v1, v2), std::max(v3, v4));
+                    float min_ever = std::min(min(v1, v2), std::min(v3, v4));
 
                     // Generated weird value
                     float v_weird = min_ever + weird_ratio * (max_ever - min_ever);
@@ -607,14 +607,14 @@ void UpsampleFromParamLinear(DEMGeo& masterOrig, DEMGeo& masterDeriv, DEMGeo& sl
     for (y = 0; y < masterOrig.mHeight; ++y)
         for (x = 0; x < masterOrig.mWidth; ++x)
         {
-            masterMin = min(masterMin, masterOrig(x, y));
-            masterMax = max(masterMax, masterOrig(x, y));
+            masterMin = std::min(masterMin, masterOrig(x, y));
+            masterMax = std::max(masterMax, masterOrig(x, y));
         }
     for (y = 0; y < slaveOrig.mHeight; ++y)
         for (x = 0; x < slaveOrig.mWidth; ++x)
         {
-            slaveMin = min(slaveMin, slaveOrig(x, y));
-            slaveMax = max(slaveMax, slaveOrig(x, y));
+            slaveMin = std::min(slaveMin, slaveOrig(x, y));
+            slaveMax = std::max(slaveMax, slaveOrig(x, y));
         }
 
     // Here comes the whacko part: we're basically going to vary the slope of the relationship
@@ -724,7 +724,7 @@ static float GetRoadDensity(Pmwx::Halfedge_const_handle he)
     float best = 0;
     for (GISNetworkSegmentVector::const_iterator i = he->data().mSegments.begin(); i != he->data().mSegments.end(); ++i)
     {
-        best = max(best, gNetFeatures[i->mFeatType].density_factor);
+        best = std::max(best, gNetFeatures[i->mFeatType].density_factor);
     }
     return best;
 }
@@ -777,7 +777,7 @@ static void BuildRoadDensityDEM(const Pmwx& inMap, DEMGeo& ioTransport)
             for (x = x1; x < x2; ++x)
             {
                 if (ioTransport.get(x, y) != DEM_NO_DATA)
-                    ioTransport(x, y) = max(ioTransport(x, y), 1.0f);
+                    ioTransport(x, y) = std::max(ioTransport(x, y), 1.0f);
             }
         }
         ++y;
@@ -804,8 +804,8 @@ static void BuildRoadDensityDEM(const Pmwx& inMap, DEMGeo& ioTransport)
                 {
                 case road_MotorwayOneway:
                 case train_RailwayOneway:
-                    ioTransport(tsx, tsy) = max(ioTransport(tsx, tsy), 0.5f);
-                    ioTransport(tdx, tdy) = max(ioTransport(tdx, tdy), 0.5f);
+                    ioTransport(tsx, tsy) = std::max(ioTransport(tsx, tsy), 0.5f);
+                    ioTransport(tdx, tdy) = std::max(ioTransport(tdx, tdy), 0.5f);
                     break;
                 }
             }
@@ -1260,7 +1260,7 @@ void DeriveDEMs(Pmwx& inMap, DEMGeoMap& ioDEMs, AptVector& ioApts, AptIndex& ioA
                 //			urban(x,y) 		= urbanTemp(x,y);
                 double local = urbanTemp.kernelN(x, y, URBAN_RADIAL_KERN_SIZE, sUrbanRadialSpreaderKernel);
                 urbanRadial(x, y) = local;
-                radial_max = max(local, radial_max);
+                radial_max = std::max(local, radial_max);
             }
     }
 
@@ -1270,8 +1270,8 @@ void DeriveDEMs(Pmwx& inMap, DEMGeoMap& ioDEMs, AptVector& ioApts, AptIndex& ioA
     for (y = 0; y < urban.mHeight; ++y)
         for (x = 0; x < urban.mWidth; ++x)
         {
-            urban(x, y) = max(0.0f, min(1.0f, urban(x, y)));
-            urbanRadial(x, y) = max(0.0f, min(1.0f, urbanRadial(x, y)));
+            urban(x, y) = std::max(0.0f, std::min(1.0f, urban(x, y)));
+            urbanRadial(x, y) = std::max(0.0f, std::min(1.0f, urbanRadial(x, y)));
         }
 
     if (inMap.number_of_halfedges() > 0)
@@ -1298,7 +1298,7 @@ void DeriveDEMs(Pmwx& inMap, DEMGeoMap& ioDEMs, AptVector& ioApts, AptIndex& ioA
 
     for (y = 0; y < urbanTrans.mHeight; ++y)
         for (x = 0; x < urbanTrans.mWidth; ++x)
-            urbanTrans(x, y) = max(0.0f, min(urbanTrans(x, y), 1.0f));
+            urbanTrans(x, y) = std::max(0.0f, std::min(urbanTrans(x, y), 1.0f));
 
     for (y = 0; y < urbanSquare.mHeight; ++y)
         for (x = 0; x < urbanSquare.mWidth; ++x)
@@ -1443,7 +1443,7 @@ void DeriveDEMs(Pmwx& inMap, DEMGeoMap& ioDEMs, AptVector& ioApts, AptIndex& ioA
 	// can to get a 2-d and terrain phenom, and mix 50-50.
 	{
 		int	search_radius = 10;	// Limit smearing.
-		int	wide_radius = max(landuseBig.mWidth, landuseBig.mHeight);
+		int	wide_radius = std::max(landuseBig.mWidth, landuseBig.mHeight);
 		DEMGeo tempTerrain(phenomTerrain);
 		DEMGeo temp2d(phenom2d);
 		float tt, vt;
@@ -1852,18 +1852,18 @@ void CalcWaterBathymetry(DEMGeoMap& ioDEMs)
                 if (v > 0.0)
                 {
                     if (iy == 0)
-                        aa[1] = min(v, bath.get(ix, iy + 1));
+                        aa[1] = std::min(v, bath.get(ix, iy + 1));
                     else if (iy == (height - 1))
-                        aa[1] = min(v, bath.get(ix, iy - 1));
+                        aa[1] = std::min(v, bath.get(ix, iy - 1));
                     else
-                        aa[1] = min(bath.get(ix, iy - 1), bath.get(ix, iy + 1));
+                        aa[1] = std::min(bath.get(ix, iy - 1), bath.get(ix, iy + 1));
 
                     if (ix == 0)
-                        aa[0] = min(v, bath.get(ix + 1, iy));
+                        aa[0] = std::min(v, bath.get(ix + 1, iy));
                     else if (ix == (width - 1))
-                        aa[0] = min(v, bath.get(ix - 1, iy));
+                        aa[0] = std::min(v, bath.get(ix - 1, iy));
                     else
-                        aa[0] = min(bath.get(ix - 1, iy), bath.get(ix + 1, iy));
+                        aa[0] = std::min(bath.get(ix - 1, iy), bath.get(ix + 1, iy));
 
                     a = aa[0];
                     b = aa[1];
@@ -1882,7 +1882,7 @@ void CalcWaterBathymetry(DEMGeoMap& ioDEMs)
         if (elev[a] != DEM_NO_DATA)
         {
             float d = bath[a];
-            bath[a] = surf[a] - min(50.0f, (1.0f + 4.0f * max(0.0f, (d - 1.0f))));
+            bath[a] = surf[a] - std::min(50.0f, (1.0f + 4.0f * std::max(0.0f, (d - 1.0f))));
         }
         else
         {
@@ -1939,7 +1939,7 @@ void CalcWaterBathymetry(DEMGeoMap& ioDEMs)
 //					wet_pixels.push(p);
                 }
                 else
-                    dmax = max(dmax,d+1.0f);
+                    dmax = std::max(dmax,d+1.0f);
             }
         }
         bath[w] = dmax;
@@ -2047,7 +2047,7 @@ void CalcSlopeParams(DEMGeoMap& ioDEMs, bool force, ProgressFunc inProg)
                 if (e0 == e1)
                     relativeElev(x, y) = 0.0;
                 else
-                    relativeElev(x, y) = min(1.0f, max(0.0f, (elev2(x, y) - e0) / (e1 - e0)));
+                    relativeElev(x, y) = std::min(1.0f, std::max(0.0f, (elev2(x, y) - e0) / (e1 - e0)));
             }
         if (inProg)
             inProg(1, 2, "Calculating local min/max", 1.0);
@@ -2073,7 +2073,7 @@ void CalcSlopeParams(DEMGeoMap& ioDEMs, bool force, ProgressFunc inProg)
 			if (e0 == e1)
 				relativeElev(x,y) = 0.0;
 			else
-				relativeElev(x,y) = min(1.0, max(0.0, (elev(x,y) - e0) / (e1 - e0)));
+				relativeElev(x,y) = std::min(1.0, std::max(0.0, (elev(x,y) - e0) / (e1 - e0)));
 		}
 		if (inProg) inProg(1, 2, "Calculating local min/max", 1.0);
 	}
@@ -2203,7 +2203,7 @@ void DEMMakeDifferential(const DEMGeo& src, DEMGeo& dst)
                 float dif = 0;
                 for (int k = 0; k < 8; ++k)
                     if (en[k] != DEM_NO_DATA)
-                        dif = max(dif, fabsf(en[k] - e));
+                        dif = std::max(dif, fabsf(en[k] - e));
                 dst(x, y) = dif;
             }
             else

@@ -141,7 +141,7 @@ size_t curl_http_get_file::read_cb(void* contents, size_t size, size_t nmemb, vo
 {
     curl_http_get_file* me = (curl_http_get_file*)userp;
     size_t want = size * nmemb;
-    size_t ret = min(want, me->m_put.size());
+    size_t ret = std::min(want, me->m_put.size());
 
     memcpy(contents, &me->m_put[0], ret);
 

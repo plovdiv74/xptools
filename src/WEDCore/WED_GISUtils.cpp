@@ -488,7 +488,7 @@ static void PointSequenceToPolygon2(IGISPointSequence* ps, Polygon2& pol, double
             double size_approx = sqrt(Vector2(b.p1, b.c1).squared_length()) +
                                  sqrt(Vector2(b.c1, b.c2).squared_length()) +
                                  sqrt(Vector2(b.c2, b.p2).squared_length());
-            int point_count = min(max((int)(size_approx / max_err), 3), 30);
+            int point_count = std::min(std::max((int)(size_approx / max_err), 3), 30);
 
             pol.reserve(pol.size() + point_count);
 

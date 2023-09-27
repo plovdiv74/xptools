@@ -747,7 +747,7 @@ void MT_GeoTiff(const char* fname, int back_with_water)
                 ImageInfo smaller;
                 if (!CreateNewBitmap(near2(rgba.width), near2(rgba.height), 4, &smaller))
                 {
-                    isize = max(smaller.width, smaller.height);
+                    isize = std::max(smaller.width, smaller.height);
 
                     CopyBitmapSection(&rgba, &smaller, 0, 0, rgba.width, rgba.height, 0, 0, smaller.width,
                                       smaller.height);
@@ -765,7 +765,7 @@ void MT_GeoTiff(const char* fname, int back_with_water)
     {
         ImageInfo comp;
         CreateBitmapFromDDS(dname, &comp);
-        isize = max(comp.width, comp.height);
+        isize = std::max(comp.width, comp.height);
         DestroyBitmap(&comp);
     }
 
@@ -827,7 +827,7 @@ void MT_QMID(const char* id, int back_with_water)
             ImageInfo rgb;
             if (!CreateBitmapFromFile(fname, &rgb))
             {
-                isize = max(rgb.width, rgb.height);
+                isize = std::max(rgb.width, rgb.height);
                 if (!ConvertBitmapToAlpha(&rgb, false))
                 {
                     sprintf(fname, "%s%sBl.bmp", g_qmid_prefix.c_str(), id);
@@ -856,7 +856,7 @@ void MT_QMID(const char* id, int back_with_water)
     {
         ImageInfo comp;
         CreateBitmapFromDDS(fname, &comp);
-        isize = max(comp.width, comp.height);
+        isize = std::max(comp.width, comp.height);
         DestroyBitmap(&comp);
     }
 

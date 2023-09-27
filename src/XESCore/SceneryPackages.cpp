@@ -476,21 +476,21 @@ bool SpreadsheetForObject(const char* inObjFile, FILE* outDstLine)
     {
         for (int s = 0; s < obj.cmds[c].st.size(); ++s)
         {
-            minp[0] = min(minp[0], obj.cmds[c].st[s].v[0]);
-            minp[1] = min(minp[1], obj.cmds[c].st[s].v[1]);
-            minp[2] = min(minp[2], obj.cmds[c].st[s].v[2]);
-            maxp[0] = max(maxp[0], obj.cmds[c].st[s].v[0]);
-            maxp[1] = max(maxp[1], obj.cmds[c].st[s].v[1]);
-            maxp[2] = max(maxp[2], obj.cmds[c].st[s].v[2]);
+            minp[0] = std::min(minp[0], obj.cmds[c].st[s].v[0]);
+            minp[1] = std::min(minp[1], obj.cmds[c].st[s].v[1]);
+            minp[2] = std::min(minp[2], obj.cmds[c].st[s].v[2]);
+            maxp[0] = std::max(maxp[0], obj.cmds[c].st[s].v[0]);
+            maxp[1] = std::max(maxp[1], obj.cmds[c].st[s].v[1]);
+            maxp[2] = std::max(maxp[2], obj.cmds[c].st[s].v[2]);
         }
         for (int r = 0; r < obj.cmds[c].rgb.size(); ++r)
         {
-            minp[0] = min(minp[0], obj.cmds[c].rgb[r].v[0]);
-            minp[1] = min(minp[1], obj.cmds[c].rgb[r].v[1]);
-            minp[2] = min(minp[2], obj.cmds[c].rgb[r].v[2]);
-            maxp[0] = max(maxp[0], obj.cmds[c].rgb[r].v[0]);
-            maxp[1] = max(maxp[1], obj.cmds[c].rgb[r].v[1]);
-            maxp[2] = max(maxp[2], obj.cmds[c].rgb[r].v[2]);
+            minp[0] = std::min(minp[0], obj.cmds[c].rgb[r].v[0]);
+            minp[1] = std::min(minp[1], obj.cmds[c].rgb[r].v[1]);
+            minp[2] = std::min(minp[2], obj.cmds[c].rgb[r].v[2]);
+            maxp[0] = std::max(maxp[0], obj.cmds[c].rgb[r].v[0]);
+            maxp[1] = std::max(maxp[1], obj.cmds[c].rgb[r].v[1]);
+            maxp[2] = std::max(maxp[2], obj.cmds[c].rgb[r].v[2]);
         }
     }
 

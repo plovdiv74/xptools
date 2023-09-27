@@ -183,8 +183,8 @@ int ENUM_Create(int domain, const char* value, const char* desc, int export_valu
     }
     else
     {
-        sDomains[domain].enum_begin = min(sDomains[domain].enum_begin, idx);
-        sDomains[domain].enum_end = max(sDomains[domain].enum_end, idx + 1);
+        sDomains[domain].enum_begin = std::min(sDomains[domain].enum_begin, idx);
+        sDomains[domain].enum_end = std::max(sDomains[domain].enum_end, idx + 1);
     }
 
     //	printf("Creating new enum %s value=%d in domain %d (%s)\n", value, idx, domain, sEnums[domain].name.c_str());

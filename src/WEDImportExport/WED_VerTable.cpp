@@ -170,8 +170,8 @@ int WED_VerTable::SelectGetExtent(int& low_x, int& low_y, int& high_x, int& high
     for (int i = 0; i < mSorted.size(); ++i)
         if (mSelected.count(mSorted[i]))
         {
-            low_y = min(low_y, i);
-            high_y = max(high_y, i);
+            low_y = std::min(low_y, i);
+            high_y = std::max(high_y, i);
         }
     if (low_y <= high_y)
         return 1;

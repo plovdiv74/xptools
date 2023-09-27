@@ -292,8 +292,8 @@ static void OGLE_NormalizeSelectionInternal(OGLE_Handle handle)
     const char *p1, *p2;
     handle->callbacks.GetText_f(handle, &p1, &p2);
     int len = p2 - p1;
-    handle->sel_end = min(max(0, handle->sel_end), len);
-    handle->sel_start = min(max(0, handle->sel_start), len);
+    handle->sel_end = std::min(std::max(0, handle->sel_end), len);
+    handle->sel_start = std::min(std::max(0, handle->sel_start), len);
 }
 
 OGLE_Handle OGLE_Create(OGLE_Callbacks* callbacks, void* ref)

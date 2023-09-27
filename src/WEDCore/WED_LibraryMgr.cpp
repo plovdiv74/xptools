@@ -890,7 +890,7 @@ void WED_LibraryMgr::AccumResource(const std::string& path, int package, const s
             }
             else
                 i->second.status =
-                    max((int)i->second.status, (int)status); // upgrade status if we just found a public version!
+                    std::max((int)i->second.status, (int)status); // upgrade status if we just found a public version!
             // add only unique paths, but need to preserve first path added as first element, so deliberately not using
             // a std::set<std::string> !
             if (rt > res_Directory) // speedup/memory saver: no need to store this for directories

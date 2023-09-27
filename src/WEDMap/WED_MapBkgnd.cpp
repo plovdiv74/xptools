@@ -66,10 +66,10 @@ void WED_MapBkgnd::DrawVisualization(bool inCurrent, GUI_GraphState* g)
     }
     else
     {
-        vl = max(vl, ll);
-        vb = max(vb, lb);
-        vr = min(vr, lr);
-        vt = min(vt, lt);
+        vl = std::max(vl, ll);
+        vb = std::max(vb, lb);
+        vr = std::min(vr, lr);
+        vt = std::min(vt, lt);
 #if 1
         vl = GetZoomer()->LonToXPixel(vl);
         vr = GetZoomer()->LonToXPixel(vr);
@@ -117,10 +117,10 @@ void WED_MapBkgnd::DrawStructure(bool inCurrent, GUI_GraphState* g)
     GetZoomer()->GetMapLogicalBounds(ll, lb, lr, lt);
     GetZoomer()->GetMapVisibleBounds(vl, vb, vr, vt);
 
-    vl = max(vl, ll);
-    vb = max(vb, lb);
-    vr = min(vr, lr);
-    vt = min(vt, lt);
+    vl = std::max(vl, ll);
+    vb = std::max(vb, lb);
+    vr = std::min(vr, lr);
+    vt = std::min(vt, lt);
 
     // Gridline time...
     glColor4fv(WED_Color_RGBA(wed_Map_Gridlines));
@@ -149,7 +149,7 @@ void WED_MapBkgnd::DrawStructure(bool inCurrent, GUI_GraphState* g)
         glEnd();
     }
 
-    int sub_div = min(divisions, 5);
+    int sub_div = std::min(divisions, 5);
     for (int t = cb; t <= ct; t += divisions)
     {
         glBegin(GL_LINE_STRIP);

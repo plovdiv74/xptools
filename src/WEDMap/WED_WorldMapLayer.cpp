@@ -61,10 +61,10 @@ void WED_WorldMapLayer::DrawVisualization(bool inCurrent, GUI_GraphState* g)
     GetZoomer()->GetMapVisibleBounds(vl, vb, vr, vt);
     GetZoomer()->GetPixelBounds(sl, sb, sr, st);
 
-    vl = max(vl, ll);
-    vb = max(vb, lb);
-    vr = min(vr, lr);
-    vt = min(vt, lt);
+    vl = std::max(vl, ll);
+    vb = std::max(vb, lb);
+    vr = std::min(vr, lr);
+    vt = std::min(vt, lt);
     int l = 10 * (int)floor(vl / 10.0);
     int b = 10 * (int)floor(vb / 10.0);
     int r = 10 * (int)ceil(vr / 10.0);
@@ -99,8 +99,8 @@ void WED_WorldMapLayer::DrawVisualization(bool inCurrent, GUI_GraphState* g)
     {
         for (int y = b; y < t; y += 10)
         {
-            int y_bot = max((int)floor(vb), y);
-            int y_top = min((int)ceil(vt), y + 10);
+            int y_bot = std::max((int)floor(vb), y);
+            int y_top = std::min((int)ceil(vt), y + 10);
 
             for (int x = l; x < r; x += 10)
             {

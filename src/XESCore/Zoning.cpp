@@ -606,7 +606,7 @@ static void ZoneOneFace(Pmwx& ioMap, const DEMGeo& inElev, const DEMGeo& inLandu
             {
                 if (feat->mParams.count(pf_Height))
                 {
-                    max_height = max(max_height, feat->mParams[pf_Height]);
+                    max_height = std::max(max_height, feat->mParams[pf_Height]);
                 }
             }
             else
@@ -778,7 +778,7 @@ static void ZoneOneFace(Pmwx& ioMap, const DEMGeo& inElev, const DEMGeo& inLandu
             for (x = x1; x < x2; ++x)
             {
                 float s = inSlope.get(x, y);
-                max_slope = max(max_slope, s);
+                max_slope = std::max(max_slope, s);
                 ++scount;
             }
         }
@@ -850,14 +850,14 @@ static void ZoneOneFace(Pmwx& ioMap, const DEMGeo& inElev, const DEMGeo& inLandu
             if (n == outer_border.end())
                 n = outer_border.begin();
             double slen = sqrt(p->loc.squared_distance(n->loc));
-            short_side = min(short_side, slen);
-            long_side = max(long_side, slen);
+            short_side = std::min(short_side, slen);
+            long_side = std::max(long_side, slen);
 
             double cx = v_x.dot(Vector2(p->loc));
             double cy = v_y.dot(Vector2(p->loc));
-            double x_err = min(fabs(cx - bounds[0]), fabs(cx - bounds[2]));
-            double y_err = min(fabs(cy - bounds[1]), fabs(cy - bounds[3]));
-            max_err = max(max_err, min(x_err, y_err));
+            double x_err = std::min(fabs(cx - bounds[0]), fabs(cx - bounds[2]));
+            double y_err = std::min(fabs(cy - bounds[1]), fabs(cy - bounds[3]));
+            max_err = std::max(max_err, std::min(x_err, y_err));
         }
 
         short_axis_length = fabs(bounds[3] - bounds[1]);
@@ -885,15 +885,15 @@ static void ZoneOneFace(Pmwx& ioMap, const DEMGeo& inElev, const DEMGeo& inLandu
                 (ang > -30 && ang < 30))
             {
                 // debug_mesh_point(trans.Reverse(outer_border[j].loc),1,0,0);
-                min_angle = min(ang - 90.0f, min_angle);
-                max_angle = max(ang + 90.0f, max_angle);
+                min_angle = std::min(ang - 90.0f, min_angle);
+                max_angle = std::max(ang + 90.0f, max_angle);
 
-                min_angle = max(min_angle, -180.0f);
-                max_angle = min(max_angle, 180.0f);
+                min_angle = std::max(min_angle, -180.0f);
+                max_angle = std::min(max_angle, 180.0f);
             }
 
-            min_angle = min(ang, min_angle);
-            max_angle = max(ang, max_angle);
+            min_angle = std::min(ang, min_angle);
+            max_angle = std::max(ang, max_angle);
         }
 
         vector<std::pair<Pmwx::Halfedge_handle, Pmwx::Halfedge_handle>> sides;
@@ -919,10 +919,10 @@ static void ZoneOneFace(Pmwx& ioMap, const DEMGeo& inElev, const DEMGeo& inLandu
                         {
                             double x = v_x.dot(Vector2(mbounds[n]));
                             double y = v_y.dot(Vector2(mbounds[n]));
-                            bounds[0] = min(bounds[0], x);
-                            bounds[1] = min(bounds[1], y);
-                            bounds[2] = max(bounds[2], x);
-                            bounds[3] = max(bounds[3], y);
+                            bounds[0] = std::min(bounds[0], x);
+                            bounds[1] = std::min(bounds[1], y);
+                            bounds[2] = std::max(bounds[2], x);
+                            bounds[3] = std::max(bounds[3], y);
                         }
 
                         double worst_l[4] = {0};
@@ -938,7 +938,7 @@ static void ZoneOneFace(Pmwx& ioMap, const DEMGeo& inElev, const DEMGeo& inLandu
                             {
                                 DebugAssert(dif[s] >= 0.0f);
                                 if (dif[s] < 2.0f)
-                                    worst_l[s] = max(worst_l[s], dif[s]);
+                                    worst_l[s] = std::max(worst_l[s], dif[s]);
                             }
                         }
 
@@ -958,8 +958,8 @@ static void ZoneOneFace(Pmwx& ioMap, const DEMGeo& inElev, const DEMGeo& inLandu
                         v1.normalize();
                         v2.normalize();
                         float ang = doblim(acos(doblim(v1.dot(v2), -1.0, 1.0)) * RAD_TO_DEG, -180.0, 180.0);
-                        min_angle = min(ang, min_angle);
-                        max_angle = max(ang, max_angle);
+                        min_angle = std::min(ang, min_angle);
+                        max_angle = std::max(ang, max_angle);
                     }
 
                     int old_local = has_local;
@@ -1147,7 +1147,7 @@ void ZoneManMadeAreas(Pmwx& ioMap, const DEMGeo& inElev, const DEMGeo& inLanduse
                     //		for (std::set<Face_handle>::iterator niter = neighbors.begin(); niter != neighbors.end();
                     //++niter)
                     //		{
-                    //			max_agl = max(max_agl, (*niter)->data().mParams[af_HeightObjs] * 0.5);
+                    //			max_agl = std::max(max_agl, (*niter)->data().mParams[af_HeightObjs] * 0.5);
                     //		}
 
                     for (AptVector::const_iterator apt = inApts.begin(); apt != inApts.end(); ++apt)
@@ -1200,7 +1200,7 @@ void ZoneManMadeAreas(Pmwx& ioMap, const DEMGeo& inElev, const DEMGeo& inLanduse
 
                                                         if (gs_elev_agl < 1000.0)
                                                         {
-                                                            lowest_restrict = min(lowest_restrict, gs_elev_agl);
+                                                            lowest_restrict = std::min(lowest_restrict, gs_elev_agl);
                                                             got_restrict = true;
                                                         }
                                                     }
@@ -1250,7 +1250,7 @@ void ZoneManMadeAreas(Pmwx& ioMap, const DEMGeo& inElev, const DEMGeo& inLanduse
                                 float my_height = (*n)->data().GetParam(af_HeightObjs, 0.0);
                                 if (h > my_height)
                                 {
-                                    h = min(h, face->data().GetParam(af_HeightApproach, h));
+                                    h = std::min(h, face->data().GetParam(af_HeightApproach, h));
                                     (*n)->data().mParams[af_HeightObjs] = h;
                                     to_visit.insert(*n);
                                 }
@@ -1437,7 +1437,7 @@ inline int MIN_NOVALUE(int a, int b)
         return b;
     if (b == NO_VALUE)
         return a;
-    return min(a, b);
+    return std::min(a, b);
 }
 
 struct EdgeNode_t;
@@ -1742,7 +1742,7 @@ float edge_cost_func(EdgeNode_t* en)
 
     DebugAssert(nb.xspan() > 0.0);
     DebugAssert(nb.yspan() > 0.0);
-    double max_aspect = max(nb.xspan() / nb.yspan(), nb.yspan() / nb.xspan());
+    double max_aspect = std::max(nb.xspan() / nb.yspan(), nb.yspan() / nb.xspan());
 
     int diversity = set_union_length(en->f1->zoning, en->f2->zoning);
 
@@ -1933,7 +1933,7 @@ void ColorFaces(std::set<Face_handle>& io_faces)
                 ++i->second->color;
         }
 
-        highest = max(highest, i->second->color);
+        highest = std::max(highest, i->second->color);
         ++total;
         if (i->second->color > 3)
         {

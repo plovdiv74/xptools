@@ -319,10 +319,10 @@ void GUI_Pane::GetVisibleBounds(int outBounds[4])
     {
         int b[4];
         mParent->GetVisibleBounds(b);
-        outBounds[0] = max(outBounds[0], b[0]);
-        outBounds[1] = max(outBounds[1], b[1]);
-        outBounds[2] = min(outBounds[2], b[2]);
-        outBounds[3] = min(outBounds[3], b[3]);
+        outBounds[0] = std::max(outBounds[0], b[0]);
+        outBounds[1] = std::max(outBounds[1], b[1]);
+        outBounds[2] = std::min(outBounds[2], b[2]);
+        outBounds[3] = std::min(outBounds[3], b[3]);
     }
 }
 

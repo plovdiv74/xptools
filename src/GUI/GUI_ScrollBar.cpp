@@ -140,28 +140,28 @@ int GUI_ScrollBar::MouseDown(int x, int y, int button)
     if (track_coord < b1)
     {
         mClickPart = sb_PartDownButton;
-        vnow = max(vmin, vnow - vpage * 0.1f);
+        vnow = std::max(vmin, vnow - vpage * 0.1f);
         if (vnow != this->GetValue())
             this->SetValue(vnow);
     }
     else if (track_coord > b2)
     {
         mClickPart = sb_PartUpButton;
-        vnow = min(vmax, vnow + vpage * 0.1f);
+        vnow = std::min(vmax, vnow + vpage * 0.1f);
         if (vnow != this->GetValue())
             this->SetValue(vnow);
     }
     else if (track_coord < t1)
     {
         mClickPart = sb_PartDownPage;
-        vnow = max(vmin, vnow - vpage);
+        vnow = std::max(vmin, vnow - vpage);
         if (vnow != this->GetValue())
             this->SetValue(vnow);
     }
     else if (track_coord > t2)
     {
         mClickPart = sb_PartUpPage;
-        vnow = min(vmax, vnow + vpage);
+        vnow = std::min(vmax, vnow + vpage);
         if (vnow != this->GetValue())
             this->SetValue(vnow);
     }
@@ -210,28 +210,28 @@ void GUI_ScrollBar::MouseDrag(int x, int y, int button)
     if (track_coord < b1 && mClickPart == sb_PartDownButton)
     {
         mInPart = 1;
-        //		vnow = max(vmin, vnow-vpage*0.1f);
+        //		vnow = std::max(vmin, vnow-vpage*0.1f);
         //		if (vnow != this->GetValue())
         //			this->SetValue(vnow);
     }
     if (track_coord > b1 && track_coord < t1 && mClickPart == sb_PartDownPage)
     {
         mInPart = 1;
-        //		vnow = max(vmin, vnow-vpage);
+        //		vnow = std::max(vmin, vnow-vpage);
         //		if (vnow != this->GetValue())
         //			this->SetValue(vnow);
     }
     if (track_coord > t2 && track_coord < b2 && mClickPart == sb_PartUpPage)
     {
         mInPart = 1;
-        //		vnow = min(vmax, vnow+vpage);
+        //		vnow = std::min(vmax, vnow+vpage);
         //		if (vnow != this->GetValue())
         //			this->SetValue(vnow);
     }
     if (track_coord > b2 && mClickPart == sb_PartUpButton)
     {
         mInPart = 1;
-        //		vnow = min(vmax, vnow+vpage*0.1f);
+        //		vnow = std::min(vmax, vnow+vpage*0.1f);
         //		if (vnow != this->GetValue())
         //			this->SetValue(vnow);
     }
@@ -239,8 +239,8 @@ void GUI_ScrollBar::MouseDrag(int x, int y, int button)
     {
         mInPart = 1;
         vnow = (track_coord - mSlop - b1) * (vmax - vmin) / ((b2 - b1) - (t2 - t1)) + vmin;
-        vnow = min(vnow, vmax);
-        vnow = max(vnow, vmin);
+        vnow = std::min(vnow, vmax);
+        vnow = std::max(vnow, vmin);
         if (vnow != this->GetValue())
             this->SetValue(vnow);
     }
@@ -270,22 +270,22 @@ void GUI_ScrollBar::TimerFired(void)
         switch (mClickPart)
         {
         case sb_PartDownButton:
-            vnow = max(vmin, vnow - vpage * 0.1f);
+            vnow = std::max(vmin, vnow - vpage * 0.1f);
             if (vnow != this->GetValue())
                 this->SetValue(vnow);
             break;
         case sb_PartDownPage:
-            vnow = max(vmin, vnow - vpage);
+            vnow = std::max(vmin, vnow - vpage);
             if (vnow != this->GetValue())
                 this->SetValue(vnow);
             break;
         case sb_PartUpPage:
-            vnow = min(vmax, vnow + vpage);
+            vnow = std::min(vmax, vnow + vpage);
             if (vnow != this->GetValue())
                 this->SetValue(vnow);
             break;
         case sb_PartUpButton:
-            vnow = min(vmax, vnow + vpage * 0.1f);
+            vnow = std::min(vmax, vnow + vpage * 0.1f);
             if (vnow != this->GetValue())
                 this->SetValue(vnow);
             break;

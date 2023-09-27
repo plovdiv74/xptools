@@ -405,7 +405,7 @@ void WED_Map::DrawVisFor(WED_MapLayer* layer, int current, const Bbox2& bounds, 
             Point2 p2 = this->LLToPixel(on_screen.p2);
             Vector2 span(p1, p2);
 
-            if (max(span.dx, span.dy) > TOO_SMALL_TO_GO_IN || (p1 == p2) ||
+            if (std::max(span.dx, span.dy) > TOO_SMALL_TO_GO_IN || (p1 == p2) ||
                 depth == 0) // Why p1 == p2?  If the composite contains ONLY ONE POINT it is zero-size.  We'd LOD out.
                             // But if
             {               // it contains one thing then we might as well ALWAYS draw it - it's relatively cheap!

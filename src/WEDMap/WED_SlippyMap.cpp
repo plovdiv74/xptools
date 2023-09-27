@@ -213,7 +213,7 @@ void WED_SlippyMap::DrawVisualization(bool inCurrent, GUI_GraphState* g)
         return;
 
     int want = 0, got = 0, bad = 0;
-    for (int z = max(min_zoom, z_max - 1); z <= z_max; ++z) // Display only the next lower zoom level
+    for (int z = std::max(min_zoom, z_max - 1); z <= z_max; ++z) // Display only the next lower zoom level
     {                                                       // avoids having to load up to 4x14 extra tiles at ZL16
         int tiles[4];
 

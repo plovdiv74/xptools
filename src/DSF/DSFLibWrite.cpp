@@ -174,10 +174,10 @@ static void UpdatePoolState(FILE* fi, int newType, int newPool, int newFilter, i
 
 static void extend_box(double box[4], double x, double y)
 {
-    box[0] = min(box[0], x);
-    box[1] = min(box[1], y);
-    box[2] = max(box[2], x);
-    box[3] = max(box[3], y);
+    box[0] = std::min(box[0], x);
+    box[1] = std::min(box[1], y);
+    box[2] = std::max(box[2], x);
+    box[3] = std::max(box[3], y);
 }
 
 #define REF(x) ((DSFFileWriterImp*)(x))
@@ -1101,8 +1101,8 @@ void DSFFileWriterImp::WriteToFile(const char* inPath)
                     }
                     else
                     {
-                        chainSpecs[n].lowest_index = min(loc.second, chainSpecs[n].lowest_index);
-                        chainSpecs[n].highest_index = max(loc.second, chainSpecs[n].highest_index);
+                        chainSpecs[n].lowest_index = std::min(loc.second, chainSpecs[n].lowest_index);
+                        chainSpecs[n].highest_index = std::max(loc.second, chainSpecs[n].highest_index);
                     }
                 }
             }

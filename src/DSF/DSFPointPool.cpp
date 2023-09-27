@@ -674,7 +674,7 @@ void DSFOptimizePrimitives(std::vector<DSFPrimitive>& io_primitives)
             int offset = 0;
             while (1)
             {
-                int num = min(new_prim->m_Indices.size() - offset, (size_t)255);
+                int num = std::min(new_prim->m_Indices.size() - offset, (size_t)255);
                 if (num == 0)
                     break;
                 out_prims.push_back(DSFPrimitive());

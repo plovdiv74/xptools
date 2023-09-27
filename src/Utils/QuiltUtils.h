@@ -93,7 +93,8 @@ void copy_rotate(const Pixel* s, int dx1, int dy1, Pixel* d, int dx2, int dy2, i
 #undef PIXEL2
 }
 
-template <typename Pixel> void rotate_inplace(Pixel* s, int dx1, int dy1, int width, int height, int dx, int dy)
+template <typename Pixel>
+void rotate_inplace(Pixel* s, int dx1, int dy1, int width, int height, int dx, int dy)
 {
     std::vector<Pixel> storage;
     storage.insert(storage.end(), s, s + (width * height));
@@ -250,7 +251,7 @@ void calc_quilt_vertical(const Pixel* p1, // Ptr to the SUBREGION of an image we
 #define PIXEL1(x, y) (p1 + dx1 * (x) + dy1 * (y))
 #define PIXEL2(x, y) (p2 + dx2 * (x) + dy2 * (y))
 
-#define ERR(x, y) (err_matrix[(x) + (y)*width])
+#define ERR(x, y) (err_matrix[(x) + (y) * width])
 
     int x, y;
     for (x = 0; x < width; ++x)
@@ -262,13 +263,13 @@ void calc_quilt_vertical(const Pixel* p1, // Ptr to the SUBREGION of an image we
         // Note that when we accum our previous row below us to ourselves, we take the minimum of the 2 or 3 pixels that
         // "feed" us... because we would always take the most efficient path to ourselves.
 
-        ERR(0, y) = min(ERR(0, y - 1), ERR(1, y - 1)) + error_func(PIXEL1(0, y), PIXEL2(0, y));
-        ERR(width - 1, y) =
-            min(ERR(width - 1, y - 1), ERR(width - 2, y - 1)) + error_func(PIXEL1(width - 1, y), PIXEL2(width - 1, y));
+        ERR(0, y) = std::min(ERR(0, y - 1), ERR(1, y - 1)) + error_func(PIXEL1(0, y), PIXEL2(0, y));
+        ERR(width - 1, y) = std::min(ERR(width - 1, y - 1), ERR(width - 2, y - 1)) +
+                            error_func(PIXEL1(width - 1, y), PIXEL2(width - 1, y));
 
         for (x = 1; x < (width - 1); ++x)
-            ERR(x, y) =
-                min(min(ERR(x - 1, y - 1), ERR(x + 1, y - 1)), ERR(x, y - 1)) + error_func(PIXEL1(x, y), PIXEL2(x, y));
+            ERR(x, y) = std::min(std::min(ERR(x - 1, y - 1), ERR(x + 1, y - 1)), ERR(x, y - 1)) +
+                        error_func(PIXEL1(x, y), PIXEL2(x, y));
     }
 
     int c = 0, r = height - 1; // Find the least error at the top.

@@ -217,7 +217,7 @@ int GUI_ScrollerPane::ScrollWheel(int x, int y, int dist, int axis)
         if (axis == 0)
         {
             float minv = 0;
-            float maxv = max(total[5] - vis[5], 0.0f);
+            float maxv = std::max(total[5] - vis[5], 0.0f);
             float new_v = vis[1] - total[1] + dist;
             float old_v = vis[1] - total[1];
 
@@ -239,7 +239,7 @@ int GUI_ScrollerPane::ScrollWheel(int x, int y, int dist, int axis)
         else
         {
             float minv = 0;
-            float maxv = max(total[4] - vis[4], 0.0f);
+            float maxv = std::max(total[4] - vis[4], 0.0f);
             float new_v = vis[0] - total[0] - dist;
             float old_v = vis[0] - total[0];
 
@@ -317,14 +317,14 @@ void GUI_ScrollerPane::CalibrateSBs(void)
         if (mScrollH)
         {
             mScrollH->SetMin(0);
-            mScrollH->SetMax(max(total[4] - vis[4], 0.0f));
+            mScrollH->SetMax(std::max(total[4] - vis[4], 0.0f));
             mScrollH->SetValue(vis[0] - total[0]);
             mScrollH->SetPageSize(vis[4]);
         }
         if (mScrollV)
         {
             mScrollV->SetMin(0);
-            mScrollV->SetMax(max(total[5] - vis[5], 0.0f));
+            mScrollV->SetMax(std::max(total[5] - vis[5], 0.0f));
             mScrollV->SetValue(vis[1] - total[1]);
             mScrollV->SetPageSize(vis[5]);
         }

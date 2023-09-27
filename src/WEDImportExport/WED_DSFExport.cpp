@@ -1147,8 +1147,8 @@ static int DSF_HeightRangeRecursive(WED_Thing* what, double& out_msl_min, double
                 any_inside = 1;
                 if (found)
                 {
-                    out_msl_min = min(out_msl_min, msl_min);
-                    out_msl_max = max(out_msl_max, msl_max);
+                    out_msl_min = std::min(out_msl_min, msl_min);
+                    out_msl_max = std::max(out_msl_max, msl_max);
                 }
                 else
                 {

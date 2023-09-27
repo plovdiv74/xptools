@@ -196,7 +196,7 @@ bool FetchTIFFCornersWithTIFF(TIFF* tiffFile, double corners[8], int& post_pos, 
                 (xsize > 1536 ||
                  ysize > 1536)) // calculate control points for map warping/projection, if texture has high resolution
             {
-                const int divs = intlim(max((xsize + 512) / 1024, (ysize + 512) / 1024), 2, 10);
+                const int divs = intlim(std::max((xsize + 512) / 1024, (ysize + 512) / 1024), 2, 10);
                 for (int y = 0; y <= divs; y++)
                     for (int x = 0; x <= divs; x++)
                     {
@@ -520,7 +520,7 @@ void Quad_1to2(const Point2& ctr, double heading, double len_mtr, Point2 ends[2]
 void Quad_diagto1(const Point2 ends[2], double width_mtr, Point2& ctr, double& heading, double& len_mtr, int swapped)
 {
     double diag_len = sqrt(VectorLLToMeters(ends[0], Vector2(ends[0], ends[1])).squared_length());
-    len_mtr = sqrt(max(diag_len * diag_len - width_mtr * width_mtr, 0.0));
+    len_mtr = sqrt(std::max(diag_len * diag_len - width_mtr * width_mtr, 0.0));
 
     double diag_heading = VectorDegs2NorthHeading(ends[0], ends[0], Vector2(ends[0], ends[1]));
 

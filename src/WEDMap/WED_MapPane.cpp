@@ -382,7 +382,7 @@ void WED_MapPane::ZoomShowSel(double scale) // by default show just a bit more t
     GetExtentSel(box, mResolver);
     if (!box.is_empty() && !box.is_null())
     {
-        double x = max(box.xspan(), box.yspan()) * max(0.0, scale - 1.0); // limit zoom to show at least full selection
+        double x = std::max(box.xspan(), box.yspan()) * std::max(0.0, scale - 1.0); // limit zoom to show at least full selection
         box.expand(x);
         mMap->ZoomShowArea(box.p1.x(), box.p1.y(), box.p2.x(), box.p2.y());
     }

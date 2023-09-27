@@ -340,10 +340,10 @@ void apt_make_cut_map(Polygon_set_2& in_area, Pmwx& out_map, double cut_x, doubl
         {
             double px = CGAL::to_double(circ->source()->point().x());
             double py = CGAL::to_double(circ->source()->point().y());
-            min_x = min(px, min_x);
-            min_y = min(py, min_y);
-            max_x = max(px, max_x);
-            max_y = max(py, max_y);
+            min_x = std::min(px, min_x);
+            min_y = std::min(py, min_y);
+            max_x = std::max(px, max_x);
+            max_y = std::max(py, max_y);
 
         } while (++circ != stop);
     }

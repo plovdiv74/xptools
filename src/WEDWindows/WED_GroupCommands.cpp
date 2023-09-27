@@ -807,9 +807,9 @@ void WED_DoReorder(IResolver* resolver, int direction, int to_end)
     {
         for (it = sel.begin(); it != sel.end(); ++it)
             if (direction > 0)
-                insert_slot = max(insert_slot, (*it)->GetMyPosition());
+                insert_slot = std::max(insert_slot, (*it)->GetMyPosition());
             else
-                insert_slot = min(insert_slot, (*it)->GetMyPosition());
+                insert_slot = std::min(insert_slot, (*it)->GetMyPosition());
 
         if (direction < 0)
         {
@@ -4898,7 +4898,7 @@ static std::string get_xplane_codes(int width_enum, const std::set<int>& eq, int
     std::set<std::string> codes_matching_start;
 
     char width_char = width_enum - width_A + 'a';
-    char width_char2 = max((char)(width_char - 1), 'a');
+    char width_char2 = std::max((char)(width_char - 1), 'a');
 
     for (auto v : static_ac_vpaths)
     {
@@ -5314,7 +5314,7 @@ void WED_AlignAirports(IResolver* resolver)
                         float d3 = LonLatDistMeters(i1, j0);
                         float d4 = LonLatDistMeters(i1, j1);
                         float min_dist = fltmin4(d1, d2, d3, d4) - 0.1;
-                        search_radius = min(search_radius, min_dist);
+                        search_radius = std::min(search_radius, min_dist);
                     }
                 }
 
@@ -5371,8 +5371,8 @@ void WED_AlignAirports(IResolver* resolver)
                     float loc_errDist_aft = LonLatDistMeters(old_apt_pos.centroid(), old_apt_pos.centroid() + *i);
                     //					printf("thr errDist %.1lf fixed to %.1lf\n", loc_errDist, loc_errDist_aft);
 
-                    peak_errDist_aft = max(peak_errDist_aft, loc_errDist_aft);
-                    peak_errDist = max(peak_errDist, loc_errDist);
+                    peak_errDist_aft = std::max(peak_errDist_aft, loc_errDist_aft);
+                    peak_errDist = std::max(peak_errDist, loc_errDist);
                 }
 
                 float avg_errDist = LonLatDistMeters(old_apt_pos.centroid(), old_apt_pos.centroid() + avg_errVec);
@@ -6304,7 +6304,7 @@ if (!on_pavement)
     s->GetName(label);
     sign_data tsign;
     tsign.from_code(label);
-    int w = max(tsign.calc_width(0), tsign.calc_width(1));
+    int w = std::max(tsign.calc_width(0), tsign.calc_width(1));
 
     std::string res = "lib/airport/ground/terrain_FX/taxi_sign_base/light/";
     switch (s->GetHeight())

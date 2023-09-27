@@ -1085,12 +1085,12 @@ bool WED_ResourceMgr::GetFac(const std::string& vpath, fac_info_t const*& info, 
                         for (int i = 0; i < m.xyz.size(); i += 3)
                         {
                             xflt* p = &m.xyz[i];
-                            xyz_min[0] = min(xyz_min[0], p[0]);
-                            xyz_max[0] = max(xyz_max[0], p[0]);
-                            //							xyz_min[1] = min(xyz_min[1], p[1]);
-                            //							xyz_max[1] = max(xyz_max[1], p[1]);
-                            xyz_min[2] = min(xyz_min[2], p[2]);
-                            xyz_max[2] = max(xyz_max[2], p[2]);
+                            xyz_min[0] = std::min(xyz_min[0], p[0]);
+                            xyz_max[0] = std::max(xyz_max[0], p[0]);
+                            //							xyz_min[1] = std::min(xyz_min[1], p[1]);
+                            //							xyz_max[1] = std::max(xyz_max[1], p[1]);
+                            xyz_min[2] = std::min(xyz_min[2], p[2]);
+                            xyz_max[2] = std::max(xyz_max[2], p[2]);
                         }
                     t.bounds[0] =
                         xyz_max[0] - xyz_min[0]; // to IF ring=0 objects that aren't true verical fences, like jetways
@@ -1522,10 +1522,10 @@ void WED_ResourceMgr::setup_tile(agp_t::tile_t* agp, int rotation, const std::st
 
     for (int n = 0; n < agp->tile.size(); n += 4)
     {
-        agp->xyz_min[0] = min(agp->xyz_min[0], agp->tile[n]);
-        agp->xyz_max[0] = max(agp->xyz_max[0], agp->tile[n]);
-        agp->xyz_min[2] = min(agp->xyz_min[2], agp->tile[n + 1]);
-        agp->xyz_max[2] = max(agp->xyz_max[2], agp->tile[n + 1]);
+        agp->xyz_min[0] = std::min(agp->xyz_min[0], agp->tile[n]);
+        agp->xyz_max[0] = std::max(agp->xyz_max[0], agp->tile[n]);
+        agp->xyz_min[2] = std::min(agp->xyz_min[2], agp->tile[n + 1]);
+        agp->xyz_max[2] = std::max(agp->xyz_max[2], agp->tile[n + 1]);
     }
 
     auto o = agp->objs.begin();
@@ -1537,34 +1537,34 @@ void WED_ResourceMgr::setup_tile(agp_t::tile_t* agp, int rotation, const std::st
             o->obj = oo;
             if (fabs(o->r - 180.0) < 45.0) // account for rotation, very roughly only
             {
-                agp->xyz_min[0] = min(agp->xyz_min[0], oo->xyz_min[0] + o->x);
-                agp->xyz_max[0] = max(agp->xyz_max[0], oo->xyz_max[0] + o->x);
-                agp->xyz_min[2] = min(agp->xyz_min[2], oo->xyz_min[2] + o->y);
-                agp->xyz_max[2] = max(agp->xyz_max[2], oo->xyz_max[2] + o->y);
+                agp->xyz_min[0] = std::min(agp->xyz_min[0], oo->xyz_min[0] + o->x);
+                agp->xyz_max[0] = std::max(agp->xyz_max[0], oo->xyz_max[0] + o->x);
+                agp->xyz_min[2] = std::min(agp->xyz_min[2], oo->xyz_min[2] + o->y);
+                agp->xyz_max[2] = std::max(agp->xyz_max[2], oo->xyz_max[2] + o->y);
             }
             else if (fabs(o->r - 90.0) < 45.0)
             {
-                agp->xyz_min[0] = min(agp->xyz_min[0], -oo->xyz_min[2] + o->x);
-                agp->xyz_max[0] = max(agp->xyz_max[0], -oo->xyz_max[2] + o->x);
-                agp->xyz_min[2] = min(agp->xyz_min[2], oo->xyz_min[0] + o->y);
-                agp->xyz_max[2] = max(agp->xyz_max[2], oo->xyz_max[0] + o->y);
+                agp->xyz_min[0] = std::min(agp->xyz_min[0], -oo->xyz_min[2] + o->x);
+                agp->xyz_max[0] = std::max(agp->xyz_max[0], -oo->xyz_max[2] + o->x);
+                agp->xyz_min[2] = std::min(agp->xyz_min[2], oo->xyz_min[0] + o->y);
+                agp->xyz_max[2] = std::max(agp->xyz_max[2], oo->xyz_max[0] + o->y);
             }
             else if (fabs(o->r + 90.0) < 45.0)
             {
-                agp->xyz_min[0] = min(agp->xyz_min[0], oo->xyz_max[2] + o->x);
-                agp->xyz_max[0] = max(agp->xyz_max[0], oo->xyz_min[2] + o->x);
-                agp->xyz_min[2] = min(agp->xyz_min[2], -oo->xyz_max[0] + o->y);
-                agp->xyz_max[2] = max(agp->xyz_max[2], -oo->xyz_min[0] + o->y);
+                agp->xyz_min[0] = std::min(agp->xyz_min[0], oo->xyz_max[2] + o->x);
+                agp->xyz_max[0] = std::max(agp->xyz_max[0], oo->xyz_min[2] + o->x);
+                agp->xyz_min[2] = std::min(agp->xyz_min[2], -oo->xyz_max[0] + o->y);
+                agp->xyz_max[2] = std::max(agp->xyz_max[2], -oo->xyz_min[0] + o->y);
             }
             else
             {
-                agp->xyz_min[0] = min(agp->xyz_min[0], -oo->xyz_max[0] + o->x);
-                agp->xyz_max[0] = max(agp->xyz_max[0], -oo->xyz_min[0] + o->x);
-                agp->xyz_min[2] = min(agp->xyz_min[2], -oo->xyz_max[2] + o->y);
-                agp->xyz_max[2] = max(agp->xyz_max[2], -oo->xyz_min[2] + o->y);
+                agp->xyz_min[0] = std::min(agp->xyz_min[0], -oo->xyz_max[0] + o->x);
+                agp->xyz_max[0] = std::max(agp->xyz_max[0], -oo->xyz_min[0] + o->x);
+                agp->xyz_min[2] = std::min(agp->xyz_min[2], -oo->xyz_max[2] + o->y);
+                agp->xyz_max[2] = std::max(agp->xyz_max[2], -oo->xyz_min[2] + o->y);
             }
-            agp->xyz_min[1] = min(agp->xyz_min[1], oo->xyz_min[1] + o->z);
-            agp->xyz_max[1] = max(agp->xyz_max[1], oo->xyz_max[1] + o->z);
+            agp->xyz_min[1] = std::min(agp->xyz_min[1], oo->xyz_min[1] + o->z);
+            agp->xyz_max[1] = std::max(agp->xyz_max[1], oo->xyz_max[1] + o->z);
             o++;
         }
         else
@@ -1583,13 +1583,13 @@ void WED_ResourceMgr::setup_tile(agp_t::tile_t* agp, int rotation, const std::st
             f->fac = fac;
             /*			for (auto& l : f->locs)
                         {
-                            agp->xyz_min[0] = min(agp->xyz_min[0], (float) l.x());
-                            agp->xyz_max[0] = max(agp->xyz_max[0], (float) l.x());
-                            agp->xyz_min[2] = min(agp->xyz_min[2], (float) l.y());
-                            agp->xyz_max[2] = max(agp->xyz_max[2], (float) l.y());
+                            agp->xyz_min[0] = std::min(agp->xyz_min[0], (float) l.x());
+                            agp->xyz_max[0] = std::max(agp->xyz_max[0], (float) l.x());
+                            agp->xyz_min[2] = std::min(agp->xyz_min[2], (float) l.y());
+                            agp->xyz_max[2] = std::max(agp->xyz_max[2], (float) l.y());
                         }
-                        agp->xyz_min[1] = min(agp->xyz_min[1], 0.0f);    // do better - figure the real height limits
-                        agp->xyz_max[1] = min(agp->xyz_max[1], 2.0f); */
+                        agp->xyz_min[1] = std::min(agp->xyz_min[1], 0.0f);    // do better - figure the real height limits
+                        agp->xyz_max[1] = std::min(agp->xyz_max[1], 2.0f); */
             f++;
         }
         else

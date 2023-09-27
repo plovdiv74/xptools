@@ -913,7 +913,7 @@ void	VerticalPartitionOnlyPower(Net_JunctionInfoSet& ioJunctions, Net_ChainInfoS
 double find_highest_ground_along_chain(Net_ChainInfo_t * chain, Net_JunctionInfo_t * origin, double scan_dist)
 {
 	Net_JunctionInfo_t * junc = chain->other_junc(origin);
-	double msl = max(origin->location.z - origin->agl,
+	double msl = std::max(origin->location.z - origin->agl,
 					 junc->location.z - junc->agl);
 	scan_dist -= chain->meter_length(0, chain->seg_count());
 
@@ -921,7 +921,7 @@ double find_highest_ground_along_chain(Net_ChainInfo_t * chain, Net_JunctionInfo
 	{
 		chain = junc->get_other(chain);
 		junc = chain->other_junc(junc);
-		msl = max(msl,
+		msl = std::max(msl,
 						 junc->location.z - junc->agl);
 
 		scan_dist -= chain->meter_length(0, chain->seg_count());
@@ -977,10 +977,10 @@ void	VerticalBuildBridges(Net_JunctionInfoSet& ioJunctions, Net_ChainInfoSet& io
 		{
 			double local_len = (*chain)->meter_length(n, n+1);
 			total_len += local_len;
-			biggest_len = max(biggest_len, local_len);
-			smallest_len = min(smallest_len, local_len);
+			biggest_len = std::max(biggest_len, local_len);
+			smallest_len = std::min(smallest_len, local_len);
 
-			if (n > 0) sharpest_turn = min(sharpest_turn,(*chain)->dot_angle(n));
+			if (n > 0) sharpest_turn = std::min(sharpest_turn,(*chain)->dot_angle(n));
 		}
 
 		double	agl1 = -1.0;
@@ -1005,7 +1005,7 @@ void	VerticalBuildBridges(Net_JunctionInfoSet& ioJunctions, Net_ChainInfoSet& io
 			{
 				if ((*chain)->start_junction->chains.size() == 2)
 				{
-					agl1 = max(find_highest_ground_along_chain(
+					agl1 = std::max(find_highest_ground_along_chain(
 									(*chain)->start_junction->get_other(*chain),
 									(*chain)->start_junction,
 									gBridgeInfo[bridge_rule].search_dist) - (*chain)->start_junction->location.z,
@@ -1014,15 +1014,15 @@ void	VerticalBuildBridges(Net_JunctionInfoSet& ioJunctions, Net_ChainInfoSet& io
 				} else
 					agl1 = gBridgeInfo[bridge_rule].pref_start_agl;
 
-				agl1 = max((double) gBridgeInfo[bridge_rule].min_start_agl, agl1);
-				agl1 = min((double) gBridgeInfo[bridge_rule].max_start_agl, agl1);
+				agl1 = std::max((double) gBridgeInfo[bridge_rule].min_start_agl, agl1);
+				agl1 = std::min((double) gBridgeInfo[bridge_rule].max_start_agl, agl1);
 			}
 
 			if (agl2 == -1)
 			{
 				if ((*chain)->end_junction->chains.size() == 2)
 				{
-					agl2 = max(find_highest_ground_along_chain(
+					agl2 = std::max(find_highest_ground_along_chain(
 									(*chain)->end_junction->get_other(*chain),
 									(*chain)->end_junction,
 									gBridgeInfo[bridge_rule].search_dist) - (*chain)->end_junction->location.z,
@@ -1031,8 +1031,8 @@ void	VerticalBuildBridges(Net_JunctionInfoSet& ioJunctions, Net_ChainInfoSet& io
 				} else
 					agl2 = gBridgeInfo[bridge_rule].pref_start_agl;
 
-				agl2 = max((double) gBridgeInfo[bridge_rule].min_start_agl, agl2);
-				agl2 = min((double) gBridgeInfo[bridge_rule].max_start_agl, agl2);
+				agl2 = std::max((double) gBridgeInfo[bridge_rule].min_start_agl, agl2);
+				agl2 = std::min((double) gBridgeInfo[bridge_rule].max_start_agl, agl2);
 			}
 
 			/* STEP 4 - PICK BRIDGE GEOMETRY */
@@ -1042,14 +1042,14 @@ void	VerticalBuildBridges(Net_JunctionInfoSet& ioJunctions, Net_ChainInfoSet& io
 			double	total_length = (*chain)->meter_length(0, (*chain)->seg_count());
 			double	center_height = total_length * gBridgeInfo[bridge_rule].height_ratio;
 			// Make sure it's not below either of our ends!
-			center_height = max(center_height, agl1);
-			center_height = max(center_height, agl2);
+			center_height = std::max(center_height, agl1);
+			center_height = std::max(center_height, agl2);
 			// Limit by the amount we can climb do to slope constraints.
-			center_height = min(center_height, agl1 + total_length * 0.5 * gBridgeInfo[bridge_rule].road_slope);
-			center_height = min(center_height, agl2 + total_length * 0.5 * gBridgeInfo[bridge_rule].road_slope);
+			center_height = std::min(center_height, agl1 + total_length * 0.5 * gBridgeInfo[bridge_rule].road_slope);
+			center_height = std::min(center_height, agl2 + total_length * 0.5 * gBridgeInfo[bridge_rule].road_slope);
 			// Limit by explicit rules to keep within a sane range.
-			center_height = min(center_height, (double) gBridgeInfo[bridge_rule].max_center_agl);
-			center_height = max(center_height, (double) gBridgeInfo[bridge_rule].min_center_agl);
+			center_height = std::min(center_height, (double) gBridgeInfo[bridge_rule].max_center_agl);
+			center_height = std::max(center_height, (double) gBridgeInfo[bridge_rule].min_center_agl);
 
 			// This is our guestimate for how long the ramps have to be, roughly.
 			double	ramp1 = (center_height - agl1) / gBridgeInfo[bridge_rule].road_slope;
@@ -1202,7 +1202,7 @@ void	InterpolateRoadHeights(Net_JunctionInfoSet& ioJunctions, Net_ChainInfoSet& 
 
 			if (((*chain))->other_junc(*junc)->vertical_locked)
 			{
-				shortest_len = min(shortest_len, ((*chain))->meter_length(0, ((*chain))->seg_count()));
+				shortest_len = std::min(shortest_len, ((*chain))->meter_length(0, ((*chain))->seg_count()));
 				nearby_locked = true;
 			}
 		}
@@ -1233,9 +1233,9 @@ void	InterpolateRoadHeights(Net_JunctionInfoSet& ioJunctions, Net_ChainInfoSet& 
 
 					double var = seg_len * gNetReps[((*chain))->rep_type].max_slope;
 
-					min_msl = max(min_msl, other->location.z - var);
-					max_msl = min(max_msl, other->location.z + var);
-					max_agl = max(max_agl,  other->agl);
+					min_msl = std::max(min_msl, other->location.z - var);
+					max_msl = std::min(max_msl, other->location.z + var);
+					max_agl = std::max(max_agl,  other->agl);
 				} else {
 					double len = current_lock_dist + ((*chain))->meter_length(0, ((*chain))->seg_count());
 					to_process.insert(q_type::value_type(len, other));
@@ -1526,7 +1526,7 @@ void generate_bezier(const Point2& a, const Point2& b, const Point2& c, double m
     {
         double angle = acos(doblim(ab.dot(bc), -1.0, 1.0)) * RAD_TO_DEG;
 
-        double near_angle = max(MIN_ANGLE_FOR_CURVE, 2.0 * min_deflection_deg_mtr);
+        double near_angle = std::max(MIN_ANGLE_FOR_CURVE, 2.0 * min_deflection_deg_mtr);
         double pull_back = (angle * 0.5) / min_deflection_deg_mtr;
 
         if (angle < near_angle || pull_back < MIN_PULLBACK)

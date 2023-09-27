@@ -339,7 +339,7 @@ int WED_ToolInfoAdapter::GetCellWidth(int n)
             return 150;
             //		mTool->GetNthPropertyDict(n / 2, dict);
             //		for(PropertyDict_t::iterator d = dict.begin(); d != dict.end(); ++d)
-            //			w = max(w,(int) GUI_MeasureRange(OUR_FONT, &*d->second.begin(),&*d->second.end())+20);
+            //			w = std::max(w,(int) GUI_MeasureRange(OUR_FONT, &*d->second.begin(),&*d->second.end())+20);
             //		return w;
         default:
             return 50;

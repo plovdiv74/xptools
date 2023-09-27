@@ -151,7 +151,7 @@
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp
 #define __func__ __FUNCTION__
-#define S_ISDIR(m) (((m)&S_IFMT) == S_IFDIR)
+#define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
 #endif
 
 #ifdef __cplusplus
@@ -177,7 +177,8 @@
 // conditions.
 namespace std
 {
-template <class T, class Allocator = allocator<T>> class __dev_vector : public vector<T, Allocator>
+template <class T, class Allocator = allocator<T>>
+class __dev_vector : public vector<T, Allocator>
 {
 public:
     typedef vector<T, Allocator> base_type;
@@ -323,5 +324,13 @@ extern FILE* x_fopen(const char* _Filename, const char* _Mode);
 #define SEGMENT2 Segment2
 #define VECTOR2 Vector2
 #define CGAL_midpoint(a, b) Segment2(a, b).midpoint()
+
+// sigh...
+#ifdef min
+#undef min
+#endif // min
+#ifdef max
+#undef max
+#endif // max
 
 #endif

@@ -654,8 +654,8 @@ int GUI_TextTable::CellMouseDown(int cell_bounds[4], int cell_x, int cell_y, int
         else
             mContent->SelectionStart((mModifiers & (gui_ShiftFlag + gui_ControlFlag)) == 0);
 
-        mContent->SelectRange(min(mSelStartX, cell_x), min(mSelStartY, cell_y), max(mSelStartX, cell_x),
-                              max(mSelStartY, cell_y), (mModifiers & gui_ControlFlag) ? 1 : 0);
+        mContent->SelectRange(min(mSelStartX, cell_x), std::min(mSelStartY, cell_y), std::max(mSelStartX, cell_x),
+                              std::max(mSelStartY, cell_y), (mModifiers & gui_ControlFlag) ? 1 : 0);
         mEditInfo.content_type = gui_Cell_None;
         BroadcastMessage(GUI_TABLE_CONTENT_CHANGED, 0);
 
@@ -798,7 +798,7 @@ void GUI_TextTable::CellMouseDrag(int cell_bounds[4], int cell_x, int cell_y, in
 {
     if (mCellResize >= 0 && mGeometry)
     {
-        mouse_x = max(mouse_x, (mLastX - mGeometry->GetCellWidth(mCellResize) + MIN_CELL_WIDTH));
+        mouse_x = std::max(mouse_x, (mLastX - mGeometry->GetCellWidth(mCellResize) + MIN_CELL_WIDTH));
         mGeometry->SetCellWidth(mCellResize, mouse_x - mLastX + mGeometry->GetCellWidth(mCellResize));
         mLastX = mouse_x;
         BroadcastMessage(GUI_TABLE_SHAPE_RESIZED, 0);
@@ -824,8 +824,8 @@ void GUI_TextTable::CellMouseDrag(int cell_bounds[4], int cell_x, int cell_y, in
             if (mParent)
                 mParent->RevealCell(cell_x, cell_y);
 
-            mContent->SelectRange(min(mSelStartX, cell_x), min(mSelStartY, cell_y), max(mSelStartX, cell_x),
-                                  max(mSelStartY, cell_y), mModifiers & gui_ControlFlag);
+            mContent->SelectRange(min(mSelStartX, cell_x), std::min(mSelStartY, cell_y), std::max(mSelStartX, cell_x),
+                                  std::max(mSelStartY, cell_y), mModifiers & gui_ControlFlag);
             BroadcastMessage(GUI_TABLE_CONTENT_CHANGED, 0);
         }
     }
@@ -857,7 +857,7 @@ void GUI_TextTable::CellMouseUp(int cell_bounds[4], int cell_x, int cell_y, int 
 {
     if (mCellResize >= 0 && mGeometry)
     {
-        mouse_x = max(mouse_x, (mLastX - mGeometry->GetCellWidth(mCellResize) + MIN_CELL_WIDTH));
+        mouse_x = std::max(mouse_x, (mLastX - mGeometry->GetCellWidth(mCellResize) + MIN_CELL_WIDTH));
         mGeometry->SetCellWidth(mCellResize, mouse_x - mLastX + mGeometry->GetCellWidth(mCellResize));
         mCellResize = -1;
         BroadcastMessage(GUI_TABLE_SHAPE_RESIZED, 0);
@@ -881,8 +881,8 @@ void GUI_TextTable::CellMouseUp(int cell_bounds[4], int cell_x, int cell_y, int 
             if (mParent)
                 mParent->RevealCell(cell_x, cell_y);
 
-            mContent->SelectRange(min(mSelStartX, cell_x), min(mSelStartY, cell_y), max(mSelStartX, cell_x),
-                                  max(mSelStartY, cell_y), mModifiers & gui_ControlFlag);
+            mContent->SelectRange(min(mSelStartX, cell_x), std::min(mSelStartY, cell_y), std::max(mSelStartX, cell_x),
+                                  std::max(mSelStartY, cell_y), mModifiers & gui_ControlFlag);
             mContent->SelectionEnd();
             BroadcastMessage(GUI_TABLE_CONTENT_CHANGED, 0);
             mSelStartX = -1;
@@ -1310,7 +1310,7 @@ void GUI_TextTable::CreateEdit(int cell_bounds[4], const GUI_EnumDictionary* dic
 
         cell_bounds[0] += mEditInfo.indent_level * mCellIndent;
         mTextField->SetBounds(cell_bounds);
-        mTextField->SetWidth(max(cell_bounds[2] - cell_bounds[0], 2048));
+        mTextField->SetWidth(std::max(cell_bounds[2] - cell_bounds[0], 2048));
         mTextField->Show();
         mTextField->TakeFocus();
 
@@ -1516,14 +1516,14 @@ int GUI_TextTable::HandleKeyPress(uint32_t inKey, int inVK, GUI_KeyFlags inFlags
                         break;
                     }
 
-                    x1 = min(x1, x_max);
-                    x2 = min(x2, x_max);
-                    x1 = max(x1, x_min);
-                    x2 = max(x2, x_min);
-                    y1 = min(y1, y_max);
-                    y2 = min(y2, y_max);
-                    y1 = max(y1, y_min);
-                    y2 = max(y2, y_min);
+                    x1 = std::min(x1, x_max);
+                    x2 = std::min(x2, x_max);
+                    x1 = std::max(x1, x_min);
+                    x2 = std::max(x2, x_min);
+                    y1 = std::min(y1, y_max);
+                    y2 = std::min(y2, y_max);
+                    y1 = std::max(y1, y_min);
+                    y2 = std::max(y2, y_min);
 
                     if (mParent)
                         switch (inKey)
@@ -1733,7 +1733,7 @@ void GUI_TextTableHeader::HeadMouseDrag(int cell_bounds[4], int cell_x, int mous
 {
     if (mCellResize >= 0 && mGeometry)
     {
-        mouse_x = max(mouse_x, (mLastX - mGeometry->GetCellWidth(mCellResize) + MIN_CELL_WIDTH));
+        mouse_x = std::max(mouse_x, (mLastX - mGeometry->GetCellWidth(mCellResize) + MIN_CELL_WIDTH));
         mGeometry->SetCellWidth(mCellResize, mouse_x - mLastX + mGeometry->GetCellWidth(mCellResize));
         mLastX = mouse_x;
         BroadcastMessage(GUI_TABLE_SHAPE_RESIZED, 0);
@@ -1744,7 +1744,7 @@ void GUI_TextTableHeader::HeadMouseUp(int cell_bounds[4], int cell_x, int mouse_
 {
     if (mCellResize >= 0 && mGeometry)
     {
-        mouse_x = max(mouse_x, (mLastX - mGeometry->GetCellWidth(mCellResize) + MIN_CELL_WIDTH));
+        mouse_x = std::max(mouse_x, (mLastX - mGeometry->GetCellWidth(mCellResize) + MIN_CELL_WIDTH));
         mGeometry->SetCellWidth(mCellResize, mouse_x - mLastX + mGeometry->GetCellWidth(mCellResize));
         mCellResize = -1;
         BroadcastMessage(GUI_TABLE_SHAPE_RESIZED, 0);

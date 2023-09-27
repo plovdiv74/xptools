@@ -415,7 +415,7 @@ double MeshSimplify::calc_remove_error(CDT::Vertex_handle p, CDT::Vertex_handle 
             while (h->target() != p_orig && h->target() != r_orig)
             {
                 // If PR as a supporting line fails this point, we're done.
-                err = max(err, err_f(p_orig->point(), h->target()->point(), r_orig->point()));
+                err = std::max(err, err_f(p_orig->point(), h->target()->point(), r_orig->point()));
                 if (err >= max_err)
                     return err;
 

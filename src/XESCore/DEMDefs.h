@@ -764,7 +764,7 @@ inline float DEMGeo::kernelmaxN(int x, int y, int dim, float* kernel) const
                 if (sum == DEM_NO_DATA)
                     sum = e;
                 else
-                    sum = max(sum, e);
+                    sum = std::max(sum, e);
             }
             ++i;
         }

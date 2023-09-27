@@ -50,7 +50,7 @@
 
 static bool ClipTo(int pane[4], int cell[4])
 {
-    int clip[4] = {max(pane[0], cell[0]), max(pane[1], cell[1]), min(pane[2], cell[2]), min(pane[3], cell[3])};
+    int clip[4] = {std::max(pane[0], cell[0]), std::max(pane[1], cell[1]), std::min(pane[2], cell[2]), std::min(pane[3], cell[3])};
 
     int w = clip[2] - clip[0];
     int h = clip[3] - clip[1];
@@ -123,13 +123,13 @@ void GUI_Table::RevealCol(int x)
 
     if (cell_bounds[0] < pane_bounds[0])
     {
-        ScrollH(GetScrollH() + max(cell_bounds[0] - pane_bounds[0], min(0, cell_bounds[2] - pane_bounds[2])));
+        ScrollH(GetScrollH() + std::max(cell_bounds[0] - pane_bounds[0], std::min(0, cell_bounds[2] - pane_bounds[2])));
         BroadcastMessage(GUI_SCROLL_CONTENT_SIZE_CHANGED, 0);
         Refresh();
     }
     else if (cell_bounds[2] > pane_bounds[2])
     {
-        ScrollH(GetScrollH() + min(cell_bounds[2] - pane_bounds[2], max(0, cell_bounds[0] - pane_bounds[0])));
+        ScrollH(GetScrollH() + std::min(cell_bounds[2] - pane_bounds[2], std::max(0, cell_bounds[0] - pane_bounds[0])));
         BroadcastMessage(GUI_SCROLL_CONTENT_SIZE_CHANGED, 0);
         Refresh();
     }
@@ -148,13 +148,13 @@ void GUI_Table::RevealRow(int y)
 
     if (cell_bounds[1] < pane_bounds[1])
     {
-        ScrollV(GetScrollV() + max(cell_bounds[1] - pane_bounds[1], min(0, cell_bounds[3] - pane_bounds[3])));
+        ScrollV(GetScrollV() + std::max(cell_bounds[1] - pane_bounds[1], std::min(0, cell_bounds[3] - pane_bounds[3])));
         BroadcastMessage(GUI_SCROLL_CONTENT_SIZE_CHANGED, 0);
         Refresh();
     }
     else if (cell_bounds[3] > pane_bounds[3])
     {
-        ScrollV(GetScrollV() + min(cell_bounds[3] - pane_bounds[3], max(0, cell_bounds[1] - pane_bounds[1])));
+        ScrollV(GetScrollV() + std::min(cell_bounds[3] - pane_bounds[3], std::max(0, cell_bounds[1] - pane_bounds[1])));
         BroadcastMessage(GUI_SCROLL_CONTENT_SIZE_CHANGED, 0);
         Refresh();
     }
@@ -175,14 +175,14 @@ void GUI_Table::RevealCell(int x, int y)
     int old_v = GetScrollV();
 
     if (cell_bounds[0] < pane_bounds[0])
-        ScrollH(GetScrollH() + max(cell_bounds[0] - pane_bounds[0], min(0, cell_bounds[2] - pane_bounds[2])));
+        ScrollH(GetScrollH() + std::max(cell_bounds[0] - pane_bounds[0], std::min(0, cell_bounds[2] - pane_bounds[2])));
     else if (cell_bounds[2] > pane_bounds[2])
-        ScrollH(GetScrollH() + min(cell_bounds[2] - pane_bounds[2], max(0, cell_bounds[0] - pane_bounds[0])));
+        ScrollH(GetScrollH() + std::min(cell_bounds[2] - pane_bounds[2], std::max(0, cell_bounds[0] - pane_bounds[0])));
 
     if (cell_bounds[1] < pane_bounds[1])
-        ScrollV(GetScrollV() + max(cell_bounds[1] - pane_bounds[1], min(0, cell_bounds[3] - pane_bounds[3])));
+        ScrollV(GetScrollV() + std::max(cell_bounds[1] - pane_bounds[1], std::min(0, cell_bounds[3] - pane_bounds[3])));
     else if (cell_bounds[3] > pane_bounds[3])
-        ScrollV(GetScrollV() + min(cell_bounds[3] - pane_bounds[3], max(0, cell_bounds[1] - pane_bounds[1])));
+        ScrollV(GetScrollV() + std::min(cell_bounds[3] - pane_bounds[3], std::max(0, cell_bounds[1] - pane_bounds[1])));
 
     if (old_h != GetScrollH() || old_v != GetScrollV())
     {
@@ -375,25 +375,25 @@ void GUI_Table::DragScroll(int x, int y)
     int old_h = GetScrollH();
     int old_v = GetScrollV();
 
-    int max_left = max(vis[0] - total[0], 0.0f);
-    int max_right = max(total[2] - vis[2], 0.0f);
-    int max_bottom = max(vis[1] - total[1], 0.0f);
-    int max_top = max(total[3] - vis[3], 0.0f);
+    int max_left = std::max(vis[0] - total[0], 0.0f);
+    int max_right = std::max(total[2] - vis[2], 0.0f);
+    int max_bottom = std::max(vis[1] - total[1], 0.0f);
+    int max_top = std::max(total[3] - vis[3], 0.0f);
 
     int speed_left = me[0] - x + AUTOSCROLL_DIST;
     int speed_right = x - me[2] + AUTOSCROLL_DIST;
     int speed_bottom = me[1] - y + AUTOSCROLL_DIST;
     int speed_top = y - me[3] + AUTOSCROLL_DIST;
 
-    speed_left = min(AUTOSCROLL_DIST, max(0, speed_left));
-    speed_right = min(AUTOSCROLL_DIST, max(0, speed_right));
-    speed_bottom = min(AUTOSCROLL_DIST, max(0, speed_bottom));
-    speed_top = min(AUTOSCROLL_DIST, max(0, speed_top));
+    speed_left = std::min(AUTOSCROLL_DIST, std::max(0, speed_left));
+    speed_right = std::min(AUTOSCROLL_DIST, std::max(0, speed_right));
+    speed_bottom = std::min(AUTOSCROLL_DIST, std::max(0, speed_bottom));
+    speed_top = std::min(AUTOSCROLL_DIST, std::max(0, speed_top));
 
-    ScrollH(GetScrollH() - min(speed_left, max_left));
-    ScrollH(GetScrollH() + min(speed_right, max_right));
-    ScrollV(GetScrollV() - min(speed_bottom, max_bottom));
-    ScrollV(GetScrollV() + min(speed_top, max_top));
+    ScrollH(GetScrollH() - std::min(speed_left, max_left));
+    ScrollH(GetScrollH() + std::min(speed_right, max_right));
+    ScrollV(GetScrollV() - std::min(speed_bottom, max_bottom));
+    ScrollV(GetScrollV() + std::min(speed_top, max_top));
 
     if (old_h != GetScrollH() || old_v != GetScrollV())
     {

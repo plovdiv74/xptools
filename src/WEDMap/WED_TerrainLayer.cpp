@@ -277,7 +277,7 @@ void WED_TerrainLayer::DrawVisualization(bool inCurrent, GUI_GraphState* g)
     GetZoomer()->GetMapLogicalBounds(ll, lb, lr, lt);
     GetZoomer()->GetMapVisibleBounds(vl, vb, vr, vt);
 
-    Bbox2 map_viewport({max(vl, ll), max(vb, lb)}, {min(vr, lr), min(vt, lt)});
+    Bbox2 map_viewport({std::max(vl, ll), std::max(vb, lb)}, {min(vr, lr), std::min(vt, lt)});
     double PPM = GetZoomer()->GetPPM();
 
     const float dem_color[4] = {1.0, 0.3, 0.3, 1.0};
@@ -301,9 +301,9 @@ void WED_TerrainLayer::DrawVisualization(bool inCurrent, GUI_GraphState* g)
 
                 if (x_step * DEG_TO_MTR_LAT * cosf(t->bounds.ymin() * DEG_TO_RAD) * PPM > 60)
                 {
-                    vl = x_step * floor(max(map_viewport.xmin(), t->bounds.xmin()) / x_step);
+                    vl = x_step * floor(std::max(map_viewport.xmin(), t->bounds.xmin()) / x_step);
                     vr = x_step * ceil(min(map_viewport.xmax(), t->bounds.xmax()) / x_step);
-                    vb = y_step * floor(max(map_viewport.ymin(), t->bounds.ymin()) / y_step);
+                    vb = y_step * floor(std::max(map_viewport.ymin(), t->bounds.ymin()) / y_step);
                     vt = y_step * ceil(min(map_viewport.ymax(), t->bounds.ymax()) / y_step);
 
                     g->SetState(false, 0, false, false, true, false, false);

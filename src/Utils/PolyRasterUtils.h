@@ -246,17 +246,17 @@ template <typename Number> void PolyRasterizer<Number>::AddEdge(Number x1, Numbe
     {
         if (masters.empty())
         {
-            bounds[0] = min(x1, x2);
-            bounds[1] = min(y1, y2);
-            bounds[2] = max(x1, x2);
-            bounds[3] = max(y1, y2);
+            bounds[0] = std::min(x1, x2);
+            bounds[1] = std::min(y1, y2);
+            bounds[2] = std::max(x1, x2);
+            bounds[3] = std::max(y1, y2);
         }
         else
         {
-            bounds[0] = min(bounds[0], min(x1, x2));
-            bounds[1] = min(bounds[1], min(y1, y2));
-            bounds[2] = max(bounds[2], max(x1, x2));
-            bounds[3] = max(bounds[3], max(y1, y2));
+            bounds[0] = std::min(bounds[0], std::min(x1, x2));
+            bounds[1] = std::min(bounds[1], std::min(y1, y2));
+            bounds[2] = std::max(bounds[2], std::max(x1, x2));
+            bounds[3] = std::max(bounds[3], std::max(y1, y2));
         }
         if (y1 < y2)
             masters.push_back(PolyRasterSeg(x1, y1, x2, y2));
@@ -312,7 +312,7 @@ template <typename Number> Number PolyRasterizer<Number>::NextNonEmptyTime(Numbe
 
     // Hrm - no segments now?  Tell the client it's okay to jump
     // all the way up to the next insert...we probably have a big gap.
-    return max(masters[unused_master_index].y1, y);
+    return std::max(masters[unused_master_index].y1, y);
 }
 
 // Return an integer scan-range value.  This is pretty easy...
@@ -348,14 +348,14 @@ template <typename Number> void PolyRasterizer<Number>::GetLine(vector<Number>& 
     out_line.resize(actives.size());
     // If we have any unused lines, the next line starting might be an "event"
     if (unused_master_index < masters.size())
-        next_y = min(next_y, masters[unused_master_index].y1);
+        next_y = std::min(next_y, masters[unused_master_index].y1);
     int n = 0;
     for (typename vector<ActiveSeg>::const_iterator a = actives.begin(); a != actives.end(); ++a, ++n)
     {
         out_line[n] = a->second;
         // If an active segment ends in the future, it may be the next "event."
         if (a->first->y2 > current_scan_y)
-            next_y = min(next_y, a->first->y2);
+            next_y = std::min(next_y, a->first->y2);
     }
 }
 

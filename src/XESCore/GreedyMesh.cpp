@@ -103,7 +103,7 @@ inline float ScanlineMaxError(const DEMGeo* inDEMSrc, const DEMMask* inDEMUsed, 
     DebugAssert(y < inDEMSrc->mHeight);
 
     int ix1 = ceil(min(x1, x2));
-    int ix2 = floor(max(x1, x2));
+    int ix2 = floor(std::max(x1, x2));
     DebugAssert(ix1 >= 0);
     DebugAssert(ix2 < inDEMSrc->mWidth);
 
@@ -164,16 +164,16 @@ void CalcOneTriError(CDT::Face_handle face, double size_lim)
     if (size_lim != 0.0)
     {
         double xmin =
-            min(min(CGAL::to_double(face->vertex(0)->point().x()), CGAL::to_double(face->vertex(1)->point().x())),
+            std::min(min(CGAL::to_double(face->vertex(0)->point().x()), CGAL::to_double(face->vertex(1)->point().x())),
                 CGAL::to_double(face->vertex(2)->point().x()));
         double xmax =
-            max(max(CGAL::to_double(face->vertex(0)->point().x()), CGAL::to_double(face->vertex(1)->point().x())),
+            std::max(std::max(CGAL::to_double(face->vertex(0)->point().x()), CGAL::to_double(face->vertex(1)->point().x())),
                 CGAL::to_double(face->vertex(2)->point().x()));
         double ymin =
-            min(min(CGAL::to_double(face->vertex(0)->point().y()), CGAL::to_double(face->vertex(1)->point().y())),
+            std::min(min(CGAL::to_double(face->vertex(0)->point().y()), CGAL::to_double(face->vertex(1)->point().y())),
                 CGAL::to_double(face->vertex(2)->point().y()));
         double ymax =
-            max(max(CGAL::to_double(face->vertex(0)->point().y()), CGAL::to_double(face->vertex(1)->point().y())),
+            std::max(std::max(CGAL::to_double(face->vertex(0)->point().y()), CGAL::to_double(face->vertex(1)->point().y())),
                 CGAL::to_double(face->vertex(2)->point().y()));
 
         double xs = xmax - xmin;

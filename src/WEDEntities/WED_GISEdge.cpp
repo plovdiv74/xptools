@@ -405,7 +405,7 @@ IGISPoint* WED_GISEdge::SplitEdge(const Point2& p, double dist) // MM: add argum
         return nullptr; // for now, just abort
 
         int num_view = CountViewers();
-        int src = min(hit_point, 1);
+        int src = std::min(hit_point, 1);
         WED_Thing* np = dynamic_cast<WED_Thing*>(GetNthSource(src)->Clone());
 
         return dynamic_cast<IGISPoint*>(np);

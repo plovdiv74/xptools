@@ -396,7 +396,7 @@ inline void TT_establish_font(tt_t c)
 void GUI_SetFontSizes(float sizePix)
 {
     tt_sizes[0] = sizePix;
-    tt_sizes[1] = max(10.0f, sizePix * 0.75f);
+    tt_sizes[1] = std::max(10.0f, sizePix * 0.75f);
     TT_reset_font(font_Max);
 }
 

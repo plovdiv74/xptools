@@ -317,10 +317,10 @@ int WED_HandleToolBase::HandleClickDown(int inX, int inY, int inButton, GUI_KeyF
                                                               GetZoomer()->YPixelToLat(GetFurnitureIconRadius()));
                                     double icon_dist_h = fabs(GetZoomer()->XPixelToLon(0) -
                                                               GetZoomer()->XPixelToLon(GetFurnitureIconRadius()));
-                                    double max_slop_h = max(icon_dist_h, frame_dist);
-                                    double max_slop_v = max(icon_dist_v, frame_dist);
+                                    double max_slop_h = std::max(icon_dist_h, frame_dist);
+                                    double max_slop_v = std::max(icon_dist_v, frame_dist);
                                     if (WED_IsIconic(e))
-                                        frame_dist = max(icon_dist_h, icon_dist_v);
+                                        frame_dist = std::max(icon_dist_h, icon_dist_v);
 
                                     Bbox2 ent_bounds;
                                     e->GetBounds(gis_Geo, ent_bounds);

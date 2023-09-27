@@ -451,7 +451,7 @@ void draw_agp_at_xyz(ITexMgr* tman, const agp_t* agp, double x, double y, double
         if (o.scp_step > 0.0)
         {
             if (height > o.scp_min)
-                height = min(o.scp_max - o.scp_min, floor((height - o.scp_min) / o.scp_step) * o.scp_step);
+                height = std::min(o.scp_max - o.scp_min, floor((height - o.scp_min) / o.scp_step) * o.scp_step);
             else
                 height = 0.0;
             draw_obj_at_xyz(tman, o.obj, o.x, height, -o.y, o.r, g);
@@ -501,13 +501,13 @@ void draw_agp_at_ll(ITexMgr* tman, const agp_t* agp, const Point2& loc, float he
     for (auto& o : ti.objs)
     {
         if ((o.show_lo + o.show_hi) / 2 <= preview_level)
-            if (ppm * max(o.obj->xyz_max[0] - o.obj->xyz_min[0], o.obj->xyz_max[2] - o.obj->xyz_min[2]) >
+            if (ppm * std::max(o.obj->xyz_max[0] - o.obj->xyz_min[0], o.obj->xyz_max[2] - o.obj->xyz_min[2]) >
                 MIN_PIXELS_PREVIEW)
             {
                 if (o.scp_step > 0.0)
                 {
                     if (height > o.scp_min)
-                        height = min(o.scp_max - o.scp_min, floor((height - o.scp_min) / o.scp_step) * o.scp_step);
+                        height = std::min(o.scp_max - o.scp_min, floor((height - o.scp_min) / o.scp_step) * o.scp_step);
                     else
                         height = 0.0;
                     draw_obj_at_xyz(tman, o.obj, o.x, height, -o.y, o.r, g);
@@ -694,8 +694,8 @@ struct preview_runway : public WED_PreviewItem
                     {
                         lpos += direction;
                         rpos += direction;
-                        GUI_PlotIcon(g, "map_taxisign.png", lpos.x(), lpos.y(), sign_hdg, max(0.4, z * 0.05));
-                        GUI_PlotIcon(g, "map_taxisign.png", rpos.x(), rpos.y(), sign_hdg, max(0.4, z * 0.05));
+                        GUI_PlotIcon(g, "map_taxisign.png", lpos.x(), lpos.y(), sign_hdg, std::max(0.4, z * 0.05));
+                        GUI_PlotIcon(g, "map_taxisign.png", rpos.x(), rpos.y(), sign_hdg, std::max(0.4, z * 0.05));
                     }
                 }
             }
@@ -736,14 +736,14 @@ struct preview_runway : public WED_PreviewItem
                         {
                             if (n != 2)
                                 GUI_PlotIcon(g, "map_light.png", rollbar.x(), rollbar.y(), sign_hdg,
-                                             max(0.3, z * 0.05));
+                                             std::max(0.3, z * 0.05));
                             rollbar += rbar_dir;
                         }
                     }
                     for (int n = 0; n < num_lgts; n++)
                     {
                         lpos += vec_lgts;
-                        GUI_PlotIcon(g, "map_light.png", lpos.x(), lpos.y(), sign_hdg, max(0.3, z * 0.05));
+                        GUI_PlotIcon(g, "map_light.png", lpos.x(), lpos.y(), sign_hdg, std::max(0.3, z * 0.05));
                     }
                 }
             g->SetState(false, 0, false, true, true, false, false);
@@ -978,7 +978,7 @@ static void draw_line_preview(const std::vector<Point2>& pts, const lin_info_t& 
         if (startcap_t > 0.0)
         {
             double cap_len_t = linfo.start_caps[l].t2 - linfo.start_caps[l].t1;
-            double t = min(startcap_t, uv_t2 - uv_t1);
+            double t = std::min(startcap_t, uv_t2 - uv_t1);
             glBegin(GL_QUADS);
             glTexCoord2f(linfo.start_caps[l].s1, linfo.start_caps[l].t2 - startcap_t);
             glVertex2(start_left);
@@ -1000,7 +1000,7 @@ static void draw_line_preview(const std::vector<Point2>& pts, const lin_info_t& 
 
         if (j >= start_of_endcap)
         {
-            endcap_frac_t = min(endcap_frac_t, uv_t2 - uv_t1);
+            endcap_frac_t = std::min(endcap_frac_t, uv_t2 - uv_t1);
             glBegin(GL_QUADS);
             glTexCoord2f(linfo.end_caps[l].s2, linfo.end_caps[l].t2 - endcap_t + endcap_frac_t);
             glVertex2(end_right);
@@ -1565,7 +1565,7 @@ struct preview_autogen : public preview_polygon
     virtual void draw_it(WED_MapZoomerNew* zoomer, GUI_GraphState* g, float mPavementAlpha)
     {
         IGISPointSequence* ps = ags->GetOuterRing();
-        int tile_width = min(zoomer->GetPPM() * 20.0, 10.0);
+        int tile_width = std::min(zoomer->GetPPM() * 20.0, 10.0);
         g->SetState(false, 0, false, true, true, false, false);
         std::vector<Point2> pts;
         if (tile_width > 0)
@@ -1745,7 +1745,7 @@ struct preview_taxisign : public WED_PreviewItem
         sign_data tsign;
         tsign.from_code(name);
 
-        const int w = max(tsign.calc_width(0), tsign.calc_width(1)) / 2;
+        const int w = std::max(tsign.calc_width(0), tsign.calc_width(1)) / 2;
         const int d = 6;
         const int h = 55;
 
@@ -2306,7 +2306,7 @@ bool WED_PreviewLayer::DrawEntityVisualization(bool inCurrent, IGISEntity* entit
             if (!vpath.empty() && rmgr->GetLin(vpath, lin_info))
             {
                 lg = layer_group_for_string(lin_info->group.c_str(), lin_info->group_offset, lg);
-                lwidth = max(0.4, lin_info->eff_width * 0.5);
+                lwidth = std::max(0.4, lin_info->eff_width * 0.5);
             }
             // criteria matches where mRealLines disappear in StructureLayer
             if (PixelSize(line, lwidth, GetZoomer()) > mOptions.minLineThicknessPixels)

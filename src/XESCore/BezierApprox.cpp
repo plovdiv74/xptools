@@ -288,7 +288,7 @@ double squared_distance_pt_seq(PolyLineIndex& iseq, const Point2& p, double max_
                     do
                     {
                         Segment2 seg(*prev, *start);
-                        worst = min(worst, seg.squared_distance(p));
+                        worst = std::min(worst, seg.squared_distance(p));
                         if ((start->y() - max_err) > p.y())
                             break;
                         prev = start;
@@ -308,7 +308,7 @@ double squared_distance_pt_seq(PolyLineIndex& iseq, const Point2& p, double max_
                     do
                     {
                         Segment2 seg(*prev, *start);
-                        worst = min(worst, seg.squared_distance(p));
+                        worst = std::min(worst, seg.squared_distance(p));
                         if ((start->x() - max_err) > p.x())
                             break;
                         prev = start;
@@ -328,7 +328,7 @@ template <class __Seq> double squared_distance_seq_seq(PolyLineIndex& s2, __Seq 
     {
         Point2 p = *s1;
         ++s1;
-        //		worst = max(worst, squared_distance_pt_seq<__Seq2>(s2, p));
+        //		worst = std::max(worst, squared_distance_pt_seq<__Seq2>(s2, p));
         v += squared_distance_pt_seq(s2, p, max_err);
         ++t;
     }
@@ -355,7 +355,7 @@ template <class __Seq> double squared_distance_pt_seq(__Seq seq, const Point2& p
         s.p1 = s.p2;
         s.p2 = *seq;
         ++seq;
-        worst = min(worst, s.squared_distance(p));
+        worst = std::min(worst, s.squared_distance(p));
     }
     return worst;
 }
@@ -368,7 +368,7 @@ template <class __Seq1, class __Seq2> double squared_distance_seq_seq(__Seq1 s1,
     {
         Point2 p = *s1;
         ++s1;
-        //		worst = max(worst, squared_distance_pt_seq<__Seq2>(s2, p));
+        //		worst = std::max(worst, squared_distance_pt_seq<__Seq2>(s2, p));
         v += squared_distance_pt_seq<__Seq2>(s2, p);
         ++t;
     }

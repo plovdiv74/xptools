@@ -46,7 +46,7 @@
 
 static bool cull_obj(const XObj8* o, double ppm) // cut off if laterally smaller than 5 pixels
 {
-    double pix = ppm * max(o->xyz_max[0] - o->xyz_min[0], o->xyz_max[2] - o->xyz_min[2]);
+    double pix = ppm * std::max(o->xyz_max[0] - o->xyz_min[0], o->xyz_max[2] - o->xyz_min[2]);
     //	printf("pix %.1lf\n", sqrt(pix));
     return pix < MIN_PIXELS_PREVIEW;
 }
@@ -322,10 +322,10 @@ static double BuildOneFacade( // that is one wall for one segment
         if (middle_c < 0)
             middle_c = 0;
 
-        bottom_c = min(fac.bottom + fac.middle,
+        bottom_c = std::min(fac.bottom + fac.middle,
                        (inFloors - middle_c) /
                            2); // Divide out the first few extra floors to bottom and top.  TOP has priority!
-        top_c = min(fac.top + fac.middle - ang_c, inFloors - middle_c - bottom_c);
+        top_c = std::min(fac.top + fac.middle - ang_c, inFloors - middle_c - bottom_c);
         bottom_c = inFloors - middle_c - top_c;
     }
     // printf("  floors = %d, split is %d,%d,%d,%d\n", inFloors,bottom_c,middle_c,top_c,ang_c);
@@ -342,8 +342,8 @@ static double BuildOneFacade( // that is one wall for one segment
         center_c = inPanels - (fac.left + 2 * fac.center + fac.right);
         if (center_c < 0)
             center_c = 0;
-        left_c = min(fac.left + fac.center, (inPanels - center_c) / 2);
-        right_c = min(fac.center + fac.right, inPanels - center_c - left_c);
+        left_c = std::min(fac.left + fac.center, (inPanels - center_c) / 2);
+        right_c = std::min(fac.center + fac.right, inPanels - center_c - left_c);
         left_c = inPanels - right_c - center_c;
     }
 

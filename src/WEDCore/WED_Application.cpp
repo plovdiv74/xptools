@@ -137,7 +137,7 @@ void WED_Settings::ReceiveMessage(GUI_Broadcaster* inSrc, intptr_t inMsg, intptr
     {
         std::string new_val;
         ((GUI_TextField*)inParam)->GetDescriptor(new_val);
-        gFontSize = max(10, min(18, atoi(new_val.c_str())));
+        gFontSize = std::max(10, std::min(18, atoi(new_val.c_str())));
         GUI_SetFontSizes(gFontSize);
 #if LIN
         Fl_Tooltip::size((int)GUI_GetFontSize(font_UI_Small));

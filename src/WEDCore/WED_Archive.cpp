@@ -88,7 +88,7 @@ void WED_Archive::AddObject(WED_Persistent* inObject)
     if (mDying)
         return;
     ++mCacheKey;
-    mID = max(mID, inObject->GetID() + 1);
+    mID = std::max(mID, inObject->GetID() + 1);
     ObjectMap::iterator iter = mObjects.find(inObject->GetID());
     DebugAssert(iter == mObjects.end() || iter->second == NULL);
 

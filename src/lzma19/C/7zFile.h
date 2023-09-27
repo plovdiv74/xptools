@@ -40,7 +40,7 @@ WRes OutFile_OpenW(CSzFile* p, const WCHAR* name);
 #endif
 WRes File_Close(CSzFile* p);
 
-/* reads max(*size, remain file's size) bytes */
+/* reads std::max(*size, remain file's size) bytes */
 WRes File_Read(CSzFile* p, void* data, size_t* size);
 
 /* writes *size bytes */

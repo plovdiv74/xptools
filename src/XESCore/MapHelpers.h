@@ -699,7 +699,7 @@ void arrangement_simplifier<Arr, Traits>::simplify(Arr& io_block, double max_err
                 }
 
     int total = q.size();
-    int check = max(total / 100, 1);
+    int check = std::max(total / 100, 1);
     PROGRESS_START(func, 0, 1, "Simplifying...")
 
     //
@@ -708,10 +708,10 @@ void arrangement_simplifier<Arr, Traits>::simplify(Arr& io_block, double max_err
     //	for(typename Arr::Vertex_iterator v = io_block.vertices_begin(); v != io_block.vertices_end(); ++v)
     //	{
     //		Point2	p = cgal2ben(v->point());
-    //		minc.x_ = min(minc.x(),p.x());
-    //		minc.y_ = min(minc.y(),p.y());
-    //		maxc.x_ = max(maxc.x(),p.x());
-    //		maxc.y_ = max(maxc.y(),p.y());
+    //		minc.x_ = std::min(minc.x(),p.x());
+    //		minc.y_ = std::min(minc.y(),p.y());
+    //		maxc.x_ = std::max(maxc.x(),p.x());
+    //		maxc.y_ = std::max(maxc.y(),p.y());
     //	}
 
     spatial_index_2<typename Arr::Geometry_traits_2> vertex_index;

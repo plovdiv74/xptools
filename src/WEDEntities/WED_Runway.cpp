@@ -569,7 +569,7 @@ void WED_Runway::Export(AptRunway_t& x) const
     x.width_mtr = GetWidth();
 
     x.surf_code = ENUM_Export(surface.value);
-    x.shoulder_code = ENUM_Export(shoulder.value) + 100 * max(0, intround(shoulder_width.value));
+    x.shoulder_code = ENUM_Export(shoulder.value) + 100 * std::max(0, intround(shoulder_width.value));
     x.roughness_ratio = fltlim(roughness, 0.0f, 1.0f);
     x.has_centerline = center_lites;
     x.edge_light_code = ENUM_Export(edge_lites.value);

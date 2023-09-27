@@ -471,7 +471,7 @@ void SimplifyPolygonMaxMove(Polygon_set_2& ioPolygon, double max_err)
 
         if (can_merge(pmwx, me))
         {
-            double old_err = max(me->data().mInset, me->next()->data().mInset);
+            double old_err = std::max(me->data().mInset, me->next()->data().mInset);
             ++ctr;
             DebugAssert(pmwx.is_valid());
             me = pmwx.merge_edge(me, next, Curve_2(Segment_2(me->source()->point(), next->target()->point()), 0));

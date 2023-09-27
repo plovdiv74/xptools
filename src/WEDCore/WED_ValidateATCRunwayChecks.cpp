@@ -699,7 +699,7 @@ static Polygon2 MakeHotZoneHitBox(
     {
         if (runway_info.IsHotForArrival(runway_number) == true && make_arrival == true)
         {
-            HITZONE_OVERFLY_THRESHOLD_M = max(HITZONE_OVERFLY_THRESHOLD_M - runway_info.runway_ptr->GetDisp1(), 0.0);
+            HITZONE_OVERFLY_THRESHOLD_M = std::max(HITZONE_OVERFLY_THRESHOLD_M - runway_info.runway_ptr->GetDisp1(), 0.0);
             // arrival_side is bottom_side;
             runway_hit_box[0] -= runway_info.dir_vec_1m * HITZONE_OVERFLY_THRESHOLD_M;
             runway_hit_box[3] -= runway_info.dir_vec_1m * HITZONE_OVERFLY_THRESHOLD_M;
@@ -716,7 +716,7 @@ static Polygon2 MakeHotZoneHitBox(
     {
         if (runway_info.IsHotForArrival(runway_number) == true && make_arrival == true)
         {
-            HITZONE_OVERFLY_THRESHOLD_M = max(HITZONE_OVERFLY_THRESHOLD_M - runway_info.runway_ptr->GetDisp2(), 0.0);
+            HITZONE_OVERFLY_THRESHOLD_M = std::max(HITZONE_OVERFLY_THRESHOLD_M - runway_info.runway_ptr->GetDisp2(), 0.0);
             // arrival_side is top_side;
             runway_hit_box[1] += runway_info.dir_vec_1m * HITZONE_OVERFLY_THRESHOLD_M;
             runway_hit_box[2] += runway_info.dir_vec_1m * HITZONE_OVERFLY_THRESHOLD_M;

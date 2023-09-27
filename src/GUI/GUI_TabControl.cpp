@@ -86,7 +86,7 @@ void GUI_TabControl::SetDescriptor(const std::string& inDesc)
         {
             int w1 = GUI_MeasureRange(font_UI_Basic, mItems[n].c_str(), mItems[n].c_str() + pos);
             int w2 = GUI_MeasureRange(font_UI_Basic, mItems[n].c_str() + pos + 1, &*mItems[n].end());
-            mWidths[n] = max(w1, w2) + TAB_PADDING * 2;
+            mWidths[n] = std::max(w1, w2) + TAB_PADDING * 2;
         }
         else
             mWidths[n] = GUI_MeasureRange(font_UI_Basic, &*mItems[n].begin(), &*mItems[n].end()) + TAB_PADDING * 2;
@@ -119,7 +119,7 @@ void GUI_TabControl::Draw(GUI_GraphState* state)
 
     if (bounds[0] < rs)
     {
-        bounds[2] = max(rs, bounds[0] + 40);
+        bounds[2] = std::max(rs, bounds[0] + 40);
         int tile_tab[4] = {0, 1, 1, 3};
         GUI_DrawStretched(state, "tabs.png", bounds, tile_tab);
     }

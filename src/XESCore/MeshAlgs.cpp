@@ -692,7 +692,7 @@ static void RebaseTriangle(CDT& ioMesh, CDT::Face_handle tri, int new_base, CDT:
         {
             CDT::Vertex_handle v = tri->vertex(i);
             if (v == v1 || v == v2)
-                v->info().border_blend[old_base] = max(v->info().border_blend[old_base], 0.0f);
+                v->info().border_blend[old_base] = std::max(v->info().border_blend[old_base], 0.0f);
             else
             {
                 v->info().border_blend[old_base] = 1.0;
@@ -723,7 +723,7 @@ void SafeSmearBorder(CDT& mesh, CDT::Vertex_handle vert, int layer)
                             for (int n = 0; n < 3; ++n)
                             {
                                 CDT::Vertex_handle v = iter->vertex(n);
-                                v->info().border_blend[layer] = max(0.0f, v->info().border_blend[layer]);
+                                v->info().border_blend[layer] = std::max(0.0f, v->info().border_blend[layer]);
                             }
                         }
             ++iter;
@@ -780,7 +780,7 @@ inline float SAFE_AVERAGE(float a, float b, float c)
 
 inline float SAFE_MAX(float a, float b, float c)
 {
-    return max(a, max(b, c));
+    return std::max(a, std::max(b, c));
 }
 
 inline double GetXonDist(int layer1, int layer2, double y_normal)
@@ -796,7 +796,7 @@ inline double GetXonDist(int layer1, int layer2, double y_normal)
     double dist_1 = rec1.xon_dist;
     double dist_2 = rec2.xon_dist;
 
-    double base_dist = min(dist_1, dist_2);
+    double base_dist = std::min(dist_1, dist_2);
 
     return base_dist * y_normal;
 }
@@ -1036,7 +1036,7 @@ double CopyWetPointsWithSDF(const DEMGeo& in_orig, DEMMask& io_used, CDT& io_mes
                 int skip = 2.0;
                 while (skip < dist && skip < in_skip)
                     skip *= 2;
-                skip = min(in_skip, skip);
+                skip = std::min(in_skip, skip);
                 if ((x % skip == 0) && (y % skip == 0))
                     InsertDEMPoint(in_orig, io_used, io_mesh, x, y, hint);
                 ++wet;
@@ -1929,7 +1929,7 @@ void TriangulateMesh(Pmwx& inMap, CDT& outMesh, DEMGeoMap& inDEMs, const char* m
     //	bathy *= -4.0;
     //	for(DEMGeo::iterator it = bathy.begin(); it != bathy.end(); ++it)
     //	{
-    //		*it = max(*it,-50.0f);
+    //		*it = std::max(*it,-50.0f);
     //		std::pair<int,int> xy = bathy.to_coordinates(it);
     //		*it = *it + orig.value_linear(
     //					bathy.x_to_lon(xy.first),
@@ -2435,7 +2435,7 @@ void AssignLandusesToMesh(DEMGeoMap& inDEMs, CDT& ioMesh, const char* mesh_folde
                 if (flat_len != 0.0)
                 {
                     sh_tri /= flat_len;
-                    sh_tri = max(-1.0f, min(sh_tri, 1.0f));
+                    sh_tri = std::max(-1.0f, std::min(sh_tri, 1.0f));
                 }
 
                 float patches = (gMeshPrefs.rep_switch_m == 0.0) ? 100.0 : (60.0 * NM_TO_MTR / gMeshPrefs.rep_switch_m);
@@ -2776,9 +2776,9 @@ void AssignLandusesToMesh(DEMGeoMap& inDEMs, CDT& ioMesh, const char* mesh_folde
 
                     if (dist_max > 0.0)
                     {
-                        dist1 = max(0.0, min((dist_max - dist1) / dist_max, 1.0));
-                        dist2 = max(0.0, min((dist_max - dist2) / dist_max, 1.0));
-                        dist3 = max(0.0, min((dist_max - dist3) / dist_max, 1.0));
+                        dist1 = std::max(0.0, std::min((dist_max - dist1) / dist_max, 1.0));
+                        dist2 = std::max(0.0, std::min((dist_max - dist2) / dist_max, 1.0));
+                        dist3 = std::max(0.0, std::min((dist_max - dist3) / dist_max, 1.0));
 
                         ++tri_check;
                         if (dist1 > 0.0 || dist2 > 0.0 || dist3 > 0.0)
@@ -3067,7 +3067,7 @@ void AssignLandusesToMesh(DEMGeoMap& inDEMs, CDT& ioMesh, const char* mesh_folde
                 for (std::hash_map<int, float>::iterator hfi = f->vertex(i)->info().border_blend.begin();
                      hfi != f->vertex(i)->info().border_blend.end(); ++hfi)
                     if (hfi->second > 0.0)
-                        borders[hfi->first] = max(borders[hfi->first], hfi->second);
+                        borders[hfi->first] = std::max(borders[hfi->first], hfi->second);
                 circ = circstop = ioMesh.incident_faces(f->vertex(i));
                 do
                 {
@@ -3210,18 +3210,18 @@ void CreateWaterSDF(const Pmwx& inMap, DEMGeo& ioDem)
                 if (v > 0.0)
                 {
                     if (iy == 0)
-                        aa[1] = min(v, ioDem.get(ix, iy + 1));
+                        aa[1] = std::min(v, ioDem.get(ix, iy + 1));
                     else if (iy == (height - 1))
-                        aa[1] = min(v, ioDem.get(ix, iy - 1));
+                        aa[1] = std::min(v, ioDem.get(ix, iy - 1));
                     else
-                        aa[1] = min(ioDem.get(ix, iy - 1), ioDem.get(ix, iy + 1));
+                        aa[1] = std::min(ioDem.get(ix, iy - 1), ioDem.get(ix, iy + 1));
 
                     if (ix == 0)
-                        aa[0] = min(v, ioDem.get(ix + 1, iy));
+                        aa[0] = std::min(v, ioDem.get(ix + 1, iy));
                     else if (ix == (width - 1))
-                        aa[0] = min(v, ioDem.get(ix - 1, iy));
+                        aa[0] = std::min(v, ioDem.get(ix - 1, iy));
                     else
-                        aa[0] = min(ioDem.get(ix - 1, iy), ioDem.get(ix + 1, iy));
+                        aa[0] = std::min(ioDem.get(ix - 1, iy), ioDem.get(ix + 1, iy));
 
                     a = aa[0];
                     b = aa[1];
@@ -3439,8 +3439,8 @@ int CalcMeshError(CDT& mesh, DEMGeo& elev, float& out_min, float& out_max, float
                             worst_neg_p = me;
                         }
 
-                        out_min = min(out_min, derr);
-                        out_max = max(out_max, derr);
+                        out_min = std::min(out_min, derr);
+                        out_max = std::max(out_max, derr);
                         out_ave += derr;
                         std_dev += (derr * derr);
                         ++ctr;
